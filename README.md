@@ -20,6 +20,8 @@ You will be greatly interested by the subjects addressed in this solution if you
 
 
 ## Compendium
+* [Getting started with IBM Streams on IBM Cloud](https://console.bluemix.net/docs/services/StreamingAnalytics/t_starter_app_deploy.html#starterapps_deploy)
+* [IBM Streams Samples](https://ibmstreams.github.io/samples/)
 * [Kafka summary and deployment on IBM Cloud Private](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka)
 * [Service mesh](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md)
 * [Serverless](https://github.com/ibm-cloud-architecture/refarch-integration/tree/master/docs/serverless)
