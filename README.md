@@ -5,6 +5,7 @@ This repository represents the root on related content about Event Driven Archit
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
+* [Summary](#summary)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -15,8 +16,18 @@ You will be greatly interested by the subjects addressed in this solution if you
 * a developer, you will get a broader view of the solution end to end and get existing starting code, and practices you may want to reuse during your future implementation. We focus on event driven solution in hybrid cloud addressing patterns and non functional requirements as CI/CD, Test Driven Development, resiliency, ...
 * a project manager, you may understand all the artifacts to develop in an EDA solution, and we may help in the future to do project estimation.
 
+## Summary
+The high level component view can be summarized in the diagram below:  
+![](docs/hl-arch.png)  
+
+* Data sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics.
+* The event backbone propagates events, which may be a hierarchy of messaging hub
+* Consumer will be functions, traditional application and microservices. Microservices are also producer. As microservice persists its own data in its own store. 
+* The bottom part of the diagram addresses real time streaming analytics supported by complex event processing runtime and analytics operations. There is also the opportunity to have data scientists connecting directly from a notebook to the topic and do real time data analysis, data cleansing and then train model on remote servers then deploy the model back to streaming analytics component...
+* Business dashboards are also necessary and may be connected to event store or object store... pulling data on regular basis.
+ 
 ## Related repositories
-* [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apach Cassandra and ICP for data to develop machine learning model deployed as a service.
+* [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
 
 
 ## Compendium
