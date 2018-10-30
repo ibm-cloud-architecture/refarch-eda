@@ -21,11 +21,70 @@ The high level component view can be summarized in the diagram below:
 ![](docs/hl-arch.png)  
 
 * Data sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics.
-* The event backbone propagates events, which may be a hierarchy of messaging hub
-* Consumer will be functions, traditional application and microservices. Microservices are also producer. As microservice persists its own data in its own store. 
-* The bottom part of the diagram addresses real time streaming analytics supported by complex event processing runtime and analytics operations. There is also the opportunity to have data scientists connecting directly from a notebook to the topic and do real time data analysis, data cleansing and then train model on remote servers then deploy the model back to streaming analytics component...
+* The Event Backbone is the center of the Event driven architecture, proving the event communication layer with event log. It propagates events, which may be a hierarchy of messaging hub. The pub/sub style is used
+![]()
+* Consumer will be functions, traditional application and microservices. Microservices are also producers. As microservice persists its own data in its own store we can leverage EDA to manage data consistency, see [section below](#service-mesh).
+
+* The bottom part of the diagram addresses real time streaming analytics supported by complex event processing runtime and analytics operations.
+* Decision insight is a stateful operator to manage business decision on enriched event linked to business context and business entities. This is the cornerstone to apply business logic and best action using time related business rules.
+* There is also the opportunity to have data scientists connecting directly from a notebook to the topic and do real time data analysis, data cleansing and then train model on remote servers then deploy the model back to streaming analytics component...
 * Business dashboards are also necessary and may be connected to event store or object store... pulling data on regular basis.
- 
+
+### Event Backbone
+The Event Backbone propagates events, which may be a hierarchy of messaging hub. The pub/sub style is used. The event log represents the original source of truth and support the concept of event sourcing (see below) and event replay.
+
+![](docs/evt-backbone.png)  
+
+the Key features of an event Backbone:
+* Keep eventsStream history which facilitates stateless applications and microservices
+* Immutable data : Consistent replay for evolving application instances
+* Facilitate many consumers: Shared central “source of truth”
+* Event log history is becoming a useful source for data scientists and machine learning model derivation
+
+
+See also our [kafka article](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka) on how to support HA and deployment to kubernetes.
+
+### Real-time analytics
+The real-time analytics component supports
+* Continuous event ingestion and analytics
+* Correlation across events and streams
+* Windowing and stateful compute
+* Consistent/high-volume streams of data
+
+The application pattern can be represented by the following diagram:
+![](docs/rt-analytic-app-pattern.png)
+
+* many sources of event are in the ingestion layer via connectors and event producer code.
+* the data preparation involves data transformation, filtering, correlate, aggregate some metrics and data enrichment by leveraging other data sources.
+* detect and predict events pattern using scoring, classification
+* decide by applying business rules and business logic
+* act by triggering process, business services, modifying business entities...
+
+
+### Function as a service
+As a event consumer functions deliver stateless discrete step or task for the global event processing. The serverless approach will bring cost efficiency for the just on-demand invocation. It fits well in post processing with the event processing.
+Cloud functions provides a simple way for developers to write code which takes action on an event.
+Serverless computing model, complete abstraction of infrastructure away from the developer
+No need to worry about infrastructure/scaling  
+Supports event notifications and event commands
+Cost model reflects simple event processing, pay for event processing compute time only
+
+### Decision Insights
+
+
+IBM [Operational Decision Manager Product documentation](https://www.ibm.com/support/knowledgecenter/en/SSQP76_8.9.1/com.ibm.odm.itoa.overview/topics/con_what_is_i2a.html)
+
+### Service mesh
+We are starting to address service mesh in [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md), and adopting messaging as a microservice communication backbone involves using at least the following patterns:
+* microservice publish events when something happens in the scope of their control, for example an update in the business entities they are responsible of.
+* microservice interested by other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
+* Business transactions are not ACID and span multiple services, they are more a series of steps, each step is supported by a microservice responsible to update its own entities. We talk about eventual consistency of the data.
+* the message broker needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.   
+* at the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that read this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
+* One other approach to avoid the two phase commit and inconsistency is to use an Event Store or event sourcing to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
+
+### Command Query Responsibility Segregation
+
 ## Related repositories
 * [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
 
