@@ -82,10 +82,6 @@ The Key features of an event Backbone:
 * Facilitate many consumers: Shared central “source of truth”
 * Event log history is becoming a useful source for data scientists and machine learning model derivation
 
-•	capability for once only event delivery
-•	capability to handle subscriptions
-•	capability to mediate and transform
-
 #### Supporting products:
 * [kafka](http://apache.kafka.org) and see also our [kafka article](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka) on how to support HA and deployment to kubernetes.
 * [IBM Event Streams](https://ibm.github.io/event-streams/)
