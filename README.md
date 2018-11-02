@@ -17,8 +17,12 @@ You will be greatly interested by the subjects addressed in this solution if you
 * a project manager, you may understand all the artifacts to develop in an EDA solution, and we may help in the future to do project estimation.
 
 ## Summary
-The high level component view can be summarized in the diagram below:  
-![](docs/hl-arch.png)  
+The high level component view can be summarized in the diagram below:
+<img src="docs/hl-arch.png" width="624px" usemap="#edamap">
+<map name="edamap">
+  <area shape="rect" coords="0,0,82,126" alt="Source" href="docs/evt-source.md">
+  </map>
+
 
 * Data sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics.
 * The Event Backbone is the center of the Event driven architecture, proving the event communication layer with event log. It propagates events, which may be a hierarchy of messaging hub. The pub/sub style is used
@@ -31,18 +35,23 @@ The high level component view can be summarized in the diagram below:
 * Business dashboards are also necessary and may be connected to event store or object store... pulling data on regular basis.
 
 ### Event Backbone
-The Event Backbone propagates events, which may be a hierarchy of messaging hub. The pub/sub style is used. The event log represents the original source of truth and support the concept of event sourcing (see below) and event replay.
+The Event Backbone propagates events. The pub/sub style is used. The event log represents the original source of truth and support the concept of event sourcing (see below) and event replay.
 
 ![](docs/evt-backbone.png)  
 
 the Key features of an event Backbone:
-* Keep eventsStream history which facilitates stateless applications and microservices
+*	Capability to store events for a period of time, allowing for potential downtime of the event consumers (ideally implemented with an event log)
 * Immutable data : Consistent replay for evolving application instances
 * Facilitate many consumers: Shared central “source of truth”
 * Event log history is becoming a useful source for data scientists and machine learning model derivation
 
+•	capability for once only event delivery
+•	capability to handle subscriptions
+•	capability to mediate and transform
 
-See also our [kafka article](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka) on how to support HA and deployment to kubernetes.
+Supporting products:
+* [kafka](http://apache.kafka.org) and see also our [kafka article](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka) on how to support HA and deployment to kubernetes.
+* [IBM Event Streams](http://)
 
 ### Real-time analytics
 The real-time analytics component supports
@@ -69,8 +78,10 @@ No need to worry about infrastructure/scaling
 Supports event notifications and event commands
 Cost model reflects simple event processing, pay for event processing compute time only
 
-### Decision Insights
+* [Serverless - FaaS](docs/serverless/README.md)
 
+### Decision Insights
+[See this note too](docs/dsi/README.md)
 
 IBM [Operational Decision Manager Product documentation](https://www.ibm.com/support/knowledgecenter/en/SSQP76_8.9.1/com.ibm.odm.itoa.overview/topics/con_what_is_i2a.html)
 
@@ -90,8 +101,8 @@ We are starting to address service mesh in [this note](https://github.com/ibm-cl
 
 
 ## Compendium
-* [Getting started with IBM Streams on IBM Cloud](https://console.bluemix.net/docs/services/StreamingAnalytics/t_starter_app_deploy.html#starterapps_deploy)
-* [IBM Streams Samples](https://ibmstreams.github.io/samples/)
+* [Getting started with IBM Streams Analytics on IBM Cloud](https://console.bluemix.net/docs/services/StreamingAnalytics/t_starter_app_deploy.html#starterapps_deploy)
+* [IBM Streams Analytics Samples](https://ibmstreams.github.io/samples/)
 * [Kafka summary and deployment on IBM Cloud Private](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka)
 * [Service mesh](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md)
 * [Serverless](https://github.com/ibm-cloud-architecture/refarch-integration/tree/master/docs/serverless)
