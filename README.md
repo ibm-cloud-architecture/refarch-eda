@@ -1,11 +1,14 @@
 # Event Driven Architecture Reference Architecture
-Today IT architectures are hybrid cloud and event driven: most businesses are using cloud deployment as part of their IT strategy and millions of events are created in this context. Adopting an event driven architecture brings loosely coupled components and simplify microservices integration.
+Today IT architectures are hybrid cloud and event driven: most businesses are using cloud deployment as part of their IT strategy and millions of events are created in this context.
+Event-Driven Architecture (EDA) is a software architecture that enables the sending of events from event producers to event consumers in a decoupled manner. An event, more precisely an event notification, is a timestamped, immutable message that is delivered from event producers to event consumers via an asynchronous mechanism, sometimes called an event channel. EDA is only decoupled in the sense that event producers are not aware of event consumers and vice versa but this is sufficient to make event-driven systems more flexible, scalable and adaptable.
+Adopting an event driven architecture brings [loosely coupled](#loosely-coupled) components and simplify microservices integration. EDAs are conceptually simple, but the large scale implementation of an EDA is anything but simple.
 
-This repository represents the root on related content about Event Driven Architecture and groups guidances and reusable assets for EDA.
+This repository represents the root of related content about Event Driven Architecture and groups guidances and reusable coding assets for EDA.
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
-* [Summary](#summary)
+* [Reference Architecture](#architecture)
+* [Concepts](#concepts)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -16,30 +19,52 @@ You will be greatly interested by the subjects addressed in this solution if you
 * a developer, you will get a broader view of the solution end to end and get existing starting code, and practices you may want to reuse during your future implementation. We focus on event driven solution in hybrid cloud addressing patterns and non functional requirements as CI/CD, Test Driven Development, resiliency, ...
 * a project manager, you may understand all the artifacts to develop in an EDA solution, and we may help in the future to do project estimation.
 
-## Summary
+## Architecture
 The high level component view can be summarized in the diagram below:
-<img src="docs/hl-arch.png" width="624px" usemap="#edamap">
-<map name="edamap">
-  <area shape="rect" coords="0,0,82,126" alt="Source" href="docs/evt-source.md">
-  </map>
 
+<img src="docs/hl-arch-ra.png" width="1024px">
 
-* Data sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics.
-* The Event Backbone is the center of the Event driven architecture, proving the event communication layer with event log. It propagates events, which may be a hierarchy of messaging hub. The pub/sub style is used
+To document the components we are adding numbering:
+
+<img src="docs/hl-arch-ra-num.png" width="1024px">
+
+1- Data and event sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel.
+2- Event consumers are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
+In modern architecture consumer are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).
+3- CEP consumers: Some types of event consumers are specials in the sense that they are designed specifically for event processing. Sometimes referred to as event processing engines, such components may be capable of simple event processing, complex event processing (CEP) or event stream processing (ESP). Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.
+4- The Event Backbone is the center of the Event driven architecture, proving the event communication layer with event log. It enables the delivery of events from event producers to consumers using a pub/sub style. It supports at least the following capabilities:
+ * store events for a period of time, allowing for potential downtime of the event consumers (ideally implemented with an event log)
+ * deliver event once only
+ * handle subscriptions from multiple consumers
+ * mediate, filter, aggregate and transform Events
+
+It propagates events, which may be a hierarchy of messaging hub. The pub/sub style is used
 ![]()
-* Consumer will be functions, traditional application and microservices. Microservices are also producers. As microservice persists its own data in its own store we can leverage EDA to manage data consistency, see [section below](#service-mesh).
 
-* The bottom part of the diagram addresses real time streaming analytics supported by complex event processing runtime and analytics operations.
-* Decision insight is a stateful operator to manage business decision on enriched event linked to business context and business entities. This is the cornerstone to apply business logic and best action using time related business rules.
-* There is also the opportunity to have data scientists connecting directly from a notebook to the topic and do real time data analysis, data cleansing and then train model on remote servers then deploy the model back to streaming analytics component...
-* Business dashboards are also necessary and may be connected to event store or object store... pulling data on regular basis.
+5- Dashboard: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
+There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
+
+6- Data scientist workbench:
+There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
+
+## Concepts
+
+### Loosely cloupling
+Loose coupling is one of the main benefits of event-driven processing. It allows event producers to emit events without any knowledge about who is going to consume those events. Likewise, event consumers do not have to be aware of the event emitters. Because of this, event consuming modules and event producer modules can be implemented in different languages or use technologies that are different and appropriate for specific jobs. Loosely coupled modules are better suited to evolve independently and, when implemented right, result in a significant decrease in system complexity.
+
+Loose coupling, however, does not mean “no coupling”. An event consumer consumes events that are useful in achieving its goals and in doing so establishes what data it needs and the type and format of that data. The event producer emits events that it hopes will be understood and useful to consumers thus establishing an implicit contract with potential consumers. For example, an event notification in XML format must conform to a certain schema that must be known by both the consumer and the producer.  One of the most important things that you can do to reduce coupling in an event-driven system is to reduce the number of distinct event types that flow between modules. To do this you have pay attention to the cohesiveness of those modules.
+
+### Cohesion
+Cohesion is the degree to which related things are encapsulated together in the same software module. At this point, for the purposes of our EDA discussion, we define module as an independently deployable software unit that has high cohesion.  Cohesion is strongly related to coupling in the sense that a highly cohesive module communicates less with other modules, thus reducing the number of events, but most importantly, the number of event types in the system. The less modules interact with each other, the less coupled they are.
+Achieving cohesion in software while at the same time optimizing module size for flexibility and adaptability is hard but it is something that should be aimed for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations should be avoided, as should implementations that are excessively fine-grained.  
+
 
 ### Event Backbone
 The Event Backbone propagates events. The pub/sub style is used. The event log represents the original source of truth and support the concept of event sourcing (see below) and event replay.
 
 ![](docs/evt-backbone.png)  
 
-the Key features of an event Backbone:
+The Key features of an event Backbone:
 *	Capability to store events for a period of time, allowing for potential downtime of the event consumers (ideally implemented with an event log)
 * Immutable data : Consistent replay for evolving application instances
 * Facilitate many consumers: Shared central “source of truth”
@@ -52,6 +77,7 @@ the Key features of an event Backbone:
 Supporting products:
 * [kafka](http://apache.kafka.org) and see also our [kafka article](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka) on how to support HA and deployment to kubernetes.
 * [IBM Event Streams](http://)
+* [IBM MQ](): We are addressing and delivering some simple MQ messaging solution as part of the integration solution and the lift and shift MQ workload to IBM Cloud.
 
 ### Real-time analytics
 The real-time analytics component supports
@@ -81,6 +107,7 @@ Cost model reflects simple event processing, pay for event processing compute ti
 * [Serverless - FaaS](docs/serverless/README.md)
 
 ### Decision Insights
+Decision insight is a stateful operator to manage business decision on enriched event linked to business context and business entities. This is the cornerstone to apply business logic and best action using time related business rules.
 [See this note too](docs/dsi/README.md)
 
 IBM [Operational Decision Manager Product documentation](https://www.ibm.com/support/knowledgecenter/en/SSQP76_8.9.1/com.ibm.odm.itoa.overview/topics/con_what_is_i2a.html)
@@ -127,4 +154,8 @@ If you want to contribute, start by using git fork on this repository and then c
 
 ## Contributors
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
+* [Andy Gibb]()
+* [IBM Streams Analytics team]
+* [IBM Event Stream team]
+
 Please [contact me](mailto:boyerje@us.ibm.com) for any questions.
