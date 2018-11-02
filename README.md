@@ -28,10 +28,13 @@ To document the components we are adding numbering:
 
 <img src="docs/hl-arch-ra-num.png" width="1024px">
 
-1- Data and event sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel.
+1- Data and event sources reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel.  
+
 2- Event consumers are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
-In modern architecture consumer are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).
-3- CEP consumers: Some types of event consumers are specials in the sense that they are designed specifically for event processing. Sometimes referred to as event processing engines, such components may be capable of simple event processing, complex event processing (CEP) or event stream processing (ESP). Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.
+In modern architecture consumer are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).  
+
+3- CEP consumers: Some types of event consumers are specials in the sense that they are designed specifically for event processing. Sometimes referred to as event processing engines, such components may be capable of simple event processing, complex event processing (CEP) or event stream processing (ESP). Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.  
+
 4- The Event Backbone is the center of the Event driven architecture, proving the event communication layer with event log. It enables the delivery of events from event producers to consumers using a pub/sub style. It supports at least the following capabilities:
  * store events for a period of time, allowing for potential downtime of the event consumers (ideally implemented with an event log)
  * deliver event once only
@@ -47,6 +50,8 @@ There is a need to keep visibility of event paths inside the architecture. Dashb
 6- Data scientist workbench:
 There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
 
+---
+
 ## Concepts
 
 ### Loosely cloupling
@@ -58,6 +63,13 @@ Loose coupling, however, does not mean “no coupling”. An event consumer cons
 Cohesion is the degree to which related things are encapsulated together in the same software module. At this point, for the purposes of our EDA discussion, we define module as an independently deployable software unit that has high cohesion.  Cohesion is strongly related to coupling in the sense that a highly cohesive module communicates less with other modules, thus reducing the number of events, but most importantly, the number of event types in the system. The less modules interact with each other, the less coupled they are.
 Achieving cohesion in software while at the same time optimizing module size for flexibility and adaptability is hard but it is something that should be aimed for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations should be avoided, as should implementations that are excessively fine-grained.  
 
+### Event Producers
+
+#### Supporting Products
+
+### Event Consumers
+
+#### Supporting Products
 
 ### Event Backbone
 The Event Backbone propagates events. The pub/sub style is used. The event log represents the original source of truth and support the concept of event sourcing (see below) and event replay.
@@ -74,10 +86,10 @@ The Key features of an event Backbone:
 •	capability to handle subscriptions
 •	capability to mediate and transform
 
-Supporting products:
+#### Supporting products:
 * [kafka](http://apache.kafka.org) and see also our [kafka article](https://github.com/ibm-cloud-architecture/refarch-analytics/tree/master/docs/kafka) on how to support HA and deployment to kubernetes.
-* [IBM Event Streams](http://)
-* [IBM MQ](): We are addressing and delivering some simple MQ messaging solution as part of the integration solution and the lift and shift MQ workload to IBM Cloud.
+* [IBM Event Streams](https://ibm.github.io/event-streams/)
+* [IBM MQ](https://github.com/ibm-cloud-architecture/refarch-mq-messaging): We are addressing and delivering some simple MQ messaging solution as part of the integration solution and the lift and shift MQ workload to IBM Cloud.
 
 ### Real-time analytics
 The real-time analytics component supports
