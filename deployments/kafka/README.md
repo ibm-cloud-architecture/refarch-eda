@@ -1,11 +1,18 @@
 # Kafka Deployment
+We are proposing three deployment approaches:
+* Using IBM Event Streams (See [separate note](../eventstreams/README.md))
+* Using Kafka on development environment, mostly developer workstation
+* Using IBM Cloud private for production
 
-For kafka the manifests are in the same [project](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) under the `deployments/kafka/dev` folder. We are using the google image: `gcr.io/google_samples/k8skafka:v1`.
+## Development
+For kafka the manifests are in this project under the `deployments/kafka/dev` folder. We are using the google image: `gcr.io/google_samples/k8skafka:v1`.
 
-We are also providing the same type of script to deploy Kafka:
+We tested on MacOS with Docker Edge and Kubernetes.
+
+We are also providing scripts to deploy Kafka:
 ```
 $ pwd
-> ...../refarch-analytics/deployments/kafka
+> deployments/kafka
 $ ./deployKafka.sh
 $ kubectl get pods -n greencompute
 NAME                            READY     STATUS    RESTARTS   AGE
@@ -14,25 +21,28 @@ gc-zookeeper-57dc5679bb-bh29q   1/1       Running   0          10m
 ```
 
 ### Verify Kafka is connected to zookeeper
-Connect to kafka container and use the scripts inside kafka bin folder:
+The goal is to connect to the kafka running container and use the scripts inside kafka bin folder:
 
 ```
+# connect to the running container:
 $ kubectl exec  -ti gc-kafka-0 /bin/bash -n greencompute
+# next is the prompt inside the container:
 kafka@gc-kafka-0:/$ cd /opt/kafka/bin
+# for example create a topic for testing
 kafka@gc-kafka-0:/$./kafka-topics.sh --create  --zookeeper gc-client-zookeeper-svc.greencompute.svc.cluster.local:2181 --replication-factor 1 --partitions 1 --topic text-topic
 ```
-This previous command create a `text-topic` and to assess existing topics use:
+This previous command create a `text-topic` and to verify the configured existing topics use the command (inside the container):
 ```
 kafka@gc-kafka-0:/$./kafka-topics.sh --list --zookeeper gc-client-zookeeper-svc.greencompute.svc.cluster.local:2181
 ```
 
-The URL of the zookeeper match the hostname defined when deploying zookeeper service:
+The URL of the zookeeper match the hostname defined when deploying zookeeper service (see [installing zookeeper note](../zookeeper/README.md) ):
 ```
 $ kubectl describe svc gc-client-zookeeper-svc
 ```
 
 ### Verify pub/sub works with text messages
-Two scripts exist in the `scripts` folder that are using kafkacat tool. You need to add the following in your hostname resolution configuration (DSN or /etc/hosts), matching you ip adress of your laptop.
+Two scripts exist in the `scripts` folder in this repository. Those scripts are using [kafkacat](https://docs.confluent.io/current/app-development/kafkacat-usage.html) tool from Confluent. You need to add the following in your hostname resolution configuration (DNS or /etc/hosts), matching you IP address of your laptop.
 ```
 192.168.1.89 gc-kafka-0.gc-kafka-hl-svc.greencompute.svc.cluster.local
 ```
@@ -52,7 +62,6 @@ to the text-topic
 Let see...
 % Reached end of topic text-topic [0] at offset 3
 ```
-
 
 ### Run **Kafka** in Docker On Linux
 If you run on a linux operating system, you can use the [Spotify **Kafka** image](https://hub.docker.com/r/spotify/kafka/) from dockerhub as it includes Zookeeper and **Kafka** in a single image.
@@ -79,59 +88,6 @@ We have done shell scripts for you to do those command and test your local **Kaf
 * listtopic.sh
 * sendText.sh  Send a multiple lines message on mytopic topic- open this one in one terminal.
 * consumeMessage.sh  Connect to the topic to get messages. and this second in another terminal.
-
-### Run Kafka On MacOS with Docker
-Go to the `scripts/kafka` folder and start a 4 docker containers solution with Kafka, ZooKeeper, REST api, and schema registry using `docker-compose up` command. The images are from [confluent](https://github.com/confluentinc/)
-```
-REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZE
-confluentinc/cp-schema-registry    latest              31837a7d646d        6 days ago          673MB
-confluentinc/cp-Kafka-rest         latest              4b878c9e48f0        6 days ago          663MB
-confluentinc/cp-Kafka              latest              c3a2f8363de5        6 days ago          562MB
-confluentinc/cp-zookeeper          latest              18b57832a1e2        6 days ago          562MB
-```
-
-### On MacOS with Docker Edge and Kubernetes
-This deployment is for development purpose and it is using the last Docker Edge version which includes Kubernetes simple cluster.
-
-The folder scripts/kafka includes a set of yaml files to configure zookeeper and Kafka:
-```
-cd scripts/kafka
-# Create the zookeeper single node (one replica) exposing port 2181
-kubectl create -f zookeeper-deployment.yaml
-# expose zookeeper with a nodeport service on port 30181 mapped to docker image port 2181
-kubectl create -f zookeeper-service.yaml
-```
-Modify the Kafka deployment yaml file to change the IP addresses set with your ip address.
-```
-- name: KAFKA_ADVERTISED_HOST_NAME
-         value: "192.168.1.89"
-- name: KAFKA_ZOOKEEPER_CONNECT
-         value: 192.168.1.89:30181
-```
-Then create the Kafka deployment:
-```
-$ kubectl create -f deployments/kafka/dev/kafka-deployment.yaml
-# and the service to export a nodeport 30092
-$ kubectl create -f deployments/kafka/dev/kafka-service.yaml
-```
-
-So now we can test with a tool like: [kafkacat](https://docs.confluent.io/current/app-development/kafkacat-usage.html), that you can install with `brew install kafkacat`. To consume message use a terminal window and listen to the `test-topic` with `kafkacat -C -b 192.168.1.89:30092 -t test-topic`. To produce text message use a command like:
-```
- echo "I'm a super interesting message" | kafkacat -P -b 192.168.1.89:30092 -t test-topic
-```
-It is important to note as of current version kafkacat may timeout as the timout is set to 5s. The only way to avoid that is to clone the github and change in https://github.com/edenhill/kafkacat/blob/debian/1.3.1-1/kafkacat.c line 640 the condition from 5000 to 30000.
-
-To work on topic, connect to the kafka container and use the same tools as before but specify the zookeeper running in a separate container.
-```
-docker exec -ti <kafka-container-id> bash
-bash-4.4# cd /opt/kafka/bin
-bash-4.4# ./kafka-topics.sh --list --zookeeper 192.168.1.89:30181
- ./kafka-topics.sh --create --replication-factor 1 --partitions 1 --topic streams-wordcount-output --zookeeper 192.168.1.89:30181
-```
-
-**Kafka** web site has an interesting use case to count words within a text, we will detail that in [this section](#example-to-run-the-word-count-application:).
-
-We are also detailing a full solution including Event producer, consumer and persistence to Cassandra in [this repository](https://github.com/ibm-cloud-architecture/refarch-asset-analytics)
 
 
 ### Considerations

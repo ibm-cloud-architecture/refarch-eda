@@ -193,9 +193,6 @@ The docker images used for Kafka is  `gcr.io/google_samples/k8sKafka:v1` and for
 
 
 
-#### Kafka
-The manifests and scripts are under `deployments/kafka`. The `deployKafka.sh` script configures volume, service and statefulset.
-
 #### Verify deployment
 We can use the tools delivered with Kafka by using the very helpful `kubectl exec` command.
 
