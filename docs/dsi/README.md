@@ -11,4 +11,8 @@ When one of the service is degraded the application is degraded.
 Events:
 * service degraded: with unique service name
 * service is back on line with unique service name
-* user y is impacted by application x 
+* user y is impacted by application x
+
+UNDER construction!
+
+![](../under-construction.png)

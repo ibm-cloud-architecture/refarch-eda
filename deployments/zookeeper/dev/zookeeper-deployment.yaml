@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: gc-zookeeper
+  name: gc-zookeeper
+  namespace: greencompute
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gc-zookeeper
+    spec:
+      containers:
+      - image: ibmcase/zookeeper:3.4.13
+        imagePullPolicy: Always
+        name: gc-zookeeper
+        ports:
+        - containerPort: 2181
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "zookeeper-ready 2181"
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "zookeeper-ready 2181"
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
