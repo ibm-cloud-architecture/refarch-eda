@@ -26,7 +26,12 @@ You will be greatly interested by the subjects addressed in this solution if you
 * a project manager, you may understand all the artifacts to develop in an EDA solution, and we may help in the future to do project estimation.
 
 ## Architecture
-The high level component view can be summarized in the diagram below:
+Modern Event Driven Architecture supports at least the following important capabilities:
+* Being able to communicate and persist events
+* Being able to take direct action on events.
+* Processing event streams to derive real time insight/intelligence
+
+The diagram below summarize a product agnostic platform with the components to support the above capabilities:
 
 <img src="docs/hl-arch-ra.png" width="1024px">
 
@@ -43,6 +48,8 @@ To document the components we are adding numbering:
 2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
 In modern architecture consumer are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).  
 
+[Read more ...](docs/evt-consumer/README.md)
+
 3- **CEP consumers / Real time analytics**: Some types of event consumers are specials in the sense that they are designed specifically for event processing. Sometimes referred to as event processing engines, such components may be capable of simple event processing, complex event processing (CEP) or event stream processing (ESP). Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.  As part of this event streaming processing there are a set of application that can support real time analytics and even applying machine learning model on real time data.
 
 [Read more ...](docs/rt-analytics/README.md)
@@ -58,8 +65,13 @@ In modern architecture consumer are functions as a service, traditional applicat
 5- **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
 There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
 
+[Read more ...](docs/evt-dashboard/README.md)
+
+
 6- **Data scientist workbench**:
 There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
+
+[Read more ...](docs/ml-workbench/README.md)
 
 ---
 
@@ -96,6 +108,10 @@ We are starting to address service mesh in [this note](https://github.com/ibm-cl
 * One other approach to avoid the two phase commit and inconsistency is to use an Event Store or event sourcing to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
 
 ### Command Query Responsibility Segregation
+
+## Applicability of an EDA
+EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.  
+
 
 ## Related repositories
 * [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
