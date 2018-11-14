@@ -13,6 +13,7 @@ Update 11/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer
   * [Zookeeper deployment](../../deployments/zookeeper/README.md)
   * [IBM Event Streams on IBM Cloud Private](../../deployments/eventstreams/README.md)
 * [Monitoring with Prometheus and Grafana](./monitoring.md)
+* [Streaming applications](#streaming-app)
 * [Compendium](#compendium)
 
 
@@ -122,6 +123,9 @@ From the consumer point of view a set of items need to be addressed during desig
 
 
 ### High Availability in the context of Kubernetes deployment
+Per design as soon as you have at least three brokers Kafka is highly available using its replication mechanism and leading partition. Each partitition is replicated at least 3 times and allocated in different brokers. One is the lead. In the case of broker failure, existing partition in running broker will take the lead:
+
+![](images/kafka-ha.png)
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
 * At least three master nodes (always a odd number). One is active at master, the others are in standby.
@@ -133,12 +137,15 @@ For any Kubernetes deployment real high availability is constrained by the appli
 
 For IBM Cloud private HA installation see the [product documentation](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_2.1.0.3/installing/custom_install.html#HA)
 
-Traditionally disaster recovery and high availability were always consider separated subjects. Now active/active deployment where workloads are deployed in different data center, are more a common request. IBM Cloud Private is supporting [federation cross data centers](https://github.com/ibm-cloud-architecture/refarch-privatecloud/blob/master/Resiliency/Federating_ICP_clusters.md), but you need to ensure to have low latency network connections. Also not all deployment components of a solution are well suited for cross data center clustering.
+Traditionally disaster recovery and high availability were always consider separated subjects. Now active/active deployment where workloads are deployed in different data center, is more and more a common request. IBM Cloud Private is supporting [federation cross data centers](https://github.com/ibm-cloud-architecture/refarch-privatecloud/blob/master/Resiliency/Federating_ICP_clusters.md), but you need to ensure to have low latency network connections. Also not all deployment components of a solution are well suited for cross data center clustering.
 
 For **Kafka** context, the *Confluent* web site presents an interesting article for [**Kafka** production deployment](https://docs.confluent.io/current/kafka/deployment.html). One of their recommendation is to avoid cluster that spans multiple data centers and specially long distance ones.
 But the semantic of the event processing may authorize some adaptations. For sure you need multiple Kafka Brokers, which will connect to the same ZooKeeper ensemble running at least five nodes (you can tolerate the loss of one server during the planned maintenance of another). One Zookeeper server acts as a lead and the two others as stand-by.
 
-This schema above illustrates the recommendation to separate Zookeeper from **Kafka** nodes for failover purpose as zookeeper keeps state of the **Kafka** cluster. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like: **Kafka** pod should not run on same node as zookeeper pods.  Here is an example of such spec:
+The schema above illustrates the recommendations to separate Zookeeper from **Kafka** nodes for failover purpose as zookeeper keeps state of the **Kafka** cluster. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like:
+> **Kafka** pod should not run on same node as zookeeper pods.  
+
+Here is an example of such spec:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -161,16 +168,16 @@ Provision a **fast storage class** for persistence volume.
 
 **Kafka** uses the log.dirs property to configure the driver to persist logs. So you need to define multiple volumes/ drives to support log.dirs.
 
-Zookeeper should not be used by other application deployed in k8s cluster, it has to be dedicated for one **Kafka** cluster only..
+Zookeeper should not be used by other applications deployed in k8s cluster, it has to be dedicated for one **Kafka** cluster only.
 
-In a multi-cluster configuration being used for disaster recovery purposes, messages sent between clusters will have different offsets in the two clusters. It is usual to use timestamps for position information when restarting applications for recovery after a disaster. We are addressing offset management in the consumer project [here]().
+In a multi-cluster configuration being used for disaster recovery purposes, messages sent between clusters will have different offsets in the two clusters. It is usual to use timestamps for position information when restarting applications for recovery after a disaster. We are addressing offset management in one of our consumer projects [here](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/).
 
 For configuring ICP for HA on VmWare read [this note](https://github.com/ibm-cloud-architecture/refarch-privatecloud/blob/master/Configuring_ICP_for_HA_on_VMware.md).
 
 For **Kafka** streaming with stateful processing like joins, event aggregation and correlation coming from multiple partitions, it is not easy to achieve high availability cross clusters: in the strictest case every event must be processed by the streaming service exactly once. Which means:
 * producer emit data to different sites and be able to re-emit in case of failure. Brokers are known by producer via a list of hostname and port number.
-* communications between zookeeper and cluster node are redundant and safe for data losses
-* consumer ensures idempotence... They have to tolerate data duplication and manage data integrity in their persistence layer.
+* communications between zookeepers and cluster nodes are redundant and safe for data losses
+* consumers ensure idempotence... They have to tolerate data duplication and manage data integrity in their persistence layer.
 
 Within Kafka's boundary, data will not be lost, when doing proper configuration, also to support high availability the complexity moves to the producer and the consumer implementation.
 
@@ -183,90 +190,6 @@ Within Kafka's boundary, data will not be lost, when doing proper configuration,
 * Control the maximum message size the server can receive.    
 
 Zookeeper is not CPU intensive and each server should have a least 2 GB of heap space and 4GB reserved. Two cpu per server should be sufficient. Servers keep their entire state machine in memory, and write every mutation to a durable WAL (Write Ahead Log) on persistent storage. To prevent the WAL from growing without bound, ZooKeeper servers periodically snapshot their in memory state to storage. Use fast and dynamically provisioned persistence storage for both WAL and snapshot.
-
-
-
-### Using existing manifests
-We are defining two types of manifests, one set for development environment and one for production. The manifests and scripts are under deployments folder of this project.
-
-The docker images used for Kafka is  `gcr.io/google_samples/k8sKafka:v1` and for zookeeper `ibmcase/zookeeper`, an alternate is to use [Kubernetes zookeeper K8SZK](https://github.com/kubernetes/contrib/tree/master/statefulsets/zookeeper)
-
-
-
-#### Verify deployment
-We can use the tools delivered with Kafka by using the very helpful `kubectl exec` command.
-
-* Remote connect to the Kafka pod:
-```
-kubectl exec -ti gc-Kafka-0 bash
-```
-* Create a test-topic while connected to the Kafka broker: gc-Kafka-0
-```
-Kafka@gc-Kafka-0:/$ Kafka-topics.sh --create --replication-factor 1 --partitions 1 --topic test-topic --zookeeper gc-srv-zookeeper-svc.greencompute.svc.cluster.local:2181
-```
-The zookeeper was exposed via a kubernetes NodePort service.
-
-* Get IP address and port number for Zookeeper
-```
-$ kubectl describe svc gc-client-zookeeper-svc
-Name:                     gc-client-zookeeper-svc
-Namespace:                greencompute
-Type:                     NodePort
-IP:                       10.10.10.52
-Port:                     client  2181/TCP
-TargetPort:               2181/TCP
-NodePort:                 client  31454/TCP
-Endpoints:                192.168.223.43:2181
-```
-* Validate the list of topics from the developer's workstation using the command:
-```
-$ kubectl exec -ti gc-Kafka-0 -- bash -c "Kafka-topics.sh --list --zookeeper gc-srv-zookeeper-svc.greencompute.svc.cluster.local:2181 "
-
-or
-Kafka-topics.sh --describe --topic test-topic --zookeeper gc-srv-zookeeper-svc.greencompute.svc.cluster.local:2181
-
-```
-* start the consumer from the developer's workstation
-```
-$ kubectl get pods | grep gc-Kafka
-$ kubectl exec gc-Kafka-0 -- bash -c "Kafka-console-consumer.sh --bootstrap-server  localhost:9093 --topic test-topic --from-beginning"
-```
-the script `deployment/Kafka/consumetext.sh` executes those commands. As we run in the Kafka broker the host is localhost and the port number is the headless service one.
-
-* start a text producer
-Using the same approach we can use broker tool:
-```
-$ kubectl exec gc-Kafka-0 -- bash -c "/opt/Kafka/bin/Kafka-console-producer.sh --broker-list localhost:9093 --topic test-topic << EOB
-this is a message for you and this one too but this one...
-I m not sure
-EOB"
-```
-Next steps... do pub/sub message using remote IP and port from remote server. The code is in [this project]().
-
-
-### Troubleshooting
-For ICP troubleshooting see this centralized [note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md)
-
-#### Assess the list of Topics
-```
-# remote connect to the Kafka pod and open a bash:
-$ kubectl exec -ti Kafka-786975b994-9m8n2 bash
-bash-4.4# ./Kafka-topics.sh  --zookeeper 192.168.1.89:30181 --list
-```
-Purge a topic with bad message: delete and recreate it
-```
-./Kafka-topics.sh  --zookeeper 192.168.1.89:30181 --delete --topic test-topic
-./Kafka-topics.sh  --zookeeper 192.168.1.89:30181 --create --replication-factor 1 --partitions 1 --topic test-topic
-```
-#### Timeout while sending message to topic
-The error message may look like:
-```
-Error when sending message to topic test-topic with key: null, value: 12 bytes with error: (org.apache.Kafka.clients.producer.internals.ErrorLoggingCallback)
-org.apache.Kafka.common.errors.TimeoutException: Failed to update metadata after 60000 ms.
-```
-This can be linked to a lot of different issues, but it is a communication problem. Assess the following:
-* port number exposed match the broker's one.
-* host name known by the server running the producer or consumer code.
 
 ## Streaming app
 The Java code in the project: https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer includes examples of stateless consumers, a text producer, and some example of stateful operations. In general code for processing event does the following:
@@ -323,11 +246,9 @@ root> /opt/Kafka_2.11-0.10.1.0/bin/Kafka-console-consumer.sh --bootstrap-server 
 ```
 
 1. Start the stream client to count word in the entered lines
-
 ```
 mvn exec:java -Dexec.mainClass=ibm.cte.Kafka.play.WordCount
 ```
-
 Outputs of the WordCount application is actually a continuous stream of updates, where each output record is an updated count of a single word. A KTable is counting the occurrence of word, and a KStream send the output message with updated count.
 
 

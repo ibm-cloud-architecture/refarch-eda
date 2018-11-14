@@ -15,6 +15,7 @@ This repository represents the root of related content about Event Driven Archit
 * [Target Audiences](#target-audiences)
 * [Reference Architecture](#architecture)
 * [Concepts](#concepts)
+* [Event Storming methodology](docs/methodology/readme.md)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -144,7 +145,7 @@ If you want to contribute, start by using git fork on this repository and then c
 
 ## Contributors
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
-* [Andy Gibb]()
+* [Andy Gibb](https://www.linkedin.com/in/andy-g-3b7a06113/)
 * [IBM Streams Analytics team]
 * [IBM Event Stream team]
 * [IBM Decision Insight team]
