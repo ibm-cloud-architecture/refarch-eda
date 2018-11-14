@@ -34,7 +34,7 @@ Modern Event Driven Architecture supports at least the following important capab
 
 The diagram below summarize a product agnostic platform with the components to support the above capabilities:
 
-<img src="docs/hl-arch-ra.png" width="1024px">
+<img src="docs/hl-arch.png" width="1024px">
 
 (the source is developed with [Cognitive Architect tool](https://ppylonpdpxy01.sl.bluecloud.ibm.com/cogarch/)).
 
