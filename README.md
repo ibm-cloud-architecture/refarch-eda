@@ -40,7 +40,7 @@ The diagram below summarize a product agnostic platform with the components to s
 
 To document the components we are adding numbering:
 
-<img src="docs/hl-arch-ra-num.png" width="1024px">
+<img src="docs/hl-arch-num.png" width="1024px">
 
 1- **Data and event sources** reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel.   
 
