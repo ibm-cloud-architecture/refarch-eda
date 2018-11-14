@@ -116,6 +116,7 @@ EDAs are typically not used for distributed transactional processing because thi
 
 ## Related repositories
 * [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
+* [Container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc): this solution presents real time analytics, pub-sub architecture pattern and microservice communication on Kafka.
 
 
 ## Compendium

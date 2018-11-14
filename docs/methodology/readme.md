@@ -19,24 +19,27 @@ The following diagrams present the elements used during the analysis:
 And how those analysis elements are linked together:
 
 ![](evt-stm-oneview.png)
+* Actors consume data via user interface and use UI to act on the system via commands
+*
 
+![](evt-stm-pivotalevt.png)
 
 ### Execution
 The Goal is to better understand the business problem to address with the future application. But it can apply to search solution to bottleneck in existing application. It starts by the big picture by building a timeline of domain events as they occur during the business process life span.
 
 Avoid to document process step, focus on events. The timeline will represent the high level sequential process.
 
-1. **Step 1: domain events discovery:**
+1. **Step 1: Domain events discovery:**
 Name the domain events in orange sticky note using verb in past tense. Describe **What's happened**. At first just "storm" the event, you may not need to place them on the ordered timeline.  
 The events are relevant to the domain experts.
 It may not be needed to discover all the events, but important to cover the process end to end.
 Identify the start and stop events.
 
-1. **Step 2: tell the story:**
- * retail the story we are talking about relating event to persona
- * add questions when some parts are unclear
- * document assumptions
- * rephrase event with past tense if needed
+1. **Step 2: Tell the story:**
+ * Retail the story by talking about relating event to persona
+ * Add questions when some parts are unclear
+ * Document assumptions
+ * Rephrase event with past tense if needed
  * Focus on happy path, the things going on, on regular time  
  * Add pivotal events
  * Add swim lanes  
@@ -46,7 +49,7 @@ Here is an example of ordered domain events with pivotal event and swim lanes:
 
 1. **Step 3: Commands:** address the why did event happen. The focus is moving to the cause and effect sequence. Command is what people do in the domain to create event.
 
-1.
+1. **Step 4:
 
 
 ## Applying to the container shipment use case
