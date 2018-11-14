@@ -39,16 +39,16 @@ then
     kubectl apply -f prod/kafka-service.yaml  --namespace $nspace
   fi
 fi
-echo "... verify statefuleset"
-zk=$(kubectl get statefuleset --namespace $nspace | grep gc-kafka | awk '{print $1}')
+echo "... verify statefulset"
+zk=$(kubectl get statefulset --namespace $nspace | grep gc-kafka | awk '{print $1}')
 if [ -z "$zk" ]
 then
   if [ "$mode" = "dev" ]
   then
-    echo "create kafka statefuleset for dev"
+    echo "create kafka statefulset for dev"
     kubectl apply -f dev/kafka-statefulset.yaml  --namespace $nspace
   else
-    echo "create kafka statefuleset for prod"
+    echo "create kafka statefulset for prod"
     kubectl apply -f prod/kafka-statefulset.yaml  --namespace $nspace
   fi
 fi
