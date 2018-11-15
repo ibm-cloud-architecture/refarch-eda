@@ -15,7 +15,7 @@ This repository represents the root of related content about Event Driven Archit
 * [Target Audiences](#target-audiences)
 * [Reference Architecture](#architecture)
 * [Concepts](#concepts)
-* [Event Storming methodology](docs/methodology/readme.md)
+* [Event Storming Methodology](docs/methodology/readme.md)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -36,18 +36,16 @@ The diagram below summarize a product agnostic platform with the components to s
 
 <img src="docs/hl-arch.png" width="1024px">
 
-(the source is developed with [Cognitive Architect tool](https://ppylonpdpxy01.sl.bluecloud.ibm.com/cogarch/)).
-
-To document the components we are adding numbering:
+To document the components involved in this architecture we are adding numbers with detailed descriptions:
 
 <img src="docs/hl-arch-num.png" width="1024px">
 
-1- **Data and event sources** reference events coming from IoT device, mobile app, webapp, database triggers or microservices. Click stream from webapp or mobile app are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel.   
+1- **Data and event sources** reference events coming from IoT devices, mobile apps, web apps, database triggers or microservices. Click stream from web apps or mobile apps are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel or backbone.   
 
 [Read more ...](docs/evt-src/README.md)
 
 2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
-In modern architecture consumer are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).  
+In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).  
 
 [Read more ...](docs/evt-consumer/README.md)
 
@@ -109,6 +107,10 @@ We are starting to address service mesh in [this note](https://github.com/ibm-cl
 * One other approach to avoid the two phase commit and inconsistency is to use an Event Store or event sourcing to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
 
 ### Command Query Responsibility Segregation
+When using a microservices architecture pattern, each service is responsible to manage its persistence for the business entities it manages. Therefore it is challenging to perform join query on multiple business entities.
+Basically Command Query Responsibility Segregation, CQRS, is a pattern where the CUD operations (the commands) are done in one service while query / read operations are supported by a separate service. The command-side emits events when data changes. The Query side maintains a set of views that are kept up to date by subscribing to events.
+
+One of the main advantages is to support multiple data denormalization and being able to scale easily. It is complex to implement, aim for code duplication and should not be considered as the silver bullet. 
 
 ## Applicability of an EDA
 EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.  
