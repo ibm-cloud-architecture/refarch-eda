@@ -10,17 +10,21 @@ May be done after a design thinking workshop where persona map and empathy maps 
 * Have green, orange, blue, red squared sticky notes, masking tapes
 * Try to limit the chair, it is important the team stays focused, connected and conversation flows well.
 
+### Concepts
+A lot of the concepts addressed during the event storming workshop are defined in the Domain Driven Design approach.
 The following diagrams present the elements used during the analysis:
 
-![](evt-stm-item1.png)
+ <img src="evt-stm-item1.png" width="700">
 
 Domain events are also named 'business events'.
 
-![](evt-stm-item2.png)
+
+<img src="evt-stm-item2.png" width="700">
 
 And how those analysis elements are linked together:
 
-![](evt-stm-oneview.png)
+<img src="evt-stm-oneview.png" width="700">
+
 * **Actors** consume data via user interface and use UI to act on the system via commands
 * **Commands** are the result of some user decision, acting on relevant data which are part of a Read model in the [CQRS](../readme.md#command-query-responsibility-segregation) pattern.
 * **Policy** represents reactive logic that takes place after an event occurs, and triggers commands somewhere else. There are written on Lilac sticker and start with "whenever...". Policies can be manual step the human will follow like a procedure or guidances, or can be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation]().
@@ -30,7 +34,7 @@ Events can be created by command, external systems and data creation, by timer, 
 
 Finally when arranging the events in timeline it will be possible to identify pivotal events and swim lanes.
 
-![](evt-stm-pivotalevt.png)
+<img src="evt-stm-pivotalevt.png" width="700">
 
 ### Workshop Execution
 The Goal is to better understand the business problem to address with the future application. But it can apply to search solution to bottleneck in existing application. It starts by the big picture by building a timeline of domain events as they occur during the business process life span.
@@ -64,23 +68,23 @@ Here is an example of ordered domain events with pivotal event and swim lanes:
 1. **Step 6: Data:**
 Data for the user interface so user can make decision are part of the read model. For each command and event we may add data description of the expected attributes and data elements needed to take such decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
 
- <img src="evt-stm-data.png" width="500">
+  <img src="evt-stm-data.png" width="400">
 
- This first level of data definition will help for assessing the microservice scope and responsability too.
+  This first level of data definition will help for assessing the microservice scope and responsibility too.
 
 1. **Step 7: Insight:**
 We have the need to add one element to the method to address an important dimension of modern applications integrating analytics and machine learning capabilities:
 
- ![](evt-stm-insight.png)
+  <img src="evt-stm-insight.png" width="700">
 
- Events are generated as stream on a regular basis with time stamps. They are filtered, joined, aggregated and scored to assess predictions, classification, scoring,... and to generate `derived events` which may be also joined,....
- The parallelogram construct is used to represent this joining operations. This processing is very important to analyze as early as possible in the development life cycle, and the event storming workshop is the best opportunity.
+  Events are generated as stream on a regular basis with time stamps. They are filtered, joined, aggregated and scored to assess predictions, classification, scoring,... and to generate `derived events` which may be also joined,....
+  The parallelogram construct is used to represent this joining operations. This processing is very important to analyze as early as possible in the development life cycle, and the event storming workshop is the best opportunity.
 
-## Event Storming to EDA and User Stories
+## Event Storming to User Stories / Epics
 When developing using agile methodology, one of the important element of the project management is the user stories or epics construction. The commands and policies can be describe easily as user stories, as commands and decisions are done by actors. The actor could be a system too.
 For the data we have to support the CUD operations as user stories, mostly supported by a system actor.
 
-![](evt-stm-userstories.png)
+  <img src="evt-stm-userstories.png" width="700">
 
 Events are the result / outcome of a user stories. And can be added as part of the acceptance criteria of the user stories to verify the event really occurs.
 
@@ -90,4 +94,6 @@ To support one of the implementation solution to validate the Event Driven Archi
 ### Further Readings
 * [Introduction to event storming from Alberto Brandolini ](http://ziobrando.blogspot.com/2013/11/introducing-event-storming.html#.VbhQTn-9KK1)
 * [Event Storming Guide](https://www.boldare.com/blog/event-storming-guide/)
-* Domain Driven Design
+* [Wikipedia Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design)
+* [Eric Evans: "Domain Driven Design - Tacking complexity in the heart of software"](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software)
+* [Patterns related to Domain Driven Design](https://martinfowler.com/tags/domain%20driven%20design.html) by Martin Fowler
