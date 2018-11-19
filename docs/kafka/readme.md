@@ -1,10 +1,11 @@
 # Apache Kafka
 
-In this article I am presenting real time event processing and analytics using **Kafka** deployed on Kubernetes cluster. We are documenting how to deploy this capability on IBM Cloud Private using a [**Kafka**](https://Kafka.apache.org/) open source distribution or the new [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/) and how to remote connect from hosts outside of the cluster, how to support high availability...
+In this article we are presenting real time event processing and analytics using **Kafka** deployed on Kubernetes cluster. We are documenting how to deploy this capability on IBM Cloud Private using a [**Kafka**](https://Kafka.apache.org/) open source distribution or the new [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/) and how to remote connect from hosts outside of the cluster, how to support high availability...
 
 Update 11/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Table of contents
+
 * [Introduction - concepts - use cases](#introduction)
 * [Details](#kafka-stream-details)
 * [Architecture](#architecture)
@@ -16,15 +17,17 @@ Update 11/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer
 * [Streaming applications](#streaming-app)
 * [Compendium](#compendium)
 
-
 ## Introduction
+
 [Kafka](https://Kafka.apache.org/) is a distributed streaming platform with the following key capabilities:
+
 * Publish and subscribe streams of records.
 * Atomic broadcast, send a record once, every subscriber gets it once.
 * Store streams of data records on disk and replicate within the cluster for fault-tolerance.
 * built on top of the ZooKeeper synchronization service to keep topic, partitions and offsets states high available.
 
 ### Key concepts
+
 * **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers.
 * The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers.
 * Each broker may have zero or more partitions per topic.
@@ -49,22 +52,24 @@ The diagram below presents the key components:
 The figure below illustrates one topic having multiple partitions, replicated within the broker cluster:
 ![](./images/kafka-topic-partition.png)  
 
+### Use cases
 
-###  Use cases
 The typical use cases where **Kafka** helps are:
+
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services
 * Manage loosely coupled communication between microservices. (See [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh.md#asynchronous-loosely-coupled-solution-using-events) I present a way to support a service mesh solution using asynchronous event)
 
-
 ## Kafka Stream Details
+
 I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get familiar of why Kafka stream.
 
 **Kafka** Stream has the following capabilities:
+
 * embedded library for your application to use.
 * integrates tables of state with streams of events.
-* consumes continuous real time flow of records and publish new flow.
+* consumes continuous real time flows of records and publish new flows.
 * supports exactly-once processing semantics to guarantee that each record will be processed once and only once even when there is a failure.
 * Stream APIs transform, aggregate and enrich data, per record with milli second latency, from one topic to another one.
 * supports stateful and windowing operations by processing one record at a time.
@@ -86,14 +91,18 @@ I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafk
 See [this article from Confluent](https://docs.confluent.io/current/streams/architecture.html) for deeper architecture presentation.
 
 When you want to deploy solution that spreads over multiple regions to support global streaming, you need to address challenges like:
+
 * How do you make data available to applications across multiple data centers?
 * How to serve data closer to the geography?
 * How to be compliant on regulations, like GDPR?
 * How to address no duplication of records?
 
 ### Solution considerations
+
 There are a set of design considerations to assess for each **Kafka** solution:
+
 #### Topics
+
 Performance is more a function of number of partitions than topics. Expect that each topic has at least one partition. When considering latency you should aim for limiting to hundreds of topic-partition per broker node.
 
 The approach to use one topic per data type is natural and will work, but when addressing microservice to microservice communication it is less relevant to use this pattern.
@@ -103,8 +112,10 @@ When dealing with entity, independent entities may be in separate topics, when s
 
 With **Kafka** stream, state store or KTable, you should separate the changelog topic from the others.
 
-#### Producer
+#### Producers
+
 When developing a record producer you need to assess the following:
+
 * what is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size.
 * can the producer batch events together to send them in batch over one send operation?
 * is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size
@@ -112,8 +123,10 @@ When developing a record producer you need to assess the following:
 
 See related discussion [ on confluent web site](https://www.confluent.io/blog/put-several-event-types-kafka-topic/)
 
-#### Consumer
+#### Consumers
+
 From the consumer point of view a set of items need to be addressed during design phase:
+
 * do you need to group consumers for parallel consumption of events?
 * what is the processing done once the record is processed out of the topic? And how a record is supposed to be consumed?.
 * how to persist consumer committed position? (the last offset that has been stored securely)
@@ -123,16 +136,20 @@ From the consumer point of view a set of items need to be addressed during desig
 
 
 ### High Availability in the context of Kubernetes deployment
-Per design as soon as you have at least three brokers Kafka is highly available using its replication mechanism and leading partition. Each partitition is replicated at least 3 times and allocated in different brokers. One is the lead. In the case of broker failure, existing partition in running broker will take the lead:
+
+The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages it own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes nodes and pods may change dynamically.
+
+Per design as soon as you have at least three brokers Kafka is highly available using its replication mechanism and leading partition process. Each partitition is replicated at least 3 times and allocated in different brokers. One is the lead. In the case of broker failure, existing partition in running broker will take the lead:
 
 ![](images/kafka-ha.png)
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
+
 * At least three master nodes (always a odd number). One is active at master, the others are in standby.
 * Three proxy nodes.
 * At least three worker nodes, but with zookeeper and Kafka clusters need to move to 6 nodes as we do not want to have zookeeper nodes with Kafka cluster broker on the same host.
 * Externalize the management stack to three manager nodes
-* Shared storage outside of the cluster to support private image registry, audit logs
+* Shared storage outside of the cluster to support private image registry, audit logs, and statefulset data persistence.
 * Use `etcd` cluster: See recommendations [from this article](https://github.com/coreos/etcd/blob/master/Documentation/op-guide/clustering.md). The virtual IP manager assigns virtual IP address to master and proxy nodes and monitors the health of the cluster. It leverages `etcd` for storing information, so it is important that `etcd` is high available too.  
 
 For IBM Cloud private HA installation see the [product documentation](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_2.1.0.3/installing/custom_install.html#HA)
@@ -146,6 +163,7 @@ The schema above illustrates the recommendations to separate Zookeeper from **Ka
 > **Kafka** pod should not run on same node as zookeeper pods.  
 
 Here is an example of such spec:
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -163,6 +181,7 @@ spec:
               - gc-zookeeper
           topologyKey: kubernetes.io/hostname
 ```
+
 We recommend doing the [running zookeeper in k8s tutorial](https://kubernetes.io/docs/tutorials/stateful-application/zookeeper) for understanding such configuration.
 Provision a **fast storage class** for persistence volume.
 
@@ -175,6 +194,7 @@ In a multi-cluster configuration being used for disaster recovery purposes, mess
 For configuring ICP for HA on VmWare read [this note](https://github.com/ibm-cloud-architecture/refarch-privatecloud/blob/master/Configuring_ICP_for_HA_on_VMware.md).
 
 For **Kafka** streaming with stateful processing like joins, event aggregation and correlation coming from multiple partitions, it is not easy to achieve high availability cross clusters: in the strictest case every event must be processed by the streaming service exactly once. Which means:
+
 * producer emit data to different sites and be able to re-emit in case of failure. Brokers are known by producer via a list of hostname and port number.
 * communications between zookeepers and cluster nodes are redundant and safe for data losses
 * consumers ensure idempotence... They have to tolerate data duplication and manage data integrity in their persistence layer.
@@ -182,6 +202,7 @@ For **Kafka** streaming with stateful processing like joins, event aggregation a
 Within Kafka's boundary, data will not be lost, when doing proper configuration, also to support high availability the complexity moves to the producer and the consumer implementation.
 
 **Kafka** configuration is an art and you need to tune the parameters by use case:
+
 * partition replication for at least 3 replicas. Recall that in case of node failure,  coordination of partition re-assignments is provided with ZooKeeper.
 * end to end latency needs to be measured from producer (when a message is sent) to consumer when it is read. A consumer is able to get a message when the broker finishes to replicate to all in-synch replicas.
 * use the producer buffering capability to pace the message to the broker. Can use memory or time based threshold.
@@ -192,13 +213,15 @@ Within Kafka's boundary, data will not be lost, when doing proper configuration,
 Zookeeper is not CPU intensive and each server should have a least 2 GB of heap space and 4GB reserved. Two cpu per server should be sufficient. Servers keep their entire state machine in memory, and write every mutation to a durable WAL (Write Ahead Log) on persistent storage. To prevent the WAL from growing without bound, ZooKeeper servers periodically snapshot their in memory state to storage. Use fast and dynamically provisioned persistence storage for both WAL and snapshot.
 
 ## Streaming app
+
 The Java code in the project: https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer includes examples of stateless consumers, a text producer, and some example of stateful operations. In general code for processing event does the following:
 * Set a properties object to specify which brokers to connect to and what kind of serialization to use.
 * Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key)
 * Create a topology of input source and sink target and action to perform on the records
 * Start the stream client to consume records
 
-A stateful operator uses the streaming Domain Specific Language, and is used for aggregation, join and time window operators. Stateful transformations require a state store associated with the stream processor. The code below comes from Kafka examples and is counting word occurrence in text
+A stateful operator uses the streaming Domain Specific Language, and is used for aggregation, join and time window operators. Stateful transformations require a state store associated with the stream processor. The code below comes from Kafka examples and is counting word occurrence in text:
+
 ```
     final StreamsBuilder builder = new StreamsBuilder();
     final Pattern pattern = Pattern.compile("\\W+");
@@ -215,6 +238,7 @@ A stateful operator uses the streaming Domain Specific Language, and is used for
     KafkaStreams streams = new KafkaStreams(builder.build(), props);
     streams.start();
 ```
+
 * [KStream](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/KStream.html) represents KeyValue records coming as event stream from the topic.
 * flatMapValues() transforms the value of each record in "this" stream into zero or more values with the same key in the new KStream. So here the text line is split into words. The parameter is a [ValueMapper](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/ValueMapper.html) which applies transformation on values but keeping the key.
 * groupBy() Group the records of this KStream on a new key that is selected using the provided KeyValueMapper. So here it create new KStream with the extracted word as key.
@@ -225,6 +249,7 @@ A stateful operator uses the streaming Domain Specific Language, and is used for
 
 ### Example to run the Word Count application:
 1. Be sure to create the needed different topics once the Kafka broker is started (test-topic, streams-wordcount-output):
+
 ```
 docker exec -ti Kafka /bin/bash
 cd /scripts
@@ -232,6 +257,7 @@ cd /scripts
 ```
 
 1. Start a terminal window and execute the command to be ready to send message.
+
 ```
 $ docker exec -ti Kafka /bin/bash
 # can use the /scripts/openProducer.sh or...
@@ -239,6 +265,7 @@ root> /opt/Kafka_2.11-0.10.1.0/bin/Kafka-console-producer.sh --broker-list local
 ```
 
 1. Start another terminal to listen to the output topic:
+
 ```
 $ docker exec -ti Kafka /bin/bash
 # can use the /scripts/consumeWordCount.sh or...
@@ -246,11 +273,12 @@ root> /opt/Kafka_2.11-0.10.1.0/bin/Kafka-console-consumer.sh --bootstrap-server 
 ```
 
 1. Start the stream client to count word in the entered lines
+
 ```
 mvn exec:java -Dexec.mainClass=ibm.cte.Kafka.play.WordCount
 ```
-Outputs of the WordCount application is actually a continuous stream of updates, where each output record is an updated count of a single word. A KTable is counting the occurrence of word, and a KStream send the output message with updated count.
 
+Outputs of the WordCount application is actually a continuous stream of updates, where each output record is an updated count of a single word. A KTable is counting the occurrence of word, and a KStream send the output message with updated count.
 
 ## Compendium
 
