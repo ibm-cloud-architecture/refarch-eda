@@ -10,14 +10,13 @@ While event driven architectures and reactive programming models are not new con
 * Cloud Native platforms with Containers and "Serverless deployments"  - Provide the application platform and tools which realise the Resilience Agility and Scale promise of the microservices architectures.
 * Event services -  Realising an Event Driven Architetcure (EDA) provide the means to be reactive and responsive 
 
-Thinking in this way allows us to think of the cloud native EDA providing three essential cpabilities to the Cloud Native Platform. 
+Thinking in this way allows us to simplifiy the concept of the Event driven Architecture to be about providing three essential cpabilities to the Cloud Native Platform. 
 
-1- Communication and persistance events 
-2- Taking action on events 
-3- Processing continuous event streams to derive real time insights and intelligence 
+* Communication and persistance events. 
+* Taking action on events. 
+* Processing continuous event streams to derive real time insights and intelligence.
 
 This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
-
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
@@ -32,17 +31,16 @@ This repository represents the root of related content about the cloud native Ev
 
 * As an architect, you will understand how the event driven architecture simplifies development of event driven solutions.
 * As a developer, you will understand how to develop event driven applications. 
-* As a project manager, you may understand all the artifacts to develop in an EDA solution.
+* As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
-From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations.
+From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Publc Cloud and with IBM Cloud Private. 
 
 While the content of this repository is mostly technical in nature , it does introduce methods such as Event Storming which would be used with business leaders to identify key bsuiness domain events and actions, you may find it useful to share this information with your business leaders before  engaging them in such activities. 
 
 ## Architecture
 
-The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Publc Cloud and with IBM Cloud Private. 
+We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
-The starting point for a  modern Cloud Native Event Driven Architecture is that it supports at least the following important capabilities:
 * Being able to communicate and persist events
 * Being able to take direct action on events.
 * Processing event streams to derive real time insight/intelligence
