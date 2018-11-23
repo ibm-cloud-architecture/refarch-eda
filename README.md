@@ -15,6 +15,7 @@ Thinking in this way allows us to simplifiy the concept of the Event driven Arch
 * Communication and persistance events. 
 * Taking action on events. 
 * Processing continuous event streams to derive real time insights and intelligence.
+* Supporting event driven microservices 
 
 This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
 
@@ -44,6 +45,7 @@ We defined the starting point for a modern Cloud Native Event Driven Architectur
 * Being able to communicate and persist events
 * Being able to take direct action on events.
 * Processing event streams to derive real time insight/intelligence
+* Supporting event driven microservices
 
 The diagram below summarize a product agnostic platform with the components  which would realize the above capabilities:
 
