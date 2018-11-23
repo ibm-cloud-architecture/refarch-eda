@@ -1,21 +1,21 @@
 # Event Driven Architecture Reference Architecture
 
-The modern digital business works in real time, it informs interested parties of things of interest when they happen, it makes sense of and derives insight from an ever-growing number of event sources, it learns,  it predicts, it's intelligent, it is by nature Event Driven. 
+The modern digital business works in real time, it informs interested parties of things of interest when they happen, it makes sense of and derives insight from an ever-growing number of event sources, it learns,  it predicts, it's intelligent, it is by nature Event Driven.
 
-For enterprise IT teams, this means embracing event driven as being foundational to the next gerenration of digital business applications. It will require IT teams to be able to design, develop, deploy and operate event driven solutions, in cloud native styles. 
+For enterprise IT teams, this means embracing event driven as being foundational to the next gerenration of digital business applications. It will require IT teams to be able to design, develop, deploy and operate event driven solutions, in cloud native styles.
 
-While event driven architectures and reactive programming models are not new concepts the move to Cloud Native architectures with Microservices, Container based workloads and "serverless" computing allow us to revist event driven in this Cloud Native context.  Indeed we could think of event driven as extending the Resillience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Reponsive: 
+While event driven architectures and reactive programming models are not new concepts the move to Cloud Native architectures with Microservices, Container based workloads and "serverless" computing allow us to revist event driven in this Cloud Native context.  Indeed we could think of event driven as extending the Resillience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Reponsive:
 
-* Microservices -  Provide the loosely coupled application architecture which enables deployment in highly distributed patters for Resilience, Agility and Scale. 
+* Microservices -  Provide the loosely coupled application architecture which enables deployment in highly distributed patters for Resilience, Agility and Scale.
 * Cloud Native platforms with Containers and "Serverless deployments"  - Provide the application platform and tools which realise the Resilience Agility and Scale promise of the microservices architectures.
-* Event services -  Realising an Event Driven Architetcure (EDA) provide the means to be reactive and responsive 
+* Event services -  Realising an Event Driven Architetcure (EDA) provide the means to be reactive and responsive
 
-Thinking in this way allows us to simplifiy the concept of the Event driven Architecture to be about providing three essential cpabilities to the Cloud Native Platform. 
+Thinking in this way allows us to simplifiy the concept of the Event driven Architecture to be about providing three essential cpabilities to the Cloud Native Platform.
 
-* Communication and persistance events. 
-* Taking action on events. 
+* Communication and persistance events.
+* Taking action on events.
 * Processing continuous event streams to derive real time insights and intelligence.
-* Supporting event driven microservices 
+* Supporting event driven microservices
 
 This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
 
@@ -31,12 +31,12 @@ This repository represents the root of related content about the cloud native Ev
 ## Target audiences
 
 * As an architect, you will understand how the event driven architecture provides capapbabilites which support development of event driven solutions.
-* As a developer, you will understand how to develop event driven applications. 
+* As a developer, you will understand how to develop event driven applications.
 * As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
-From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Publc Cloud and with IBM Cloud Private. 
+From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Publc Cloud and with IBM Cloud Private.
 
-While the content of this repository is mostly technical in nature , it does introduce methods such as Event Storming which would be used with business leaders to identify key bsuiness domain events and actions, you may find it useful to share this information with your business leaders before  engaging them in such activities. 
+While the content of this repository is mostly technical in nature , it does introduce methods such as Event Storming which would be used with business leaders to identify key bsuiness domain events and actions, you may find it useful to share this information with your business leaders before  engaging them in such activities.
 
 ## Architecture
 
@@ -45,36 +45,49 @@ We defined the starting point for a modern Cloud Native Event Driven Architectur
 * Being able to communicate and persist events
 * Being able to take direct action on events.
 * Processing event streams to derive real time insight/intelligence
-* Supporting event driven microservices
+* Providing communication for event driven microservices
 
-The diagram below summarize a product agnostic platform with the components  which would realize the above capabilities:
+We could visualize this architecture at the capability level as shown below:
 
-<img src="docs/hl-arch.png" width="1024px">
+<img src="docs/hl-arch-refa.png" width="1024px">
 
-To document the components involved in this architecture we are adding numbers with detailed descriptions:
+IBM Event Streams : provides a Kafka Event Backbone with
+Pub/Sub communication,  event log, event stream processing
+
+IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute
+
+Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams
+
+Decision Server Insights: Provides the means to take action on events and event streams through business rules
+
+Event Driven Microservices applications running as serverless functions or containerized workloads are connected via pub/sub event communication through the event backbone.
+
+Connectec Event Stores provide additional persistance options for , optimised event sourcing and analytical use cases. 
+
+In the following sections we will expand this component view and look at each area in detail. So lets start from  this expanded view of the architecture and explore each of the compenent parts in detail.
 
 <img src="docs/hl-arch-num.png" width="1024px">
 
-1- **Event sources** 
+1- **Event sources**
 
-The modern digital business is driven by events,  events come into the business and events need to be pushed outside of the buisness.  For our Cloud Native EDA we consider eveny sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from, IoT devices, mobile apps, web apps, database triggers or microservices. 
+The modern digital business is driven by events,  events come into the business and events need to be pushed outside of the buisness.  For our Cloud Native EDA we consider event sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from, IoT devices, mobile apps, web apps, database triggers or microservices.
 
-In general EDA terms, an Event Source or  event producer is any component capable of creating an event notification and publishing it to the event backbone.   
+In general EDA terms, an Event Source or  event producer is any component capable of creating an event notification and publishing it to the event backbone.
 
 [Read more ...](docs/evt-src/README.md)
 
-2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities. 
- * Pub/Sub style event communication between event producers and consumers 
- * Persist/store events for a period of time
- * Enables replahy of events  
+2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities.
+ * Pub/Sub style event communication between event producers and consumers
+ * Persist events for a period of time
+ * Enables replay of events
  * Deliverds events once only
- * handle subscriptions from multiple consumers
+ * Handle subscriptions from multiple consumers
 
  [Read more ...](docs/evt-backbone/README.md)
- 
+
 
 2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
-In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).  
+In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).
 
 [Read more ...](docs/evt-consumer/README.md)
 
@@ -108,14 +121,14 @@ Loose coupling, however, does not mean “no coupling”. An event consumer cons
 
 ### Cohesion
 Cohesion is the degree to which related things are encapsulated together in the same software module. At this point, for the purposes of our EDA discussion, we define module as an independently deployable software unit that has high cohesion.  Cohesion is strongly related to coupling in the sense that a highly cohesive module communicates less with other modules, thus reducing the number of events, but most importantly, the number of event types in the system. The less modules interact with each other, the less coupled they are.
-Achieving cohesion in software while at the same time optimizing module size for flexibility and adaptability is hard but it is something that should be aimed for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations should be avoided, as should implementations that are excessively fine-grained.  
+Achieving cohesion in software while at the same time optimizing module size for flexibility and adaptability is hard but it is something that should be aimed for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations should be avoided, as should implementations that are excessively fine-grained.
 
 
 ### Function as a service
 As a event consumer functions deliver stateless discrete step or task for the global event processing. The serverless approach will bring cost efficiency for the just on-demand invocation. It fits well in post processing with the event processing.
 Cloud functions provides a simple way for developers to write code which takes action on an event.
 Serverless computing model, complete abstraction of infrastructure away from the developer
-No need to worry about infrastructure/scaling  
+No need to worry about infrastructure/scaling
 Supports event notifications and event commands
 Cost model reflects simple event processing, pay for event processing compute time only
 
@@ -127,7 +140,7 @@ We are starting to address service mesh in [this note](https://github.com/ibm-cl
 * microservice publish events when something happens in the scope of their control, for example an update in the business entities they are responsible of.
 * microservice interested by other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
 * Business transactions are not ACID and span multiple services, they are more a series of steps, each step is supported by a microservice responsible to update its own entities. We talk about eventual consistency of the data.
-* the message broker needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.   
+* the message broker needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.
 * at the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that read this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
 * One other approach to avoid the two phase commit and inconsistency is to use an Event Store or event sourcing to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
 
@@ -140,13 +153,13 @@ One of the main advantages is to support multiple data denormalization and being
 
 ### Event Sourcing
 
-Services publish events whenever the data they control change. The event publish needs to be unique (atomic) and the source reliable (no event duplication). Event sourcing persists the state of a business entity as a sequence of state changing events. The event store is used for persistence. The service is not persisting data in a relational database anymore. 
+Services publish events whenever the data they control change. The event publish needs to be unique (atomic) and the source reliable (no event duplication). Event sourcing persists the state of a business entity as a sequence of state changing events. The event store is used for persistence. The service is not persisting data in a relational database anymore.
 To avoid keeping a huge amount of change log, snapshot can be perform to keep a view of the data at a given point of time. Changes will then apply from a snapshot.
-Queries have to reconstruct the state of the business entity from a snapshot. 
+Queries have to reconstruct the state of the business entity from a snapshot.
 
 ## Applicability of an EDA
 
-EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.  
+EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
 
 ## Related repositories
 
