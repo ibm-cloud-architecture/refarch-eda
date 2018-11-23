@@ -29,7 +29,7 @@ This repository represents the root of related content about the cloud native Ev
 
 ## Target audiences
 
-* As an architect, you will understand how the event driven architecture simplifies development of event driven solutions.
+* As an architect, you will understand how the event driven architecture provides capapbabilites which support development of event driven solutions.
 * As a developer, you will understand how to develop event driven applications. 
 * As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
@@ -45,7 +45,7 @@ We defined the starting point for a modern Cloud Native Event Driven Architectur
 * Being able to take direct action on events.
 * Processing event streams to derive real time insight/intelligence
 
-The diagram below summarize a product agnostic platform with the components to support the above capabilities:
+The diagram below summarize a product agnostic platform with the components  which would realize the above capabilities:
 
 <img src="docs/hl-arch.png" width="1024px">
 
@@ -53,11 +53,23 @@ To document the components involved in this architecture we are adding numbers w
 
 <img src="docs/hl-arch-num.png" width="1024px">
 
-1- **Event sources** Events 
+1- **Event sources** 
 
-reference events coming from IoT devices, mobile apps, web apps, database triggers or microservices. Click stream from web apps or mobile apps are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel or backbone.   
+The modern digital business is driven by events,  events come into the business and events need to be pushed outside of the buisness.  For our Cloud Native EDA we consider eveny sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from, IoT devices, mobile apps, web apps, database triggers or microservices. 
+
+In general EDA terms, an Event Source or  event producer is any component capable of creating an event notification and publishing it to the event backbone.   
 
 [Read more ...](docs/evt-src/README.md)
+
+2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities. 
+ * Pub/Sub style event communication between event producers and consumers 
+ * Persist/store events for a period of time
+ * Enables replahy of events  
+ * Deliverds events once only
+ * handle subscriptions from multiple consumers
+
+ [Read more ...](docs/evt-backbone/README.md)
+ 
 
 2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
 In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).  
@@ -68,13 +80,9 @@ In modern architecture consumers are functions as a service, traditional applica
 
 [Read more ...](docs/rt-analytics/README.md)
 
-4- **The Event Backbone** is the center of the Event driven architecture, proving the event communication layer with event log. It enables the delivery of events from event producers to consumers using a pub/sub style. It supports at least the following capabilities:
- * store events for a period of time, allowing for potential downtime of the event consumers (ideally implemented with an event log)
- * deliver event once only
- * handle subscriptions from multiple consumers
- * mediate, filter, aggregate and transform Events
 
-[Read more ...](docs/evt-backbone/README.md)
+
+
 
 5- **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
 There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
