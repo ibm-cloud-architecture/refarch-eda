@@ -1,15 +1,23 @@
 # Event Driven Architecture Reference Architecture
-Today IT architectures are hybrid cloud and event driven: most businesses are using cloud deployment as part of their IT strategy and millions of events are created in this context. This is given that microservices is the development approach and application design used in 3nd generation of business application. They use loosely coupling pattern, highly distributed for horizontal scaling, containerized for simple deployment and address the need to be very agile in term of development to production speed and even pivoting to new business capability. Development teams are cross discipline and autonomous focusing on short term business outcomes to support strategic initiatives like digitalization.
 
-In this context applications have to support the [reactive manifesto](https://www.reactivemanifesto.org/). One of the characteristics being message and event driven: "Reactive Systems rely on asynchronous message-passing to establish a boundary between components that ensures loose coupling, isolation and location transparency."
+The modern digital business works in real time, it informs interested parties of things of interest when they happen, it makes sense of and derives insight from an ever-growing number of event sources, it learns,  it predicts, it's intelligent, it is by nature Event Driven. 
 
-Event-Driven Architecture (EDA) is the software architecture to enable the sending of events from event producers to event consumers in a decoupled manner to support modern reactive intelligent applications. The term intelligent is for the fact that we can add machine learning model to do real time analytics on the event stream. There is also opportunity to connect a Data Scientist workbench to those event backbone.
+For enterprise IT teams, this means embracing event driven as being foundational to the new gerenraation of digital business applications, they need to be able to design, develop, deploy and operate event driven solutions, quickly and easily. 
 
-An **event**, more precisely an event notification, is a timestamped, immutable message that is delivered from event producers to event consumers via an asynchronous mechanism, sometimes called an event channel. EDA is only decoupled in the sense that event producers are not aware of event consumers and vice versa but this is sufficient to make event-driven systems more flexible, scalable and adaptable.
+While event driven architectures and reactive programming models are not new concepts the move to Cloud Native architectures with Microservices, Container base workloads and serverless computing brings an opportunity to revist event driven in this Cloud Native context:
 
-Adopting an event driven architecture brings [loosely coupled](#loosely-coupled) components and simplify microservices integration. EDAs are conceptually simple, but the large scale implementation of an EDA is anything but simple.
+* Microservices -  A loosely coupled application architecture which enables deployment in highly distributed patters for scale, and resilience. 
+* Cloud Native platfiorms with Containers and "Serverless deployments"  - Great agility in terms of changing and adding application capability.
+* Event services -  The underlying Event Driven Architetcure (EDA) provides the means to be reactive and responsive 
 
-This repository represents the root of related content about Event Driven Architecture and groups guidances and reusable coding assets for EDA.
+In its simplest form  we can think of an Event-Driven Architecture (EDA) as the software architecture to enable the sending of events from event producers to event consumers in a decoupled manner which would support develolpment of modern event driven or reactive  applications.  However to  support the full event driven characteristics of the the modern digital business we need to extend this thinking while still keeping things simple, and can define a cloud native Event Driven Architecture which enables us to :
+
+1- Communicate and persist events 
+2- Take action on events 
+3- Process continuous event streams to derive real time insights and intelligence 
+
+This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
+
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
@@ -21,13 +29,22 @@ This repository represents the root of related content about Event Driven Archit
 * [Project Status](#project-status)
 
 ## Target audiences
-You will be greatly interested by the subjects addressed in this solution if you are...
-* an architect, you will get a deeper understanding on how all the components work together, and how to address.
-* a developer, you will get a broader view of the solution end to end and get existing starting code, and practices you may want to reuse during your future implementation. We focus on event driven solution in hybrid cloud addressing patterns and non functional requirements as CI/CD, Test Driven Development, resiliency, ...
-* a project manager, you may understand all the artifacts to develop in an EDA solution, and we may help in the future to do project estimation.
+
+* As an architect, you will get a deeper understanding of how the component services come together to simplifiy event driven solution development.
+* As a developer, you will understand how to develop event driven applications and understand how event driven solutions come together.
+* As a project manager, you may understand all the artifacts to develop in an EDA solution, and we may help in the future to do project estimation.
+
+From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations.
+
+While the content of this repository is mostly technical in nature , it does introduce methods such as Event Storming which would be used with business leaders to identify key bsuiness domain events and actions, you may find it useful to share this information with your business leaders before  engaging them in such activities. 
+
+We focus on event driven solution in hybrid cloud addressing patterns and non functional requirements as CI/CD, Test Driven Development, resiliency, ..
 
 ## Architecture
-Modern Event Driven Architecture supports at least the following important capabilities:
+
+The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Publc Cloud and with IBM Cloud Private. 
+
+The starting point for a  modern Cloud Native Event Driven Architecture is that it supports at least the following important capabilities:
 * Being able to communicate and persist events
 * Being able to take direct action on events.
 * Processing event streams to derive real time insight/intelligence
@@ -40,7 +57,9 @@ To document the components involved in this architecture we are adding numbers w
 
 <img src="docs/hl-arch-num.png" width="1024px">
 
-1- **Data and event sources** reference events coming from IoT devices, mobile apps, web apps, database triggers or microservices. Click stream from web apps or mobile apps are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel or backbone.   
+1- **Event sources** Events 
+
+reference events coming from IoT devices, mobile apps, web apps, database triggers or microservices. Click stream from web apps or mobile apps are common events used for real time analytics. An event producer is any component capable of creating an event notification and publishing it to an event channel or backbone.   
 
 [Read more ...](docs/evt-src/README.md)
 

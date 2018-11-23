@@ -1,4 +1,16 @@
-# Event Sourcing
+# Event Sources
+
+
+
+
+
+## Understanding Events and Event Streams 
+
+
+## Incoming event sources, events and events streams
+
+
+## Applications as event produceres 
 
 Any component / application can be an event producer. The common event producers are:
 * web applications, user's click stream. HTTP or direct link to topic.
@@ -20,6 +32,9 @@ Using 'legacy' applications, to integrate with event backbone, developers need t
 * What is the failover mechanism to put in place if there is communication issue to the event backbone?
 * What is the level of durability expected? When should we consider the event producer request to be completed? Do we authorize duplicate event?
 * What are the memory constraints on the client side, to control the buffering?
+
+## Event Standards and Schemas
+* Should we standardize to an event structure to be consistent cross applications and portable? There are work on specifications at [Cloud Events](https://cloudevents.io/)
 
 
 ## Supporting Products
