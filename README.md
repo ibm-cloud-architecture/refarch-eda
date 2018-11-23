@@ -6,11 +6,11 @@ For enterprise IT teams, this means embracing event driven as being foundational
 
 While event driven architectures and reactive programming models are not new concepts the move to Cloud Native architectures with Microservices, Container based workloads and "serverless" computing allow us to revist event driven in this Cloud Native context.  Indeed we could think of event driven as extending the Resillience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Reponsive: 
 
-* Microservices -  Provide the loosely coupled application architecture which enables deployment in highly distributed patters for scale, and resilience. 
-* Cloud Native platforms with Containers and "Serverless deployments"  - Enable great agility in terms of changing and adding application capability.
+* Microservices -  Provide the loosely coupled application architecture which enables deployment in highly distributed patters for Resilience, Agility and Scale. 
+* Cloud Native platforms with Containers and "Serverless deployments"  - Provide the application platform and tools which realise the Resilience Agility and Scale promise of the microservices architectures.
 * Event services -  Realising an Event Driven Architetcure (EDA) provide the means to be reactive and responsive 
 
-Thinking in this way allows us to think of the cloud native EDA providing three essential cpabilities:
+Thinking in this way allows us to think of the cloud native EDA providing three essential cpabilities to the Cloud Native Platform. 
 
 1- Communication and persistance events 
 2- Taking action on events 
