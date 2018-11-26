@@ -1,4 +1,4 @@
-# Event Driven Architecture Reference Architecture
+# Event Driven Reference Architecture
 
 The modern digital business works in real time, it informs interested parties of things of interest when they happen, it makes sense of and derives insight from an ever-growing number of event sources, it learns,  it predicts, it's intelligent, it is by nature Event Driven.
 
@@ -10,19 +10,19 @@ While event driven architectures and reactive programming models are not new con
 * Cloud Native platforms with Containers and "Serverless deployments"  - Provide the application platform and tools which realise the Resilience Agility and Scale promise of the microservices architectures.
 * Event services -  Realising an Event Driven Architetcure (EDA) provide the means to be reactive and responsive
 
-Thinking in this way allows us to simplifiy the concept of the Event driven Architecture to be about providing three essential cpabilities to the Cloud Native Platform.
+Thinking in this way allows us to simplifiy the concept of the Event driven Architecture to be about providing the  essential event cpabilities to the Cloud Native Platform.
 
 * Communication and persistance events.
 * Taking action on events.
 * Processing continuous event streams to derive real time insights and intelligence.
-* Supporting event driven microservices
+* Event driven microservices
 
 This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
-* [Reference Architecture](#architecture)
 * [Concepts](#concepts)
+* [Reference Architecture](#architecture)
 * [Extended Architecture For Machine Learning and Legacy integration](#extended-architecture)
 * [Event Storming Methodology](docs/methodology/readme.md)
 * [Related repositories](#related-repositories)
@@ -30,6 +30,9 @@ This repository represents the root of related content about the cloud native Ev
 * [Project Status](#project-status)
 
 ## Target audiences
+While the content of this repository is mostly technical in nature and is intended for a technical auidence, it does also introduce methods such as Event Storming which would be used with business leaders to identify key bsuiness domain events and actions. You may find it useful to share this information with your business leaders before engaging them in such activities.
+
+At a high level this is what you should expect to learn by working through the repository and examples.
 
 * As an architect, you will understand how the event driven architecture provides capapbabilites which support development of event driven solutions.
 * As a developer, you will understand how to develop event driven applications.
@@ -37,9 +40,17 @@ This repository represents the root of related content about the cloud native Ev
 
 From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Publc Cloud and with IBM Cloud Private.
 
-While the content of this repository is mostly technical in nature , it does introduce methods such as Event Storming which would be used with business leaders to identify key bsuiness domain events and actions, you may find it useful to share this information with your business leaders before  engaging them in such activities.
+## Concepts
+Before we start looking at the details of the event driven archietcure we should quickly examine some of the the core concepts of event driven
+* Events
+* Event streams
+* Commands
+* Loose Coupling
+* Cohesion
 
-## Architecture
+[Read more ...](docs/concepts/README.md)
+
+## Reference Architecture
 
 We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
@@ -106,10 +117,19 @@ For maximum flexibility the architeture should support both the *Serverless* and
 
 IBM Cloud functions provides a *serverless* compute model and simplfied programming model for event drive microservices with the complexities of managing active conumer service instances abstarcted into the servrless compute stack.
 
-We are addressing this pattern in [the service-mesh section below](#service-mesh).
+[Read more ...](docs/servicemesh/README.md)
 
 
-## Extended Architecture
+## Extended Architecture For Machine Learning and Legacy integration
+
+With the basic referecnce architecture we  exmined how to develop event driven applications, how to take action on  events, and how to process event streams.  While this may be enough for basic event driven applications there are two areas where we see and expect solutions to extend to:
+
+  * Integration with legacy apps and data resources
+  * Integration with analytics/Machine learning for real time insights
+
+The architecture diagram below shows an extended view for how these capabilities fit to form an extended event driven architecture.
+
+We will examine these additional areas in more detail below.
 
 <img src="docs/hl-arch-extended.png" width="1024px">
 
@@ -124,57 +144,11 @@ There are opportunities to have data scientists connecting directly event subscr
 
 [Read more ...](docs/ml-workbench/README.md)
 
-
-
-[Read more ...](docs/evt-consumer/README.md)
 ---
 
-## Concepts
-
-### Events, Event Streams, Commands
-### Loose coupling
-Loose coupling is one of the main benefits of event-driven processing. It allows event producers to emit events without any knowledge about who is going to consume those events. Likewise, event consumers do not have to be aware of the event emitters. Because of this, event consuming modules and event producer modules can be implemented in different languages or use technologies that are different and appropriate for specific jobs. Loosely coupled modules are better suited to evolve independently and, when implemented right, result in a significant decrease in system complexity.
-
-Loose coupling, however, does not mean “no coupling”. An event consumer consumes events that are useful in achieving its goals and in doing so establishes what data it needs and the type and format of that data. The event producer emits events that it hopes will be understood and useful to consumers thus establishing an implicit contract with potential consumers. For example, an event notification in XML format must conform to a certain schema that must be known by both the consumer and the producer.  One of the most important things that you can do to reduce coupling in an event-driven system is to reduce the number of distinct event types that flow between modules. To do this you have pay attention to the cohesiveness of those modules.
-
-### Cohesion
-Cohesion is the degree to which related things are encapsulated together in the same software module. At this point, for the purposes of our EDA discussion, we define module as an independently deployable software unit that has high cohesion.  Cohesion is strongly related to coupling in the sense that a highly cohesive module communicates less with other modules, thus reducing the number of events, but most importantly, the number of event types in the system. The less modules interact with each other, the less coupled they are.
-Achieving cohesion in software while at the same time optimizing module size for flexibility and adaptability is hard but it is something that should be aimed for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations should be avoided, as should implementations that are excessively fine-grained.
 
 
-### Function as a service
-As a event consumer functions deliver stateless discrete step or task for the global event processing. The serverless approach will bring cost efficiency for the just on-demand invocation. It fits well in post processing with the event processing.
-Cloud functions provides a simple way for developers to write code which takes action on an event.
-Serverless computing model, complete abstraction of infrastructure away from the developer
-No need to worry about infrastructure/scaling
-Supports event notifications and event commands
-Cost model reflects simple event processing, pay for event processing compute time only
 
-* [Serverless - FaaS](docs/serverless/README.md)
-
-
-### Service mesh
-We are starting to address service mesh in [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md), and adopting messaging as a microservice communication backbone involves using at least the following patterns:
-* microservice publish events when something happens in the scope of their control, for example an update in the business entities they are responsible of.
-* microservice interested by other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
-* Business transactions are not ACID and span multiple services, they are more a series of steps, each step is supported by a microservice responsible to update its own entities. We talk about eventual consistency of the data.
-* the message broker needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.
-* at the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that read this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
-* One other approach to avoid the two phase commit and inconsistency is to use an Event Store or event sourcing to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
-
-### Command Query Responsibility Segregation
-
-When using a microservices architecture pattern, each service is responsible to manage its persistence for the business entities it manages. Therefore it is challenging to perform join query on multiple business entities across microservice boundaries.
-Basically Command Query Responsibility Segregation, CQRS, is a pattern where the CUD operations (the commands) are done in one service while query / read operations are supported by a separate service. The command-side emits events when data changes. The Query side maintains a set of views that are kept up to date by subscribing to events.
-
-One of the main advantages is to support multiple data denormalization and being able to scale easily. It is complex to implement, aim for code duplication and should not be considered as the silver bullet.
-
-### Event Sourcing
-
-Services publish events whenever the data they control change. The event publish needs to be unique (atomic) and the source reliable (no event duplication). Event sourcing persists the state of a business entity as a sequence of state changing events. The event store is used for persistence. The service is not persisting data in a relational database anymore.
-To avoid keeping a huge amount of change log, snapshot can be perform to keep a view of the data at a given point of time. Changes will then apply from a snapshot.
-Queries have to reconstruct the state of the business entity from a snapshot.
-## extended-architecture
 
 ## Applicability of an EDA
 
