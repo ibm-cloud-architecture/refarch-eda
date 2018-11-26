@@ -23,6 +23,7 @@ This repository represents the root of related content about the cloud native Ev
 * [Target Audiences](#target-audiences)
 * [Reference Architecture](#architecture)
 * [Concepts](#concepts)
+* [Extended Architecture For Machine Learning and Legacy integration](#extended-architecture)
 * [Event Storming Methodology](docs/methodology/readme.md)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
@@ -47,22 +48,20 @@ We defined the starting point for a modern Cloud Native Event Driven Architectur
 * Processing event streams to derive real time insight/intelligence
 * Providing communication for event driven microservices
 
-With an event backbone providing the connectivity between the capabilities, we can visualize the architecture as below.
+With an event backbone providing the connectivity between the capabilities, we can visualize a reference event driven architecture as below.
 
 <img src="docs/hl-arch-refa.png" width="1024px">
 
 Where:
 
-* IBM Event Streams : provides a Kafka Event Backbone withPub/Sub communication,  event log, and simple event stream processing
-* IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute
-* Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams
+* IBM Event Streams : provides a Kafka Event Backbone withPub/Sub communication,  event log, and simple event stream processing.
+* IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute.
+* Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams.
 * Decision Server Insights: Provides the means to take action on events and event streams through business rules
 * Event Driven Microservices applications run as serverless functions or containerized workloads are connected via pub/sub event communication through the event backbone.
 * Event Stores provide optimized persistance (data stores), for event sourcing, CQRS  and analytical use cases.
 
-In the following sections we will expand this component view and look at each area in detail. So lets start from  this expanded view of the architecture and explore each of the compenent parts in detail.
-
-<img src="docs/hl-arch-num.png" width="1024px">
+Now we will take a detailed look at each of these compoenent areas which make up the reference architecture:
 
 1- **Event sources**
 
@@ -110,7 +109,8 @@ There are opportunities to have data scientists connecting directly event subscr
 
 ## Concepts
 
-### Loosely coupling
+### Events, Event Streams, Commands
+### Loose coupling
 Loose coupling is one of the main benefits of event-driven processing. It allows event producers to emit events without any knowledge about who is going to consume those events. Likewise, event consumers do not have to be aware of the event emitters. Because of this, event consuming modules and event producer modules can be implemented in different languages or use technologies that are different and appropriate for specific jobs. Loosely coupled modules are better suited to evolve independently and, when implemented right, result in a significant decrease in system complexity.
 
 Loose coupling, however, does not mean “no coupling”. An event consumer consumes events that are useful in achieving its goals and in doing so establishes what data it needs and the type and format of that data. The event producer emits events that it hopes will be understood and useful to consumers thus establishing an implicit contract with potential consumers. For example, an event notification in XML format must conform to a certain schema that must be known by both the consumer and the producer.  One of the most important things that you can do to reduce coupling in an event-driven system is to reduce the number of distinct event types that flow between modules. To do this you have pay attention to the cohesiveness of those modules.
@@ -152,6 +152,7 @@ One of the main advantages is to support multiple data denormalization and being
 Services publish events whenever the data they control change. The event publish needs to be unique (atomic) and the source reliable (no event duplication). Event sourcing persists the state of a business entity as a sequence of state changing events. The event store is used for persistence. The service is not persisting data in a relational database anymore.
 To avoid keeping a huge amount of change log, snapshot can be perform to keep a view of the data at a given point of time. Changes will then apply from a snapshot.
 Queries have to reconstruct the state of the business entity from a snapshot.
+## extended-architecture
 
 ## Applicability of an EDA
 
