@@ -100,8 +100,18 @@ Specializations in the way commercial and open source products implement these c
 
 [Read more ...](docs/event-storea/README.md)
 
-6- **Event Driven Applications ( Microservices)**
+6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applictions which interatc with events, and are themseleves event driven that is they will both produce and consume events via the event backbone.  In this context we can view the Event Backbone as being part of the microservices mesh, providing the communication means between microservices, enabling the support of loosely coupled, event driven microservices as the foundation for an agile application architecture.
 
+For maximum flexibility the architeture should support both the *Serverless* and *container* based run time models which are core to the modern Cloud Native Approach.
+
+IBM Cloud functions provides a *serverless* compute model and simplfied programming model for event drive microservices with the complexities of managing active conumer service instances abstarcted into the servrless compute stack.
+
+We are addressing this pattern in [the service-mesh section below](#service-mesh).
+
+
+## Extended Architecture
+
+<img src="docs/hl-arch-extended.png" width="1024px">
 
 5- **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
 There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
@@ -114,8 +124,7 @@ There are opportunities to have data scientists connecting directly event subscr
 
 [Read more ...](docs/ml-workbench/README.md)
 
-2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
-In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).
+
 
 [Read more ...](docs/evt-consumer/README.md)
 ---
