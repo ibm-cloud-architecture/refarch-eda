@@ -80,18 +80,27 @@ In general EDA terms, an Event Source or  event producer is any component capabl
 
  [Read more ...](docs/evt-backbone/README.md)
 
+3- **Taking Actions with Cloud Functions** With event driven solutions a common need is to take an  action in response to an event happening. IBM Cloud Functions, provides a simplified *Action* programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload. Within the Event Drivem Architecture,
+ * A business event of interest would be published to the event backbone
+ * The *action* for the event would be written as a cloud Functions action
+ * Cloud Functions would be configured to subscribe to the event and use it as a trigger to start the *action*
+ * Cloud functions would manage start-up and shut down of compute resources following the serverless compute model.
 
-2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
-In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).
+ [Read more ...](docs/evt-functions/README.md)
 
-[Read more ...](docs/evt-consumer/README.md)
-
-3- **CEP consumers / Real time analytics**: Some types of event consumers are specials in the sense that they are designed specifically for event processing. Sometimes referred to as event processing engines, such components may be capable of simple event processing, complex event processing (CEP) or event stream processing (ESP). Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.  As part of this event streaming processing there are a set of application that can support real time analytics and even applying machine learning model on real time data.
+4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyse continuous event streams for insights and actions. To support this style of processing, specialist  *event processing engines* have been developed offerings which simplify the programming model and enable  high performance and low latency applictions to be developed.
+Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.  As part of this event streaming processing there are a set of application that can support real time analytics and even applying machine learning model on real time data.
 
 [Read more ...](docs/rt-analytics/README.md)
 
+5- **Event Managed State**: While the prime focus for an event driven architectuere is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin Event Log which provides the means to store and reply events published to the backbone, however there are additional considerations when we think about the wider event driven solution space. The event driven architecture must therefor also support additional capabilities such as
 
+ * Event Stores optimized for saving events for analytics
+ * Event Sourcing for recording state changes and updates across distributed systems with optimized read stores ( CQRS )
 
+[Read more ...](docs/event-storea/README.md)
+
+6- **Event Driven Applications ( Microservices)**
 
 
 5- **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
@@ -105,6 +114,10 @@ There are opportunities to have data scientists connecting directly event subscr
 
 [Read more ...](docs/ml-workbench/README.md)
 
+2- **Event consumers** are any components capable of receiving and reacting to event notifications. Event consumers carry out activities as diverse as detecting  business threats and opportunities, performing actions, or monitoring event flows. Like event producers, software modules that are event consumers should aim to be cohesive and loosely coupled.
+In modern architecture consumers are functions as a service, traditional applications (in the enterprise network) and microservices. Microservices are also producers. As microservice persists its own data in its own store, and architects may leverage EDA to manage data consistency between services. We are addressing this pattern in [the service-mesh section below](#service-mesh).
+
+[Read more ...](docs/evt-consumer/README.md)
 ---
 
 ## Concepts
