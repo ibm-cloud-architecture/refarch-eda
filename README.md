@@ -189,7 +189,7 @@ If you want to contribute, start by using git fork on this repository and then c
 
 ## Contributors
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
-* [Andy Gibb](https://www.linkedin.com/in/andy-g-3b7a06113/)
+* [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
 * [IBM Streams Analytics team]
 * [IBM Event Stream team]
 * [IBM Decision Insight team]
