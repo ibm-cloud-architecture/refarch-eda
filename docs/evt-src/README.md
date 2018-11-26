@@ -1,26 +1,34 @@
-# Event Sourcing
+## Event Sources
 
-Any component / application can be an event producer. The common event producers are:
-* web applications, user's click stream. HTTP or direct link to topic.
+When we consider an Event Driven architecture we think about event producers and event consumers as the interaction points with events. As we develop event driven applications following a Microservices architecture the  Microservices we develop  will play the role of both event producers and event consumers, with the events being passed as the communication pay load between them.
+
+However as we look at the wider opportunities which being event driven brings to us, we need to widen our view and consider event sources which come from beyond the application code we are writing, events wihch may be produced from outside our immediate system but have business relevance or enable us to gain valuable insights into things which are affecting our business.
+
+Here are a set of commonly seen event sources
+* IOT Devices/Sesnors showing device status changes
+* Click Stream data from web and mobile applictions
 * Mobile applications, HTTP to BFF and then to topic
-* Sensors / Internet of Thing, most likely connected via MQTT or HTTP   
-* Business Processes, can be instrumented to send events when reaching step or transition in the process
-* Microservices
-* Social media, sending unstructured data
-* Database triggers or transaction log digestion
-* Other messaging system like MQ, used to support integration with mainframe and distributed systems.
+* Geospacial data
+* Scoial Media feeds
+* Real time voice feeds
 
-Using 'legacy' applications, to integrate with event backbone, developers need to modify code to emit events so consumers can work on. Which leads to consider different things like:  
-* what is the payload useful for others to consume?
-* what the size that can be consume?
-* Should we standardize to an event structure to be consistent cross applications and portable? There are work on specifications at [Cloud Events](https://cloudevents.io/)
-* What is the potential throughput on the backbone side? Do we need buffering capacity on consumer side?
-* Do we need to consider idempotent producer or not? This is to support exactly once delivery.
-* Do we need to send the same event to multiple topics in a 'transactional' way.
-* What is the failover mechanism to put in place if there is communication issue to the event backbone?
-* What is the level of durability expected? When should we consider the event producer request to be completed? Do we authorize duplicate event?
-* What are the memory constraints on the client side, to control the buffering?
+## Intgeration through  Events
 
+While some Event driven applications will  stand alone, in many cases they will  require integration with existing (legacy ) enteprise applications and data sources.
+
+There can be advanatges in enabling these integrations to be event driven at the earliest point.  Developers could modify code to emit events,  which then become available through the EDA to the event driven application developers.
+
+Less introusive options may be presented where
+* Messaging (MQ) solutions are deployed in the legacy environments which can be bridged into the cloud native EDA.
+* Change Data Capture capabilities could publish changes as events to the EDA for legacy databases.
+
+## Event Standards and Schemas
+Where we have control as the producer of an event we should consider having an event schema and following a standard to privde the best opportunity for portability of the solutions across cloud environments.
+With a lack of formal standards, a working group under the Cloud Native Computing Foundation (CNCF) has recently been formed to define and propose [Cloud Events](https://cloudevents.io/) as the standard.
+
+Our recommendation is follow CloudEvents where we have the ability to define the event structure and so pass "CloudEvents" through the event backbone.
+
+The examples included in this repository will use CloudEvents with Json payloads where we define and pass events into the backbone.
 
 ## Supporting Products
 * [Kafka Producer API for Java](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/producer/KafkaProducer.html)
