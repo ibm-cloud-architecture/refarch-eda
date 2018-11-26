@@ -47,22 +47,18 @@ We defined the starting point for a modern Cloud Native Event Driven Architectur
 * Processing event streams to derive real time insight/intelligence
 * Providing communication for event driven microservices
 
-We could visualize this architecture at the capability level as shown below:
+With an event backbone providing the connectivity between the capabilities, we can visualize the architecture as below.
 
 <img src="docs/hl-arch-refa.png" width="1024px">
 
-IBM Event Streams : provides a Kafka Event Backbone with
-Pub/Sub communication,  event log, event stream processing
+Where:
 
-IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute
-
-Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams
-
-Decision Server Insights: Provides the means to take action on events and event streams through business rules
-
-Event Driven Microservices applications running as serverless functions or containerized workloads are connected via pub/sub event communication through the event backbone.
-
-Connectec Event Stores provide additional persistance options for , optimised event sourcing and analytical use cases. 
+* IBM Event Streams : provides a Kafka Event Backbone withPub/Sub communication,  event log, and simple event stream processing
+* IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute
+* Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams
+* Decision Server Insights: Provides the means to take action on events and event streams through business rules
+* Event Driven Microservices applications run as serverless functions or containerized workloads are connected via pub/sub event communication through the event backbone.
+* Event Stores provide optimized persistance (data stores), for event sourcing, CQRS  and analytical use cases.
 
 In the following sections we will expand this component view and look at each area in detail. So lets start from  this expanded view of the architecture and explore each of the compenent parts in detail.
 
