@@ -96,7 +96,7 @@ With Event Storming we look backwards at each event becasue an event is somethin
 
 With insights storming we look to extend the approach to also look forward by considering *what if we could predict  what was likely to happen as as result of that an event occuring*.
 
-[Read more ...](InsightStorming/README.md)
+[Read more ...](InsightStorming/readme.md)
 
 ### Further Readings
 * [Introduction to event storming from Alberto Brandolini ](http://ziobrando.blogspot.com/2013/11/introducing-event-storming.html#.VbhQTn-9KK1)
