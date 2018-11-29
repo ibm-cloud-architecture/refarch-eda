@@ -25,8 +25,7 @@ One of the benefits of Event Storming is that modelling a complex ecosystem as a
 With Event Storming we look backwards at each event.  An event is something which is known to have already happened at some point of time in the past. With this perspective when we think about data which can help an actor decide when and how to issue a command, there is an implicit suggestion that this is based on properties of earlier known and captured business events.
 
 ## Looking forwward with Insights Storming
-
-With insights storming we also extend the approach to also look forward by considering *what if we could predict  what was likely to happen as as result of that an event occuring.*
+With insights storming we extend the approach to also look forward by considering *what if we could know in advance that this event was going to occur*. How would this change or actions, what would we do now in advance of that event actually happening ?.
 
 Having this forward looking insight combined with the known business data from earlier events can enable both human actors and event triggering policies to make better decisions about how to react to new events as they occur.
 
@@ -82,6 +81,6 @@ Where we are considering or have already adopted an Event Driven Architecture wi
 
 We discuss this in more detail here Extended Architecture For Machine Learning and Legacy integration.
 
-With Insights Storming we  identify potential insights which would have significant business value early in the design phase of a project. With an eventy driven architecture, connected event streams, and Streaming analytics in place  we have the opportunity to analyse and understand the real time event streams, to get a feel for the achievable insights.  
+With Insights Storming we  identify potential insights which would have significant business value early in the design phase of a project. With an eventy driven architecture, connected event streams, and Streaming analytics in place  we have the opportunity to analyse and understand the real time event streams, to get a feel for the achievable insights.
 
 *Donald Rumsfeld. There are known knowns; there are things we know we know. We also know there are known unknowns; that is to say we know there are some things we do not know. But there are also unknown unknowns — the ones we don't know we don't know.*

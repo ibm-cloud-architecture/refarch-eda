@@ -94,7 +94,7 @@ To support one of the implementation solution to validate the Event Driven Archi
 ## Extending Event storming for insight
 With Event Storming we look backwards at each event becasue an event is something which is known to have already happened at some point of time in the past. With this perspective when we think about data which can help an actor decide when and how to issue a command, there is an implicit suggestion that this is based on properties of earlier known and captured business events.
 
-With insights storming we look to extend the approach to also look forward by considering *what if we could predict  what was likely to happen as as result of that an event occuring*.
+With insights storming we extend the approach to also look forward by considering *what if we could know in advance that this event was going to occur*. How would this change or actions, what would we do now in advance of that event actually happening ?.
 
 [Read more ...](InsightStorming/readme.md)
 
