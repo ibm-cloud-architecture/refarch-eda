@@ -29,10 +29,8 @@ With Insights Storming we extend the approach to also look forward by considerin
 
 Having this forward looking insight combined with the known business data from earlier events can enable both human actors and event triggering policies to make better decisions about how to react to new events as they occur.
 
-## Addidiotnal Insight Storming Steps
-By following the event storming process  we will have reached the point of understanding the business events and will have a model for the business.
-
-With insight storming we continue from this point with the same team in the workshop environment and we
+## Additional Insight Storming Steps
+By following the event storming process we will understand the timeline of business events and will have a model for the business. With insight storming we continue from this point with the same team in the workshop environment and we
 
 * Ask participants what insights or predictions would enable optimal or improved behavior for each of the defined MVP events.
 * Or more simply just ask what if we could know in advance that this event was going to occur what action would we take now
@@ -40,9 +38,9 @@ With insight storming we continue from this point with the same team in the work
 
 Throughout the workshop we shoud encourage probabilistic statements such as at this point “this customer is highly like to … ”, or  “expected congestion at port X suggests…”  when reviewing data which could guide decision or action.
 
-The level of discussion prompted by event storming with the  timeline of easily understandable events provides great context for discussing these sorts of predictive insights and their value.
+The level of discussion prompted by event storming with the timeline of easily understandable events provides great context for discussing these sorts of predictive insights and their value.
 
-As an example lets consider our refrigerated container monitoring scneario.  In the Event Storming workshop we may have identified a *container refrigeration unit has failed event* as a trigger event, that is we need to take some action when we see an occurance of it because it has business impact.
+As an example lets consider the refrigerated container monitoring scneario.  In the Event Storming workshop we may have identified a *container refrigeration unit has failed event* as a trigger event, that is we need to take some action when we see an occurance of it because it has business impact.
 
 The business impact of  the refrigeration unit failing  in the container can be significant in terms of damage to and therefore business loss of the goods.
 
