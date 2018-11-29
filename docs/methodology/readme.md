@@ -1,5 +1,5 @@
 # Event Storming Methodology
-EventStorming is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.  
+EventStorming is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
 A **Domain Event** is something meaningful happened in the domain.
 
 ## Conducting the Workshop
@@ -42,7 +42,7 @@ The Goal is to better understand the business problem to address with the future
 Avoid to document process step, focus on events. The timeline will represent the high level sequential process.
 
 1. **Step 1: Domain events discovery:**
-Name the domain events in orange sticky note using verb in past tense. Describe **What's happened**. At first just "storm" the event, you may not need to place them on the ordered timeline.  
+Name the domain events in orange sticky note using verb in past tense. Describe **What's happened**. At first just "storm" the event, you may not need to place them on the ordered timeline.
 The events are relevant to the domain experts.
 It may not be needed to discover all the events, but important to cover the process end to end.
 Identify the start and stop events.
@@ -52,11 +52,11 @@ Identify the start and stop events.
  * Add questions when some parts are unclear
  * Document assumptions
  * Rephrase event with past tense if needed
- * Focus on happy path, the things going on, on regular time  
+ * Focus on happy path, the things going on, on regular time
  * Add pivotal events
- * Add swim lanes  
+ * Add swim lanes
 
-Here is an example of ordered domain events with pivotal event and swim lanes:  
+Here is an example of ordered domain events with pivotal event and swim lanes:
  ![](evt-timeline.png)
 
 1. **Step 3: Commands:** address the why did event happen. The focus is moving to the cause and effect sequence. Command is what people do in the domain to create event.
@@ -90,6 +90,13 @@ Events are the result / outcome of a user stories. And can be added as part of t
 
 ## Applying to the container shipment use case
 To support one of the implementation solution to validate the Event Driven Architecture, we have developed the event storming and design thinking main artifacts for a [fridge container shipment process.](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md)
+
+## Extending Event storming for insight
+With Event Storming we look backwards at each event becasue an event is something which is known to have already happened at some point of time in the past. With this perspective when we think about data which can help an actor decide when and how to issue a command, there is an implicit suggestion that this is based on properties of earlier known and captured business events.
+
+With insights storming we look to extend the approach to also look forward by considering *what if we could predict  what was likely to happen as as result of that an event occuring*.
+
+[Read more ...](InsightStorming/README.md)
 
 ### Further Readings
 * [Introduction to event storming from Alberto Brandolini ](http://ziobrando.blogspot.com/2013/11/introducing-event-storming.html#.VbhQTn-9KK1)

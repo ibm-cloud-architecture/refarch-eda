@@ -133,13 +133,13 @@ We will examine these additional areas in more detail below.
 
 <img src="docs/hl-arch-extended.png" width="1024px">
 
-5- **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
+**Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
 There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
 
 [Read more ...](docs/evt-dashboard/README.md)
 
 
-6- **Data scientist workbench**:
+**Data scientist workbench**:
 There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
 
 [Read more ...](docs/ml-workbench/README.md)
