@@ -17,12 +17,12 @@ Thinking in this way allows us to simplifiy the concept of the Event driven Arch
 * Processing continuous event streams to derive real time insights and intelligence.
 * Event driven microservices
 
-This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
+This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
 * [Concepts](#concepts)
-* [Reference Architecture](#architecture)
+* [Reference Architecture](#reference-architecture)
 * [Extended Architecture For Machine Learning and Legacy integration](#extended-architecture)
 * [Event Storming Methodology](docs/methodology/readme.md)
 * [Related repositories](#related-repositories)
@@ -120,18 +120,17 @@ IBM Cloud functions provides a *serverless* compute model and simplfied programm
 [Read more ...](docs/servicemesh/README.md)
 
 
-## Extended Architecture For Machine Learning and Legacy integration
+## Extended Architecture
 
-With the basic referecnce architecture we  exmined how to develop event driven applications, how to take action on  events, and how to process event streams.  While this may be enough for basic event driven applications there are two areas where we see and expect solutions to extend to:
+With the basic referecnce architecture we examined how to develop event driven applications, how to take action on  events, and how to process event streams.  While this may be enough for basic event driven applications there are two areas where we see and expect solutions to extend to:
 
   * Integration with legacy apps and data resources
   * Integration with analytics/Machine learning for real time insights
 
 The architecture diagram below shows an extended view for how these capabilities fit to form an extended event driven architecture.
 
-We will examine these additional areas in more detail below.
-
 <img src="docs/hl-arch-extended.png" width="1024px">
+
 
 **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
 There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
