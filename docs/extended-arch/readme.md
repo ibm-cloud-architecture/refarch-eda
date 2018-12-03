@@ -1,12 +1,10 @@
 # Extended Architecture
 
 <img src="../hl-arch-extended.png" width="1024px">
-#
-# Legacy Integration
 
-While some Event driven applications will  stand alone, in many cases they will  require integration with existing (legacy ) enteprise applications and data sources.
+## Legacy Integration
 
-There can be advanatges in enabling these integrations to be event driven at the earliest point.  Developers could modify code to emit events,  which then become available through the EDA to the event driven application developers.
+While some Event driven applications will  stand alone, in many cases they will  require integration with existing  enteprise applications and data sources.There can be advanatges in enabling these integrations to be event driven at the earliest point.  Developers could modify code to emit events,  which then become available through the EDA to the event driven application developers.
 
 Less introusive options may be presented where
 * Messaging (MQ) solutions are deployed in the legacy environments which can be bridged into the cloud native EDA.
