@@ -51,7 +51,6 @@ Before we start looking at the details of the event driven archietcure we should
 [Read more ...](docs/concepts/README.md)
 
 ## Reference Architecture
-
 We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
 * Being able to communicate and persist events
@@ -99,8 +98,16 @@ In general EDA terms, an Event Source or  event producer is any component capabl
 
  [Read more ...](docs/evt-functions/README.md)
 
-4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyse continuous event streams for insights and actions. To support this style of processing, specialist  *event processing engines* have been developed offerings which simplify the programming model and enable  high performance and low latency applictions to be developed.
-Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.  As part of this event streaming processing there are a set of application that can support real time analytics and even applying machine learning model on real time data.
+4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyse continuous event streams for insights and actions.
+
+Specialized  *event processing engines* provide the means to run stateful analytical and complex event processing  workloads across multiple event streams while miantiang low latency in processing times.
+
+Including these engines as part of the Event Driven Architecture enables:
+
+* Analysis and Understanding of  real time event streams
+* Extracting real time event data from the stream so that Data Scientists can understand and derive ML models
+* Running of  analytical proceses, Machine Learning models in line in real time  against the event stream.
+* Matching of complex event patternms across multiple streams and time windows to make decisions and take actions
 
 [Read more ...](docs/rt-analytics/README.md)
 
@@ -131,14 +138,27 @@ The architecture diagram below shows an extended view for how these capabilities
 
 <img src="docs/hl-arch-extended.png" width="1024px">
 
+### Legacy Integration
 
-**Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
+While some Event driven applications will  stand alone, in many cases they will  require integration with existing (legacy ) enteprise applications and data sources.
+
+There can be advanatges in enabling these integrations to be event driven at the earliest point.  Developers could modify code to emit events,  which then become available through the EDA to the event driven application developers.
+
+Less introusive options may be presented where
+* Messaging (MQ) solutions are deployed in the legacy environments which can be bridged into the cloud native EDA.
+* Change Data Capture capabilities could publish changes as events to the EDA for legacy databases.
+
+### Integration with Analytics/Machine Learning
+
+### Dashboard
+ Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
+
 There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
 
 [Read more ...](docs/evt-dashboard/README.md)
 
 
-**Data scientist workbench**:
+### Data scientist workbench**:
 There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
 
 [Read more ...](docs/ml-workbench/README.md)
@@ -188,7 +208,7 @@ If you want to contribute, start by using git fork on this repository and then c
 
 ## Contributors
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
-* lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
+* Lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
 * [IBM Streams Analytics team]
 * [IBM Event Stream team]
 * [IBM Decision Insight team]
