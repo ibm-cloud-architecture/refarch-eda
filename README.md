@@ -24,7 +24,7 @@ This repository represents the root of related content about the cloud native Ev
 * [Concepts](#concepts)
 * [Reference Architecture](#reference-architecture)
 * [Extended Architecture For Machine Learning and Legacy integration](#extended-architecture)
-* [Event Storming Methodology](docs/methodology/readme.md)
+* [Event Storming](#event-storming)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -140,9 +140,20 @@ The architecture diagram below shows an extended view for how these capabilities
 
 [Read more ...](docs/extended-arch/README.md)
 
+## Event Storming
+
+When it comes to the design of event driven solitions there are some additional methods which can be utlilized to help understand the buisness events and actions that make up a business and then match them to an event driven soltion.
+
+**Event Storming**,  is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
+
+**Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are somthihng that has happened) we could see a predictive or derived event , the *system will fail in 3 days* , we could take preventative actions.
+
+For more details please read the following chapters. 
+
+* [Event Storming Methodology](docs/methodology/readme.md)
+* [Insights Storming Methodology](docs/methodology/InsightStorming/readme.md)
 
 
----
 
 
 
