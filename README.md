@@ -17,14 +17,14 @@ Thinking in this way allows us to simplifiy the concept of the Event driven Arch
 * Processing continuous event streams to derive real time insights and intelligence.
 * Event driven microservices
 
-This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cliud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
+This repository represents the root of related content about the cloud native Event Driven Architecture, it provides guidance  for how to approach the design of event driven solutions,  introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implimentation in a cloud native environment.
 
 ## Table of Contents
 * [Target Audiences](#target-audiences)
 * [Concepts](#concepts)
-* [Reference Architecture](#architecture)
+* [Reference Architecture](#reference-architecture)
 * [Extended Architecture For Machine Learning and Legacy integration](#extended-architecture)
-* [Event Storming Methodology](docs/methodology/readme.md)
+* [Event Storming](#event-storming)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -51,7 +51,6 @@ Before we start looking at the details of the event driven archietcure we should
 [Read more ...](docs/concepts/README.md)
 
 ## Reference Architecture
-
 We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
 * Being able to communicate and persist events
@@ -99,8 +98,16 @@ In general EDA terms, an Event Source or  event producer is any component capabl
 
  [Read more ...](docs/evt-functions/README.md)
 
-4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyse continuous event streams for insights and actions. To support this style of processing, specialist  *event processing engines* have been developed offerings which simplify the programming model and enable  high performance and low latency applictions to be developed.
-Specializations in the way commercial and open source products implement these capabilities constitute the basis for our discussion concerning the non-functional aspects of event-driven architecture.  As part of this event streaming processing there are a set of application that can support real time analytics and even applying machine learning model on real time data.
+4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyse continuous event streams for insights and actions.
+
+Specialized  *event processing engines* provide the means to run stateful analytical and complex event processing  workloads across multiple event streams while miantiang low latency in processing times.
+
+Including these engines as part of the Event Driven Architecture enables:
+
+* Analysis and Understanding of  real time event streams
+* Extracting real time event data from the stream so that Data Scientists can understand and derive ML models
+* Running of  analytical proceses, Machine Learning models in line in real time  against the event stream.
+* Matching of complex event patternms across multiple streams and time windows to make decisions and take actions
 
 [Read more ...](docs/rt-analytics/README.md)
 
@@ -120,31 +127,33 @@ IBM Cloud functions provides a *serverless* compute model and simplfied programm
 [Read more ...](docs/servicemesh/README.md)
 
 
-## Extended Architecture For Machine Learning and Legacy integration
+## Extended Architecture
 
-With the basic referecnce architecture we  exmined how to develop event driven applications, how to take action on  events, and how to process event streams.  While this may be enough for basic event driven applications there are two areas where we see and expect solutions to extend to:
+With the basic referecnce architecture we examined how to develop event driven applications, how to take action on  events, and how to process event streams.  While this may be enough for basic event driven applications there are two areas where we see and expect solutions to extend to:
 
   * Integration with legacy apps and data resources
   * Integration with analytics/Machine learning for real time insights
 
 The architecture diagram below shows an extended view for how these capabilities fit to form an extended event driven architecture.
 
-We will examine these additional areas in more detail below.
-
 <img src="docs/hl-arch-extended.png" width="1024px">
 
-5- **Dashboard**: Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
-There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
+[Read more ...](docs/extended-arch/readme.md)
 
-[Read more ...](docs/evt-dashboard/README.md)
+## Event Storming
+
+When it comes to the design of event driven solitions there are some additional methods which can be utlilized to help understand the buisness events and actions that make up a business.
+
+**Event Storming**,  is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
+
+**Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are somthihng that has happened) we could see a predictive or derived event , the *system will fail in 3 days* , we could take preventative actions.
+
+For more details please read the following chapters.
+
+* [Event Storming Methodology](docs/methodology/readme.md)
+* [Insights Storming Methodology](docs/methodology/InsightStorming/readme.md)
 
 
-6- **Data scientist workbench**:
-There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
-
-[Read more ...](docs/ml-workbench/README.md)
-
----
 
 
 
@@ -189,7 +198,7 @@ If you want to contribute, start by using git fork on this repository and then c
 
 ## Contributors
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
-* lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
+* Lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
 * [IBM Streams Analytics team]
 * [IBM Event Stream team]
 * [IBM Decision Insight team]
