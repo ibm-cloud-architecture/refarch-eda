@@ -2,31 +2,36 @@
 As  we look at Event driven solutions and Event Driven Architectures there are a number of concepts that we should understand as the underpin the very reasoning of being event driven.
 
 ## Events.
+
+Events are notifications of change of state.  Notifications are issued ( or published ) and interested parties may subscribe and take action on the events.  Typically there is no connection  the issuer of the notification for what the action taken is and
+no corresponding feedback that it has been processed
+
 * Events are notifications of change of state.
 * Typically it’s the change of state of something of interest to the business.
-* They are a record of something which has happened,
-* They can not be changed, that is they are immutable.
+* They are a record of something which has happened.
+* They can not be changed, that is they are immutable ( we can't change something which has happened)
 
 ## Event Streams.
-* An event stream is a continuous un-bounded series of events.
+An Event stream is a continuous un-bounded series of events.
+
 * The start of the stream may have occurred before we started to process the stream
 * The end of the stream is at some unknown point in the future
 * Events are ordered by the point in time at which each event occurred.
 
-## Commands
-In most cases, events are notifications of change of state.  Notifications are issued ( or published ) and interested parties may subscribe and take action on the events.  Typically there is no connection back to the issuer of the notification that it has been processed.
+When developing event driven solutions we will typically see two types of Event Stream,
+* Ones where we have defined the events and published them into the stream as part of our solution
+* Ones where we connect to a real time event streams, eg from an IOT device, a Voice Stream from a telephone system, a Video stream, Ship/Plane locations from global positioning systems.
 
-In event driven solutions we may also consider sending a *command*, so an *instruction to do something*.  In this case it is a request for something to be done , and we are more likely to be interested in knowing if the command was carried out and what the result was.
+## Commands
+A *command*, is an *instruction to do something*. Typically commands are directed to a particular consumer which will run the required command/process
 
 ## Events and Messages
 There is a long history of *messaging* in IT systems, and we could easily see an *event driven solution* and *events* in the context of  messaging systems  and messages, but there are different characteristics which are worth considering.
 
-**Messaging** Messages are persisted until consumed, message consumers are typically directly targeted and related to  the producer.
+**Messaging** Messages transport a payload, messages are persisted until consumed, message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
 
-**Events:** Events are persisted as a repayable Stream History,
- event consumers which are not tied to the producer,
+**Events:** Events are persisted as a repayable Stream History, event consumers  are not tied to the producer,
  An event is a record of something which has happened and so cant be changed ( you cant change history ),
-
 
 <img src="../hl-arch-concepts1.png" width="1024px">
 
@@ -40,20 +45,9 @@ Cohesion is the degree to which related things are encapsulated together in the 
 Achieving cohesion in software while at the same time optimizing module size for flexibility and adaptability is hard but it is something that should be aimed for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations should be avoided, as should implementations that are excessively fine-grained.
 
 
-## Function as a service
-As a event consumer functions deliver stateless discrete step or task for the global event processing. The serverless approach will bring cost efficiency for the just on-demand invocation. It fits well in post processing with the event processing.
-Cloud functions provides a simple way for developers to write code which takes action on an event.
-Serverless computing model, complete abstraction of infrastructure away from the developer
-No need to worry about infrastructure/scaling
-Supports event notifications and event commands
-Cost model reflects simple event processing, pay for event processing compute time only
-
 ## Supporting Products
 * [Kafka Producer API for Java](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/producer/KafkaProducer.html)
 * [Nodejs kafka client]()
 * [Springboot streams]()
 
-## Code Reference
-The following code repositories can be used for event sourcing inspiration:
-* [PumpSimulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator) to send New Pump/ Asset event or Metric events to emulate intelligent IoT Electrical Pump.
-* [Simple text message producer](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#basic-text-message-pubsubscribe)
+#
