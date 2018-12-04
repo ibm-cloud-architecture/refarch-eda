@@ -2,7 +2,7 @@
 
 When we consider an Event Driven architecture we think about event producers and event consumers as the interaction points with events. As we develop event driven applications following a Microservices architecture the  Microservices we develop  will play the role of both event producers and event consumers, with the events being passed as the communication pay load between them.
 
-However as we look at the wider opportunities which being event driven brings to us, we need to widen our view and consider event sources which come from beyond the application code we are writing, events wihch may be produced from outside our immediate system but have business relevance or enable us to gain valuable insights into things which are affecting our business.
+However as we look at the wider opportunities which being event driven brings to us, we need to widen our view and consider event sources which come from beyond the application code we are writing, events which may be produced from outside our immediate system but have business relevance or enable us to gain valuable insights into things which are affecting our business.
 
 Here are a set of commonly seen event sources
 * IOT Devices/Sesnors showing device status changes

@@ -105,21 +105,22 @@ Specialized  *event processing engines* provide the means to run stateful analyt
 
 Including these engines as part of the Event Driven Architecture enables:
 
-* Analysis and Understanding of  real time event streams
+* Analysis and Understanding of real time event streams
 * Extracting real time event data from the stream so that Data Scientists can understand and derive ML models
-* Running of  analytical proceses, Machine Learning models in line in real time  against the event stream.
+* Running analytical processes, Machine Learning models in line in real time  against the event stream.
 * Matching of complex event patterns across multiple streams and time windows to make decisions and take actions
 
 [Read more ...](docs/rt-analytics/README.md)
 
-5- **Event Managed State**: While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin Event Log which provides the means to store and reply events published to the backbone, however there are additional considerations when we think about the wider event driven solution space. The event driven architecture must therefor also support additional capabilities such as
+5- **Event Managed State**: While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
 
- * Event Stores optimized for saving events for analytics
- * Event Sourcing for recording state changes and updates across distributed systems with optimized read stores ( CQRS )
+ * Event Stores optimized for analytics
+ * Event Sourcing as a pattern for recording state changes and updates across distributed systems
+ * Command Query Response Separation ( CQRS ) as an optimization which separates updates and reads across different stores
 
-[Read more ...](docs/event-storea/README.md)
+[Read more ...](docs/evt-state/README.md)
 
-6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events, and are themseleves event driven that is they will both produce and consume events via the event backbone.  In this context we can view the Event Backbone as being part of the microservices mesh, providing the communication means between microservices, enabling the support of loosely coupled, event driven microservices as the foundation for an agile application architecture.
+6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events, and are themselves event driven that is they will both produce and consume events via the event backbone.  In this context we can view the Event Backbone as being part of the microservices mesh, providing the communication means between microservices, enabling the support of loosely coupled, event driven microservices as the foundation for an agile application architecture.
 
 For maximum flexibility the architecture should support both the *Server-less* and *container* based run time models which are core to the modern Cloud Native Approach.
 
