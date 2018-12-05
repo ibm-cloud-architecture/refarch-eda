@@ -1,7 +1,7 @@
 # Event stream Processing
 
 ## Streaming Analytics ( Real-time analytics )
-Within the Event driven architecthure the streaming analytics component provides low latency analytical processing of continuous event streams.
+Within the Event driven architecture the streaming analytics component provides low latency analytical processing of continuous event streams.
 
 At the high level this includes
 
@@ -20,7 +20,7 @@ Streaming applications are writen as multi step flows across the following capab
 
 * **Ingest** many sources of events.
 * **Prepare** data transformation, filtering, correlate, aggregate on some metrics and leverage other data sources for data enrichment.
-* **Detect and Predict** events pattern using scoring, classification
+* **Detect and Predict** event patterns using scoring, classification
 * **Decide** by applying business rules and business logic
 * **Act** by directly executing an action,  or in event driven systems publishing an event notification or command.
 
@@ -29,13 +29,13 @@ Streaming applications are writen as multi step flows across the following capab
 Streaming applications are writen for and deployed to the Streaming Analytics run time.  The run time provides a highly optimized  environment/engine for stateful,parallel processing of analytical worklaods across multiple event streams.
 
 ### Application programing langauages and standards
-Across the industry there have been few standars for event stream applications and languages.  Typically streaming engines have provided language specific programming models tied to a specific platform.
+Across the industry there have been few standards for event stream applications and languages.  Typically streaming engines have provided language specific programming models tied to a specific platform.
 
 Commonly seen langauges include
 * Python - support for working with data
 * Java -  as the pervasive application developmenty language
 
-Other more platform specific languages have emerged where ultimate real time processing performance is required.
+Other more platform specific languages have emerged when ultimate real time processing performance is required.
 
 More recently Google initiatied the Apache Beam project https://beam.apache.org/ to provide a unified programming model for streaming analytics applications.
 
@@ -53,7 +53,7 @@ but leading onnes include Google Cloud DataFlow, Apache Flink, Apache Spark, Apa
 
 ### Support for real time analytics and decision making
 
-The streaming Analytics engine should provide capabilities for the commonly seen real time event stream analytics activiteis and also enable real time decision making based on observations across the processed event streams.
+The streaming Analytics engine should provide capabilities for the commonly seen real time event stream analytics activities and also enable real-time decision making based on observations across the processed event streams.
 
 This should include:
 
