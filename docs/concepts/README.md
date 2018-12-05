@@ -1,20 +1,26 @@
 # Concepts
+As  we look at Event driven solutions and Event Driven Architectures there are a number of concepts that we should understand as the underpin the very reasoning of being event driven.
 
-As we look at event driven solutions and Event Driven Archietcures there are a number of concepts that we should understand as the under pin the very reasoning of being event driven
+## Events.
 
-## Events
+Events are notifications of change of state.  Notifications are issued ( or published ) and interested parties may subscribe and take action on the events.  Typically there is no connection  the issuer of the notification for what the action taken is and
+no corresponding feedback that it has been processed
 
 * Events are notifications of change of state.
-* Typically, it’s the change of state of something of interest to the business.
-* They are a record of something which has happened,
-* They can not be changed, that is they are immutable.
+* Typically it’s the change of state of something of interest to the business.
+* They are a record of something which has happened.
+* They can not be changed, that is they are immutable ( we can't change something which has happened)
 
-## Event Streams
+## Event Streams.
+An Event stream is a continuous un-bounded series of events.
 
-* An event stream is a continuous un-bounded series of events.
 * The start of the stream may have occurred before we started to process the stream
 * The end of the stream is at some unknown point in the future
 * Events are ordered by the point in time at which each event occurred.
+
+When developing event driven solutions we will typically see two types of Event Stream,
+* Ones where we have defined the events and published them into the stream as part of our solution
+* Ones where we connect to a real time event streams, eg from an IOT device, a Voice Stream from a telephone system, a Video stream, Ship/Plane locations from global positioning systems.
 
 ## Commands
 
@@ -26,13 +32,16 @@ In event driven solutions we may also consider sending a command, so an *instruc
 
 Thinking in this way about events, and commands, brings the question of the relationship of event driven and messages systems.
 
-There is a long history of *"messaging"* in IT systems, and we could easily see an *event driven solution* and *events* as being messaging, but there are different characteristics which are worth considering.
+## Commands
+A *command*, is an *instruction to do something*. Typically commands are directed to a particular consumer which will run the required command/process
 
-As shown below we would consider the desired characteritics of Event bases systems and Messaging based systems to have these characteristics
+## Events and Messages
+There is a long history of *messaging* in IT systems, and we could easily see an *event driven solution* and *events* in the context of  messaging systems  and messages, but there are different characteristics which are worth considering.
 
-**Events:** Events are persisted as a replayable Stream History, horizontal scale out of event consumers which are not tied to the producer, the event is a record of something which has happened and so can't be changed (you can't change history).
+**Messaging** Messages transport a payload, messages are persisted until consumed, message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
 
-**Messaging** Messages are persisted until consumed, message consumers are typically directly tagetted and related to the producer.
+**Events:** Events are persisted as a repayable Stream History, event consumers  are not tied to the producer,
+ An event is a record of something which has happened and so cant be changed ( you cant change history ),
 
 <img src="../hl-arch-concepts1.png" width="1024px">
 
