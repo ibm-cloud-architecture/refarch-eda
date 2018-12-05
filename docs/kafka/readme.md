@@ -21,17 +21,17 @@ Update 11/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer
 
 [Kafka](https://Kafka.apache.org/) is a distributed streaming platform with the following key capabilities:
 
-* Publish and subscribe streams of records.
+* Publish and subscribe streams of records. Data are stored so consuming applications can pull the information they need, and keep track of whats they have seen so far.
 * Atomic broadcast, send a record once, every subscriber gets it once.
-* Store streams of data records on disk and replicate within the cluster for fault-tolerance.
-* built on top of the ZooKeeper synchronization service to keep topic, partitions and offsets states high available.
+* Store streams of data records on disk and replicate within the cluster for fault-tolerance. Keep data for a time period before delete. 
+* Built on top of the ZooKeeper synchronization service to keep topic, partitions and offsets states high available.
 
 ### Key concepts
 
 * **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers.
 * The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers.
-* Each broker may have zero or more partitions per topic.
-* Each partition is an ordered immutable sequence of records, that are persisted for a long time period.
+* To manage the load of messages kafka uses partitions. Each broker may have zero or more partitions per topic.
+* Each partition is an time ordered immutable sequence of records, that are persisted for a long time period. It is a log. Topic is a labelel log.
 
 The diagram below presents the key components:
 
@@ -42,15 +42,19 @@ The diagram below presents the key components:
 * Each record consists of a key, a value, and a timestamp.
 * Producers publish data records to topic and consumers subscribe to topics. When a record is produced without specifying a partition, a partition will be chosen using a hash of the key. If the record did not provide a timestamp, the producer will stamp the record with its current time (creation time or log append time). Producers hold a pool of buffer to keep records not yet transmitted to the server.
 * Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumer, the traffic pattern...
+* Kafka store log data in its `log.dir` and topic maps to subdirectories in this log directory.
 * Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets).
-* When a consumer reads a topic, it actually reads data from all of the partitions. As a consumer reads data from a partition, it advances its offset.
+* When a consumer reads a topic, it actually reads data from all of the partitions. As a consumer reads data from a partition, it advances its offset. 
+* Partitions guarantee that data with the same keys will be sent to the same consumer and in order. They improve throughtput. 
+* Kafka does not keep state regarding consumers and producers.
 * Offsets are maintained in Zookeeper or in **Kafka**, so consumers can read next message (or from a specific offset) correctly even during broker server outrages. We are detailing this in the asset consumer implementation in [this repository](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer).
 * **Kafka** uses topics with a pub/sub combined with queue model: it uses the concept of consumer group to divide the processing over a collection of consumer processes, running in parallel, and message can be broadcasted to multiple groups.
-* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
 * Consumer performs asynchronous pull to the connected broker via the subscription to a topic.
 
 The figure below illustrates one topic having multiple partitions, replicated within the broker cluster:
 ![](./images/kafka-topic-partition.png)  
+
+* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
 
 ### Use cases
 

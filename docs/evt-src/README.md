@@ -8,9 +8,11 @@ Here are a set of commonly seen event sources
 * IOT Devices/Sensors showing device status changes
 * Click Stream data from web and mobile applications
 * Mobile applications, HTTP to BFF and then to topic
-* Geospatial data
+* Geospacial data
+* Weather alerts
 * Social Media feeds
-* Real time voice and video feeds
+* Real time voice feeds
+* Other messaging backbone
 
 ## IOT Devices/Sensors
 
@@ -26,15 +28,18 @@ Clickstream data is often used to understand the behavior of  users as they navi
 
 Analysis of the clickstream data can lead to deep understanding of how users actually interact with the application. It enables detection of where users struggle and allows developers to look for ways to improve the experience.
 
+
 Processing the click stream in real time  in an event driven architecture can also give rise to the opportunities to take direction action in response to what a user is currently doing, or more accurately has just done.
 
-There are various "collectors" which enable collection of standard clickstream events and allow custom actions to be collected as events typically through tags in javascript.
+There are various "collectors" which enable collection of standard click stream events and allow custom actions to be collected as events typically through tags in javascript.
 
 Within the Apache Open Source communities Divolte collector is an example of one of these collectors which will directly publish the events to Kafka topics https://divolte.io/
+
 
 <img src="../hl-arch-clickstream.png" width="1024px">
 
 ## Microservices as event producers and consumers
+
 The event driven reference architecture provides support for event driven microservices, this is microservices are connected and communicate via the pub/sub communication protocol within the Event Backbone.
 
 With Kafka as the event backbone and pub/sub messaging provider,  microservices can use the  Kafka API's to publish and listen for events.
@@ -42,20 +47,29 @@ With Kafka as the event backbone and pub/sub messaging provider,  microservices 
 [Read more ...](docs/servicemesh/README.md) for more details
 
 
-# Event Standards and Schemas
-Where we have control as the producer of an event we should consider having an event schema and following a standard to privde the best opportunity for portability of the solutions across cloud environments.
+## Event Standards and Schemas
+
+Where we have control as the producer of an event we should consider having an event schema and following a standard to provide the best opportunity for portability of the solutions across cloud environments.
 With a lack of formal standards, a working group under the Cloud Native Computing Foundation (CNCF) has recently been formed to define and propose [Cloud Events](https://cloudevents.io/) as the standard.
 
 Our recommendation is follow CloudEvents where we have the ability to define the event structure and so pass "CloudEvents" through the event backbone.
 
-The examples included in this repository will use CloudEvents with Json payloads where we define and pass events into the backbone.
 
 ## Supporting Products
-* [Kafka Producer API for Java](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/producer/KafkaProducer.html)
-* [Nodejs kafka client]()
-* [Springboot streams]()
 
-## Code Reference
+* [IBM Mobile](https://www.ibm.com/mobile)
+* [IBM MQ](https://www.ibm.com/cloud/mq)
+* [IBM Internet of Things platform](https://console.bluemix.net/catalog/services/internet-of-things-platform)
+* [IBM Streaming Analytics](https://www.ibm.com/cloud/streaming-analytics)
+* [Kafka Producer API for Java](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/producer/KafkaProducer.html)
+* [Weather Company Data](https://console.bluemix.net/catalog/services/weather-company-data)
+* [Voice Agent with Watson](https://console.bluemix.net/catalog/services/voice-agent-with-watson)
+
+
+## Code References
+
 The following code repositories can be used for event sourcing inspiration:
-* [PumpSimulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator) to send New Pump/ Asset event or Metric events to emulate intelligent IoT Electrical Pump.
+* [ship movements/ container metrics event producer as a microservice](https://github.com/ibm-cloud-architecture/refarch-kc-ms)
+* [Container stream analytics](https://github.com/ibm-cloud-architecture/refarch-kc-streams)
+* [Pump Simulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator) to send New Pump/ Asset event or Metric events to emulate intelligent IoT Electrical Pump.
 * [Simple text message producer](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#basic-text-message-pubsubscribe)

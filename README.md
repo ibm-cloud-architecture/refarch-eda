@@ -20,17 +20,19 @@ Thinking in this way allows us to simplify the concept of the Event Driven Archi
 This repository represents the root of related content about the Cloud Native Event Driven Architecture.  It provides guidance  for how to approach the design of event driven solutions,  introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implementation in a cloud native environment.
 
 ## Table of Contents
-* [Target Audiences](#target-audiences)
+
+* [Target audiences](#target-audiences)
 * [Concepts](#concepts)
-* [Reference Architecture](#reference-architecture)
-* [Extending the Architecture For Machine Learning and Legacy integration](#extended-architecture)
+* [Reference architecture](#reference-architecture)
+* [Extended architecture for machine learning and legacy integration](#extended-architecture)
 * [Event Storming](#event-storming)
 * [Related repositories](#related-repositories)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
 
 ## Target audiences
-While the content of this repository is mostly technical in nature and is intended for a technical audience, it does also introduce methods such as Event Storming which would be used with business leaders to identify key business domain events and actions. You may find it useful to share this information with your business leaders before engaging them in such activities.
+
+While the content of this repository is mostly technical in nature and is intended for a technical audience, it does also introduce methods such as [Event Storming](#event-storming) which would be used with business leaders to identify key bsuiness domain events and actions. You may find it useful to share this information with your business leaders before engaging them in such activities.
 
 At a high level this is what you should expect to learn by working through the repository and examples.
 
@@ -39,7 +41,6 @@ At a high level this is what you should expect to learn by working through the r
 * As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
 From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
-
 ## Concepts
 Before we start looking at the details of the Event Driven Architecture we will quickly examine the core concepts of being event driven:
 
@@ -52,6 +53,7 @@ Before we start looking at the details of the Event Driven Architecture we will 
 [Read more ...](docs/concepts/README.md)
 
 ## Reference Architecture
+
 We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
 * Being able to communicate and persist events
@@ -156,11 +158,6 @@ For more details please read the following chapters.
 * [Insights Storming Methodology](docs/methodology/InsightStorming/readme.md)
 
 
-
-
-
-
-
 ## Applicability of an EDA
 
 EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
@@ -183,7 +180,8 @@ EDAs are typically not used for distributed transactional processing because thi
 ## Contribute
 
 We welcome your contribution. There are multiple ways to contribute: report bugs and improvement suggestion, improve documentation and contribute code.
-We really value contributions and to maximize the impact of code contributions we request that any contributions follow these guidelines
+We really value contributions and to maximize the impact of code contributions we request that any contributions follow these guidelines:
+
 * Please ensure you follow the coding standard and code formatting used throughout the existing code base
 * All new features must be accompanied by associated tests
 * Make sure all tests pass locally before submitting a pull request
@@ -199,6 +197,7 @@ If you want to contribute, start by using git fork on this repository and then c
 [10/2018] Just started
 
 ## Contributors
+
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
 * Lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
 * [IBM Streams Analytics team]
