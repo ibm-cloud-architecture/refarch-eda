@@ -47,7 +47,7 @@ With Kafka as the event backbone and pub/sub messaging provider,  microservices 
 [Read more ...](docs/servicemesh/README.md) for more details
 
 
-## Event Standards and Schemas
+# Event Standards and Schemas
 
 Where we have control as the producer of an event we should consider having an event schema and following a standard to provide the best opportunity for portability of the solutions across cloud environments.
 With a lack of formal standards, a working group under the Cloud Native Computing Foundation (CNCF) has recently been formed to define and propose [Cloud Events](https://cloudevents.io/) as the standard.
