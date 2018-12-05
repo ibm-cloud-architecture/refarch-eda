@@ -86,22 +86,21 @@ In general terms, an Event Source, or event producer is any component capable of
 
 2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities.
  * Pub/Sub style event communication between event producers and consumers
- * Persist events for a period of time
+ * An Event Log to Persist events for a period of time
  * Enables replay of events
- * Deliverds events once only
  * Handle subscriptions from multiple consumers
 
  [Read more ...](docs/evt-backbone/README.md)
 
-3- **Taking Actions with Cloud Functions** With event driven solutions a common need is to take an  action in response to an event happening. IBM Cloud Functions, provides a simplified *Action* programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload. Within the Event Drivem Architecture,
+3- **Taking Actions with Cloud Functions** With event driven solutions a common need is to take an  action in response to an event happening. IBM Cloud Functions, provides a simplified *Action* programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload. Within the Event Driven Architecture,
  * A business event of interest would be published to the event backbone
  * The *action* for the event would be written as a cloud Functions action
  * Cloud Functions would be configured to subscribe to the event and use it as a trigger to start the *action*
- * Cloud functions manages start-up and shut down of the required compute resources following the serverless compute model.
+ * Cloud functions would manage the start-up and shut down of the required compute resources.
 
  [Read more ...](docs/evt-functions/README.md)
 
-4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyse continuous event streams for insights and actions.
+4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyze continuous event streams for insights and actions.
 
 Specialized  *event processing engines* provide the means to run stateful analytical and complex event processing  workloads across multiple event streams while maintaining low latency in processing times.
 
