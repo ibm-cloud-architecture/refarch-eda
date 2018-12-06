@@ -2,7 +2,7 @@
 
 ## Events.
 
-Events are notifications of change of state.  Notifications are issued ( or published ) and interested parties may subscribe and take action on the events.  Typically there is no connection  the issuer of the notification for what the action taken is and
+Events are notifications of change of state.  Notifications are issued ( or published ) and interested parties may subscribe and take action on the events.  Typically there is no connection with the issuer of the notification for what the action taken is and
 no corresponding feedback that it has been processed
 
 * Events are notifications of change of state.
@@ -22,15 +22,15 @@ When developing event driven solutions we will typically see two types of Event 
 * Ones where we connect to a real time event stream, eg from an IOT device, a Voice Stream from a telephone system, a Video stream, Ship/Plane locations from global positioning systems.
 
 ## Commands
-A *command*, is an *instruction to do something*. Typically commands are directed to a particular consumer which will run the required command/process
+A *command*, is an *instruction to do something*. Typically commands are directed to a particular consumer which will run the required command/process, and pass back a confirmation to the issuer that it has been processed.
 
 ## Events and Messages
 There is a long history of *messaging* in IT systems, and we could easily see an *event driven solution* and *events* in the context of  messaging systems  and messages, but there are different characteristics which are worth considering.
 
-**Messaging** Messages transport a payload, messages are persisted until consumed, message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
+**Messaging:** Messages transport a payload, messages are persisted until consumed, message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
 
-**Events:** Events are persisted as a repayable Stream History, event consumers  are not tied to the producer,
- An event is a record of something which has happened and so cant be changed ( you cant change history ),
+**Events:** Events are persisted as a replay-able Stream History, event consumers  are not tied to the producer,
+an event is a record of something which has happened and so cant be changed ( you cant change history ),
 
 <img src="../hl-arch-concepts1.png" width="1024px">
 

@@ -80,15 +80,15 @@ Now we will take a detailed look at each of these component areas which make up 
 
 The modern digital business is driven by events,  events come into the business and events need to be pushed outside of the business.  For our Cloud Native Event Driven Architecture we consider event sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from, IoT devices, mobile apps, web apps, database triggers or microservices.
 
-In general terms, an Event Source, or event producer is any component capable of creating an event notification and publishing it to the event backbone, but lets look at some specific types of producer to better understand the opportunity with event driven.
+In general terms, an *Event Source*, or event producer is any component capable of creating an event notification and publishing it to the event backbone, but lets look at some specific types of producer to better understand the opportunity with event driven.
 
 [Read more ...](docs/evt-src/README.md)
 
 2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities.
  * Pub/Sub style event communication between event producers and consumers
  * An Event Log to Persist events for a period of time
- * Enables replay of events
- * Handle subscriptions from multiple consumers
+ * Replay of events
+ * Subscriptions from multiple consumers
 
  [Read more ...](docs/evt-backbone/README.md)
 
