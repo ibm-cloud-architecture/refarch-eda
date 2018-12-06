@@ -92,14 +92,14 @@ In general terms, an *Event Source*, or event producer is any component capable 
 
  [Read more ...](docs/evt-backbone/README.md)
 
-3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution  **IBM Cloud Functions** provides a simplified *Action* programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload.
+3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution  **IBM Cloud Functions** provides a simplified event driven programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload.
 
-With this simplified action model:
+With this simplified  model:
 
  * A business event of interest would be published to the event backbone
  * The *action* for the event would be written as a cloud Functions action
  * Cloud Functions would be configured to subscribe to the event and use it as a trigger to start the *action*
- * Cloud functions manages the start-up of the required compute resources.
+ * Cloud functions manages the start-up of all required compute resources.
  * Cloud functions managed execution of the action code
  * Cloud functions manages the shut-down of the compute resources when the action is complete
 
