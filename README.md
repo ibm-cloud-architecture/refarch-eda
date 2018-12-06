@@ -92,17 +92,20 @@ In general terms, an Event Source, or event producer is any component capable of
 
  [Read more ...](docs/evt-backbone/README.md)
 
-3- **Taking Actions with Cloud Functions** With event driven solutions a common need is to take an  action in response to an event happening. IBM Cloud Functions, provides a simplified *Action* programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload. Within the Event Driven Architecture,
+3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution  **IBM Cloud Functions** provides a simplified *Action* programming model, enabling developers to simply write the *action* code and have Cloud Functions, manage the compute workload.
+
+With this simplified action model:
+
  * A business event of interest would be published to the event backbone
  * The *action* for the event would be written as a cloud Functions action
  * Cloud Functions would be configured to subscribe to the event and use it as a trigger to start the *action*
- * Cloud functions would manage the start-up and shut down of the required compute resources.
+ * Cloud functions manages the start-up of the required compute resources.
+ * Cloud functions managed execution of the action code
+ * Cloud functions manages the shut-down of the compute resources when the action is complete
 
- [Read more ...](docs/evt-functions/README.md)
+ [Read more ...](docs/evt-action/README.md)
 
-4- **Processing Event Streams**: Another aspect of developing event driven solutions is the frequent need to analyze continuous event streams for insights and actions.
-
-Specialized  *event processing engines* provide the means to run stateful analytical and complex event processing  workloads across multiple event streams while maintaining low latency in processing times.
+4- **Processing continuous Event Streams to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized  *event stream processing engines* provide the means to run stateful analytical and complex event processing  workloads across multiple real time event streams while maintaining low latency in processing times.
 
 Including these engines as part of the Event Driven Architecture enables:
 
@@ -121,7 +124,7 @@ Including these engines as part of the Event Driven Architecture enables:
 
 [Read more ...](docs/evt-state/README.md)
 
-6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events, and are themselves event driven that is they will both produce and consume events via the event backbone.  In this context we can view the Event Backbone as being part of the microservices mesh, providing the communication means between microservices, enabling the support of loosely coupled, event driven microservices as the foundation for an agile application architecture.
+6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events and are themselves event driven, that is they will both produce and consume events via the event backbone.  In this context we can view the Event Backbone as being part of the microservices mesh, providing the communication between microservices, and therefore enabling the support of loosely coupled event driven microservices as the foundation for an agile application architecture.
 
 For maximum flexibility the architecture should support both the *Server-less* and *container* based run time models which are core to the modern Cloud Native Approach.
 
@@ -132,12 +135,12 @@ IBM Cloud functions provides a *server-less* compute model and simplified progra
 
 ## Extended Architecture
 
-With the basic reference architecture we examined how to develop event driven applications, how to take action on  events, and how to process event streams.  While this may be enough for basic event driven applications there are two areas where we see and expect solutions to extend to:
+The Event Driven Reference Architecture provides the framework to support event driven applications and solutions,  the extended architecture provides the connections for
 
   * Integration with legacy apps and data resources
-  * Integration with analytics/Machine learning for real time insights
+  * Integration with Analytics/Machine learning to derive real time insights
 
-The architecture diagram below shows an extended view for how these capabilities fit to form an extended event driven architecture.
+The architecture diagram below shows how these capabilities fit to form an extended event driven architecture.
 
 <img src="docs/hl-arch-extended.png" width="1024px">
 
