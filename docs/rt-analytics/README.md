@@ -1,12 +1,11 @@
 # Event stream Processing
 
 ## Streaming Analytics ( Real-time analytics )
-Within the Event driven architecture the streaming analytics component provides low latency analytical processing of continuous event streams.
-
-At the high level this includes
+Within the Event driven architecture the streaming analytics component provides low latency analytical processing of continuous event streams. Required capabilities are:
 
 * Continuous event ingestion and analytics processing
-* Low latecy processing, data does not have to be stored
+* Processing across multiple event streams
+* Low latency processing, data does not have to be stored
 * Processing of high-volume streams of data
 * Continuous Query and Analysis of the feed
 * Correlation across events and streams
@@ -14,9 +13,11 @@ At the high level this includes
 * Query and analysis of stored data
 * Development and execution of Data pipelines
 * Development and execution of Analytics pipelines
+* Scoring of Machine Learning models in line in the real time event stream processing
 
-### Streaming Applictaion patterns
-Streaming applications are writen as multi step flows across the following capabilities
+### Streaming Application patterns
+
+Streaming applications are written as multi step flows across the following capabilities
 
 * **Ingest** many sources of events.
 * **Prepare** data transformation, filtering, correlate, aggregate on some metrics and leverage other data sources for data enrichment.
@@ -26,29 +27,45 @@ Streaming applications are writen as multi step flows across the following capab
 
 ![](rt-analytics-app-pattern.png)
 
-Streaming applications are writen for and deployed to the Streaming Analytics run time.  The run time provides a highly optimized  environment/engine for stateful,parallel processing of analytical worklaods across multiple event streams.
+Streaming applications are written for and deployed to the Streaming Analytics run time.
 
-### Application programing langauages and standards
+### Streaming Analytics engines ( runtimes )
+
+In operational terms streaming analytics engines must receive and analyze arriving data continuously:
+
+* The Feed Never Ends
+  - The collection is unbounded
+  - Not a request response set based model
+
+* The Firehose Doesn’t Stop
+  - Keep drinking and keep up
+  -   - Processing rate >= Feed rate
+  - Must be Resilient and self-healing
+
+These specialized demands and concerns, which are different from many other information processing environments, have lead to highly optimized run times/engines for stateful, parallel processing of analytical workloads across multiple event streams.
+
+
+### Application programing languages and standards
 Across the industry there have been few standards for event stream applications and languages.  Typically streaming engines have provided language specific programming models tied to a specific platform.
 
-Commonly seen langauges include
+Commonly seen languages include
 * Python - support for working with data
-* Java -  as the pervasive application developmenty language
+* Java -  as the pervasive application development language
 
 Other more platform specific languages have emerged when ultimate real time processing performance is required.
 
-More recently Google initiatied the Apache Beam project https://beam.apache.org/ to provide a unified programming model for streaming analytics applications.
+More recently Google initiated the Apache Beam project https://beam.apache.org/ to provide a unified programming model for streaming analytics applications.
 
-With Beam there is a higer level unified programming model providing standard way of writing streaming analytics applications in a number of supported langauages
+With Beam there is a higher level unified programming model providing standard way of writing streaming analytics applications in a number of supported languages
 * Java
 * Python
 * Go
 * SQL
-Streaming Analytics engines typicaly support this unified programming model through a beam runner which takes the code and deploys as executable code for the specific engine.
+Streaming Analytics engines typically support this unified programming model through a beam runner which takes the code and deploys as executable code for the specific engine.
 
 The latest details of supporting engines and the capabilities they support can be found here
 https://beam.apache.org/documentation/runners/capability-matrix/
-but leading onnes include Google Cloud DataFlow, Apache Flink, Apache Spark, Apache Apex,  and IBM Streams.
+but leading ones include Google Cloud DataFlow, Apache Flink, Apache Spark, Apache Apex,  and IBM Streams.
 
 
 ### Support for real time analytics and decision making
