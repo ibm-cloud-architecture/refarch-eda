@@ -1,24 +1,26 @@
-# Event Actions
+# Taking An Action with Cloud Functions
 
+IBM Cloud Functions is IBM's "Server-less" compute offering, and while one of the appeals of server-less is in the provision of cost effective compute time,  it provides a simplified *event driven programming model* which is very valuable for event driven solutions.
 
+With cloud functions:
 
+* Developers  write functional logic called *Actions*
+* *Actions* can be written in a number of supported languages including Java, Python, Node, Swift, Go, ...
+* *Actions* are triggered from events being published to Kafka topics ( The event backbone )
+* Functions brings up the required compute to run the Action
+* Functions shuts down the compute when the Action is complete
+* Functions automatically scales for event volume/velocity
 
-# Function as a service
-As an event consumer functions deliver stateless discrete step or task for the global event processing. The serverless approach will bring cost efficiency for the just on-demand invocation. It fits well in post processing with the event processing.
-Cloud functions provides a simple way for developers to write code which takes action on an event.
-Serverless computing model, complete abstraction of infrastructure away from the developer
-No need to worry about infrastructure/scaling
-Supports event notifications and event commands
-Cost model reflects simple event processing, pay for event processing compute time only
+For event driven systems this simple event driven programming model which abstracts the complications of event handling, and load balancing to ensure you have enough subscribing consumers ready to handle the velocity of events through the system, is very powerful.
 
+My developer just write the code which executes the required action/business logic.
 
+## Supporting Products and suggested reading
 
-https://github.com/IBM/ibm-cloud-functions-message-hub-trigger
+IBM Cloud Functions is a commercial service offering version of the Apache Openwhisk project  https://openwhisk.apache.org/
 
-## Supporting Products
+IBM Cloud Functions product offering https://www.ibm.com/cloud/functions
 
-* [Kafka Consumer API for Java](https://kafka.apache.org/10/javadoc/org/apache/kafka/clients/consumer/package-summary.html)
+Getting Started with Cloud Functions  https://console.bluemix.net/openwhisk/
 
-UNDER construction!
-
-![](../under-construction.png)
+Using Cloud functions with event trigger in Kafka  https://github.com/IBM/ibm-cloud-functions-message-hub-trigger
