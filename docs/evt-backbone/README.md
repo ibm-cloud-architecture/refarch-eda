@@ -5,9 +5,9 @@ The event backbone is the communication layer in the event driven architecture. 
 At this high level we would consider two types of relevant technologies for the event backbone, *Message Brokers* and *Event Logs*.  Both technology types could be used to achieve the event communication style, with the "Publish and  subscribe" model however, it is also important to consider other capabilities which are frequently used within event driven solutions:
 
 * Keeping an **Event Log** as a time sequenced as it happened recording of events  (Source of the truth)
-* Enabling direct *Replay of events*
+* Enabling direct **Replay** of events.
 * Enabling **Event Sourcing** as a way of recording state changes in distributed systems
-* Enabling programmatic access to the *continuous event stream*
+* Enabling **programmatic access** to the *continuous event stream*
 
 When viewed across these wider event driven capabilities, an event log style technology  can provide a central component which can  support all of these capabilities, where as a message broker would have to be extended with other components.
 
@@ -30,7 +30,7 @@ You can read  more about Apache Kafka project here https://kafka.apache.org/
 
 ## Supporting products
 
-The IBM Event Streams offering provides a *Kafka* service which can form the Event Backbone. The service is available as a fully managed service within Public cloud and as a supported build for IBM cloud Private.
+The IBM Event Streams offering provides a *Kafka* service for the Event Backbone. The service is available as a fully managed service within Public cloud and as a supported build for IBM Cloud Private.
 
 * [IBM Event Streams Public Cloud](https://console.bluemix.net/catalog/services/event-streams)
 * [IBM Event Streams Private Cloud](https://www.ibm.com/cloud/event-streams)
