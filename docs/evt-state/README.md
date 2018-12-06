@@ -1,4 +1,4 @@
-# Event Manages state
+# Event Managed state
 
 ## Event Sourcing
 
@@ -24,9 +24,7 @@ One of the main advantages is to support multiple data denormalization and being
 
 
 ## Supporting Products
-* [Kafka Producer API for Java](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/producer/KafkaProducer.html)
-* [Nodejs kafka client]()
-* [Springboot streams]()
+
 
 ## Code Reference
 The following code repositories can be used for event sourcing inspiration:
