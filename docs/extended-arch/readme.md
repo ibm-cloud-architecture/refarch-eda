@@ -2,25 +2,58 @@
 
 <img src="../hl-arch-extended.png" width="1024px">
 
-## Legacy Integration
-
-While some Event driven applications will  stand alone, in many cases they will  require integration with existing  enteprise applications and data sources.There can be advanatges in enabling these integrations to be event driven at the earliest point.  Developers could modify code to emit events,  which then become available through the EDA to the event driven application developers.
-
-Less introusive options may be presented where
-* Messaging (MQ) solutions are deployed in the legacy environments which can be bridged into the cloud native EDA.
-* Change Data Capture capabilities could publish changes as events to the EDA for legacy databases.
-
 ## Integration with Analytics/Machine Learning
 
-## Dashboard
- Event based solution needs to present different type of user interface:  operational dashboards to assess the state of the runtime components and business oriented dashboard, also known as Business Activity Monitoring.
+The extended architecture  extends the basic EDA reference architecture with concepts showing how Data Science , Artificial Intelligence and Machine Learning can be incorporated into an EDA solution.
 
-There is a need to keep visibility of event paths inside the architecture. Dashboards will be connected to the event backbone and to event store.
+The starting point for data scientists to be able to derive machine learning models or analyze data for trends and behaviors is the existence of the data in form that they can consume it. For real time intelligent solutions, data scientists typical inspect event histories and decision/action records from a system and reduce these to some simplified model which will score new event data, as it arrives.
 
-[Read more ...](docs/evt-dashboard/README.md)
+**Step 1 Getting the data for the data scientist: **
+With real time event streams, the challenge is  that we are dealing with unbounded data or a continuous flow of events. To make this consumable for the data scientist we need to capture the relevant data and store it so that it can be pulled into the analysis, and model building process as required.
+
+Following our event driven reference architecture the event stream would be a Kafka topic on the Event Backbone.  From here there are two possibilities for making that event data available and consumable to the data scientist:
+
+* The event stream/event log could be accessed directly through Kafka and pulled into the analysis process
+* The event stream could be pre processed by the streaming Analytics system and stored for future use in the analysis process. We have a choice of store type which could  be used here, within public  IBM cloud object storage [Cloud Object Store ](https://www.ibm.com/cloud/object-storage) can be used a cost effective historical store.
+
+Both approaches are valid, pre processing through streaming analytics provides opportunity for greater manipulation of the data, storing over time windows etc. However the more interesting distinction is where we may also use a predictive ( ML model )to score arriving  events/stream data in real time. In this case we could use streaming analytics to extract and save the event data for analysis/model building/model training and also to score ( execute ) a derived model in line in the real time against arriving event data.
+
+* The event and decision/action Data is made available in Cloud Object storage for model building through Streaming Analytics
+
+* Models may be developed by tuning and parameter fitting, standard form fitting, classification techniques , and  text analytics methods.
+
+* Increasingly Artificial Intelligence (AI) and Machine Learning (ML) frameworks are use to discover and train useful predictive models  as an alternative to parameterizing existing model types manually.
+
+* These techniques lead to process and data flows where the predictive model is trained offline using event histories from the event and decision/action store possibly augmented with some supervisory outcome labelling – ass illustrated by the path from the Event Backbone and Stream Processing store into Learn/Analyze
+
+* A model trained in this way will include some “scoring” API which can be invoked with fresh event data to generate a model based prediction for future behavior and event properties of that specific context.
+
+* The scoring function is then easily reincorporated into the Streaming analytics processing to generate predictions and insights
+
+The combined techniques of:
+1. Event Driven Architecture
+2. Identification of predictive insights using Event storming
+3. Developing models for these insights using ML
+4. Real-time scoring of the insight models using a streaming analytics processing framework
+
+lead us to create real time intelligent applications.
+
+These are scalable easily extensible and adaptable application responding in near real time to new situations. There are easily extended to build out and evolve from an initial MVP because of the loose coupling in the EDA, and Streams process domains.
+
+### Data Scientist Workbench
+To complete our extended architecture for  integration with analytics and machine learning, we should consider the toolset and frameworks which the data scientist may used to derive the models.
+
+[Watson Studio](https://www.ibm.com/marketplace/watson-studio) provides  provides tools for data scientists, application developers and subject matter experts to collaboratively and easily work with data to build and train models at scale.
 
 
-## Data scientist workbench**:
-There are opportunities to have data scientists connecting directly event subscriber from their notebook to do real time data analysis, data cleansing and even train and test model on the data from the event payload. The data can be kept in data store but the new model can be deployed back to the streaming analytics component...
+For more information please see [Getting started ](https://dataplatform.cloud.ibm.com/docs/content/getting-started/overview-ws.html) with Watson Studio.
 
-[Read more ...](docs/ml-workbench/README.md)
+## Legacy Integration
+
+Whilst we may be creating new digital business applications as self contained systems we will also see the need to integrate legacy apps and data bases into the event driven system.
+
+Two ways of coming directly into the event driven architecture come where
+
+1. Where legacy applications are connected with MQ. We  can connect directly from MQ to the Kafka in the event backbone.  See [IBM Event Streams getting started with MQ](https://ibm.github.io/event-streams/connecting/mq/)
+
+2. Where databases support change data capture, it is possible to publish changes as events to Kafka and hence into the event infrastructure.[See the confluent blog for more details](https://www.confluent.io/blog/no-more-silos-how-to-integrate-your-databases-with-apache-kafka-and-cdc)
