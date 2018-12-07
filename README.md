@@ -128,7 +128,6 @@ Including these engines as part of the Event Driven Architecture enables:
 
 In this context we can view the Event Backbone as being part of the microservices mesh, providing the Pub/Sub communication between microservices, and therefore enabling the support of loosely coupled event driven microservices.
 
-
 [Read more ...](docs/evt-microservices/README.md)
 
 
