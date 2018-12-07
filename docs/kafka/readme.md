@@ -2,19 +2,21 @@
 
 In this article we are presenting real time event processing and analytics using **Kafka** deployed on Kubernetes cluster. We are documenting how to deploy this capability on IBM Cloud Private using a [**Kafka**](https://Kafka.apache.org/) open source distribution or the new [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/) and how to remote connect from hosts outside of the cluster, how to support high availability...
 
-Update 11/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
+Update 12/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Table of contents
 
 * [Introduction - concepts - use cases](#introduction)
 * [Details](#kafka-stream-details)
-* [Architecture](#architecture)
+* [Architecture and design discussion](#architecture)
 * [Deployment](#deployment)
   * [Kafka deployment](../../deployments/kafka/README.md)
   * [Zookeeper deployment](../../deployments/zookeeper/README.md)
   * [IBM Event Streams on IBM Cloud Private](../../deployments/eventstreams/README.md)
+* [Producer implementation considerations](./producers.md)
+* [Consumer implementation considerations](./consumers.md)
 * [Monitoring with Prometheus and Grafana](./monitoring.md)
-* [Streaming applications](#streaming-app)
+* [Streaming applications](./kafka-stream.md)
 * [Compendium](#compendium)
 
 ## Introduction
@@ -136,24 +138,25 @@ With **Kafka** stream, state store or KTable, you should separate the changelog 
 
 When developing a record producer you need to assess the following:
 
-* what is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size.
-* can the producer batch events together to send them in batch over one send operation?
-* is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size
-* assess *once to exactly once* delivery requirement. Look at idempotent producer.
+* What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size.
+* Can the producer batch events together to send them in batch over one send operation?
+* Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size
+* Assess *once to exactly once* delivery requirement. Look at idempotent producer.
 
-See related discussion [ on confluent web site](https://www.confluent.io/blog/put-several-event-types-kafka-topic/)
+See [implementation considerations discussion](./producers.md)
 
 #### Consumers
 
 From the consumer point of view a set of items need to be addressed during design phase:
 
-* do you need to group consumers for parallel consumption of events?
-* what is the processing done once the record is processed out of the topic? And how a record is supposed to be consumed?.
-* how to persist consumer committed position? (the last offset that has been stored securely)
-* assess if offsets need to be persisted outside of Kafka?. From version 0.9 offset management is more efficient, and synchronous or asynchronous operations can be done from the consumer code. We have started some Java code example in [this project](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer)
-* does record time sensitive, and it is possible that consumers fall behind, so when a consumer restarts he can bypass missed records?
-* do the consumer needs to perform joins, aggregations between multiple partitions?
+* Do you need to group consumers for parallel consumption of events?
+* What is the processing done once the record is processed out of the topic? And how a record is supposed to be consumed?.
+* How to persist consumer committed position? (the last offset that has been stored securely)
+* Assess if offsets need to be persisted outside of Kafka?. From version 0.9 offset management is more efficient, and synchronous or asynchronous operations can be done from the consumer code. We have started some Java code example in [this project](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer)
+* Does record time sensitive, and it is possible that consumers fall behind, so when a consumer restarts he can bypass missed records?
+* Do the consumer needs to perform joins, aggregations between multiple partitions?
 
+See [implementation considerations discussion](./consumers.md)
 
 ### High Availability in the context of Kubernetes deployment
 
@@ -232,73 +235,6 @@ Within Kafka's boundary, data will not be lost, when doing proper configuration,
 
 Zookeeper is not CPU intensive and each server should have a least 2 GB of heap space and 4GB reserved. Two cpu per server should be sufficient. Servers keep their entire state machine in memory, and write every mutation to a durable WAL (Write Ahead Log) on persistent storage. To prevent the WAL from growing without bound, ZooKeeper servers periodically snapshot their in memory state to storage. Use fast and dynamically provisioned persistence storage for both WAL and snapshot.
 
-## Streaming app
-
-The Java code in the project: https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer includes examples of stateless consumers, a text producer, and some example of stateful operations. In general code for processing event does the following:
-* Set a properties object to specify which brokers to connect to and what kind of serialization to use.
-* Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key)
-* Create a topology of input source and sink target and action to perform on the records
-* Start the stream client to consume records
-
-A stateful operator uses the streaming Domain Specific Language, and is used for aggregation, join and time window operators. Stateful transformations require a state store associated with the stream processor. The code below comes from Kafka examples and is counting word occurrence in text:
-
-```
-    final StreamsBuilder builder = new StreamsBuilder();
-    final Pattern pattern = Pattern.compile("\\W+");
-
-    KStream<String, String> textLines = builder.stream(source);
-
-    KTable<String, Long> wordCounts = textLines
-       .flatMapValues(textLine -> Arrays.asList(pattern.split(textLine.toLowerCase())))
-       .print(Printed.toSysOut()
-       .groupBy((key, word) -> word)
-       .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("counts-store"));
-    wordCounts.toStream().to(sink, Produced.with(Serdes.String(), Serdes.Long()));
-
-    KafkaStreams streams = new KafkaStreams(builder.build(), props);
-    streams.start();
-```
-
-* [KStream](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/KStream.html) represents KeyValue records coming as event stream from the topic.
-* flatMapValues() transforms the value of each record in "this" stream into zero or more values with the same key in the new KStream. So here the text line is split into words. The parameter is a [ValueMapper](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/ValueMapper.html) which applies transformation on values but keeping the key.
-* groupBy() Group the records of this KStream on a new key that is selected using the provided KeyValueMapper. So here it create new KStream with the extracted word as key.
-* count() counts the number of records in this stream by the grouped key. Materialized is an api to define a store to persist state. So here the state store is "counts-store".
-* Produced defines how to provide the optional parameters when producing to new topics.
-* KTable is an abstraction of a changelog stream from a primary-keyed table.
-
-
-### Example to run the Word Count application:
-1. Be sure to create the needed different topics once the Kafka broker is started (test-topic, streams-wordcount-output):
-
-```
-docker exec -ti Kafka /bin/bash
-cd /scripts
-./createtopics.sh
-```
-
-1. Start a terminal window and execute the command to be ready to send message.
-
-```
-$ docker exec -ti Kafka /bin/bash
-# can use the /scripts/openProducer.sh or...
-root> /opt/Kafka_2.11-0.10.1.0/bin/Kafka-console-producer.sh --broker-list localhost:9092 --topic streams-plaintext-input
-```
-
-1. Start another terminal to listen to the output topic:
-
-```
-$ docker exec -ti Kafka /bin/bash
-# can use the /scripts/consumeWordCount.sh or...
-root> /opt/Kafka_2.11-0.10.1.0/bin/Kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic streams-wordcount-output --from-beginning --formatter Kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.Kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.Kafka.common.serialization.LongDeserializer
-```
-
-1. Start the stream client to count word in the entered lines
-
-```
-mvn exec:java -Dexec.mainClass=ibm.cte.Kafka.play.WordCount
-```
-
-Outputs of the WordCount application is actually a continuous stream of updates, where each output record is an updated count of a single word. A KTable is counting the occurrence of word, and a KStream send the output message with updated count.
 
 ## Compendium
 
