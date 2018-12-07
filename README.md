@@ -124,13 +124,12 @@ Including these engines as part of the Event Driven Architecture enables:
 
 [Read more ...](docs/evt-state/README.md)
 
-6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events and are themselves event driven, that is they will both produce and consume events via the event backbone.  In this context we can view the Event Backbone as being part of the microservices mesh, providing the communication between microservices, and therefore enabling the support of loosely coupled event driven microservices as the foundation for an agile application architecture.
+6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events and are themselves event driven, that is they will both produce and consume events via the event backbone.
 
-For maximum flexibility the architecture should support both the *Server-less* and *container* based run time models which are core to the modern Cloud Native Approach.
+In this context we can view the Event Backbone as being part of the microservices mesh, providing the Pub/Sub communication between microservices, and therefore enabling the support of loosely coupled event driven microservices.
 
-IBM Cloud functions provides a *server-less* compute model and simplified programming model for event drive microservices with the complexities of managing active consumer service instances abstracted into the server-less compute stack.
 
-[Read more ...](docs/servicemesh/README.md)
+[Read more ...](docs/evt-microservices/README.md)
 
 
 ## Extended Architecture
