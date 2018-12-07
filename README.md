@@ -4,18 +4,18 @@ The modern digital business works in real time, it informs interested parties of
 
 For enterprise IT teams, this means embracing event driven as being foundational to the next generation of digital business applications. It will require IT teams to be able to design, develop, deploy and operate event driven solutions, in cloud native styles.
 
-While event driven architectures and reactive programming models are not new concepts the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive:
+While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive:
 
 * Microservices -  Provide the loosely coupled application architecture which enables deployment in highly distributed patters for Resilience, Agility and Scale.
 * Cloud Native platforms with Containers and "Server-less deployments"  - Provide the application platform and tools which realize the Resilience Agility and Scale promise of the microservices architectures.
-* Event services -  Realizing an Event Driven Architecture (EDA) provide the means to be Reactive and Responsive
+* Event services -  Realizing an Event Driven Architecture (EDA) provides the means to be Reactive and Responsive.
 
 Thinking in this way allows us to simplify the concept of the Event Driven Architecture to be about providing the  essential event capabilities to the Cloud Native Platform.
 
-* Being able to communicate and persist events
+* Being able to communicate and persist events.
 * Being able to take direct action on events.
-* Processing event streams to derive real time insight/intelligence
-* Providing communication for event driven microservices
+* Processing event streams to derive real time insight/intelligence.
+* Providing communication for event driven microservices.
 
 This repository represents the root of related content about the Cloud Native Event Driven Architecture.  It provides guidance  for how to approach the design of event driven solutions,  introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implementation in a cloud native environment.
 
@@ -26,7 +26,7 @@ This repository represents the root of related content about the Cloud Native Ev
 * [Reference architecture](#reference-architecture)
 * [Extended architecture for machine learning and legacy integration](#extended-architecture)
 * [Event Storming](#event-storming)
-* [Related repositories](#related-repositories)
+* [Sample EDA Applications](#sample-eda-applications)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
 
@@ -40,7 +40,7 @@ At a high level this is what you should expect to learn by working through the r
 * As a developer, you will understand how to develop event driven applications.
 * As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
-From the repository you will get starting code, and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable, and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
+From the repository you will get sample code and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
 ## Concepts
 Before we start looking at the details of the Event Driven Architecture we will quickly examine the core concepts of being event driven:
 
@@ -56,10 +56,10 @@ Before we start looking at the details of the Event Driven Architecture we will 
 
 We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
-* Being able to communicate and persist events
+* Being able to communicate and persist events.
 * Being able to take direct action on events.
-* Processing event streams to derive real time insight/intelligence
-* Providing communication for event driven microservices
+* Processing streams of events to derive real time insight/intelligence.
+* Providing communication between event driven microservices.
 
 With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below.
 
@@ -67,12 +67,12 @@ With an event backbone providing the connectivity between the capabilities, we c
 
 Where:
 
-* IBM Event Streams : provides a Kafka Event Backbone withPub/Sub communication,  event log, and simple event stream processing.
+* IBM Event Streams : provides a Kafka Event Backbone with Pub/Sub communication, event log, and simple event stream processing.
 * IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute.
 * Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams.
-* Decision Server Insights: Provides the means to take action on events and event streams through business rules
-* Event Driven Microservices applications run as server-less functions or containerized workloads are connected via pub/sub event communication through the event backbone.
-* Event Stores provide optimized persistence (data stores), for event sourcing, CQRS  and analytical use cases.
+* Decision Server Insights : Provides the means to take action on events and event streams through business rules.
+* Event Driven Microservices : Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+* Event Stores : Provide optimized persistence (data stores), for event sourcing, CQRS  and analytical use cases.
 
 Now we will take a detailed look at each of these component areas which make up the reference architecture:
 
@@ -84,7 +84,7 @@ In general terms, an *Event Source*, or event producer is any component capable 
 
 [Read more ...](docs/evt-src/README.md)
 
-2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities.
+2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities:
  * Pub/Sub style event communication between event producers and consumers
  * An Event Log to Persist events for a period of time
  * Replay of events
@@ -92,7 +92,7 @@ In general terms, an *Event Source*, or event producer is any component capable 
 
  [Read more ...](docs/evt-backbone/README.md)
 
-3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution  **IBM Cloud Functions** provides a simplified event driven programming model, enabling developers to simply write the *action* code in the language of their choice and have Cloud Functions, manage the compute workload.
+3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution.  **IBM Cloud Functions** provides a simplified event driven programming model, enabling developers to simply write the *action* code in the language of their choice and have Cloud Functions manage the compute workload.
 
 With this simplified  model:
 
@@ -105,7 +105,7 @@ With this simplified  model:
 
  [Read more ...](docs/evt-action/README.md)
 
-4- **Processing continuous Event Streams to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized  *event stream processing engines* provide the means to run stateful analytical and complex event processing  workloads across multiple real time event streams while maintaining low latency in processing times.
+4- **Processing continuous Event Streams to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized  *streaming analytics engines* provide the means to run stateful analytical and complex event processing workloads across multiple real time event streams while maintaining low latency processing times.
 
 Including these engines as part of the Event Driven Architecture enables:
 
@@ -133,12 +133,12 @@ In this context we can view the Event Backbone as being part of the microservice
 
 ## Extended Architecture
 
-The Event Driven Reference Architecture provides the framework to support event driven applications and solutions,  the extended architecture provides the connections for
+The Event Driven Reference Architecture provides the framework to support event driven applications and solutions,  the extended architecture provides the connections for:
 
   * Integration with legacy apps and data resources
   * Integration with Analytics/Machine learning to derive real time insights
 
-The architecture diagram below shows how these capabilities fit to form an extended event driven architecture.
+The architecture diagram below shows how these capabilities fit together to form an extended event driven architecture.
 
 <img src="docs/hl-arch-extended.png" width="1024px">
 
@@ -162,15 +162,15 @@ For more details please read the following chapters.
 
 EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
 
-## Related repositories
+## Sample EDA Applications 
 
 * [Container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc): this solution presents real time analytics, pub-sub architecture pattern and micro-service communication on Kafka.
 * [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
 
 ## Compendium
 
-* [Getting started with IBM Streams Analytics on IBM Cloud](https://console.bluemix.net/docs/services/StreamingAnalytics/t_starter_app_deploy.html#starterapps_deploy)
-* [IBM Streams Analytics Samples](https://ibmstreams.github.io/samples/)
+* [Getting started with IBM Streaming Analytics on IBM Cloud](https://console.bluemix.net/docs/services/StreamingAnalytics/t_starter_app_deploy.html#starterapps_deploy)
+* [IBM Streams Samples](https://ibmstreams.github.io/samples/)
 * [Kafka summary and deployment on IBM Cloud Private](./docs/kafka/readme.md)
 * [Service mesh](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md)
 * [Serverless](https://github.com/ibm-cloud-architecture/refarch-integration/tree/master/docs/serverless)
