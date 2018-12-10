@@ -1,6 +1,6 @@
 # Event Backbone
 
-The event backbone is the communication layer in the event driven architecture.  It provides the connection between event driven capabilities and in the *Cloud Native*  it becomes the Pub/Sub communication layer for event drivem microservices.
+The event backbone is the communication layer in the event driven architecture.  It provides the connection between event driven capabilities and in the *Cloud Native*  it becomes the Pub/Sub communication layer for event driven microservices.
 
 At this high level we would consider two types of relevant technologies for the event backbone, *Message Brokers* and *Event Logs*.  Both technology types could be used to achieve the event communication style, with the "Publish and  subscribe" model however, it is also important to consider other capabilities which are frequently used within event driven solutions:
 
