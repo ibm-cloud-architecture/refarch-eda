@@ -1,0 +1,1 @@
+-javaagent:/opt/ibm/wlp/usr/servers/defaultServer/resources/javametrics-agent.jar

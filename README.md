@@ -25,7 +25,8 @@ This repository represents the root of related content about the Cloud Native Ev
 * [Concepts](#concepts)
 * [Reference architecture](#reference-architecture)
 * [Extended architecture for machine learning and legacy integration](#extended-architecture)
-* [Event Storming](#event-storming)
+* [Event Storming methodology](#event-storming)
+* [Deployments](#deployments)
 * [Sample EDA Applications](#sample-eda-applications)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
@@ -150,7 +151,7 @@ When it comes to the design of event driven solutions there are some additional 
 
 **Event Storming**,  is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
 
-**Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are something that has happened) we could see a predictive or derived event , the *system will fail in 3 days* , we could take preventative actions.
+**Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are something that has happened) we could see a predictive or derived event , the *system will fail in 3 days*, we could take preventative actions.
 
 For more details please read the following chapters.
 
@@ -161,6 +162,16 @@ For more details please read the following chapters.
 ## Applicability of an EDA
 
 EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
+
+## Deployments
+
+In term of event backbone deployment we propose different different approaches:
+* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams) 
+* **IBM Cloud Private** 
+  * [Event Streams deployment helm chart](./deployments/eventstreams/README.md) 
+  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md)
+* Running locally to developer workstation with
+  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md)
 
 ## Sample EDA Applications 
 
@@ -182,16 +193,7 @@ EDAs are typically not used for distributed transactional processing because thi
 We welcome your contribution. There are multiple ways to contribute: report bugs and improvement suggestion, improve documentation and contribute code.
 We really value contributions and to maximize the impact of code contributions we request that any contributions follow these guidelines:
 
-* Please ensure you follow the coding standard and code formatting used throughout the existing code base
-* All new features must be accompanied by associated tests
-* Make sure all tests pass locally before submitting a pull request
-* New pull requests should be created against the integration branch of the repository. This ensures new code is included in full stack integration tests before being merged into the master branch.
-* One feature / bug fix / documentation update per pull request
-* Include tests with every feature enhancement, improve tests with every bug fix
-* One commit per pull request (squash your commits)
-* Always pull the latest changes from upstream and rebase before creating pull request.
-
-If you want to contribute, start by using git fork on this repository and then clone your own repository to your local workstation for development purpose. Add the up-stream repository to keep synchronized with the master.
+The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 
 ## Project Status
 [10/2018] Just started

@@ -1,5 +1,7 @@
 # Kafka Streaming
 
+Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. It is a very important technology to process real-time data for anlytics and event processing. 
+
 The Java code in the project: https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer includes examples of stateless consumers, a text producer, and some example of stateful operations. In general code for processing event does the following:
 * Set a properties object to specify which brokers to connect to and what kind of serialization to use.
 * Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key)

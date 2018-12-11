@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.3 (67297) - http://www.bohemiancoding.com/sketch -->
+    <title>Timestamp White</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Timestamp-White" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M10,18.75 C5.16750844,18.75 1.25,14.8324916 1.25,10 C1.25,5.16750844 5.16750844,1.25 10,1.25 C14.8324916,1.25 18.75,5.16750844 18.75,10 C18.7445923,14.8302498 14.8302498,18.7445923 10,18.75 Z M10,2.5 C5.85786438,2.5 2.5,5.85786438 2.5,10 C2.5,14.1421356 5.85786438,17.5 10,17.5 C14.1421356,17.5 17.5,14.1421356 17.5,10 C17.4954876,5.85973492 14.1402651,2.5045124 10,2.5 Z" id="Combined-Shape" fill="#FFFFFF" fill-rule="nonzero"></path>
+        <polygon id="Shape" fill="#FFFFFF" fill-rule="nonzero" points="12.866875 13.75 9.375 10.25625 9.375 4.375 10.62375 4.375 10.62375 9.73875 13.75 12.866875"></polygon>
+    </g>
+</svg>

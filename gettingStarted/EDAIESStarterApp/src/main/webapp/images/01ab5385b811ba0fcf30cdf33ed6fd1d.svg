@@ -1,0 +1,33 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 4px;
+      }
+
+      .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        opacity: 0.2;
+      }
+    </style>
+  </defs>
+  <title>128_white</title>
+  <path class="cls-1" d="M81,38a35,35,0,0,0,0,70v15s35-21,35-50A35,35,0,0,0,81,38Z"/>
+  <path class="cls-2" d="M98.6,40.46A37,37,0,0,1,118,73c0,12.39-6.25,25.29-18.08,37.28A99.73,99.73,0,0,1,82,124.71l-1,.62v2.2l3-1.82a99.73,99.73,0,0,0,17.89-14.43C113.75,99.29,120,86.39,120,74A37,37,0,0,0,98.6,40.46Z"/>
+  <circle class="cls-1" cx="81" cy="73" r="19"/>
+  <path class="cls-2" d="M66,74A17,17,0,0,1,89.5,58.29a17,17,0,1,0-15,30.42A17,17,0,0,1,66,74Z"/>
+  <line class="cls-1" x1="36" y1="73" x2="40" y2="73"/>
+  <circle class="cls-1" cx="20" cy="73" r="10"/>
+  <line class="cls-1" x1="81" y1="28" x2="81" y2="32"/>
+  <circle class="cls-1" cx="81" cy="12" r="10"/>
+  <circle class="cls-3" cx="81" cy="12" r="3"/>
+  <line class="cls-1" x1="49.31" y1="41.31" x2="52.14" y2="44.14"/>
+  <circle class="cls-1" cx="38" cy="30" r="10"/>
+  <circle class="cls-3" cx="38" cy="30" r="3"/>
+  <circle class="cls-3" cx="20" cy="73" r="3"/>
+</svg>
