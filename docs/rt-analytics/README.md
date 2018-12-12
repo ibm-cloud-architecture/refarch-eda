@@ -1,4 +1,4 @@
-# Event stream Processing
+# Process Continuous Streaming Events 
 
 As we discussed coming into this section the ability to process continuous Event Streams to derive real time insights/intelligence  has become one of the  essential elements of modern event driven solutions.
 

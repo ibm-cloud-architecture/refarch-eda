@@ -2,7 +2,7 @@
 
 The modern digital business works in real time; it informs interested parties of things of interest when they happen, it makes sense of, and derives insight from an ever-growing number of sources. It learns, predicts and is intelligent -- it is by nature Event Driven.
 
-Events are a way of capturing a statement of fact.  Events occur in a continuous stream as things happen in the real and digital worlds.  By taking advntage of this continous stream, applications can not only react in real time, but also reason about the future based upon what has happened in the past. 
+Events are a way of capturing a statement of fact.  Events occur in a continuous stream as things happen in the real and digital worlds.  By taking advntage of this continous stream, applications can not only react in real time, but also reason about the future based upon what has happened in the past.
 
 For enterprise IT teams, embracing event driven development is foundational to the next generation of digital business applications. IT  teams will need to be able to design, develop, deploy and operate event driven solutions, in cloud native styles.
 
@@ -106,7 +106,7 @@ With this simplified  model:
 
  [Read more ...](docs/evt-action/README.md)
 
-4- **Processing continuous Event Streams to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized  *streaming analytics engines* provide the means to run stateful analytical and complex event processing workloads across multiple real time event streams while maintaining low latency processing times.
+4- **Processing continuous streaming events to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized  *streaming analytics engines* provide the means to run stateful analytical and complex event processing workloads across multiple real time event streams while maintaining low latency processing times.
 
 Including these engines as part of the Event Driven Architecture enables:
 
@@ -166,14 +166,14 @@ EDAs are typically not used for distributed transactional processing because thi
 ## Deployments
 
 In term of event backbone deployment we propose different different approaches:
-* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams) 
-* **IBM Cloud Private** 
-  * [Event Streams deployment helm chart](./deployments/eventstreams/README.md) 
+* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams)
+* **IBM Cloud Private**
+  * [Event Streams deployment helm chart](./deployments/eventstreams/README.md)
   * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md)
 * Running locally to developer workstation with
   * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md)
 
-## Sample EDA Applications 
+## Sample EDA Applications
 
 * [Container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc): this solution presents real time analytics, pub-sub architecture pattern and micro-service communication on Kafka.
 * [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
