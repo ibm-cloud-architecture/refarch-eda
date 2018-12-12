@@ -152,7 +152,7 @@ From the consumer point of view a set of items need to be addressed during desig
 * Do you need to group consumers for parallel consumption of events?
 * What is the processing done once the record is processed out of the topic? And how a record is supposed to be consumed?.
 * How to persist consumer committed position? (the last offset that has been stored securely)
-* Assess if offsets need to be persisted outside of Kafka?. From version 0.9 offset management is more efficient, and synchronous or asynchronous operations can be done from the consumer code. We have started some Java code example in [this project](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer)
+* Assess if offsets need to be persisted outside of Kafka?. From version 0.9 offset management is more efficient, and synchronous or asynchronous operations can be done from the consumer code. 
 * Does record time sensitive, and it is possible that consumers fall behind, so when a consumer restarts he can bypass missed records?
 * Do the consumer needs to perform joins, aggregations between multiple partitions?
 

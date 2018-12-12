@@ -167,3 +167,8 @@ bx es topics
 # delete topic
 bx es topic-delete streams-plaintext-input
 ```
+
+## Further Readings
+
+* [IBM Event Streams main page](https://www.ibm.com/cloud/event-streams)
+* [IBM Event Streams Product Documentation](https://ibm.github.io/event-streams)
