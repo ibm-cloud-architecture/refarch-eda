@@ -36,15 +36,16 @@ This repository represents the root of related content about the Cloud Native Ev
 
 While the content of this repository is mostly technical in nature and is intended for a technical audience, it also introduces methods such as [Event Storming](#event-storming) which would be used with business leaders to identify key business domain events and actions. You may find it useful to share this information with your business leaders before engaging them in such activities.
 
-At a high level this is what you should expect to learn by working through the repository and examples.
+At a high level this is what you should expect to learn by working through this repository and the related examples.
 
 * As an architect, you will understand how the event driven architecture provides capabilities which support development of event driven solutions.
 * As a developer, you will understand how to develop event driven applications and develop analytics based on event streams.
 * As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
-This repository will provide sample code and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
+The related repositories provide sample code and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
 
 ## Concepts
+
 Before we start looking at the details of the Event Driven Architecture we will quickly examine the core concepts of being event driven:
 
 * Events
@@ -62,70 +63,71 @@ We defined the starting point for a Cloud Native Event Driven Architecture to be
 * Being able to communicate and persist events.
 * Being able to take direct action on events.
 * Processing streams of events to derive real time insight/intelligence.
-* Providing communication between event driven microservices.
+* Providing communication between event driven microservices and functions.
 
-With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below.
+With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below:
 
 <img src="docs/hl-arch-refa.png" width="1024px">
 
 Where:
 
-* IBM Event Streams : Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on Apache Kafka.
-* IBM Cloud Functions : Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
-* Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams.
-* Decision Server Insights : Provides the means to take action on events and event streams through business rules.
-* Event Driven Microservices : Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
-* Event Stores : Provide optimized persistence (data stores), for event sourcing, CQRS  and analytical use cases.
+* IBM Event Streams: Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
+* IBM Cloud Functions: Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
+* Streaming Analytics: Provides continuous ingest and analytical processing across multiple event streams.
+* Decision Server Insights: Provides the means to take action on events and event streams through business rules.
+* Event Driven Microservices: Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+* Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
 
 Now we will take a detailed look at each of these component areas which make up the reference architecture:
 
-1- **Event sources**  The modern digital business is driven by events. Events come into the business and events likewise need to be pushed outside of the business.  For our Cloud Native Event Driven Architecture we consider event sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from IoT devices, mobile apps, web apps, database triggers or microservices.
+1- **Event sources:** The modern digital business is driven by events. Events come into the business and events likewise need to be pushed outside of the business.  For our Cloud Native Event Driven Architecture we consider event sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from IoT devices, mobile apps, web apps, database triggers or microservices.
 
-In general terms, an *Event Source*, or event producer is any component capable of creating an event notification and publishing it to the event backbone, but lets look at some specific types of producer to better understand the opportunity with event driven.
+In general terms, an *Event Source*, or event producer is any component capable of creating an event notification and publishing it to the event backbone, but let look at some specific types of producer to better understand the opportunity with event driven.
 
 [Read more ...](docs/evt-src/README.md)
 
-2- **The Event Backbone** is the center of the Event driven architecture providing the event communication and persistence layer with the following capabilities:
+2- **The Event Backbone** is the center of the Event Driven Architecture providing the event communication and persistence layer with the following capabilities:
+
  * Pub/Sub style event communication between event producers and consumers
- * An Event Log to Persist events for a period of time
+ * An Event Log to persist events for a given period of time
  * Replay of events
  * Subscriptions from multiple consumers
 
  [Read more ...](docs/evt-backbone/README.md)
 
-3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution.  **IBM Cloud Functions** provides a simplified event driven programming model, enabling developers to simply write the *action* code in the language of their choice and have Cloud Functions manage the compute workload.
+3- **Taking an Action** after an event has occurred is one of the fundamental operations for any event driven solution.  **IBM Cloud Functions** provides a simplified event driven programming model, enabling developers to simply write the *action* code in the language of their choice and have Cloud Functions manage the computation workload.
 
-With this simplified  model:
+With this simplified model:
 
- * A business event of interest would be published to the event backbone
- * The *action* for the event would be written as a Cloud Functions action
- * Cloud Functions would be configured to subscribe to the event and use it as a trigger to start the *action*
+ * A business event of interest would be published to the event backbone.
+ * The *action* for the event would be written as a Cloud Functions action.
+ * Cloud Functions would be configured to subscribe to the event and use it as a trigger to start the *action*.
  * Cloud functions manages the start-up of all required compute resources.
- * Cloud functions managed execution of the action code
- * Cloud functions manages the shut-down of the compute resources when the action is complete
+ * Cloud functions managed execution of the action code.
+ * Cloud functions manages the shut-down of the computation resources when the action is complete.
 
  [Read more ...](docs/evt-action/README.md)
 
-4- **Processing continuous streaming events to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized  *streaming analytics engines* provide the means to run stateful analytical and complex event processing workloads across multiple real time event streams while maintaining low latency processing times.
+4- **Processing continuous streaming events to derive real time insights/intelligence** is an essential element of modern event driven solutions. Specialized *streaming analytics engines* provide the means to run stateful analytical and complex event processing workloads across multiple real time event streams while maintaining low latency processing times.
 
 Including these engines as part of the Event Driven Architecture enables:
 
-* Analysis and Understanding of real time event streams
-* Extracting real time event data from the stream so that Data Scientists can understand and derive ML models
-* Running analytical processes, Machine Learning models in line in real time  against the event stream.
+* Analysis and understanding of real time event streams
+* Extracting real time event data from the stream so that Data Scientists can understand and derive Machine Learning models
+* Running analytical processes, Machine Learning models in line in real time against the event stream.
 * Matching of complex event patterns across multiple streams and time windows to make decisions and take actions
 
 [Read more ...](docs/rt-analytics/README.md)
 
-5- **Event Managed State**  While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
+5- **Event Managed State:**  While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
 
  * Event Stores optimized for analytics
  * Event Sourcing as a pattern for recording state changes and updates across distributed systems
- * Command Query Response Separation ( CQRS ) as an optimization which separates updates and reads across different stores
+ * Command Query Response Separation (CQRS) as an optimization which separates updates and reads across different stores
 
 [Read more ...](docs/evt-state/README.md)
 
-6- **Event Driven Cloud Native Apps (Microservices)** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events and are themselves event driven, that is they will both produce and consume events via the event backbone.
+6- **Event Driven Cloud Native Apps (Microservices):** The event driven architecture must also reach across into our application platform. Developers will build applications which interact with events and are themselves event driven, that is they will both produce and consume events via the event backbone.
 
 In this context we can view the Event Backbone as being part of the microservices mesh, providing the Pub/Sub communication between microservices, and therefore enabling the support of loosely coupled event driven microservices.
 
@@ -134,7 +136,7 @@ In this context we can view the Event Backbone as being part of the microservice
 
 ## Extended Architecture
 
-The Event Driven Reference Architecture provides the framework to support event driven applications and solutions,  the extended architecture provides the connections for:
+The Event Driven Reference Architecture provides the framework to support event driven applications and solutions, the extended architecture provides the connections for:
 
   * Integration with legacy apps and data resources
   * Integration with Analytics/Machine learning to derive real time insights
@@ -149,7 +151,7 @@ The architecture diagram below shows how these capabilities fit together to form
 
 When it comes to the design of event driven solutions there are some additional methods which can be utilized to help understand the business events and actions that make up a business.
 
-**Event Storming**,  is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
+**Event Storming**, is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
 
 **Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are something that has happened) we could see a predictive or derived event , the *system will fail in 3 days*, we could take preventative actions.
 

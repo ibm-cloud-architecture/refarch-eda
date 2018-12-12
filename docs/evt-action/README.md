@@ -4,12 +4,12 @@ IBM Cloud Functions is IBM's "Server-less" compute offering, and while one of th
 
 With cloud functions:
 
-* Developers  write functional logic called *Actions*
+* Developers write functional logic called *Actions*.
 * *Actions* can be written in a number of supported languages including Java, Python, Node, Swift, Go, ...
-* *Actions* are triggered from events being published to Kafka topics ( The event backbone )
-* Functions brings up the required compute to run the Action
-* Functions shuts down the compute when the Action is complete
-* Functions automatically scales for event volume/velocity
+* *Actions* are triggered from events being published to Kafka topics (The event backbone)
+* Functions brings up the required compute to run the Action.
+* Functions shuts down the server when the Action is complete.
+* Functions automatically scales for event volume/velocity.
 
 For event driven systems this simple event driven programming model which abstracts the complications of event handling, and load balancing to ensure you have enough subscribing consumers ready to handle the velocity of events through the system, is very powerful.
 
@@ -17,10 +17,10 @@ My developer just write the code which executes the required action/business log
 
 ## Supporting Products and suggested reading
 
-IBM Cloud Functions is a commercial service offering version of the Apache Openwhisk project  https://openwhisk.apache.org/
+[IBM Cloud Functions](https://console.bluemix.net/openwhisk) is a commercial service offering version of the [Apache Openwhisk project](https://openwhisk.apache.org)
 
 IBM Cloud Functions product offering https://www.ibm.com/cloud/functions
 
-Getting Started with Cloud Functions  https://console.bluemix.net/openwhisk/
+Getting Started with Cloud Functions https://console.bluemix.net/openwhisk/
 
 Using Cloud functions with event trigger in Kafka  https://github.com/IBM/ibm-cloud-functions-message-hub-trigger
