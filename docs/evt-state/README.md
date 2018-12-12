@@ -1,31 +1,53 @@
 # Event Managed state
 
+
 ## Event Sourcing
 
-Event Sourcing is a method of recording state changes through events. Event sourcing can have appeal in distributed solutions where the may be a high number of service instances which are updating state.
+The idea of event sourcing is that whenever we make a change to the state of a system:
 
-* Services publish events whenever the data they control changes.
-* The event publish needs to be unique (atomic) and the source reliable (no event duplication).
-* Event sourcing persists  each change of state as a new record in the event log or an optimised event store
-* The event store is used for persistence.
+* An application issues a notification *event* of the state change
+* Any interested parties can become consumers of the event and take required actions
+* The state change event is stored in an event log or event store  in time order
+* The event log/store becomes the principal source of truth.
+* The the system state can be recreated to a point in time by reprocessing the events at any time in the future.
+* The history of state changes becomes an audit record for the business and is often a useful source of data for data scientists to gain insights into the business.
+
+![](evt-src.png)
+
+In some cases the event sourcing pattern would be implemented completely within the event backbone ( Kafka ), with the use of the event log and Kafka streams.   However we may also consider implementing the pattern with an external event store, which provides optimizations for how the data may be accessed/used.  For example [IBM Db2 Event store]( https://www.ibm.com/products/db2-event-store) can provide the handler and event store connected to the backbone and provide optimization for down stream analytical processing of the data.
 
 
-The service is not persisting data in a relational database anymore.
-* To avoid keeping a huge amount of change log, snapshot can be perform to keep a view of the data at a given point of time. Changes will then apply from a snapshot.
-* Queries have to reconstruct the state of the business entity from a snapshot.
+In operation, the  Event stores persists all state changing events for an object together with a timestamp, in time order so  creating a time series of changes for objects. The current state of an object can always be derived by replaying the events in the time series. At its most basic an event store only needs to store three pieces of information:
 
-## Command Query Responsibility Segregation
+* The type of event or aggregate
+* The sequence number of the event
+* The data as a serialized blob
 
-When using a microservices architecture pattern, each service is responsible to manage its persistence for the business entities it manages. Therefore it is challenging to perform join query on multiple business entities across micro-service boundaries.
-Basically Command Query Responsibility Segregation, CQRS, is a pattern where the CUD operations (the commands) are done in one service while query / read operations are supported by a separate service. The command-side emits events when data changes. The Query side maintains a set of views that are kept up to date by subscribing to events.
+More data can be added to help with diagnosis and audit, but the core functionality only requires a narrow set of fields. This should give rise to a very simple data design that can be heavily optimized for appending and retrieving sequences of records
 
-One of the main advantages is to support multiple data denormalization and being able to scale easily. It is complex to implement, aim for code duplication and should not be considered as the silver bullet.
+## Command Query Responsibility Segregation ( CQRS )
 
+The CQRS application pattern is frequently connected to event sourcing. In high level terms CQRS says that we should separated the "command" operations from the "query/read" operations.
+
+With the event sourcing pattern and CQRS we would typically end up with a pattern where updates are done as State notification events ( change of state ), which are persisted in the event log/store. On the read side we now have the option of persisting the state in different stores optimized for how other applications may query/read the data.
+
+![](evt-cqrs.png)
+
+## Event Sourcing, CQRS and Microservices
+
+With the adoption of microservices we have explicitly separated state, so that a micro-service is bounded with its own state. Further with the use of event sourcing we create a history log which is not easy to query
+
+The challenge now comes when we need to implement a query  which requires a joining of data from multiple services.
+
+One answer to this is to implement a CQRS pattern where we have state changes being published as events by multiple related business objects.
+
+Each change is persisted in the event log/event store, and a higher level operation or join micro-service subscribes to each event and persists the data in a queryable data store
+
+Read more on
+https://microservices.io/patterns/data/cqrs.html
 
 
 ## Supporting Products
-
-
-## Code Reference
-The following code repositories can be used for event sourcing inspiration:
-* TDB
+* [IBM Event Streams Public Cloud](https://console.bluemix.net/catalog/services/event-streams)
+* [IBM Event Streams Private Cloud](https://www.ibm.com/cloud/event-streams)
+* [IBM Db2 Event store]( https://www.ibm.com/products/db2-event-store)
