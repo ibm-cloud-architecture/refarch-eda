@@ -1,23 +1,22 @@
 # Event Storming Methodology
 EventStorming is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
-A **Domain Event** is something meaningful happened in the domain.
+A **Domain Event** is something meaningful that happened in the domain.
 
 ## Conducting the Workshop
-May be done after a design thinking workshop where persona map and empathy maps are developed and business pains and goals are defined. The Event storming will add deeper context on the process and the events. It will be fit well in deploying application in an Event Driven Architecture.
+An Event Storming Workshop may be done after a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) are developed and business pains and goals are defined. The Event storming will add deeper context on the process and the events. It will be fit well in deploying application in an Event Driven Architecture.
 
 ### Preparation
-* Get a room for at least 6 to 8 persons and walls to stick big paper sheets: you need a lot of space on walls to define the models.
-* Have green, orange, blue, red squared sticky notes, masking tapes
-* Try to limit the chair, it is important the team stays focused, connected and conversation flows well.
+* Get a room big enough to hold at least 6 to 8 persons and with enough wall space on which to stick big paper sheets: you will need a lot of wall space to define the models.
+* Obtain green, orange, blue, and red square sticky notes, black sharpies and blue painters tape
+* Do not allow people to open their laptops and try to limit the number of chairs; it is important that the team stays focused and connected and conversation flows well.
 
 ### Concepts
-A lot of the concepts addressed during the event storming workshop are defined in the Domain Driven Design approach.
+Many of the concepts addressed during the event storming workshop are defined in the [Domain Driven Design](https://www.ibm.com/cloud/garage/content/code/domain-driven-design/) approach.
 The following diagrams present the elements used during the analysis:
 
  <img src="evt-stm-item1.png" width="700">
 
 Domain events are also named 'business events'.
-
 
 <img src="evt-stm-item2.png" width="700">
 
@@ -27,7 +26,7 @@ And how those analysis elements are linked together:
 
 * **Actors** consume data via user interface and use UI to act on the system via commands
 * **Commands** are the result of some user decision, acting on relevant data which are part of a Read model in the [CQRS](../readme.md#command-query-responsibility-segregation) pattern.
-* **Policy** represents reactive logic that takes place after an event occurs, and triggers commands somewhere else. There are written on Lilac sticker and start with "whenever...". Policies can be manual step the human will follow like a procedure or guidances, or can be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation]().
+* **Policies** represents reactive logic that takes place after an event occurs, and triggers commands somewhere else. There are written on Lilac sticker and start with "whenever...". Policies can be manual step the human will follow like a procedure or guidances, or can be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation]().
 * **External systems** are producing events.
 * **Data** can be presented to user interface or modified by system.
 Events can be created by command, external systems and data creation, by timer, ...
@@ -42,13 +41,13 @@ The Goal is to better understand the business problem to address with the future
 Avoid to document process step, focus on events. The timeline will represent the high level sequential process.
 
 *  **Step 1: Domain events discovery:**
-Name the domain events in orange sticky note using verb in past tense. Describe **What's happened**. At first just "storm" the event, you may not need to place them on the ordered timeline.
-The events are relevant to the domain experts.
-It may not be needed to discover all the events, but important to cover the process end to end.
-Identify the start and stop events.
+Name the domain events in orange sticky note using verbs in past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate their lists of domain events; you may not need to iniitally place them on the ordered timeline.
+The events must be worded in a way that is relevant to the domain experts. You are explaining what happens in business terms, not what happens inside the implementation of the system.
+You don't need to describe all the events in your domain, but it is important to cover the process from end to end.
+You need to identify the start and end events.
 
 * **Step 2: Tell the story:**
- * Retail the story by talking about relating event to persona
+ * In this step, you retell the story by talking about how to relate events to personas.
  * Add questions when some parts are unclear
  * Document assumptions
  * Rephrase event with past tense if needed
