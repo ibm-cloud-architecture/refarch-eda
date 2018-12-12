@@ -1,23 +1,24 @@
 # Event Driven Reference Architecture
 
-The modern digital business works in real time, it informs interested parties of things of interest when they happen, it makes sense of and derives insight from an ever-growing number of event sources, it learns,  it predicts, it's intelligent, it is by nature Event Driven.
+The modern digital business works in real time; it informs interested parties of things of interest when they happen, it makes sense of, and derives insight from an ever-growing number of sources. It learns, predicts and is intelligent -- it is by nature Event Driven.
 
-For enterprise IT teams, this means embracing event driven as being foundational to the next generation of digital business applications. It will require IT teams to be able to design, develop, deploy and operate event driven solutions, in cloud native styles.
+Events are a way of capturing a statement of fact.  Events occur in a continuous stream as things happen in the real and digital worlds.  By taking advntage of this continous stream, applications can not only react in real time, but also reason about the future based upon what has happened in the past. 
 
-While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive:
+For enterprise IT teams, embracing event driven development is foundational to the next generation of digital business applications. IT  teams will need to be able to design, develop, deploy and operate event driven solutions, in cloud native styles.
 
-* Microservices -  Provide the loosely coupled application architecture which enables deployment in highly distributed patters for Resilience, Agility and Scale.
-* Cloud Native platforms with Containers and "Server-less deployments"  - Provide the application platform and tools which realize the Resilience Agility and Scale promise of the microservices architectures.
-* Event services -  Realizing an Event Driven Architecture (EDA) provides the means to be Reactive and Responsive.
+While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven approaches in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive. Two aspects of a cloud-native architecture are essential to developing an event driven architecture:
 
-Thinking in this way allows us to simplify the concept of the Event Driven Architecture to be about providing the  essential event capabilities to the Cloud Native Platform.
+* Microservices -  These provide the loosely coupled application architecture which enables deployment in highly distributed patterns for Resilience, Agility and Scale.
+* Cloud Native platforms with Containers and "Server-less deployments"  - These provide the application platform and tools which realize the Resilience, Agility and Scale promise of the microservices architectures.
+
+An Event Driven Architecture should provide the following essential event capabilities to the Cloud Native Platform.
 
 * Being able to communicate and persist events.
 * Being able to take direct action on events.
 * Processing event streams to derive real time insight/intelligence.
 * Providing communication for event driven microservices.
 
-This repository represents the root of related content about the Cloud Native Event Driven Architecture.  It provides guidance  for how to approach the design of event driven solutions,  introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implementation in a cloud native environment.
+This repository represents the root of related content about the Cloud Native Event Driven Architecture.  It provides guidance  for how to approach the design of event driven solutions, introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implementation in a cloud native environment.
 
 ## Table of Contents
 
@@ -33,15 +34,16 @@ This repository represents the root of related content about the Cloud Native Ev
 
 ## Target audiences
 
-While the content of this repository is mostly technical in nature and is intended for a technical audience, it does also introduce methods such as [Event Storming](#event-storming) which would be used with business leaders to identify key bsuiness domain events and actions. You may find it useful to share this information with your business leaders before engaging them in such activities.
+While the content of this repository is mostly technical in nature and is intended for a technical audience, it also introduces methods such as [Event Storming](#event-storming) which would be used with business leaders to identify key business domain events and actions. You may find it useful to share this information with your business leaders before engaging them in such activities.
 
 At a high level this is what you should expect to learn by working through the repository and examples.
 
 * As an architect, you will understand how the event driven architecture provides capabilities which support development of event driven solutions.
-* As a developer, you will understand how to develop event driven applications.
+* As a developer, you will understand how to develop event driven applications and develop analytics based on event streams.
 * As a project manager, you may understand all the artifacts which may be required for an event driven solution.
 
-From the repository you will get sample code and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
+This repository will provide sample code and best practices  which you may want to reuse during your future implementations. The reference architecture has been designed to be portable and applicable to Public Cloud, Hybrid cloud and across multiple clouds. Examples given are directly deployable in IBM Public Cloud and with IBM Cloud Private.
+
 ## Concepts
 Before we start looking at the details of the Event Driven Architecture we will quickly examine the core concepts of being event driven:
 
@@ -55,7 +57,7 @@ Before we start looking at the details of the Event Driven Architecture we will 
 
 ## Reference Architecture
 
-We defined the starting point for a modern Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
+We defined the starting point for a Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
 * Being able to communicate and persist events.
 * Being able to take direct action on events.
@@ -68,8 +70,8 @@ With an event backbone providing the connectivity between the capabilities, we c
 
 Where:
 
-* IBM Event Streams : provides a Kafka Event Backbone with Pub/Sub communication, event log, and simple event stream processing.
-* IBM Cloud Functions : Provides a simplified programming model to take action on an event  with serverless  compute.
+* IBM Event Streams : Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on Apache Kafka.
+* IBM Cloud Functions : Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
 * Streaming Analytics : Provides continuous ingest and analytical processing across multiple event streams.
 * Decision Server Insights : Provides the means to take action on events and event streams through business rules.
 * Event Driven Microservices : Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
@@ -77,9 +79,7 @@ Where:
 
 Now we will take a detailed look at each of these component areas which make up the reference architecture:
 
-1- **Event sources**
-
-The modern digital business is driven by events,  events come into the business and events need to be pushed outside of the business.  For our Cloud Native Event Driven Architecture we consider event sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from, IoT devices, mobile apps, web apps, database triggers or microservices.
+1- **Event sources**  The modern digital business is driven by events. Events come into the business and events likewise need to be pushed outside of the business.  For our Cloud Native Event Driven Architecture we consider event sources to be all of those things which may generate events which are of interest to the business. This could include, events coming from IoT devices, mobile apps, web apps, database triggers or microservices.
 
 In general terms, an *Event Source*, or event producer is any component capable of creating an event notification and publishing it to the event backbone, but lets look at some specific types of producer to better understand the opportunity with event driven.
 
@@ -117,7 +117,7 @@ Including these engines as part of the Event Driven Architecture enables:
 
 [Read more ...](docs/rt-analytics/README.md)
 
-5- **Event Managed State**: While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
+5- **Event Managed State**  While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
 
  * Event Stores optimized for analytics
  * Event Sourcing as a pattern for recording state changes and updates across distributed systems
@@ -161,7 +161,7 @@ For more details please read the following chapters.
 
 ## Applicability of an EDA
 
-EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
+EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using a message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
 
 ## Deployments
 
@@ -190,7 +190,7 @@ In term of event backbone deployment we propose different different approaches:
 
 ## Contribute
 
-We welcome your contribution. There are multiple ways to contribute: report bugs and improvement suggestion, improve documentation and contribute code.
+We welcome your contributions. There are multiple ways to contribute: report bugs and improvement suggestion, improve documentation and contribute code.
 We really value contributions and to maximize the impact of code contributions we request that any contributions follow these guidelines:
 
 The [contributing guidelines are in this note.](./CONTRIBUTING.md)
