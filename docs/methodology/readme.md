@@ -6,7 +6,7 @@ A **Domain Event** is something meaningful that happened in the domain.
 An Event Storming Workshop may be done after a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) are developed and business pains and goals are defined. The Event storming will add deeper context on the process and the events. It will be fit well in deploying application in an Event Driven Architecture.
 
 ### Preparation
-* Get a room for at least 6 to 8 persons and walls on which to stick big paper sheets: you will need a lot of wall space to define the models.
+* Get a room big enough to hold at least 6 to 8 persons and with enough wall space on which to stick big paper sheets: you will need a lot of wall space to define the models.
 * Obtain green, orange, blue, and red square sticky notes, black sharpies and blue painters tape
 * Do not allow people to open their laptops and try to limit the number of chairs; it is important that the team stays focused and connected and conversation flows well.
 
