@@ -30,10 +30,10 @@ A basic timeline of domain events is the initial critical output of the event st
 
 * **Actors** consume data via user interface and use UI to act on the system via commands
 * **Commands** are the result of some user decision, acting on relevant data which are part of a Read model in the [CQRS](../readme.md#command-query-responsibility-segregation) pattern.
-* **Policies** represents reactive logic that takes place after an event occurs, and triggers commands somewhere else. There are written on Lilac sticker and start with "whenever...". Policies can be manual step the human will follow like a procedure or guidances, or can be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation]().
+* **Policies** (represented by pink stickies) represents reactive logic that takes place after an event occurs, and triggers commands somewhere else. There are written on Lilac sticker and start with "whenever...". Policies can be manual step the human will follow like a procedure or guidances, or can be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation]().
 * **External systems** are producing events.
 * **Data** can be presented to user interface or modified by system.
-Events can be created by command, external systems and data creation, by timer, ...
+Events can be created by commands, external systems and data creation, by timer, ...
 
 Finally when arranging the events in timeline it will be possible to identify pivotal events and swim lanes.
 
