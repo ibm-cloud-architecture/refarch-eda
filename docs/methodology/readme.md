@@ -34,25 +34,25 @@ A basic timeline of domain events is the initial critical output of the event st
 * **External systems** produce events.
 * **Data** can be presented to users in a user interface or modified by the system.
 
-Events can be created by commands, external systems (including IOT devices), or by timers.
+Events can be created by commands, external systems (including IOT devices), or by timers. When an event is created by a timer at a specific time or regularly on a schedule, it's often useful to note that by drawing a clock or calendar icon in the corner of the sticky note.
 
 When you lay out events on a timeline, you will often find that several sets of events occur simultaneously, or that there are sets of events that are related in a timeline but unrelated to other events.  The best way to address that is to position these parallel event streams in swimlanes (which you can delineate by blue painters tape horizontally). Finally once you have laid out the events on the timeline it will be possible to identify pivotal events.  Pivotal events indicate major changes in the domain and often form the boundary between one aspect of the system (a [bounded context](https://martinfowler.com/bliki/BoundedContext.html) in DDD terms) and another aspect of the system.  They are delineated with vertical blue painters tape.
 
 <img src="evt-stm-pivotalevt.png" width="700">
 
 ### Workshop Execution
-The Goal is to better understand the business problem to address with the future application. But it can apply to search solution to bottleneck in existing application. It starts by the big picture by building a timeline of domain events as they occur during the business process life span.
+The goal of the workshop is to better understand the business problem to address with a future application. But the approach can apply to find solutions to bottlenecks or other issues in existing applications as well. The workshop will help the team understand the big picture of the solution by building a timeline of domain events as they occur during the business process life span.
 
-Avoid to document process step, focus on events. The timeline will represent the high level sequential process.
+It's important to avoid documenting process steps; this part of the process is not about capturing an implementation.  Instead, focus on documenting the events. The timeline will represent the high level process as a sequential flow of events.
 
 *  **Step 1: Domain events discovery:**
-Name the domain events in orange sticky note using verbs in past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate their lists of domain events; you may not need to iniitally place them on the ordered timeline.
-The events must be worded in a way that is relevant to the domain experts. You are explaining what happens in business terms, not what happens inside the implementation of the system.
-You don't need to describe all the events in your domain, but it is important to cover the process from end to end.
-You need to identify the start and end events.
+You begin by writing the domain events in orange sticky note using verbs in past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate their individual lists of domain events; you may not need to iniitally place them on the ordered timeline.  The events must be worded in a way that is relevant to the domain experts. You are explaining what happens in business terms, not what happens inside the implementation of the system.
+
+You don't need to describe all the events in your domain, but it is important to cover the process you are interested in exploring from end to end.  Thus, you need to make sure to identify the start and end events and place them on the timeline at the beginning and end of the wall covered with paper.  The other events identified need to be placed between these two endpoints in the closest approximation that the team can agree to a sequential order.  There will be overlaps at this point - don't worry about that; we'll address this later.
 
 * **Step 2: Tell the story:**
- * In this step, you retell the story by talking about how to relate events to personas.
+ In this step, you retell the story by talking about how to relate events to particular personas.  Act this out by taking on the perspective on a persona in the domain (such as a "manufacturer" who wants to ship a widget to a customer) and asking which events follow which other events.  Start at the beginning of that persona's interaction and ask "what happens next?"  Pick up and rearrange the events the team has stormed as this happens.
+ 
  * Add questions when some parts are unclear
  * Document assumptions
  * Rephrase event with past tense if needed
