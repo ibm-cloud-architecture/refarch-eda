@@ -16,11 +16,11 @@ An Event Storming Workshop may be done after a Design Thinking Workshop in which
 
 ### Concepts
 Many of the concepts addressed during the event storming workshop are defined in the [Domain Driven Design](https://www.ibm.com/cloud/garage/content/code/domain-driven-design/) approach.
-The following diagrams present the elements used during the analysis:
+The following diagrams present the elements used during the analysis.  We'll begin with the initial set of concepts used in the process.
 
  <img src="evt-stm-item1.png" width="700">
 
-Domain events are also named 'business events'.
+Domain events are also named 'business events'.  The first part of the process involves simply identifying the relevant events in a domain and placing them on a timeline.  That often results in questions to be resolved at a later time, or discussions about definitions that need to be recorded in order to make sure everyone agrees on basic domain concepts.
 
 <img src="evt-stm-item2.png" width="700">
 
