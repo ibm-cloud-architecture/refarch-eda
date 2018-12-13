@@ -2,7 +2,7 @@
 EventStorming is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
 A **Domain Event** is something meaningful that happened in the domain.
 
-The event storming method was introduced and publicized by Alberto Brandolini in [Introducing Eventstorming](https://www.eventstorming.com/book/) . This approach has been achieved recognition in the Domain Driven Design community as a technique facilitating rapid capture of a solution design and improved team understanding of the design. In this chapter we outline the method and also describe refinements and extesions useful in designs for Event Driven Architecture. This includes the addition of Insight storming to identify and capture value adding predictive insights about possible future events, which can be generates by data analysis, data models, articficial intelligence or machine learning. 
+The event storming method was introduced and publicized by Alberto Brandolini in [Introducing Eventstorming](https://www.eventstorming.com/book/) . This approach has been achieved recognition in the Domain Driven Design (DDD) community as a technique facilitating rapid capture of a solution design and improved team understanding of the design. In this chapter we outline the method and also describe refinements and extesions useful in designs for Event Driven Architecture. This includes the addition of Insight storming to identify and capture value adding predictive insights about possible future events, which can be generates by data analysis, data models, articficial intelligence or machine learning. 
 
 We describe the steps to run an event storming workshop  in general terms.  The output of an actual workshop performing Event storming and Insight Storming on a smple problem - world wide container shipping  is further detailed in [Container shipping example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md).
 
@@ -28,14 +28,15 @@ A basic timeline of domain events is the initial critical output of the event st
 
 <img src="evt-stm-oneview.png" width="700">
 
-* **Actors** consume data via user interface and use UI to act on the system via commands
-* **Commands** are the result of some user decision, acting on relevant data which are part of a Read model in the [CQRS](../readme.md#command-query-responsibility-segregation) pattern.
-* **Policies** (represented by pink stickies) represents reactive logic that takes place after an event occurs, and triggers commands somewhere else. There are written on Lilac sticker and start with "whenever...". Policies can be manual step the human will follow like a procedure or guidances, or can be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation]().
-* **External systems** are producing events.
-* **Data** can be presented to user interface or modified by system.
-Events can be created by commands, external systems and data creation, by timer, ...
+* **Actors** consume data via a user interface and use the UI to interact with the system via commands
+* **Commands** are the result of some user decision or policy, and act on relevant data which are part of a Read model in the [CQRS](../readme.md#command-query-responsibility-segregation) pattern.
+* **Policies** (represented by Lilac stickies) are reactive logic that take place after an event occurs, and trigger other commands. They always start with the phrase "whenever...". Policies can be a manual step a human would follow (such as a documented procedure or guidance), or they may be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation](https://www.omg.org/spec/DMN/About-DMN/).
+* **External systems** produce events.
+* **Data** can be presented to users in a user interface or modified by the system.
 
-Finally when arranging the events in timeline it will be possible to identify pivotal events and swim lanes.
+Events can be created by commands, external systems (including IOT devices), or by timers.
+
+When you lay out events on a timeline, you will often find that several sets of events occur simultaneously, or that there are sets of events that are related in a timeline but unrelated to other events.  The best way to address that is to position these parallel event streams in swimlanes (which you can delineate by blue painters tape horizontally). Finally once you have laid out the events on the timeline it will be possible to identify pivotal events.  Pivotal events indicate major changes in the domain and often form the boundary between one aspect of the system (a [bounded context](https://martinfowler.com/bliki/BoundedContext.html) in DDD terms) and another aspect of the system.  They are delineated with vertical blue painters tape.
 
 <img src="evt-stm-pivotalevt.png" width="700">
 
