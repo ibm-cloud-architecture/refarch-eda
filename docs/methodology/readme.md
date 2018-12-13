@@ -24,7 +24,7 @@ Domain events are also named 'business events'.  The first part of the process i
 
 <img src="evt-stm-item2.png" width="700">
 
-And how those analysis elements are linked together:
+A basic timeline of domain events is the initial critical output of the event storming process.  It gives everyone a common understanding of when events take place in relation to each other.  You still need to be able to take this initial level of understanding and then take the next step of moving this toward an implementation.  In making that step, you will need to expand your thinking to encompass the idea of a command, which is the action that kicks off the processing to trigger an event.  As part of understanding the role of the command, you will also want to know who invokes a command (Actors) and what information is needed to allow the command to be executed.  This diagram show how those analysis elements are linked together:
 
 <img src="evt-stm-oneview.png" width="700">
 
