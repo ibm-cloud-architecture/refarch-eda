@@ -78,17 +78,31 @@ Below is an example of ordered domain events with pivotal event and swim lanes. 
 
   This first level of data definition will help for assessing the microservice scope and responsibility too.
 
-* **Step 7: Insight:** We have the need to add one element to the method to address an important dimension of modern applications integrating analytics and machine learning capabilities.
+* **Step 7: Insight:**  In  Event Storming for Event Driven Archticture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
+
+This amounts to asking workshop participants the question: "What data would be helpful at each event trigger to assist the human user or automated event triggering policy make the best possible decision of how and when to act?"
+
+An important motivation driving use of EDA is that it simplifies design and realization of highly responsive systems which react immediately, intelligently, i.e. in a personalized and context aware way, and optimally to new events as they occur. This immediately suggests that predictive analytics and models to generate predictive insights have an important role to play. Predictive analytic insights are effectively probabilistic statements about which future events are likely to occur and what are the likely properties of those events. They are typicaly generated using models crreated by Data scientists or using Atifical Intalligence (AI) or Machine learning (ML). Correlating or joining independently gathered sources of information may also generate important predictive insights or be input to predictive analytic models.   
+
+Business owners and stakeholders in the Event storming workshop will have good intuitions on:
+*  which probabilistic insights are likely to lead to better decision making and action? 
+   * action could take the form of an immediate response to an event when it occur
+   * or it could be proactive behavior to head off an undesirable event 
+*  what combined sources of information are likely to help create a model to predict this insight?
 
   With Event Storming so far we have been looking backwards at each event because an event is something which is known to have already happened. With this perspective when we think about data which can help an actor decide when and how to issue a command, there is an implicit suggestion that this is based on properties of earlier known and captured business events.
+  With insights storming we extend the approach to also look forward by considering *what is the probability that a particular event will occur at soem future time and what are its expected property values*. How would this change or actions, what would we do now in advance of that event actually happening ?.
 
-  With insights storming we extend the approach to also look forward by considering *what if we could know in advance that this event was going to occur*. How would this change or actions, what would we do now in advance of that event actually happening ?.
+ Insights can be published into a bus and subscribed to by any decision step guidance.  We  think of them as *Derived Events*, which rather than being the factual recording of a past event - *something which has happened* -is a forward looking or predictive view  *these are the probable properties of a future event of this type*
+ 
+ The insight method step amounts to getting workshop participants to identify value adding derived events and data source needed for them which will improve decision making and proactive behavior in the solution using the questions above. 
 
-  We  think of this as generating a *Derived Event*, which rather than being the factual recording of an event *something which has happened* is a forward looking or predictive view  *Something is probably going to happen at a particular time*
+  Identification of derived events enables integration of analytic models and machine learning into the designed solution. Event and derived event feeds can be processed, filtered, joined, aggregated , modeled and  scored to value adding predictive insights. 
 
-  The ability to generating these derived events comes from integration with analytics and machine learning, where the event feeds can be processed, filtered, joined, aggregated , modeled and  scored to assess predictions,
-
-  These Insights delivered as *derived* events can now be joined into our model. The parallelogram construct is used to represent this joining operations. This processing is very important to analyze as early as possible in the development life cycle, and the event storming workshop is the best opportunity.
+ New notations specific to the insight step are: 
+ * use of a pale blue shape for derived events 
+ * use of a parallelgram shape to show when events and derived events are combined to enable deeper insight models and predictions.
+  it is important to identify predictive insights early as possible in the development life cycle; adding this step to the event storming workshop is the best opportunity.
 
   <img src="evt-stm-insight.png" width="700">
 
