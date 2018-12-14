@@ -106,9 +106,10 @@ Business owners and stakeholders in the Event storming workshop will have good i
  * use of a parallelogram shape to show when events and derived events are combined to enable deeper insight models and predictions.
   It is important to identify predictive insights early as possible in the development life cycle; adding this step to the event storming workshop is the best opportunity.
 
-The two diagrams below show the results of the insight storming step for the use case of contaner shipment analysis.  The first diagram captured insights and associated linkages for each  refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  The second digram captures insights which could trigger recommendations to adjust ship course and speed in response to expected severe weather or congestion at the next port of call. 
+The two diagrams below show the results of the insight storming step for the use case of contaner shipment analysis.  The first diagram captured insights and associated linkages for each  refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  The second digram captures insights which could trigger recommendations to adjust ship course and speed in response to expected severe weather or congestion and expected docking and unloading delay at the next port of call. 
 
   <img src="evt-stm-insight-cntnr.PNG" width="700">
+  
   
   <img src="evt-stm-insight-ship.PNG" width="700">
 
