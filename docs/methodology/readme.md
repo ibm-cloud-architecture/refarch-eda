@@ -4,7 +4,7 @@ A **Domain Event** is something meaningful that happened in the domain.
 
 The event storming method was introduced and publicized by Alberto Brandolini in [Introducing Eventstorming](https://www.eventstorming.com/book/) . This approach has been achieved recognition in the Domain Driven Design (DDD) community as a technique facilitating rapid capture of a solution design and improved team understanding of the design. In this chapter we outline the method and also describe refinements and extesions useful in designs for Event Driven Architecture. This includes the addition of Insight storming to identify and capture value adding predictive insights about possible future events, which can be generates by data analysis, data models, articficial intelligence or machine learning. 
 
-We describe the steps to run an event storming workshop  in general terms.  The output of an actual workshop performing Event storming and Insight Storming on a smple problem - world wide container shipping  is further detailed in [Container shipping example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md).
+We describe the steps to run an event storming workshop  in general terms.  The output of an actual workshop performing Event storming and Insight Storming on a smple problem - world wide container shipping  is further detailed in [Container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md).
 
 ## Conducting the Event and Insight Storming Workshop
 An Event Storming Workshop may be done after a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) are developed and business pains and goals are defined. The Event storming will add deeper context on the process and the events. Event storming and Domain Driven Design is a good first step in building an application using the microservices approach that will be follow an Event Driven Architecture.
@@ -101,7 +101,7 @@ For the data we have to support the CUD operations as user stories, mostly suppo
 Events are the result / outcome of a user stories. And can be added as part of the acceptance criteria of the user stories to verify the event really occurs.
 
 ## Applying to the container shipment use case
-To support one of the implementation solution to validate the Event Driven Architecture, we have developed the event storming and design thinking main artifacts for a [fridge container shipment process.](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md)
+To support one of the implementation solution to validate the Event Driven Architecture, we have developed the event storming and design thinking main artifacts for a [container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md) - including monitoring of refrigerated containers .
 
 
 ### Further Readings
