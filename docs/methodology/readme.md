@@ -99,11 +99,11 @@ Business owners and stakeholders in the Event storming workshop will have good i
  
  The insight method step amounts to getting workshop participants to identify value adding derived events and data source needed for them which will improve decision making and proactive behavior in the solution using the questions above. 
 
-  Identification of derived events enables integration of analytic models and machine learning into the designed solution. Event and derived event feeds can be processed, filtered, joined, aggregated , modeled and  scored to value adding predictive insights. 
+  Identification of derived events enables integration of analytic models and machine learning into the designed solution. Event and derived event feeds can be processed, filtered, joined, aggregated , modeled and  scored to create valuable predictive insights. 
 
  New notations specific to the insight step are: 
  * use of a pale blue shape for derived events 
- * use of a parallelgram shape to show when events and derived events are combined to enable deeper insight models and predictions.
+ * use of a parallelogram shape to show when events and derived events are combined to enable deeper insight models and predictions.
   it is important to identify predictive insights early as possible in the development life cycle; adding this step to the event storming workshop is the best opportunity.
 
   <img src="evt-stm-insight.png" width="700">
