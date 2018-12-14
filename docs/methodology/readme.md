@@ -36,9 +36,9 @@ A basic timeline of domain events is the initial critical output of the event st
 
 Events can be created by commands, by external systems (including IOT devices), they can be triggerred by processing of other events or by some period of elapsed time. When an event is repeated or occurs regularly on a schedule, it is often useful to note that by drawing a clock or calendar icon in the corner of the sticky note.
 
-As the event are identified and sequenced into a time line, you will often find that there are multiple independent  subsequences which are not directly coupled to each other but occur in overlapped periods of time.  These parallel event streams can be addresswed by putting them into separate **swimlanes**  - delineated using horizontal blue painter's tape.  As the events are organized into a timeline ( possibly with swim lanes) it will be possible to identify **pivotal events** .  Pivotal events indicate major changes in the domain and often form the boundary between one phase of the system and onother.  Pivotal events will typically separate (a [bounded context](https://martinfowler.com/bliki/BoundedContext.html) in DDD terms).  Pivotal events are identified with vertical blue painters tape (crossing all the swimlanes).
+As the events are identified and sequenced into a time line, you will often find that there are multiple independent subsequences which are not directly coupled to each other and represent different perspectives of the system, but occur in overlapped periods of time.  These parallel event streams can be addressed by putting them into separate **swimlanes**  - delineated using horizontal blue painter's tape.  As the events are organized into a timeline ( possibly with swim lanes) it will be possible to identify **pivotal events** .  Pivotal events indicate major changes in the domain and often form the boundary between one phase of the system and onother.  Pivotal events will typically separate (a [bounded context](https://martinfowler.com/bliki/BoundedContext.html) in DDD terms).  Pivotal events are identified with vertical blue painters tape (crossing all the swimlanes).
 
-An example of a section of a completed event time line with pivotal events and swimlanes is shown below. This example comes from the Container Shipping example of an event Storming session and is discussed in more detail in [Container Shipment Analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md) .
+An example of a section of a completed event time line with pivotal events and swimlanes is shown below.
 
 <img src="evt-stm-pivotalevt.png" width="700">
 
@@ -57,15 +57,16 @@ You don't need to describe all the events in your domain, but it is important to
  
  * Add questions when some parts are unclear
  * Document assumptions
- * Rephrase event with past tense if needed
- * Focus on happy path, the things going on, on regular time
+ * Rephrase each event description with past tense if needed
+ * Focus on the mainline "happy" path avoing getting bogged down in details of exceptions and error handling 
  * Add pivotal events
  * Add swim lanes
 
-Here is an example of ordered domain events with pivotal event and swim lanes:
+Below is an example of ordered domain events with pivotal event and swim lanes. This example comes from the Container Shipping example of an event Storming session and is discussed in more detail in [Container Shipment Analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md) .
+
  ![](evt-timeline.png)
 
-* **Step 3: Commands:** address the why did event happen. The focus is moving to the cause and effect sequence. Command is what people do in the domain to create event.
+* **Step 3: Commands:** address why did this event?  The focus is moving to the cause and effect sequence.  A Command is what some persona  in the domain did to create the event.
 
 * **Step 4: Aggregates**: Aggregates represent business concept with local responsibility and grouping events and commands. Most likely aggregates become micro service boundaries.
 
