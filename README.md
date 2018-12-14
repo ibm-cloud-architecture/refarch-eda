@@ -168,12 +168,13 @@ EDAs are typically not used for distributed transactional processing because thi
 ## Deployments
 
 In term of event backbone deployment we propose different different approaches:
-* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams)
+* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams).
 * **IBM Cloud Private**
-  * [Event Streams deployment helm chart](./deployments/eventstreams/README.md)
-  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md)
-* Running locally to developer workstation with
-  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md)
+  * [Event Streams deployment helm chart](./deployments/eventstreams/README.md).
+  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md).
+* Running on your developer workstation within kubernetes (Tested on Docker-Edge on Mac)
+  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md).
+* Running locally with docker compose. See [this note].(https://github.com/ibm-cloud-architecture/refarch-kc#run-locally) for details.
 
 ## Sample EDA Applications
 
