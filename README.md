@@ -205,7 +205,12 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 * Lead development [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
 * Lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
 * [IBM Streams Analytics team]
+  * [Martin Siegenthaler](https://www.linkedin.com/in/martin-siegenthaler-7654184/)
+  * [David Engebretsen](https://www.linkedin.com/in/david-engebretsen/)
+  * [Francis Parr](https://www.linkedin.com/in/francis-parr-26041924)
 * [IBM Event Stream team]
 * [IBM Decision Insight team]
+  * [Jose De Freitas](https://www.linkedin.com/in/jose-de-freitas-755a501b/)
+* [Hemankita Perabathini](https://www.linkedin.com/in/hemankita-perabathini/)
 
 Please [contact me](mailto:boyerje@us.ibm.com) for any questions.
