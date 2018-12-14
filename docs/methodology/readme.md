@@ -59,7 +59,7 @@ The key here is to add questions or comments (using the red stickies) when some 
  
 In this step you want to focus on the mainline "happy" end-to-end path in order to avoid getting bogged down in details of exceptions and error handling.  That can be added later.
 
- * **Step 3: Find the Boundaries: **
+ * **Step 3: Find the Boundaries:**
  The next step of this part of the process is to find the boundaries of your system by looking at the events. There are two types of boundaries we have seen emerge; first are time boundaries.  Often there are specific key "pivotal events" that indicate a change from one aspect of a system to another.  Often this happens at some sort of hand-off from one persona to another, but it can also happen at a change of geographical, legal or other type of boundary. What you will often see is that the terms used on the event stickies changes at these boundaries.  This is an indication that you are seeing a "bounded context" in Domain Driven Design terms.  Highlight pivotal events by putting up blue painters tape vertically behind the event.
  
  The second type of boundary you may find is a subject boundary.  In this case, you often have multiple simultaneous series of events that only come together at a later time.  In this case your indication is also that you see the same terms being used in the event descriptions for a particular series of events, or those events can be "read" from the point of view of a different persona when you are replaying them.  You can delineate these different sets of simultaneous event streams by blue painters tape applied horizontally, dividing the board into different swim lanes.
