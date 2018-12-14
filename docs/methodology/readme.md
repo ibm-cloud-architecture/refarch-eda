@@ -104,9 +104,13 @@ Business owners and stakeholders in the Event storming workshop will have good i
  New notations specific to the insight step are: 
  * use of a pale blue shape for derived events 
  * use of a parallelogram shape to show when events and derived events are combined to enable deeper insight models and predictions.
-  it is important to identify predictive insights early as possible in the development life cycle; adding this step to the event storming workshop is the best opportunity.
+  It is important to identify predictive insights early as possible in the development life cycle; adding this step to the event storming workshop is the best opportunity.
 
-  <img src="evt-stm-insight.png" width="700">
+The two diagrams below show the results of the insight storming step for the use case of contaner shipment analysis.  The first diagram captured insights and associated linkages for each  refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  The second digram captures insights which could trigger recommendations to adjust ship course and speed in response to expected severe weather or congestion at the next port of call. 
+
+  <img src="evt-stm-insight-cntnr.png" width="700">
+  
+  <img src="evt-stm-insight-ship.png" width="700">
 
 ## Event Storming to User Stories / Epics
 When developing using agile methodology, one of the important element of the project management is the user stories or epics construction. The commands and policies can be describe easily as user stories, as commands and decisions are done by actors. The actor could be a system too.
