@@ -64,11 +64,13 @@ In this step you want to focus on the mainline "happy" end-to-end path in order 
  
  The second type of boundary you may find is a subject boundary.  In this case, you often have multiple simultaneous series of events that only come together at a later time.  In this case your indication is also that you see the same terms being used in the event descriptions for a particular series of events, or those events can be "read" from the point of view of a different persona when you are replaying them.  You can delineate these different sets of simultaneous event streams by blue painters tape applied horizontally, dividing the board into different swim lanes.
 
-Below we show an example of a set of ordered domain events with pivotal events and subject swim lanes indicated.  This example comes an example of applying Event Storming to the domain of Container Shipping and is discussed in more detail in [Container Shipment Analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md) .
+Below we show an example of a set of ordered domain events with pivotal events and subject swim lanes indicated.  This example comes an example of applying Event Storming to the domain of Container Shipping and is discussed in more detail in the [Container Shipment Analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md) .
 
  ![](evt-timeline.png)
 
-* **Step 3: Commands:** address why did this event?  The focus is moving to the cause and effect sequence.  A Command is what some persona  in the domain did to create the event.
+* **Step 3: Commands:** The next step of the process is where we begin to shift from analysis of the domain to the first stages of system design.  Up until this point, you are simply trying to understand how the events in the domain relate to one another - this is why the participation of domain experts is so critical.  However, in order to build a system that implements the business process you are interested in, we have to move on to the question of how these events come into being.  
+
+Commands are the most common mechanism by which events are created.  The key to finding commands is to ask the question "Why did this event occur?"  In this step, the focus of the process moves to sequence of actions that lead to events - it's finding the causes for which the events record the effects.  In order to understand this, let's go back to some of our previous definitions.  In our terms, A *Command* is an action some persona in the domain performed to create an event.
 
 * **Step 4: Aggregates**: Aggregates represent business concept with local responsibility and grouping events and commands. Most likely aggregates become micro service boundaries.
 
