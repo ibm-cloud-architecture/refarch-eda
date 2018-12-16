@@ -78,7 +78,9 @@ Commands are the most common mechanism by which events are created.  The key to 
 
 This first level of data definition will help for assessing the microservice scope and responsibility too as we start to see commonalities emerge from the data used among several related events.  That becomes more obvious in the next step.
   
-* **Step 6: Identify the Aggregates**: Aggregates represent business concept with local responsibility.  They emerge through the process by grouping events and commands that are related. Aggregates wil become micro service boundaries.
+* **Step 6: Identify the Aggregates**: At this point in the method it's time to introduce another concept from Domain Driven Design; the Aggregate.  In DDD, entities and value objects can exist independently, but often, the relations are such that an entity or a value object has no value without its context.  Aggregates provide that context by being those "roots" that comprise one or more entities and value objects that are linked together through a lifecycle.  In Event Storming, they emerge through the process by grouping events and commands that are related.  What you usually find in this grouping will not only consist of related data (entities and value objects) but related actions (commands) that are connected by the lifecycle of that aggregate. Aggregates will end up suggesting micro service boundaries. 
+
+In our example, we see that you can group several command/event pairs (with their associated data) together that are related through the lifecycle of an order for shipping.
 
 * **Step 7: Business Context:** it defines terms and concepts with a clear meaning valid in a clear boundary. (The term definition may change outside of the business unit for which this application is developed). The goal here is to defined the boundaries and the term definitions.
 
