@@ -68,15 +68,15 @@ Below we show an example of a set of ordered domain events with pivotal events a
 
  ![](evt-timeline.png)
 
-* **Step 3: Commands:** The next step of the process is where we begin to shift from analysis of the domain to the first stages of system design.  Up until this point, you are simply trying to understand how the events in the domain relate to one another - this is why the participation of domain experts is so critical.  However, in order to build a system that implements the business process you are interested in, we have to move on to the question of how these events come into being.  
+* **Step 4: Locate the Commands:** The next step of the process is where we begin to shift from analysis of the domain to the first stages of system design.  Up until this point, you are simply trying to understand how the events in the domain relate to one another - this is why the participation of domain experts is so critical.  However, in order to build a system that implements the business process you are interested in, we have to move on to the question of how these events come into being.  
 
 Commands are the most common mechanism by which events are created.  The key to finding commands is to ask the question "Why did this event occur?"  In this step, the focus of the process moves to sequence of actions that lead to events - it's finding the causes for which the events record the effects.  In order to understand this, let's go back to some of our previous definitions.  In our terms, A *Command* is an action some persona in the domain performed to create an event.
 
-* **Step 4: Aggregates**: Aggregates represent business concept with local responsibility and grouping events and commands. Most likely aggregates become micro service boundaries.
+* **Step 5: Identify the Aggregates**: Aggregates represent business concept with local responsibility and grouping events and commands. Most likely aggregates become micro service boundaries.
 
 * **Step 5: Business Context:** it defines terms and concepts with a clear meaning valid in a clear boundary. (The term definition may change outside of the business unit for which this application is developed). The goal here is to defined the boundaries and the term definitions.
 
-* **Step 6: Data:** Data for the user interface so user can make decision are part of the read model. For each command and event we may add data description of the expected attributes and data elements needed to take such decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
+* **Step 6: Describe the Data:** Data for the user interface so user can make decision are part of the read model. For each command and event we may add data description of the expected attributes and data elements needed to take such decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
 
   <img src="evt-stm-data.png" width="400">
 
