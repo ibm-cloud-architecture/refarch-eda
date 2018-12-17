@@ -75,6 +75,8 @@ Commands are the most common mechanism by which events are created.  The key to 
 * **Step 5: Describe the Data:** You can't truly define a command without understanding the data that is needed for the command to execute in order to produce the event.  There are several types of data that we can identify at this step.  First, users (personas) need data from the user interface in order to make decisions before executing a command.  That data forms part of the read model in a CQRS implementation. For each command and event pair we will want to add a data description of the expected attributes and data elements needed to take such a decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
 
   <img src="evt-stm-data.png" width="400">
+  
+Another important part of the process that becomes more fully fleshed out at this step is the description of *policies* that can trigger the generation of an event from a previous event (or set of events).  
 
 This first level of data definition will help for assessing the microservice scope and responsibility too as we start to see commonalities emerge from the data used among several related events.  That becomes more obvious in the next step.
   
@@ -84,7 +86,7 @@ In our example, we see that you can group several command/event pairs (with thei
 
 * **Step 7: Business Context:** it defines terms and concepts with a clear meaning valid in a clear boundary. (The term definition may change outside of the business unit for which this application is developed). The goal here is to defined the boundaries and the term definitions.
 
-* **Step 8: Insight:**  In  Event Storming for Event Driven Archticture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
+* **Step 8: Insight:**  In  Event Storming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
 
 This amounts to asking workshop participants the question: "What data would be helpful at each event trigger to assist the human user or automated event triggering policy make the best possible decision of how and when to act?"
 
