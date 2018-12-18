@@ -9,7 +9,7 @@ For enterprise IT teams, embracing event driven development is foundational to t
 While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven approaches in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive. Two aspects of a cloud-native architecture are essential to developing an event driven architecture:
 
 * Microservices -  These provide the loosely coupled application architecture which enables deployment in highly distributed patterns for Resilience, Agility and Scale.
-* Cloud Native platforms with Containers and "Server-less deployments"  - These provide the application platform and tools which realize the Resilience, Agility and Scale promise of the microservices architectures.
+* Cloud Native platforms with Containers and "Serverless deployments" - These provide the application platform and tools which realize the Resilience, Agility and Scale promise of the microservices architectures.
 
 An Event Driven Architecture should provide the following essential event capabilities to the Cloud Native Platform.
 
@@ -18,7 +18,7 @@ An Event Driven Architecture should provide the following essential event capabi
 * Processing event streams to derive real time insight/intelligence.
 * Providing communication for event driven microservices.
 
-This repository represents the root of related content about the Cloud Native Event Driven Architecture.  It provides guidance  for how to approach the design of event driven solutions, introduces the Cloud Native Event Driven reference architecture  and provides reusable coding assets for implementation in a cloud native environment.
+This repository represents the root of related content about the Cloud Native Event Driven Architecture.  It provides guidance for how to approach the design of event driven solutions, introduces the Cloud Native Event Driven reference architecture and provides reusable coding assets for implementation in a cloud native environment.
 
 ## Table of Contents
 
@@ -119,7 +119,7 @@ Including these engines as part of the Event Driven Architecture enables:
 
 [Read more ...](docs/rt-analytics/README.md)
 
-5- **Event Managed State:**  While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
+5- **Event Managed State:** While the prime focus for an event driven architecture is for processing events, there are cases where we need to persist events for post processing and queries by other applications.  With the event backbone we have a builtin *Event Log* which provides the means to store and reply events published to the backbone, however when we consider the full scope of Event Driven solutions there are other use cases and types of store that we should support. This includes:
 
  * Event Stores optimized for analytics
  * Event Sourcing as a pattern for recording state changes and updates across distributed systems
@@ -136,12 +136,12 @@ In this context we can view the Event Backbone as being part of the microservice
 
 ## Extended Architecture
 
-The Event Driven Reference Architecture provides the framework to support event driven applications and solutions, the extended architecture provides the connections for:
+The event-driven reference architecture provides the framework to support event-driven applications and solutions. The extended architecture provides the connections for:
 
   * Integration with legacy apps and data resources
-  * Integration with Analytics/Machine learning to derive real time insights
+  * Integration with analytics or machine learning to derive real-time insights
 
-The architecture diagram below shows how these capabilities fit together to form an extended event driven architecture.
+The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
 
 <img src="docs/hl-arch-extended.png" width="1024px">
 
