@@ -155,15 +155,15 @@ When it comes to the design of event driven solutions there are some additional 
 
 **Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are something that has happened) we could see a predictive or derived event , the *system will fail in 3 days*, we could take preventative actions.
 
-For more details please read the following chapters.
 
-* [Event Storming Methodology](docs/methodology/readme.md)
-* [Insights Storming Methodology](docs/methodology/InsightStorming/readme.md)
-
+[Read more about the Event Storming Methodology](docs/methodology/readme.md)
 
 ## Applicability of an EDA
 
 EDAs are typically not used for distributed transactional processing because this can lead to increased coupling and performance degradation. But as seen in previous section, using a message backbone to support communication between microservices to ensure data consistency is a viable pattern. The use of EDAs for batch processing is also restricted to cases where the potential for parallelizing batch workloads exist.  Most often EDAs are used for event driven applications that require near-realtime situation awareness and decision making.
+
+[Read more about EDA applicability and use cases ](docs/eda-usecases/README.md)
+
 
 ## Deployments
 
