@@ -65,14 +65,17 @@ The figure below illustrates one topic having multiple partitions, replicated wi
 
 ### Partitions
 
-Partitions are used by producer and consumers and data replication.
+Partitions are used by producers and consumers and data replication. Partitions are basically used to parallelize the event processing when a single server would not be able to process all events, using the broker clustering. So to manage increase in the load of messages Kafka uses partitions.
 
-* To manage the load of messages Kafka uses partitions. Each broker may have zero or more partitions per topic.
+![](images/topic-part-offset.png)   
+
+* Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use. Each partition will run on a separate server. So if you have 5 brokers you can define topic with 5 partitions. 
 * Each partition is a time ordered immutable sequence of records, that are persisted for a long time period. It is a log. Topic is a labelled log.
-* Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumer, the traffic pattern...
-* Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets).
-* When a consumer reads a topic, it actually reads data from all the partitions. As a consumer reads data from a partition, it advances its offset.
+* Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumers, the traffic pattern, etc...
+* Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets). Ids are defined when event arrives at the broker level, and are local to the partition. They are unmutable. 
+* When a consumer reads a topic, it actually reads data from all the partitions. As a consumer reads data from a partition, it advances its offset. To read an event the consumer needs to use the topic name, the partition number and the last offset to read from. 
 * Partitions guarantee that data with the same keys will be sent to the same consumer and in order. They improve throughtput.
+
 
 ### Zookeeper
 
@@ -82,6 +85,9 @@ Zookeeper is used to persist the component and platform states and it runs in cl
 * Offsets are maintained in Zookeeper or in **Kafka**, so consumers can read next message (or from a specific offset) correctly even during broker server outrages. We are detailing this in the asset consumer implementation in [this repository](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer).
 * Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
 
+### Consumer group
+
+This is the way to group of consumers so the processing of event downstream is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic.  
 
 ## Kafka Stream Details
 
