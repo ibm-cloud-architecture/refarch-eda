@@ -94,23 +94,28 @@ In our example, we see that you can group several command/event pairs (with thei
 
 * **Step 7: Business Context:** it defines terms and concepts with a clear meaning valid in a clear boundary. (The term definition may change outside of the business unit for which this application is developed). The goal here is to defined the boundaries and the term definitions.
 
-* **Step 8: Insight:**  In Event Storming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
+* **Step 8: Looking forward with Insight Storming:**  In Event Storming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
 
-This amounts to asking workshop participants the question: "What data would be helpful at each event trigger to assist the human user or automated event triggering policy make the best possible decision of how and when to act?"
+With Insights Storming we extend the approach to also look forward by considering what if we could know in advance that this event was going to occur. How would this change our actions, what would we do now in advance of that event actually happening ?.
+
+We can think of this as extending the analysis to **Derived Events**, which rather than being the factual recording of a past event som is a forward looking or predictive event = "this event is probably going to happen at some time in the next n hours time. 
+
+Having this forward looking insight combined with the known business data from earlier events can enable both human actors and event triggering policies to make better decisions about how to react to new events as they occur.
+Insight storming amounts to asking workshop participants the question: "What data would be helpful at each event trigger to assist the human user or automated event triggering policy make the best possible decision of how and when to act?"
 
 An important motivation driving use of EDA is that it simplifies design and realization of highly responsive systems which react immediately, intelligently, i.e. in a personalized and context aware way, and optimally to new events as they occur. This immediately suggests that predictive analytics and models to generate predictive insights have an important role to play. Predictive analytic insights are effectively probabilistic statements about which future events are likely to occur and what are the likely properties of those events. They are typicaly generated using models created by Data scientists or using Artifical Intalligence or Machine Learning. Correlating or joining independently gathered sources of information may also generate important predictive insights or be input to predictive analytic models.   
 
 Business owners and stakeholders in the Event storming workshop will have good intuitions on:
-*  which probabilistic insights are likely to lead to better decision making and action? 
+*  which probabilistic insights are likely to lead to improved or optimal decision making and action? 
    * action could take the form of an immediate response to an event when it occur
    * or it could be proactive behavior to head off an undesirable event 
 *  what combined sources of information are likely to help create a model to predict this insight?
 
-  With Event Storming so far we have been looking backwards at each event because an event is something which is known to have already happened. With this perspective when we think about data which can help an actor decide when and how to issue a command, there is an implicit suggestion that this is based on properties of earlier known and captured business events.
+  With basic Event Storming we look backwards at each event because an event is something which is known to have already happened. When we identify data needed for an actor or policy to decide when and how to issue a command, there is a tendency to restrict consideration to    properties of earlier known and captured business events.
   
-  With insights storming we extend the approach to also look forward by considering *what is the probability that a particular event will occur at some future time and what are its expected property values?*  How would this change the best action to take when and if an expected event occurs?  Is there action we can take now proactively, in advance of some expected undesirable event to prevent it happening or mitigate the consequences?
+  In an Insight Storming we extend the approach to explicitly look forward and consider *what is the probability that a particular event will occur at some future time and what would be its expected property values?*  How would this change the best action to take when and if this event occurs?  Is there action we can take now proactively, in advance of an expected undesirable event to prevent it happening or mitigate the consequences?
   
- Insights can be published into a bus and subscribed to by any decision step guidance.  We  think of them as **Derived Events**, which rather than being the factual recording of a past event - *something which has happened* -is a forward looking or predictive view  *these are the probable properties of a future event of this type*
+ Insights can be published into a bus and subscribed to by any decision step guidance.  A *Derived Event*, is a forward looking and proabilistic view of what is likely to happen rather than being the factual recording of a past event. 
  
  The insight method step amounts to getting workshop participants to identify value adding derived events and the data sources needed for the models generating them.  Adding an Insight Storming step using the questions above into the workship will improve decision making and proactive behavior in the resulting design.  
 
@@ -144,7 +149,6 @@ To support one of the implementation solution to validate the Event Driven Archi
 ### Further Readings
 * [Introduction to event storming from Alberto Brandolini ](http://ziobrando.blogspot.com/2013/11/introducing-event-storming.html#.VbhQTn-9KK1)
 * [Event Storming Guide](https://www.boldare.com/blog/event-storming-guide/)
-* [Insight storming Guide](InsightStorming/readme.md)
 * [Wikipedia Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design)
 * [Eric Evans: "Domain Driven Design - Tacking complexity in the heart of software"](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software)
 * [Patterns related to Domain Driven Design](https://martinfowler.com/tags/domain%20driven%20design.html) by Martin Fowler
