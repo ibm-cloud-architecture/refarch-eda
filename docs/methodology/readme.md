@@ -110,9 +110,9 @@ Business owners and stakeholders in the Event storming workshop will have good i
   
   With insights storming we extend the approach to also look forward by considering *what is the probability that a particular event will occur at some future time and what are its expected property values?*  How would this change the best action to take when and if an expected event occurs?  Is there action we can take now proactively, in advance of some expected undesirable event to prevent it happening or mitigate the consequences?
   
- Insights can be published into a bus and subscribed to by any decision step guidance.  We  think of them as *Derived Events*, which rather than being the factual recording of a past event - *something which has happened* -is a forward looking or predictive view  *these are the probable properties of a future event of this type*
+ Insights can be published into a bus and subscribed to by any decision step guidance.  We  think of them as **Derived Events**, which rather than being the factual recording of a past event - *something which has happened* -is a forward looking or predictive view  *these are the probable properties of a future event of this type*
  
- The insight method step amounts to getting workshop participants to identify value adding derived events and data source needed for them which will improve decision making and proactive behavior in the solution using the questions above. 
+ The insight method step amounts to getting workshop participants to identify value adding derived events and the data sources needed for the models generating them.  Adding an Insight Storming step using the questions above into the workship will improve decision making and proactive behavior in the resulting design.  
 
   Identification of derived events enables integration of analytic models and machine learning into the designed solution. Event and derived event feeds can be processed, filtered, joined, aggregated , modeled and  scored to create valuable predictive insights. 
 
