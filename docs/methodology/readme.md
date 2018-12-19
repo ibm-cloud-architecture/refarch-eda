@@ -2,21 +2,22 @@
 EventStorming is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
 A **Domain Event** is something meaningful that happened in the domain.
 
-The event storming method was introduced and publicized by Alberto Brandolini in [Introducing Eventstorming](https://www.eventstorming.com/book/) . This approach has been achieved recognition in the Domain Driven Design (DDD) community as a technique facilitating rapid capture of a solution design and improved team understanding of the design. In this chapter we outline the method and also describe refinements and extesions useful in designs for Event Driven Architecture. This includes the addition of Insight storming to identify and capture value adding predictive insights about possible future events, which can be generates by data analysis, data models, articficial intelligence or machine learning. 
+The event storming method was introduced and publicized by Alberto Brandolini in [Introducing Eventstorming](https://www.eventstorming.com/book/) . This approach has been achieved recognition in the Domain Driven Design (DDD) community as a technique facilitating rapid capture of a solution design and improved team understanding of the design. In this chapter we outline the method and also describe refinements and extesions useful in designs for Event Driven Architecture. This includes the addition of an Insight storming step to identify and capture value adding predictive insights about possible future events. The predictive insights are generated using data science analysis, data models, artificial intelligence(AI) or machine learning (ML). 
 
-We describe the steps to run an event storming workshop  in general terms.  The output of an actual workshop performing Event storming and Insight Storming on a smple problem - world wide container shipping  is further detailed in [Container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md).
+In this section we describe in general terms all the steps to run an event storming workshop. The output of an actual workshop performing Event storming and Insight Storming on a sample problem - a world wide container shipment, is further detailed in [Container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md).
 
 ## Conducting the Event and Insight Storming Workshop
-An Event Storming Workshop may be done after a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) are developed and business pains and goals are defined. The Event storming will add deeper context on the process and the events. Event storming and Domain Driven Design is a good first step in building an application using the microservices approach that will be follow an Event Driven Architecture.
+An Event Storming Workshop is held after completing a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) were developed and business pains and goals were defined. The Event storming workshop adds more specific design on the events occuring at each step of the process, natural contexts for microservices and predictive insights to guide operation of the system. This approach is effective in enabling a team including business owners and stakeholders to define a Minimal Viable Prototype ( MVP) design for the solution.  The resulting design will be organized as a collecion of loosely coupled microservices linked through an Event Driven Architecture (EDA) and and one or more  Event Buses. This style of design can deployed into multicloud execution environments and allows for scaling and agile deployment.     
 
-### Preparation
+Preparations for the event storming workship  include: 
 * Get a room big enough to hold at least 6 to 8 persons and with enough wall space on which to stick big paper sheets: you will need a lot of wall space to define the models.
 * Obtain green, orange, blue, and red square sticky notes, black sharpies and blue painters tape
-* Do not allow people to open their laptops and try to limit the number of chairs; it is important that the team stays focused and connected and conversation flows well.
+* Provide guidanance to the participants discouraging the use of open laptops during the meeting 
+* Limit the number of chairs - it is important that the team stays focused and connected and conversation flows well.
 
 ### Concepts
 Many of the concepts addressed during the event storming workshop are defined in the [Domain Driven Design](https://www.ibm.com/cloud/garage/content/code/domain-driven-design/) approach.
-The following diagrams present the elements used during the analysis.  We'll begin with the initial set of concepts used in the process.
+The following diagrams present the elements used during the analysis.  We begin with the initial set of concepts used in the process.
 
  <img src="evt-stm-item1.png" width="700">
 
