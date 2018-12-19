@@ -7,7 +7,7 @@ The event storming method was introduced and publicized by Alberto Brandolini in
 In this section we describe in general terms all the steps to run an event storming workshop. The output of an actual workshop performing Event storming and Insight Storming on a sample problem - a world wide container shipment, is further detailed in [Container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md).
 
 ## Conducting the Event and Insight Storming Workshop
-An Event Storming Workshop is held after completing a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) were developed and business pains and goals were defined. The Event storming workshop adds more specific design on the events occuring at each step of the process, natural contexts for microservices and predictive insights to guide operation of the system. This approach is effective in enabling a team including business owners and stakeholders to define a Minimal Viable Prototype ( MVP) design for the solution.  The resulting design will be organized as a collecion of loosely coupled microservices linked through an Event Driven Architecture (EDA) and and one or more  Event Buses. This style of design can deployed into multicloud execution environments and allows for scaling and agile deployment.     
+An Event Storming Workshop is held after completing a Design Thinking Workshop in which [Personas](https://www.ibm.com/cloud/garage/content/think/practice_personas/) and [Empathy Maps](https://www.ibm.com/cloud/garage/content/think/practice_empathy_maps/) were developed and business pains and goals were defined. The Event storming workshop adds more specific design on the events occuring at each step of the process, natural contexts for microservices and predictive insights to guide operation of the system. This approach is effective in enabling a team including business owners and stakeholders to define a Minimal Viable Prototype ( MVP) design for the solution.  The resulting design will be organized as a collecion of loosely coupled microservices linked through an Event Driven Architecture (EDA) and and one or more  Event Buses. This style of design can be deployed into multicloud execution environments and allows for scaling and agile deployment.     
 
 Preparations for the event storming workship  include: 
 * Get a room big enough to hold at least 6 to 8 persons and with enough wall space on which to stick big paper sheets: you will need a lot of wall space to define the models.
@@ -21,11 +21,18 @@ The following diagrams present the elements used during the analysis.  We begin 
 
  <img src="evt-stm-item1.png" width="700">
 
-Domain events are also named 'business events'.  The first part of the process involves simply identifying the relevant events in a domain and placing them on a timeline.  That often results in questions to be resolved at a later time, or discussions about definitions that need to be recorded in order to make sure everyone agrees on basic domain concepts.
+Domain events are also named 'business events'.  The first step in the event storming process involves:
+* identifying all relevant events in the domain and specific process being analyzed,
+* writing a very short description of each event on a "sticky" note 
+* and placing all of the event "sticky" notes in sequence on a timeline.  
+
+An event is some action or happening which occurred in the system at a specific time in the past.  
+
+Just writing down event descriptions often results in questions to be resolved at a later time, or discussions about definitions that need to be recorded in order to make sure everyone agrees on basic domain concepts.
 
 <img src="evt-stm-item2.png" width="700">
 
-A basic timeline of domain events is the initial critical output of the event storming process.  It gives everyone a common understanding of when events take place in relation to each other.  You still need to be able to take this initial level of understanding and then take the next step of moving this toward an implementation.  In making that step, you will need to expand your thinking to encompass the idea of a command, which is the action that kicks off the processing to trigger an event.  As part of understanding the role of the command, you will also want to know who invokes a command (Actors) and what information is needed to allow the command to be executed.  This diagram show how those analysis elements are linked together:
+A timeline of domain events is the critical output of the first step in the event storming process.  It gives everyone a common understanding of when events take place in relation to each other.  You still need to be able to take this initial level of understanding and then take the next step of moving this toward an implementation.  In making that step, you will need to expand your thinking to encompass the idea of a command, which is the action that kicks off the processing to trigger an event.  As part of understanding the role of the command, you will also want to know who invokes a command (Actors) and what information is needed to allow the command to be executed.  This diagram show how those analysis elements are linked together:
 
 <img src="evt-stm-oneview.png" width="700">
 
@@ -46,17 +53,17 @@ An example of a section of a completed event time line with pivotal events and s
 ### Workshop Execution
 The goal of the workshop is to better understand the business problem to address with a future application. But the approach can apply to find solutions to bottlenecks or other issues in existing applications as well. The workshop will help the team understand the big picture of the solution by building a timeline of domain events as they occur during the business process life span.
 
-It's important to avoid documenting process steps; this part of the process is not about capturing an implementation.  Instead, focus on documenting the events. The timeline will represent the high level process as a sequential flow of events.
+It is important to avoid documenting processing steps; the Event Storming method is not tying to specify a particular implementation. Instead, the focus in initial stages of the workshop is on identifying and sequencing the events which occur in the solution.  The event timeline is a useful represention of steps in the overall communicating what must happen whil remaining open to many possible implementation approaches. 
 
 *  **Step 1: Domain events discovery:**
-You begin by writing the domain events in orange sticky note using verbs in past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate their individual lists of domain events; you may not need to iniitally place them on the ordered timeline as they write them.  The events must be worded in a way that is relevant to the domain experts. You are explaining what happens in business terms, not what happens inside the implementation of the system.
+Begin by writing each domain event into an orange sticky note with a few words and a verb in a past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate their individual lists of domain events; you may not need to iniitally place them on the ordered timeline as they write them.  The events must be worded in a way that is meaningful to the domain experts and business stakeholder. You are explaining what happens in business terms, not what happens inside the implementation of the system.
 
 You don't need to describe all the events in your domain, but it is important to cover the process you are interested in exploring from end to end.  Thus, you need to make sure to identify the start and end events and place them on the timeline at the beginning and end of the wall covered with paper.  The other events identified need to be placed between these two endpoints in the closest approximation that the team can agree to a sequential order.  There will be overlaps at this point - don't worry about that; we'll address this later.
 
 * **Step 2: Tell the story:**
- In this step, you retell the story by talking about how to relate events to particular personas.  A member of the team (often the facilitator, but others can do this as well) will act this out by taking on the perspective on a persona in the domain (such as a "manufacturer" who wants to ship a widget to a customer) and asking which events follow which other events.  Start at the beginning of that persona's interaction and ask "what happens next?"  Pick up and rearrange the events the team has stormed as this happens as you discover events that are duplicates (take those off the board) or that are in the wrong order (move them into the right order).
+In this step, you retell the story by talking about how to relate events to particular personas.  A member of the team (often the facilitator, but others can do this as well) will act this out by taking on the perspective on a persona in the domain (such as a "manufacturer" who wants to ship a widget to a customer) and asking which events follow which other events.  Start at the beginning of that persona's interaction and ask "what happens next?"  Pick up and rearrange the events the team has stormed as this happens as you discover events that are duplicates (take those off the board) or that are in the wrong order (move them into the right order).
  
-The key here is to add questions or comments (using the red stickies) when some parts are unclear. This is an indication that the team needs to follow up and make clarifications at a later point. Likewise you want to use this time to document assumptions on the definition stickies.  This is also a good time to rephrase events as you proceed through the story.  Sometimes you will need to rephrase an each event description in past tense, or adjust the terms used if needed.
+The key here is to add questions or comments (using the red stickies) when some parts are unclear. This is an indication that the team needs to follow up and make clarifications at a later point. Likewise you want to use this time to document assumptions on the definition stickies.  This is also a good time to rephrase events as you proceed through the story.  Sometimes you will need to rephrase an event description putting the verbing in past tense, or adjusting the terms used to relate clearly to other identified events. 
  
 In this step you want to focus on the mainline "happy" end-to-end path in order to avoid getting bogged down in details of exceptions and error handling.  That can be added later.
 
@@ -87,11 +94,11 @@ In our example, we see that you can group several command/event pairs (with thei
 
 * **Step 7: Business Context:** it defines terms and concepts with a clear meaning valid in a clear boundary. (The term definition may change outside of the business unit for which this application is developed). The goal here is to defined the boundaries and the term definitions.
 
-* **Step 8: Insight:**  In  Event Storming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
+* **Step 8: Insight:**  In Event Storming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
 
 This amounts to asking workshop participants the question: "What data would be helpful at each event trigger to assist the human user or automated event triggering policy make the best possible decision of how and when to act?"
 
-An important motivation driving use of EDA is that it simplifies design and realization of highly responsive systems which react immediately, intelligently, i.e. in a personalized and context aware way, and optimally to new events as they occur. This immediately suggests that predictive analytics and models to generate predictive insights have an important role to play. Predictive analytic insights are effectively probabilistic statements about which future events are likely to occur and what are the likely properties of those events. They are typicaly generated using models crreated by Data scientists or using Atifical Intalligence (AI) or Machine learning (ML). Correlating or joining independently gathered sources of information may also generate important predictive insights or be input to predictive analytic models.   
+An important motivation driving use of EDA is that it simplifies design and realization of highly responsive systems which react immediately, intelligently, i.e. in a personalized and context aware way, and optimally to new events as they occur. This immediately suggests that predictive analytics and models to generate predictive insights have an important role to play. Predictive analytic insights are effectively probabilistic statements about which future events are likely to occur and what are the likely properties of those events. They are typicaly generated using models created by Data scientists or using Artifical Intalligence or Machine Learning. Correlating or joining independently gathered sources of information may also generate important predictive insights or be input to predictive analytic models.   
 
 Business owners and stakeholders in the Event storming workshop will have good intuitions on:
 *  which probabilistic insights are likely to lead to better decision making and action? 
@@ -100,8 +107,9 @@ Business owners and stakeholders in the Event storming workshop will have good i
 *  what combined sources of information are likely to help create a model to predict this insight?
 
   With Event Storming so far we have been looking backwards at each event because an event is something which is known to have already happened. With this perspective when we think about data which can help an actor decide when and how to issue a command, there is an implicit suggestion that this is based on properties of earlier known and captured business events.
-  With insights storming we extend the approach to also look forward by considering *what is the probability that a particular event will occur at soem future time and what are its expected property values*. How would this change or actions, what would we do now in advance of that event actually happening ?.
-
+  
+  With insights storming we extend the approach to also look forward by considering *what is the probability that a particular event will occur at some future time and what are its expected property values?*  How would this change the best action to take when and if an expected event occurs?  Is there action we can take now proactively, in advance of some expected undesirable event to prevent it happening or mitigate the consequences?
+  
  Insights can be published into a bus and subscribed to by any decision step guidance.  We  think of them as *Derived Events*, which rather than being the factual recording of a past event - *something which has happened* -is a forward looking or predictive view  *these are the probable properties of a future event of this type*
  
  The insight method step amounts to getting workshop participants to identify value adding derived events and data source needed for them which will improve decision making and proactive behavior in the solution using the questions above. 
@@ -113,11 +121,11 @@ Business owners and stakeholders in the Event storming workshop will have good i
  * use of a parallelogram shape to show when events and derived events are combined to enable deeper insight models and predictions.
   It is important to identify predictive insights early as possible in the development life cycle; adding this step to the event storming workshop is the best opportunity.
 
-The two diagrams below show the results of the insight storming step for the use case of contaner shipment analysis.  The first diagram captured insights and associated linkages for each  refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  
+The two diagrams below show the results of the insight storming step for the use case of container shipment analysis.  The first diagram captures insights and associated linkages for each refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  
 
   <img src="evt-stm-insight-cntnr.PNG" width="700">
   
-  The second diagram captures insights which could trigger recommendations to adjust ship course or speed in response to expected severe weather ahead or congestion and expected docking and unloading delays at the next port of call. 
+  The second diagram captures insights which could trigger recommendations to adjust ship course or speed in response to expected severe weather forcast for the route ahead or predicted congestion and expected docking and unloading delays at the next port of call. 
   
   <img src="evt-stm-insight-ship.PNG" width="700">
 
