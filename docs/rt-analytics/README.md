@@ -1,61 +1,59 @@
-# Process Continuous Streaming Events 
+# Process continuous streaming events 
 
-As we discussed coming into this section, the ability to process continuous Event Streams to derive real time insights/intelligence has become one of the essential elements of modern event driven solutions.
+One of the essential elements of modern event-driven solutions is the ability to process continuous event streams to derive real time insights and intelligence.
 
 In this section we will take more detailed look at what this means in terms of required capabilities and the technology choices that are available to provide these as part of the Event Driven Architecture.
 
-## Streaming Analytics (Real-time analytics)
+## Streaming analytics (real-time analytics)
 
-Streaming analytics provides the capabilities to look into and understand the events flowing through unbounded real time event streams. Streaming applications are developed which process the event flow and allow data and analytical functions to be applied to information in the stream.
-
-Streaming applications are written as multi step flows across the following capabilities:
+Streaming analytics provides the capabilities to look into and understand the events flowing through unbounded real-time event streams. Streaming applications process the event flow and allow data and analytical functions to be applied to information in the stream. Streaming applications are written as multistep flows across the following capabilities:
 
 * **Ingest** many sources of events.
-* **Prepare** data transformation, filtering, correlate, aggregate on some metrics and leverage other data sources for data enrichment.
-* **Detect and Predict** event patterns using scoring, classification.
+* **Prepare** data by transforming, filtering, correlating, aggregating on some metrics and leveraging other data sources for data enrichment.
+* **Detect and predict** event patterns using scoring and classification.
 * **Decide** by applying business rules and business logic.
-* **Act** by directly executing an action, or in event driven systems publishing an event notification or command.
+* **Act** by directly executing an action, or in event-driven systems publishing an event notification or command.
 
 ![](rt-analytics-app-pattern.png)
 
-### Basic Streaming analytics capabilities
+### Basic streaming analytics capabilities
 
-To support the real time analytical processing of the unbounded event streams the following capabilities are foundational to the event stream processing component in the Event Driven Architecture
+To support the real-time analytical processing of the unbounded event streams, the following capabilities are essential to the event stream processing component:
 
 * Continuous event ingestion and analytical processing.
 * Processing across multiple event streams.
-* Low latency processing, data does not have to be stored.
-* Processing of high-volume/velocity streams of data.
-* Continuous Query and Analysis of the feed.
+* Low latency processing, where data do not have to be stored.
+* Processing of high-volume and high-velocity streams of data.
+* Continuous query and analysis of the feed.
 * Correlation across events and streams.
 * Windowing and stateful processing.
 * Query and analysis of stored data.
-* Development and execution of Data pipelines.
-* Development and execution of Analytics pipelines.
-* Scoring of Machine Learning models in line in the real time event stream processing.
+* Development and execution of data pipelines.
+* Development and execution of analytics pipelines.
+* Scoring of machine learning models in line in the real-time event stream processing.
 
-### Support for real time analytics and decision making
+### Support for real-time analytics and decision-making
 
-With those foundational capabilities in place, there are frequently seen event stream types and processing capabilities which should be supported. Bringing these out as functions which can applied to the stream processing in the Streaming Application code simplifies the problem down and speeds up the development time.
+Beyond the basic capabilities, consider supporting other frequently-seen event stream types and processing capabilities in your event stream processing component. By creating functions for these stream types and processes in the streaming application code, you can simplify the problem and reduce the development time.
 
-These include:
+These capabilities include the following:
 
-* GeoSpatial
-  * Location based analytics
+* Geospatial
+  * Location-based analytics
   * Geofencing & map matching
   * Spatio-temporal hangout detection
-* TimeSeries Analysis
+* Time series analysis
   * Timestamped data analysis
   * Anomaly detection & forecasting
-* Text Analytics
-  * NLP & NLU
+* Text analytics
+  * Natural Language Processing & Natural Language Understanding
   * Sentiment analysis & entity extraction
-* Video and Audio
-  * Speech to Text conversion
+* Video and audio
+  * Speech-to-text conversion
   * Image recognition
 * Rules
   * Decisions described as business logic
-* CEP
+* Complex Event Processing (CEP)
   * Temporal pattern detection
 * Entity Analytics
   * Relationships between entities
@@ -63,43 +61,35 @@ These include:
 
 ### Application programming languages and standards
 
-Across the industry there have been few standards for event stream applications and languages.  Typically, streaming engines have provided language specific programming models tied to a specific platform.
+Few standards exist for event stream applications and languages. Typically, streaming engines have provided language-specific programming models tied to a specific platform.  The commonly used languages include the following:
+* Python supports working with data and is popular with data scientists and data engineers.
+* Java is the pervasive application development language.
+* Scala adds functional programming and immutable objects to Java.
 
-Commonly seen languages include:
-* Python - support for working with data and popularity with data scientists/data engineers
-* Java - as the pervasive application development language
-* Scala - adding functional programming and unmuttable object on top of Java
-
-Other platform specific languages have emerged when ultimate real time processing performance is required.
+Other platform specific languages have emerged when real-time processing demands stringent performance requirements real time processing performance is required.
 
 More recently Google initiated the Apache Beam project https://beam.apache.org/ to provide a unified programming model for streaming analytics applications.
 
-With Beam there is a higher level unified programming model providing a standard way of writing streaming analytics applications in a number of supported languages:
-* Java
-* Python
-* Go
-* SQL
+Beam is a higher-level unified programming model that provides a standard way of writing streaming analytics applications in many supported languages, including Java, Python, Go and SQL.
 
-Streaming Analytics engines typically support this unified programming model through a beam runner which takes the code and convert it to platform native executable code for the specific engine.
+Streaming analytics engines typically support this unified programming model through a Beam runner that takes the code and converts it to platform-native executable code for the specific engine.
 
-The latest details of supporting engines and the capabilities they support can be found here
-https://beam.apache.org/documentation/runners/capability-matrix/
-but leading ones include Google Cloud DataFlow, Apache Flink, Apache Spark, Apache Apex,  and IBM Streams.
+See https://beam.apache.org/documentation/runners/capability-matrix/ for details of supporting engines and the capabilities.  Leading engines include Google Cloud DataFlow, Apache Flink, Apache Spark, Apache Apex, and IBM Streams.
 
 ### Run time characteristics
 
 In operational terms streaming analytics engines must receive and analyze arriving data continuously:
 
 * The "Feed Never Ends"
-  * The collection is unbounded
-  * Not a request response set based model
+  * The collection is unbounded.
+  * Not a request response set based model.
 
 * The "Firehose Doesn’t Stop"
-  * Keep drinking and keep up
-  * Processing rate >= Feed rate
-  * Must be Resilient and self-healing
+  * Keep drinking and keep up.
+  * The processing rate is greater than or equal to the feed rate.
+  * The analytics engine must be resilient and self-healing.
 
-These specialized demands and concerns, which are different from many other information processing environments, have lead to highly optimized run times/engines for stateful, parallel processing of analytical workloads across multiple event streams.
+These specialized demands and concerns, which are not found in many other information processing environments, have led to highly-optimized runtimes and engines for stateful, parallel processing of analytical workloads across multiple event streams.
 
 
 ## Products
@@ -135,6 +125,7 @@ Our decision for the Event Driven Architecture is to include:
 IBM streams also supports Apache Beam as the open source Streams Application language,  which would allow portability of streams applications across, Flink, Spark, Google DataFlow...
 
 ### Decision Insights
+
 Decision insight is a stateful operator to manage business decision on enriched event linked to business context and business entities. This is the cornerstone to apply business logic and best action using time related business rules.
 [See this note too](../dsi/README.md)
 

@@ -19,7 +19,7 @@ The KafkaConsumer is not thread safe so it is recommended to run in a unique thr
 If you need multiple consumers running in parallel to scale horizontally, you have to define multiple partitions while configuring the topic and use fine-grained control over offset persistence. You’ll use one consumer per partition of a topic. 
 This consumer-per-partition pattern maximizes throughput. When consumers run in parallel and you use multiple threads per soncumser you need to be sure the total number of threads across all instances do not exceed the total number of partitions in the topic.
 
-Also a consumer can subscribe to multiple topics. The brokers are doing rebalancing of the assignment of topic-partition to a consumer that belong to a group. When creating a new consumer you can specify the group id in the options. 
+Also, a consumer can subscribe to multiple topics. The brokers are doing rebalancing of the assignment of topic-partition to a consumer that belong to a group. When creating a new consumer you can specify the group id in the options. 
 
 Consumers may be grouped.  
 
@@ -41,6 +41,8 @@ Do the solution is fine with at-least-once delivery or exactly-once is a must ha
 * Within the Container shipment solution we have a ship movement event consumer and a container metrics event consumer.
 
 * [Asset analytics asset consumers](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer)
+
+* [Nodejs kafka consumers and producers](https://github.com/jbcodeforce/nodejs-kafka)
 
 ## References
 
