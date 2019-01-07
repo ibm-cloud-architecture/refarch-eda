@@ -21,7 +21,7 @@ This consumer-per-partition pattern maximizes throughput. When consumers run in 
 
 Also, a consumer can subscribe to multiple topics. The brokers are doing rebalancing of the assignment of topic-partition to a consumer that belong to a group. When creating a new consumer you can specify the group id in the options. 
 
-Consumers may be grouped.  
+Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer join or leave the group or when a new partition is added to an existing topic.
 
 ## Offset management
 

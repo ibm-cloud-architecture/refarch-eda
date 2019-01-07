@@ -87,7 +87,7 @@ Zookeeper is used to persist the component and platform states and it runs in cl
 
 ### Consumer group
 
-This is the way to group of consumers so the processing of event downstream is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic.  
+This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailinh consumer group implementation in [this note](./consumers.md)
 
 ## Kafka Stream Details
 
