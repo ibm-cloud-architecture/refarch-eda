@@ -1,7 +1,7 @@
 # Install IBM Event Streams on ICP
 *(Tested on Nov 2018 on ibm-eventstreams-dev helm chart 0.1.2 on ICP 3.1)*
 
-You can use the `ibm-eventstreams-dev` Helm chart from ICP catalog or download the intallation image and made it available in thr ICP catalog. The product installation instructions can be found [here](https://ibm.github.io/event-streams/installing/installing/).  
+You can use the `ibm-eventstreams-dev` Helm chart from ICP catalog or download the intallation image and made it available in your ICP catalog. The product installation instructions can be found [here](https://ibm.github.io/event-streams/installing/installing/).  
 
 As we do now want to rewrite the product documentation, we just want to highlight what was done for our deployment. Our cluster has the following characteristics:
 * Three masters also running ETCD cluster on 3 nodes
@@ -11,7 +11,7 @@ As we do now want to rewrite the product documentation, we just want to highligh
 
 For worker nodes we need power and space. We allocated 12 CPUs 32 Gb Mem. 
 
-You need to decide if persistence should be enabled for ZooKeeper and Kafka broker. Allocate one PV per Kafka broker and one per ZooKeeper server or if you use dynamic provisioning be sure the expected volumes are present.
+You need to decide if persistence should be enabled for ZooKeeper and Kafka broker. Allocate one Persistence Volume per Kafka broker and one per ZooKeeper server or if you use dynamic provisioning be sure the expected volumes are present.
 
 The following parameters were changed from default settings:  
 

@@ -153,8 +153,7 @@ When it comes to the design of event driven solutions there are some additional 
 
 **Event Storming**, is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. It focuses on communication between product owner, domain experts and developers.
 
-**Insights Storming**, is an extension to the event storming workshop and encourages a forward looking approach to consider the  insights, (predictive models)  which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event*  ( events are something that has happened) we could see a predictive or derived event , the *system will fail in 3 days*, we could take preventative actions.
-
+**Insights Storming**, is an extension to the event storming workshop and encourages a forward-looking approach to consider the insights, (predictive models) which would make a difference to the business when we look at actions for key business events. What if instead of seeing a *system has failed event* (events are something that has happened) we could see a predictive or derived event, the *system will fail in 3 days*, we could take preventative actions.
 
 [Read more about the Event Storming Methodology](docs/methodology/readme.md)
 
