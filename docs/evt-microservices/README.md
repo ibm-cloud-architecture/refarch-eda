@@ -26,7 +26,7 @@ As before, the event backbone is be the Pub/Sub communication provider and event
 
 ### Supporting products and suggested reading
 
-* IBM Cloud Private - Kuberenets base container platform  https://www.ibm.com/cloud/private
+* IBM Cloud Private - Kubernetes base container platform  https://www.ibm.com/cloud/private
 * IBM Cloud Kubernetes Service https://console.bluemix.net/catalog/infrastructure/containers-kubernetes
 * Deploy a microservices application on Kubernetes https://www.ibm.com/cloud/garage/tutorials/microservices-app-on-kubernetes?task=0
 * IBM Cloud Kubernetes Service: Manage apps in containers and clusters on cloud https://www.ibm.com/cloud/garage/content/run/tool_ibm_container/
