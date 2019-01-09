@@ -85,16 +85,12 @@ Below is an example of a set of ordered domain events with pivotal events and su
 * **Step 4: Locate the Commands:** In this step you shift from analysis of the domain to the first stages of system design.  Up until this point, you are simply trying to understand how the events in the domain relate to one another - this is why the participation of domain experts is so critical.  However, to build a system that implements the business process that you are interested in, you have to move on to the question of how these events come into being.  
 
 Commands are the most common mechanism by which events are created.  The key to finding commands is to ask the question "Why did this event occur?". In this step, the focus of the process moves to the sequence of actions that lead to events. Your goal is to find the causes for which the events record the effects. Expected event trigger types are:
-* a human operator makes a decision and issues a command
-* some external system or sensor provides a stimulus
-* an event results from some policy - typically automated processing of a precursor event
-* the completion of some determined period of elapsed time.
+* A human operator makes a decision and issues a command
+* Some external system or sensor provides a stimulus
+* An event results from some policy - typically automated processing of a precursor event
+* The completion of some determined period of elapsed time.
 
-The triggering command is identified in a blue (sticky) note
-this may become a microservice api in a later implementation
-the human persona issuing the command is identified and shown in a yellow note. The diagram below illustrates the manufacturer actor using the place a shipment order command to create a shipment order placed event as a result of getting a quote from a previous request for quotation so he can deliver goods in container.
-
-![](evt-stm-command-ex.png)
+The triggering command is identified in a blue (sticky) note this may become a microservice api in a later implementation the human persona issuing the command is identified and shown in a yellow note. The diagram in next section illustrates the manufacturer actor using the place a shipment order command to create a shipment order placed event as a result of getting a quote from a previous request for quotation so he can deliver goods in container.
 
 It is possible to chain events and commands as presented in the "one view" figure in the concepts section.
 
