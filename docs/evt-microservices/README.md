@@ -1,15 +1,15 @@
 # Event-driven cloud native apps
 
-On cloud-native platforms, microservices are the application architecture of choice. As businesses become event-driven and with our applications the event driven pattern needs to extend into our microservices application space. This means that your microservices must respond to and send out events, or in event-driven terms they need to be both event producers and consumers.
+On cloud-native platforms, microservices are the application architecture of choice. As businesses become event-driven, event driven pattern needs to extend into our microservices application space. This means that your microservices are still doing REST calls to well known microservice but they must respond to and send out events, or in event-driven terms they need to be both event producers and consumers to enforce strong decoupling.
 
 ## Event backbone - Pub/Sub communication and data sharing for microservices
 
 ![](evt-micro.png)
 
-With the adoption of microservices, the focus on synchronous communication between services has increased. Service mesh packages such as [Istio](https://istio.io/) which help with the management of communication, service discovery, load balancing, and visibility in this synchronous communication environment.
+With the adoption of microservices, the focus on synchronous communication between services has increased. Service mesh packages such as [Istio](https://istio.io/) help with the management of communication, service discovery, load balancing, and visibility in this synchronous communication environment.
 
 With event-driven microservices, the communication point becomes the Pub/Sub layer of the event backbone. By adopting an event-based approach for intercommunication between microservices, the microservices applications are naturally responsive (event-driven). This approach enhances the loose coupling nature of microservices because it decouples producers and consumers.  Further, it enables the sharing of data across microservices through the event log.
-These *event* style characteristics are increasingly important considerations when you develop microservices style applications. In practical terms microservices applications are a combination of synchronous API-driven, and asynchronous event-driven communication styles.
+These *event* style characteristics are increasingly important considerations when you develop microservices style applications. In practical terms microservices applications are a combination of synchronous API-driven, and asynchronous event-driven communication styles. For the implementation point of view a set of established patterns are used, such as Database per Service, Event Sourcing, Command Query Responsibility Segregation, Saga, ...
 
 ### Supporting Products and suggested reading
 
@@ -31,15 +31,18 @@ As before, the event backbone is be the Pub/Sub communication provider and event
 * Deploy a microservices application on Kubernetes https://www.ibm.com/cloud/garage/tutorials/microservices-app-on-kubernetes?task=0
 * IBM Cloud Kubernetes Service: Manage apps in containers and clusters on cloud https://www.ibm.com/cloud/garage/content/run/tool_ibm_container/
 
-## Understanding Event Driven Microservices patterns
+## Understanding event driven microservice patterns
 
 Adopting messaging (Pub/Sub) as a microservice communication backbone involves using at least the following patterns:
-* microservices publish events when something happens in the scope of their control. For example, an update in the business entities they are responsible for.
-* A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
-* Business transactions are not ACID and span multiple services, they are more a series of steps, each step is supported by a micro-service responsible to update its own entities. We talk about eventual consistency of the data.
-* The message broker needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.
-* At the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that read this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
-* One other approach to avoid the two phase commit and inconsistency is to use an Event Store or event sourcing to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
+* [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html), event driven microservices are still microservices, so we need to find them, and the domain-driven subdomains is a good approach to identify and classify business function and therefore microservices. With the event storming method, aggregates help to find those subdomain of responsability. 
+* [Database per service](https://microservices.io/patterns/data/database-per-service.html) to enforce each service persists data privatly and is accessible only via its API.
+* [Saga pattern:](https://microservices.io/patterns/data/saga.html) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when recieving such events. Business entity keys needs to be unique, immutable. 
+* [Event sourcing](https://microservices.io/patterns/data/event-sourcing.html) persists the state of a business entity such an Order as a sequence of state-changing events.
+* Business transactions are not ACID and span multiple services, they are more a series of steps, each step is supported by a microservice responsible to update its own entities. We talk about eventual consistency of the data.
+* The event backbone needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.
+* At the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that reads this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
+* One other approach to avoid the two phase commit and inconsistency is to use an Event Store or Event Sourcing pattern to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
+* [Command Query Responsibility Segregation](https://microservices.io/patterns/data/cqrs.html) help to separate queries from commands and help to address queries with cross-microservice boundary.
 
 [Read more](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md),
 

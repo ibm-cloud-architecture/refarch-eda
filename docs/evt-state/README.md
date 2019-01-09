@@ -6,7 +6,7 @@ When the state of a system changes, an application issues a notification event o
 
 ![](evt-src.png)
 
-In some cases the event sourcing pattern is implemented completely within the event backbone, by using the event log and Kafka streams. However, you can also consider implementing the pattern with an external event store, which provides optimizations for how the data may be accessed and used. For example [IBM Db2 Event store](https://www.ibm.com/products/db2-event-store) can provide the handler and event store connected to the backbone and provide optimization for down stream analytical processing of the data.
+In some cases the event sourcing pattern is implemented completely within the event backbone, by using the event log and Kafka topics and streams. However, you can also consider implementing the pattern with an external event store, which provides optimizations for how the data may be accessed and used. For example [IBM Db2 Event store](https://www.ibm.com/products/db2-event-store) can provide the handler and event store connected to the backbone and provide optimization for down stream analytical processing of the data.
 
 In operation, the event stores persist all state-changing events for an object with a timestamp in time order, thus creating a time series of changes for objects. The current state of an object can always be derived by replaying the events in the time series. An event store only needs to store three pieces of information:
 
@@ -18,11 +18,13 @@ More data can be added to help with diagnosis and audit, but the core functional
 
 ## Command Query Responsibility Segregation (CQRS)
 
-The event log lead to more work to support business query as it requires converting the events into the application state suitable to the query.
+The event log leads to more work to support business query as it requires converting the events into the application state suitable to the query.
 
 The CQRS application pattern is frequently associated with event sourcing. In this pattern, you separate the "command" operations, used to update application state, from the "query/read" operations.  Updates are done as state notification events (change of state), and are persisted in the event log/store. On the read side you have the option of persisting the state in different stores optimized for how other applications may query/read the data.
 
 ![](evt-cqrs.png)
+
+See the following [order management project](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) for a detail explanation and implementation of the CQRS and event sourcing patterns.
 
 ## Event sourcing, CQRS and microservices
 
@@ -32,7 +34,7 @@ The other answer is to implement a CQRS pattern where state changes are publishe
 
 ## Fearther readings
 
-Read more on this pattern at https://microservices.io/patterns/data/cqrs.html
+Read more on this pattern at https://microservices.io/patterns/data/cqrs.html and our [reference implementation](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms)
 
 ## Supporting Products
 

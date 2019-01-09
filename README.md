@@ -199,7 +199,9 @@ We really value contributions and to maximize the impact of code contributions w
 The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 
 ## Project Status
-[10/2018] Just started
+[10/2018] Started
+[11/2018] Implement ship simulator and stream analytics proof of concepts
+[01/2019] Publish content to IBM Architecture center
 
 ## Contributors
 
