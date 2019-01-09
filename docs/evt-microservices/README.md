@@ -11,14 +11,15 @@ With the adoption of microservices, the focus on synchronous communication betwe
 With event-driven microservices, the communication point becomes the Pub/Sub layer of the event backbone. By adopting an event-based approach for intercommunication between microservices, the microservices applications are naturally responsive (event-driven). This approach enhances the loose coupling nature of microservices because it decouples producers and consumers.  Further, it enables the sharing of data across microservices through the event log.
 These *event* style characteristics are increasingly important considerations when you develop microservices style applications. In practical terms microservices applications are a combination of synchronous API-driven, and asynchronous event-driven communication styles. For the implementation point of view a set of established patterns are used, such as Database per Service, Event Sourcing, Command Query Responsibility Segregation, Saga, ...
 
-### Supporting Products and suggested reading
+### Supporting products and suggested reading
 
+* [Event backbone](https://github.com/ibm-cloud-architecture/refarch-eda/blob/master/docs/evt-backbone/README.md)
 * IBM Cloud Functions/Openwhisk programming model  https://openwhisk.apache.org/documentation.html#programming-model
 * Using Cloud functions with event trigger in Kafka  https://github.com/IBM/ibm-cloud-functions-message-hub-trigger
 * IBM Cloud Functions product offering https://www.ibm.com/cloud/functions
 * Getting Started with Cloud Functions  https://console.bluemix.net/openwhisk/
 
-## Event Driven apps with containers
+## Event driven apps with containers
 
 While the serverless approach with Cloud Functions provides a simplified event-based programming model, the majority of microservices applications today are developed for and deployed to a container-based cloud-native stack.  Within the cloud-native landscape, Kubernetes is the standard platform for container orchestration, and therefore becomes the base for the container platform in the event-driven architecture.
 
@@ -44,9 +45,9 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 * One other approach to avoid the two phase commit and inconsistency is to use an Event Store or Event Sourcing pattern to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
 * [Command Query Responsibility Segregation](https://microservices.io/patterns/data/cqrs.html) help to separate queries from commands and help to address queries with cross-microservice boundary.
 
-[Read more](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh/readme.md),
-
 ## Code References
 
 * The K Containers shipment use cases provides a supporting EDA example  https://github.com/ibm-cloud-architecture/refarch-kc
-* Within K Containers the following are example microservices  https://github.com/ibm-cloud-architecture/refarch-kc-ms
+* Within K Containers shipment the following are example microservices illustrating some of those patterns  
+  * https://github.com/ibm-cloud-architecture/refarch-kc-ms
+  * https://github.com/ibm-cloud-architecture/refarch-kc-order-ms

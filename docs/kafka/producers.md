@@ -43,13 +43,14 @@ Here is a list of common API to use in your producer and consumer code.
 
 ## Properties to consider
 
-The following properties are helpful to tune and will vary depending on the deployment:
+The following properties are helpful to tune and will vary depending on the deployment:  
+
  | Properties | Description |
  | --- | --- |
- | BOOTSTRAP_SERVERS_CONFIG |  a comma-separated list of host:port values for all the brokers deployed. So producer may use any brokers |
+ | BOOTSTRAP_SERVERS_CONFIG |  A comma-separated list of host:port values for all the brokers deployed. So producer may use any brokers |
  | KEY_SERIALIZER_CLASS_CONFIG and VALUE_SERIALIZER_CLASS_CONFIG |convert the keys and values into byte arrays. |
  | ACKS_CONFIG | specifies the minimum number of acknowledgments from a broker that the producer will wait for before considering a record send completed. Values = all, 0, and 1. 0 is for fire and forget. |
-  | RETRIES_CONFIG | specifies the number of times to attempt to resend a batch of events. | 
+ | RETRIES_CONFIG | specifies the number of times to attempt to resend a batch of events. |  
 
 
 ## Code Examples
