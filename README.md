@@ -67,7 +67,7 @@ We defined the starting point for a Cloud Native Event Driven Architecture to be
 
 With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below:
 
-<img src="docs/hl-arch-refa.png" width="1024px">
+<img src="docs/hl-arch-ra.png" width="1024px">
 
 Where:
 
@@ -143,7 +143,7 @@ The event-driven reference architecture provides the framework to support event-
 
 The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
 
-<img src="docs/hl-arch-extended.png" width="1024px">
+<img src="docs/hl-arch-ra-adv.png" width="1024px">
 
 [Read more ...](docs/extended-arch/readme.md)
 
