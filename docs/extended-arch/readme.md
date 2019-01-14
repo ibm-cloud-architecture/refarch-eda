@@ -1,12 +1,12 @@
 # Extended Architecture
 
-<img src="../hl-arch-extended.png" width="1024px">
+<img src="../hl-arch-ra-adv.png" width="1024px">
 
 ## Integration with analytics and machine learning
 
 The extended architecture extends the basic EDA reference architecture with concepts showing how data science, artificial intelligence and machine learning can be incorporated into an event-driven solution.
 
-The starting point for data scientists to be able to derive machine learning models or analyze data for trends and behaviors is the existence of the data in a form that they can be consumed. For real-time intelligent solutions, data scientists typical inspect event histories and decision or action records from a system and reduce these to some simplified model that will score new event data as it arrives.
+The starting point for data scientists to be able to derive machine learning models or analyze data for trends and behaviors is the existence of the data in a form that they can be consumed. For real-time intelligent solutions, data scientists typically inspect event histories and decision or action records from a system. Then, they reduce this data to some simplified model that scores new event data as it arrives.
 
 ### Getting the data for the data scientist:
 

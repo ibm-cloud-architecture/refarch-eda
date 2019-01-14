@@ -1,5 +1,11 @@
 # Event managed state
 
+While the prime focus for an event-driven architecture is processing events, in certain cases you need to persist events for post processing and queries by other applications. The event backbone has a built-in event log that can be used to store and reply to events that are published to the backbone. However, considering the full scope of event-driven solutions, other use cases and types of store can be supported:
+* Event stores optimized for analytics.
+* Event sourcing as a pattern for recording state changes and updates across distributed systems.
+* Command Query Response Separation (CQRS) as an optimization that separates updates and reads across different stores.
+
+
 ## Event sourcing
 
 When the state of a system changes, an application issues a notification event of the state change.  Any interested parties can become consumers of the event and take required actions.  The state-change event is stored in an event log or event store in immutable time order.  The event log or store becomes the principal source of truth. The system state can be recreated to a point in time by reprocessing the events at any time in the future. The history of state changes becomes an audit record for the business and is often a useful source of data for data scientists to gain insights into the business.

@@ -71,12 +71,13 @@ With an event backbone providing the connectivity between the capabilities, we c
 
 Where:
 
-* IBM Event Streams: Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
-* IBM Cloud Functions: Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
-* Streaming Analytics: Provides continuous ingest and analytical processing across multiple event streams.
-* Decision Server Insights: Provides the means to take action on events and event streams through business rules.
-* Event Driven Microservices: Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
-* Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
+1. Event sources: generates events and event streams from sources such as IoT devices, web app, mobile app, microservices… 
+2. IBM Event Streams: Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
+3. IBM Cloud Functions: Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
+4. Streaming Analytics: Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
+5. Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
+6. Event Driven Microservices: Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+
 
 Now we will take a detailed look at each of these component areas which make up the reference architecture:
 
@@ -145,6 +146,8 @@ The diagram below shows how these capabilities fit together to form an extended 
 
 <img src="docs/hl-arch-ra-adv.png" width="1024px">
 
+ In 7. the AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular Event Store, and develop models. Models are pushed to streaming analytics component.
+ 
 [Read more ...](docs/extended-arch/readme.md)
 
 ## Event Storming
