@@ -133,10 +133,19 @@ There are a set of design considerations to assess for each **Kafka** solution:
 
 Performance is more a function of number of partitions than topics. Expect that each topic has at least one partition. When considering latency you should aim for limiting to hundreds of topic-partition per broker node.
 
-The approach to use one topic per data type is natural and will work, but when addressing microservice to microservice communication it is less relevant to use this pattern.
+What of the most important question is what topics to use?. What is an event type? Should we use one topic to support multiple event types? 
+Let define that an event type is linked to a main business entity like an Order, a ship, a FridgeredContainer. OrderCreated, OrderCancelled, OrderUpdated, OrderClosed are events linked to the states of the Order. The order of those events matter. So the natural approach is to use one topic per data type or schema, specially when using the topic as Event Sourcing where event order is important to build the audit log. You will use an unique partition to support that. The orderID is the partition key and all events related to the order are in the same topic.
+
 The important requirement to consider is the sequencing or event order. When event order is very important then use a unique partition, and use the entity unique identifier as key. Ordering is not preserved across partitions.
 
 When dealing with entity, independent entities may be in separate topics, when strongly related one may stay together.
+
+Other best practices:
+* When event order about the same entity is important use the same topic and define partition key.
+* When two entities are related together by containment relationship then they can be in the same topic. 
+* Different entities are separated to different topics.
+* It is possible to group topics in coarse grained one when we discover that several consumers are listening to the same topics. 
+* Clearly define the partition key as it could be an compound key based on multiple entities.
 
 With **Kafka** stream, state store or KTable, you should separate the changelog topic from the others.
 
