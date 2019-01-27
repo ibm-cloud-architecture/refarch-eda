@@ -27,6 +27,7 @@ This repository represents the root of related content about the Cloud Native Ev
 * [Reference architecture](#reference-architecture)
 * [Extended architecture for machine learning and legacy integration](#extended-architecture)
 * [Event Storming methodology](#event-storming)
+* [Even-driven design patterns](./docs/evt-microservices/ED-patterns.md)
 * [Deployments](#deployments)
 * [Sample EDA Applications](#sample-eda-applications)
 * [Contribute to the solution](#contribute)

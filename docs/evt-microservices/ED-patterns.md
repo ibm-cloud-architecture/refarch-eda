@@ -6,7 +6,7 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 * [Saga pattern:](https://microservices.io/patterns/data/saga.html) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when recieving such events. Business entity keys needs to be unique, immutable. 
 * [Event sourcing](#event-sourcing) persists the state of a business entity such an Order as a sequence of state-changing events.
 
-* [Command Query Responsibility Segregation](https://microservices.io/patterns/data/cqrs.html) help to separate queries from commands and help to address queries with cross-microservice boundary.
+* [Command Query Responsibility Segregation](#command-query-responsibility-segregation-cqrs-pattern) helps to separate queries from commands and help to address queries with cross-microservice boundary.
 
 ## Event sourcing
 
@@ -37,7 +37,7 @@ One derived challenge is that the command may be executed multiple times, specia
 * At the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that reads this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
 * One other approach to avoid the two phase commit and inconsistency is to use an Event Store or Event Sourcing pattern to keep trace of what is done on the business entity with enough data to rebuild the data. Events are becoming facts describing state changes done on the business entity.
 
-## ## Command Query Responsibility Segregation (CQRS) pattern
+## Command Query Responsibility Segregation (CQRS) pattern
 
 When doing event sourcing and domain driven design, we event source the aggregates or root entities. Aggregate creates events that are persisted. On top of the simple create, update and read by ID operation, the business requirements want to perform complext queries that can't be answered by a single aggregate. By just using event sourcing to be able to respond to a query like what are the orders of a customer, then we have to rebuild the history of all orders and filter per customer. It is a lot of computation. This is linked to the problem of having conflicting domain model between query and persistence.  
 Command Query Responsibility Segregation, CQRS, separates the read from the write model. The following figure presents the high level principles:
