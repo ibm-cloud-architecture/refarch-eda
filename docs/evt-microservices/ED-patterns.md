@@ -10,18 +10,32 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 
 ## Event sourcing
 
-Most business applications are state based persistence where an update change the previous state of business entities. When a change needs to be made to the domain the changes are done on the new entities added to the system, the old ones are not impacted. But some requirements need to capture changes from the past history. For example, being able to answer how often something happenned in the past year. Also, it could happen that we need to fix data after a service crash, but which ones were impacted by the updating buggy code?
-One way to keep history is to use an audit log. Inside the log, events are persisted. As already said, events represent facts. So **event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. 
+Most business applications are state based persistence where an update change the previous state of business entities. 
+Here is an example of traditional order data model persisted to a RDBMS:
+
+![](evt-src-ex1.png)   
+
+With this model you have only the last state of data is persisted. With this model, most of the time there is a delete operation to remove data. But most business does not remove data, ledger for example add new record to update transaction. They can report on what was done. So there is a need to capture changes from the past history. Business users could ask for being able to answer how often something happenned in the past year. 
+As a developer you want to understand what data to fix after a service crash, impacted by the updating buggy code?
+So all those requirements are good condidates to adopt event sourcing.
+
+Historical records become immutable, and events represent fact, what happenned to the data. The previous model change to time oriented immutable facts, organized by key:
+
+![](evt-src.png)   
+
+**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. You can see the removing a product in the order is a new event. So now we can count how often products are removed. It is important to keep integrity in the log. History should never be rewritten, then event should be immutable, and log being append only.
+
+With a central event logs, producer appends event to the log, and consumers read them from an **offset**
 
 ![](./evt-sourcing.png)
 
-**Event sourcing** only captures the intent, in the form of events stored in the log. To get the final state of an entity, the system needs to replay all the events, which means replaying the changes to the state but not replaying the side effects. 
+To get the final state of an entity, the consumer needs to replay all the events, which means replaying the changes to the state from the last committed offset or from the last snapshot. 
 
 ![](./evt-sourcing-replay.png)
 
-A common side effect is to send a notification on state change to consumers. Sometime it may be too long to replay hundreds of events. In that case we can use snapshot, to capture the current state of an entity, and then replay events from the most recent snapshot. This is an optimization technique not needed for all event sourcing implementations. When state change events are in low volume there is no need for snapshots.
+When replaying the event, it may be important to avoid generating side effects. A common side effect is to send a notification on state change to consumers. Sometime it may be too long to replay hundreds of events. In that case we can use snapshot, to capture the current state of an entity, and then replay events from the most recent snapshot. This is an optimization technique not needed for all event sourcing implementations. When state change events are in low volume there is no need for snapshots.
 
-It is important to keep integrity in the log. History should never be rewritten, then event should be immutable, and log being append only.
+Kafka is supporting the event sourcing pattern with [the topic and partition](../kafka/readme.md).
 
 The event sourcing pattern is well described in [this article on microservices.io](https://microservices.io/patterns/data/event-sourcing.html). It is a very important pattern for EDA and microservices to microservices data synchronization needs.
 
