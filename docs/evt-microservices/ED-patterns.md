@@ -58,13 +58,15 @@ Command Query Responsibility Segregation, CQRS, separates the read from the writ
 
 ![](./cqrs.png)
 
-The service exposes CUD operations, some basic Read by Id and then queries APIs. The domain model is splitted into write and read models. Combined with Event Sourcing the write model goes to the event store. Then we have a separate process that consumes those events and build a projection for future queries. The write part can persist in SQL while the read could use document oriented database with strong indexing and query capability, they do not need to be in the same language. With CQRS amd ES the projections are retroactives. New query equals implementing new projection and read the events from the beginning of time or the recent snapshot. Read and write models are strongly decoupled anc can evolve independently. It is important to note that the Command part can still handle simple queries, primary-key based, like get order by id, or queries that do not involve joins.
+The service exposes CUD operations, some basic Read by Id and then queries APIs. The domain model is splitted into write and read models. Combined with Event Sourcing the `write model` goes to the event store. Then we have a separate process that consumes those events and build a projection for future queries. The write part can persist in SQL while the read could use document oriented database with strong indexing and query capability, they do not need to be in the same language. With CQRS amd ES the projections are retroactives. New query equals implementing new projection and read the events from the beginning of time or the recent snapshot. Read and write models are strongly decoupled and can evolve independently. It is important to note that the Command part can still handle simple queries, primary-key based, like get order by id, or queries that do not involve joins.
 
-With this structure the Read model microservice will most likely consume events from multiple topics to build the data projection based on joining those data. A query to assess if the cold-chain was respected on the fresh food order shipment will go to the voyage, container metrics, and order to be able to answer this question. This is in this case that CQRS shine.
+With this structure the `Read model` microservice will most likely consume events from multiple topics to build the data projection based on joining those data. A query to assess if the cold-chain was respected on the fresh food order shipment will go to the voyage, container metrics, and order to be able to answer this question. This is in this case that CQRS shines.
 
 A second view of the previous diagram presents how we can separate the AI definition and management in a API gateway, the Order command and write model as its own microservice, the event sourcing supported by a Kafka topic, and the query - read model as microservices or event function as a service:
 
 ![](./cqrs-es-api.png)
+
+The [shipment order microservice](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) is implementing this pattern. 
 
 The CQRS pattern was introduced by [Greg Young](https://www.youtube.com/watch?v=JHGkaShoyNs), https://martinfowler.com/bliki/CQRS.html https://microservices.io/patterns/data/cqrs.html
 
@@ -86,7 +88,7 @@ There are other ways to support this dual operations level:
 * Write the order to the database and in the same transaction write to a event table. Then use a polling to get the event to send to kafka from this event and delete it in the table once sent. 
 * Use the Capture Data Change from the database transaction log and generate events from this log. The IBM [Infosphere CDC](https://www.ibm.com/support/knowledgecenter/cs/SSTRGZ_10.2.0/com.ibm.cdcdoc.mcadminguide.doc/concepts/overview_of_cdc.html) product helps to achieve that.
 
-What is important to note is that the event need to be flexible on the data payload.
+What is important to note is that the event needs to be flexible on the data payload. We are presenting a [event model](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms#data-and-event-model) in the reference implementation.
 
 On the view side, updates to the view part need to be indempotent. 
 
