@@ -11,21 +11,17 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 ## Event sourcing
 
 Most business applications are state based persistence where an update change the previous state of business entities. 
-Here is an example of traditional order data model persisted to a RDBMS:
+Traditional domain oriented implementation builds domain data model mapped to a RDBMS. In the diagram below is a very simple order model:
 
 ![](evt-src-ex1.png)   
 
-With this model you have only the last state of data is persisted. With this model, most of the time there is a delete operation to remove data. But most business does not remove data, ledger for example add new record to update transaction. They can report on what was done. So there is a need to capture changes from the past history. Business users could ask for being able to answer how often something happenned in the past year. 
-As a developer you want to understand what data to fix after a service crash, impacted by the updating buggy code?
-So all those requirements are good condidates to adopt event sourcing.
+With this model you have only the last state of data persisted. If you need implement a query that look at what happenned to the order over a period of time, you need to change the model and add historical records, basically building a log table. Also most of the time, there is a delete operation to remove data. But most businesses do not remove data, for example, a ledger includes new record to compensate a transaction. There is no erasing of previously logged transaction. It is always possible to understand what was done in the past.
 
-Historical records become immutable, and events represent fact, what happenned to the data. The previous model change to time oriented immutable facts, organized by key:
+Historical records are immutable, and events represent facts of what happenned to the data. The previous order model changes to a time oriented immutable stream of events, organized by key:
 
 ![](evt-src.png)   
 
-**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. You can see the removing a product in the order is a new event. So now we can count how often products are removed. It is important to keep integrity in the log. History should never be rewritten, then event should be immutable, and log being append only.
-
-With a central event logs, producer appends event to the log, and consumers read them from an **offset**
+**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. You can see the removing a product in the order is a new event. So now we can count how often products are removed. With a central event logs, producer appends event to the log, and consumers read them from an **offset**
 
 ![](./evt-sourcing.png)
 
@@ -40,6 +36,8 @@ Kafka is supporting the event sourcing pattern with [the topic and partition](..
 The event sourcing pattern is well described in [this article on microservices.io](https://microservices.io/patterns/data/event-sourcing.html). It is a very important pattern for EDA and microservices to microservices data synchronization needs.
 
 See also this nice [event sourcing article](https://martinfowler.com/eaaDev/EventSourcing.html) from Martin Fowler, where he is also using ship movement example. Our implementation differs here and we are using Kafka topic as event store and use the Order business entity.
+
+Another use case for event sourcing is related to developers who want to understand what data to fix after a service crashes, for example after having deployed a buggy code.
 
 ### Command sourcing
 
@@ -58,15 +56,29 @@ Command Query Responsibility Segregation, CQRS, separates the read from the writ
 
 ![](./cqrs.png)
 
-The service exposes CUD operations, some basic Read by Id and then queries APIs. The domain model is splitted into write and read models. Combined with Event Sourcing the `write model` goes to the event store. Then we have a separate process that consumes those events and build a projection for future queries. The write part can persist in SQL while the read could use document oriented database with strong indexing and query capability, they do not need to be in the same language. With CQRS amd ES the projections are retroactives. New query equals implementing new projection and read the events from the beginning of time or the recent snapshot. Read and write models are strongly decoupled and can evolve independently. It is important to note that the Command part can still handle simple queries, primary-key based, like get order by id, or queries that do not involve joins.
+The service exposes CUD operations, some basic Read by Id and then queries APIs. The domain model is splitted into write and read models. Combined with Event Sourcing the `write model` goes to the event store. Then we have a separate process that consumes those events and build a projection for future queries. The "write" part may persist in SQL while the read may use document oriented database with strong indexing and query capabilities. They do not need to be in the same language. With CQRS amd ES the projections are retroactives. New query equals implementing new projection and read the events from the beginning of time or the recent snapshot. Read and write models are strongly decoupled and can evolve independently. It is important to note that the Command part can still handle simple queries, primary-key based, like get order by id, or queries that do not involve joins.
 
-With this structure the `Read model` microservice will most likely consume events from multiple topics to build the data projection based on joining those data. A query to assess if the cold-chain was respected on the fresh food order shipment will go to the voyage, container metrics, and order to be able to answer this question. This is in this case that CQRS shines.
+With this structure, the `Read model` microservice will most likely consume events from multiple topics to build the data projection based on joining those data. A query, to assess if the cold-chain was respected on the fresh food order shipment, will go to the voyage, container metrics, and order to be able to answer this question. This is in this case that CQRS shines.
 
-A second view of the previous diagram presents how we can separate the AI definition and management in a API gateway, the Order command and write model as its own microservice, the event sourcing supported by a Kafka topic, and the query - read model as microservices or event function as a service:
+A second view of the previous diagram presents how we can separate the API definition and management in a API gateway, the Order command and write model as its own microservice, the event sourcing supported by a Kafka topic, and the query - read model as microservices or event function as a service:
 
 ![](./cqrs-es-api.png)
 
 The [shipment order microservice](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) is implementing this pattern. 
+
+Some items to consider: 
+
+* **Consistency** (ensure the data constraints are respected for each data transaction): CQRS without event sourcing has the same consistency guarantees as the database used to persist data and events. With Event Sourcing the consistency could be different, one for the "Write" model and one for the "Read" model. On write model strong consistency is important to ensure the current state of the system is correct, so it leverages transaction, lock and sharding. On read side, we need less consistency, as they mostly work on stale data. Locking data on the read operation is not reasonable. 
+* **Scalability**: Separating read and write as two different microservices allows for high availability. Caching at the "read" level can be used to increase scalabilty. It is also possible to separate query between different services or functions.
+* **Availability**: As the "write" model is often strongly consistent, it impacts availability. This is a fact. The read model is eventually consistent so high availability is possible. In case of failure the system disables the writing of data but still be able to read them as they are served by different databases and services. 
+
+With CQRS the "write" model can evolve overtime without impacting the read model, unless the event model changes. It adds some cost by adding more tables to implement the query parts. It allows smaller model, easier to understand. 
+
+CQRS results in an increased number of objects, with commands, operations, events,... and packaging in deployable component or container. It adds potentially different type of data sources. It clearly states of the eventually consistent data. 
+
+Some challenges to always consider: 
+* how to support event version management
+* assess the size of the event history to keep and add data duplication which results to synchronization issues. 
 
 The CQRS pattern was introduced by [Greg Young](https://www.youtube.com/watch?v=JHGkaShoyNs), https://martinfowler.com/bliki/CQRS.html https://microservices.io/patterns/data/cqrs.html
 
