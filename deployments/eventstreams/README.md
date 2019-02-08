@@ -79,7 +79,21 @@ To connect an application or tool to this cluster, you will need the address of 
 
 ![](images/ies-cluster-connection.png)
 
-We are detailed in the next section how to leverage those security elements. 
+Download certificate and Java truststore files, and then generate API key. A key can apply to all groups or being specific to a group. 
+
+To leverage the api key the code needs to set the followinf properties:
+```java
+properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
+properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+properties.put(SaslConfigs.SASL_JAAS_CONFIG,
+        "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"token\" password=\""
+                + env.get("KAFKA_APIKEY") + "\";");
+properties.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
+properties.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, "TLSv1.2");
+properties.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "HTTPS");
+```
+
+See code example in [ApplicationConfig.java](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/a6b6a2d15085029f5d46b9826806e722a8c27bff/order-command-ms/src/main/java/ibm/labs/kc/order/command/kafka/ApplicationConfig.java#L71-L86).
 
 ## Some challenges during the installation
 
