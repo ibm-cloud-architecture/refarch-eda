@@ -7,7 +7,7 @@ Update 12/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer
 ## Table of contents
 
 * [Introduction - concepts - use cases](#introduction)
-* [Details](#kafka-stream-details)
+* [Key concepts](#key-concepts)
 * [Architecture and design discussion](#architecture)
 * [Deployment](#deployment)
   * [Kafka deployment](../../deployments/kafka/README.md)
@@ -39,7 +39,7 @@ The typical use cases where **Kafka** helps are:
 
 ## Key concepts
 
-The diagram below presents the key components we are detailing in this section:  
+The diagram below presents the key components, we are detailing in this section:  
 
  ![](images/kafka-hl-view.png)
 
@@ -82,18 +82,16 @@ Partitions are used by producers and consumers and data replication. Partitions 
 Zookeeper is used to persist the component and platform states and it runs in cluster to ensure high availability. One zookeeper server is the leader and other are used in backup.
 
 * Kafka does not keep state regarding consumers and producers.
-* Offsets are maintained in Zookeeper or in **Kafka**, so consumers can read next message (or from a specific offset) correctly even during broker server outrages. We are detailing this in the asset consumer implementation in [this repository](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer).
+* Depending of kafka version offsets are maintained in Zookeeper or in **Kafka**. Newer version use an internal Kafka topic called __consumer_offsets. In any case consumers can read next message (or from a specific offset) correctly even during broker server outrages. We are detailing this in the asset consumer implementation in [this repository](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer).
 * Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
 
 ### Consumer group
 
 This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailinh consumer group implementation in [this note](./consumers.md)
 
-## Kafka Stream Details
+### Kafka Stream Details
 
-I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get familiar of why Kafka stream.
-
-**Kafka** Stream has the following capabilities:
+I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created. To summarize, **Kafka** Stream has the following capabilities:
 
 * Embedded library for your application to use.
 * Integrate tables for state persistence with streams of events.
@@ -105,18 +103,32 @@ I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafk
 * Elastic, highly scalable, fault tolerance, it can recover from failure.
 * Deployed as container to Kubernetes or other orchestration platform, with some clear understanding of the impact.
 
-**Kafka** stream should be your future platform for asynchronous communication between your microservices to simplify interdependencies between them. (We are covering this pattern in [this service mesh article.](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh.md))
 
 ## Architecture
+As a distributed cluster, kafka brokers ensure high availability to process new event. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication of 3 for each topic. Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance. Each partitition is replicated at least 3 times and allocated in different brokers. One replicate is the lead. In the case of broker failure, one of the existing partition in remaining running broker will take the lead:
 
-![](images/kafka-stream-arch.png)
+![](images/kafka-ha.png)
 
-* **Kafka** Streams partitions data for processing it. Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance.
-* The keys of data record determine the partitioning of data in both **Kafka** and **Kafka Streams**.
-* An application's processor topology is scaled by breaking it into multiple tasks.
-* Tasks can then instantiate their own processor topology based on the assigned partitions.
+The keys in the data record determine the partitioning of data in **Kafka**. 
 
-See [this article from Confluent](https://docs.confluent.io/current/streams/architecture.html) for deeper architecture presentation.
+As kafka is keeping its cluster states in zookeeper, you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds anyway. Zookeepers and Brokers should have HA communication, and each borker and node allocated on different racks and blades.
+
+![](images/ha-comp.png)
+
+Consumers and producers are using a list of bootstrap server names to contact the cluster. The list is used for cluster discovery, it does not need to keep the full set of server names or ip addresses. A Kafka cluster has exactly one broker that acts as the controller.
+
+Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low laterncy dual network. With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property to assign kafka borker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from product documentation).
+
+Always assess the latency requirements and consumers needs. Throughtput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate server than the brokers nodes. 
+For high availability assess any potential single point of failure, such as server, rack, network, power supply...
+
+To add new broker, we can deploy the runtime to a new server / rack / blade, and give a unique ID. It will process new topic, but it is possible to use tool to migrate some existing topic/ partitions to the new server. The tool is used to reassign partitions across brokers. An ideal partition distribution would ensure even data load and partition sizes across all brokers. 
+
+### Multi regions
+
+With the current implementation it is recommended to have one cluster per data center. Consumers and producers are co-located to the broker cluster. When there are needs to keep some part of the data replicated in both data center, you need to assess what kind of data can be aggregated, and if Kafka mirroring tool can be used. The tool consumes from a source cluster, from a given topic, and produces to a destination cluster with the same named topic. It keeps the message key for partitioning so order is preserved. 
+
+![](images/ha-dc.png)
 
 When you want to deploy solution that spreads over multiple regions to support global streaming, you need to address challenges like:
 
@@ -124,6 +136,18 @@ When you want to deploy solution that spreads over multiple regions to support g
 * How to serve data closer to the geography?
 * How to be compliant on regulations, like GDPR?
 * How to address no duplication of records?
+
+### For Kafka stream
+
+![](images/kafka-stream-arch.png)
+
+* **Kafka** Streams partitions data for processing it. 
+* and **Kafka Streams**.
+* An application's processor topology is scaled by breaking it into multiple tasks.
+* Tasks can then instantiate their own processor topology based on the assigned partitions.
+
+See [this article from Confluent](https://docs.confluent.io/current/streams/architecture.html) for deeper kafka stream architecture presentation.
+
 
 ### Solution considerations
 
@@ -177,9 +201,7 @@ See [implementation considerations discussion](./consumers.md)
 
 The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages it own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes nodes and pods may change dynamically.
 
-Per design as soon as you have at least three brokers Kafka is highly available using its replication mechanism and leading partition process. Each partitition is replicated at least 3 times and allocated in different brokers. One is the lead. In the case of broker failure, existing partition in running broker will take the lead:
 
-![](images/kafka-ha.png)
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
 

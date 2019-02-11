@@ -10,18 +10,22 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 
 ## Event sourcing
 
-Most business applications are state based persistence where an update change the previous state of business entities. 
-Traditional domain oriented implementation builds domain data model mapped to a RDBMS. In the diagram below is a very simple order model:
+Most business applications are state based persistent where an update change the previous state of business entities. But there are business requirements that want to understand how a business reaches the current state.
+Traditional domain oriented implementation builds domain data model mapped to a RDBMS. As an example, in the simple order model below the database record will keep the last state of the order and the last items in separate table.
 
 ![](evt-src-ex1.png)   
 
-With this model you have only the last state of data persisted. If you need implement a query that look at what happenned to the order over a period of time, you need to change the model and add historical records, basically building a log table. Also most of the time, there is a delete operation to remove data. But most businesses do not remove data, for example, a ledger includes new record to compensate a transaction. There is no erasing of previously logged transaction. It is always possible to understand what was done in the past.
+ If you need implement a query that look at what happenned to the order over a time period, you need to change the model and add historical records, basically building a log table. Designing a service to manage the life cycle of this order will, most of the time, add a delete operation to remove data. But most businesses do not remove data.  For legal reason, a business ledger has to include a new record to compensate a previous transaction. There is no erasing of previously logged transaction. It is always possible to understand what was done in the past. Some business applications need to keep this capability.
+
+**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. Applications or microservices can 
 
 Historical records are immutable, and events represent facts of what happenned to the data. The previous order model changes to a time oriented immutable stream of events, organized by key:
 
 ![](evt-src.png)   
 
-**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. You can see the removing a product in the order is a new event. So now we can count how often products are removed. With a central event logs, producer appends event to the log, and consumers read them from an **offset**
+ You can see the removing a product in the order is a new event. So now we can count how often products are removed. 
+ 
+ With a central event logs, producer appends event to the log, and consumers read them from an **offset** (a last committed read). 
 
 ![](./evt-sourcing.png)
 
@@ -33,9 +37,9 @@ When replaying the event, it may be important to avoid generating side effects. 
 
 Kafka is supporting the event sourcing pattern with [the topic and partition](../kafka/readme.md).
 
-The event sourcing pattern is well described in [this article on microservices.io](https://microservices.io/patterns/data/event-sourcing.html). It is a very important pattern for EDA and microservices to microservices data synchronization needs.
+The event sourcing pattern is well described in [this article on microservices.io](https://microservices.io/patterns/data/event-sourcing.html). It is a very important pattern for EDA and for microservices to microservices data synchronization implementations.
 
-See also this nice [event sourcing article](https://martinfowler.com/eaaDev/EventSourcing.html) from Martin Fowler, where he is also using ship movement example. Our implementation differs here and we are using Kafka topic as event store and use the Order business entity.
+See also this nice [event sourcing article](https://martinfowler.com/eaaDev/EventSourcing.html) from Martin Fowler, where he is also using ship movement example. [Our implementation]() differs as we are using Kafka topic as event store and use the Order business entity.
 
 Another use case for event sourcing is related to developers who want to understand what data to fix after a service crashes, for example after having deployed a buggy code.
 

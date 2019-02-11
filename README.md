@@ -8,7 +8,7 @@ For enterprise IT teams, embracing event driven development is foundational to t
 
 While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven approaches in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive. Two aspects of a cloud-native architecture are essential to developing an event driven architecture:
 
-* Microservices -  These provide the loosely coupled application architecture which enables deployment in highly distributed patterns for Resilience, Agility and Scale.
+* Microservices - These provide the loosely coupled application architecture which enables deployment in highly distributed patterns for Resilience, Agility and Scale.
 * Cloud Native platforms with Containers and "Serverless deployments" - These provide the application platform and tools which realize the Resilience, Agility and Scale promise of the microservices architectures.
 
 An Event Driven Architecture should provide the following essential event capabilities to the Cloud Native Platform.
@@ -30,6 +30,7 @@ This repository represents the root of related content about the Cloud Native Ev
 * [Even-driven design patterns](./docs/evt-microservices/ED-patterns.md)
 * [Deployments](#deployments)
 * [Sample EDA Applications](#sample-eda-applications)
+* [Kafka summary](./docs/kafka/readme.md)
 * [Contribute to the solution](#contribute)
 * [Project Status](#project-status)
 
