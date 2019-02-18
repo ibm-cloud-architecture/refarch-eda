@@ -44,6 +44,17 @@ Do the solution is fine with at-least-once delivery or exactly-once is a must ha
 
 * [Nodejs kafka consumers and producers](https://github.com/jbcodeforce/nodejs-kafka)
 
+## Kafka useful Consumer APIs
+* [KafkaConsumer](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html) a topic consumer which support:
+  * transparently handles brokers failure
+  * transparently adapt to partition migration within the cluster
+  * support grouping for load balancing among consumers
+  * maintains TCP connections to the necessary brokers to fetch data
+  * subscribe to multiple topics and being part of consumer groups
+  * each partition is assigned to exactly one consumer in the group
+  * if a process fails, the partitions assigned to it will be reassigned to other consumers in the same group
+* [ConsumerRecords](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecords.html) holds the list ConsumerRecord per partition for a particular topic.
+* [ConsumerRecord](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecord.html) A key/value pair to be received from Kafka. This also consists of a topic name and a partition number from which the record is being received, an offset that points to the record in a Kafka partition, and a timestamp
 ## References
 
 * [IBM Event Streams - Consuming messages](https://ibm.github.io/event-streams/about/consuming-messages/)
