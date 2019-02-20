@@ -79,9 +79,9 @@ To connect an application or tool to this cluster, you will need the address of 
 
 ![](images/ies-cluster-connection.png)
 
-Download certificate and Java truststore files, and then generate API key. A key can apply to all groups or being specific to a group. 
+Download certificate and Java truststore files, and the generated API key. A key can apply to all groups or being specific to a group. 
 
-To leverage the api key the code needs to set the followinf properties:
+To leverage the api key the code needs to set the following properties:
 ```java
 properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
 properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -97,7 +97,7 @@ See code example in [ApplicationConfig.java](https://github.com/ibm-cloud-archit
 
 ## Some challenges during the installation
 
-As presented in the high availability discussion in [this note](../../docs/kafka#high-availability-in-the-context-of-kubernetes-deployment), normally we need 6 worker nodes to avoid allocating zookeeper and kafka servers on the same kubernetes nodes. The development installation is permissive on that constraint. The physical resources need to be there. 
+As presented in the high availability discussion in [this note](../kafka#high-availability-in-the-context-of-kubernetes-deployment), normally we need 6 worker nodes to avoid allocating zookeeper and kafka servers on the same kubernetes nodes. The development installation is permissive on that constraint. The physical resources need to be there. 
 kafka brokers cannot be scheduled because 11 nodes have taints (can't meet the specs for the stateful set) and the remaining worker nodes don't have enough memory
 
 ## Getting started application
@@ -108,7 +108,7 @@ Use the Event Stream Toolbox to download a getting started application we can us
 
 ![](images/ies-starter-app2.png)  
 
- One example of the generated app is in this repository under `gettingStarted/EDAIEWStarterApp` folder, and a description on how to compile, package and run it: [see the readme here.](../../gettingStarted/EDAIEWStarterApp/README.md)
+ One example of the generated app is in this repository under `gettingStarted/EDAIEWStarterApp` folder, and a description on how to compile, package and run it: see the ./gettingStarted/EDAIEWStarterApp/README.md.
 
 The application runs in Liberty at the URL: http://localhost:9080/EDAIESStarterApp/ and delivers a simple user interface splitted into two panels: producer and consumer.
 

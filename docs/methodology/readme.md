@@ -21,7 +21,7 @@ Preparations for the event storming workshop include the following steps:
 Many of the concepts addressed during the event storming workshop are defined in the [Domain Driven Design](https://www.ibm.com/cloud/garage/content/code/domain-driven-design/) approach.
 The following diagrams present the elements used during the analysis.  The first diagram shows the initial set of concepts that are used in the process.
 
- <img src="evt-stm-item1.png" width="700">
+ ![evt-stm-item1](evt-stm-item1.png)
 
 Domain events are also named *business events*.  An event is some action or happening which occurred in the system at a specific time in the past. The first step in the event storming process consists of these actions:
 
@@ -31,14 +31,17 @@ Domain events are also named *business events*.  An event is some action or happ
 
 The act of writing event descriptions often results in questions to be resolved later,, or discussions about definitions that need to be recorded to ensure that everyone agrees on basic domain concepts.
 
-<img src="evt-stm-item2.png" width="700">
+
+![evt-stm-item2](evt-stm-item2.png)
 
 A timeline of domain events is the critical output of the first step in the event storming process.  The timeline gives everyone a common understanding of when events take place in relation to each other.  You still need to be able to take this initial level of understanding and move it towards an implementation.  In making that step, you must expand your thinking to encompass the idea of a command, which is the action that kicks off the processing that triggers an event.  As part of understanding the role of the command, you will also want to know who invokes a command (actors) and what information is needed to allow the command to be executed.  This diagram show how those analysis elements are linked together:
 
-<img src="evt-stm-oneview.png" width="700">One-View Figure.
+![evt-stm-oneview](evt-stm-oneview.png)
+
+One-View Figure.
 
 * **Actors** consume data by using a user interface and use the UI to interact with the system via commands. Actors could also be replace by articial intelligent agents.
-* **Commands** are the result of some user decision or policy, and act on relevant data which are part of a Read model in the [CQRS](../readme.md#command-query-responsibility-segregation) pattern.
+* **Commands** are the result of some user decision or policy, and act on relevant data which are part of a Read model in the [CQRS](../evt-microservices/ED-patterns.md#command-query-responsibility-segregation) pattern.
 * **Policies** (represented by lilac stickies) are reactive logics that take place after an event occurs, and trigger other commands. Policies always start with the phrase "whenever...". They can be a manual step a human follows, such as a documented procedure or guidance, or they may be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation](https://www.omg.org/spec/DMN/About-DMN/).
 * **External systems** produce events.
 * **Data** can be presented to users in a user interface or modified by the system.
@@ -48,27 +51,30 @@ As the events are identified and sequenced into a time line, you might find mult
 
 An example of a section of a completed event time line with pivotal events and swimlanes is shown below.
 
-<img src="evt-stm-pivotalevt.png" width="700">
+![evt-stm-pivotalevt](evt-stm-pivotalevt.png)
 
 ### Conducting the workshop
 
 The goal of the workshop is to better understand the business problem to address with a future application. But the approach can also apply to finding solutions to bottlenecks or other issues in existing applications. The workshop helps the team to understand the big picture of the solution by building a timeline of domain events as they occur during the business process life span.
 During the workshop, avoid documenting processing steps. The event storming method is not trying to specify a particular implementation. Instead, the focus in initial stages of the workshop is on identifying and sequencing the events that occur in the solution. The event timeline is a useful representation of the overall steps, communicating what must happen while remaining open to many possible implementation approaches.
 
-*  **Step 1: Domain events discovery:**
+#### Step 1: Domain events discovery
+
 Begin by writing each domain event on an orange sticky note with a few words and a verb in a past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate an individual lists of domain events. You might not need to initially place the events on the ordered timeline as they write them.  The events must be worded in a way that is meaningful to the domain experts and business stakeholder. You are explaining what happens in business terms, not what happens inside the implementation of the system.
 
 You don't need to describe all the events in your domain, but you must cover the process that you are interested in exploring from end to end. Therefore, make sure that you identify the start and end events and place them on the timeline at the beginning and end of the wall covered with paper. Place the other events that you identified between these two endpoints in the closest approximation that the team can agree to a sequential order. Don’t worry about overlaps at this point; overlaps are addressed later.
 
-* **Step 2: Tell the story:**
+#### Step 2: Tell the story
+
 In this step, you retell the story by talking about how to relate events to particular personas. A member of the team (often the facilitator, but others can do this as well)  acts this out by taking on the perspective of a persona in the domain, such as a "manufacturer" who wants to ship a widget to a customer, and asking which events follow which other events. Start at the beginning of that persona's interaction and ask "what happens next?". Pick up and rearrange the events that the team storms.  If you discover events that are duplicates, take those off the board.  If events are in the wrong order, move them into the right order.
  
 When some parts are unclear, add questions or comments by using the red stickies.. Red stickies indicate that the team needs to follow up and clarify issues later. Likewise you want to use this time to document assumptions on the definition stickies. This is also a good time to rephrase events as you proceed through the story. Sometimes you need to rephrase an event description by putting the verbing in past tense, or adjusting the terms that are used to relate clearly to other identified events.
 In this step you focus on the mainline "happy" end-to-end path to avoid getting bogged down in details of exceptions and error handling. Exceptions can be added later
 
 
- * **Step 3: Find the Boundaries:**
- The next step of this part of the process is to find the boundaries of your system by looking at the events. Two types of boundaries can emerge; the first type of boundary is a time boundary. Often specific key "pivotal events" indicate a change from one aspect of a system to another. This can happen at a hand-off from one persona to another, but it can also happen at a change of geographical, legal, or other type of boundary. If you notice that the terms that are used on the event stickies change at these boundaries, you are seeing a "bounded context" in Domain Driven Design terms. Highlight pivotal events by putting up blue painter’s tape vertically behind the event.
+#### Step 3: Find the Boundaries
+
+The next step of this part of the process is to find the boundaries of your system by looking at the events. Two types of boundaries can emerge; the first type of boundary is a time boundary. Often specific key "pivotal events" indicate a change from one aspect of a system to another. This can happen at a hand-off from one persona to another, but it can also happen at a change of geographical, legal, or other type of boundary. If you notice that the terms that are used on the event stickies change at these boundaries, you are seeing a "bounded context" in Domain Driven Design terms. Highlight pivotal events by putting up blue painter’s tape vertically behind the event.
  
  The second type of boundary is a subject boundary. You can detect a subject boundary by looking for the following conditions:
 * You have multiple simultaneous series of events that only come together at a later time. 
@@ -80,11 +86,14 @@ You can delineate these different sets of simultaneous event streams by applying
 
 Below is an example of a set of ordered domain events with pivotal events and subject swim lanes indicated.  This example comes from applying event storming to the domain of container shipping process and is discussed in more detail in the [container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md) .
 
- ![](evt-timeline.png)
+![](evt-timeline.png)
 
-* **Step 4: Locate the Commands:** In this step you shift from analysis of the domain to the first stages of system design.  Up until this point, you are simply trying to understand how the events in the domain relate to one another - this is why the participation of domain experts is so critical.  However, to build a system that implements the business process that you are interested in, you have to move on to the question of how these events come into being.  
+#### Step 4: Locate the Commands
+
+In this step you shift from analysis of the domain to the first stages of system design.  Up until this point, you are simply trying to understand how the events in the domain relate to one another - this is why the participation of domain experts is so critical.  However, to build a system that implements the business process that you are interested in, you have to move on to the question of how these events come into being.  
 
 Commands are the most common mechanism by which events are created.  The key to finding commands is to ask the question "Why did this event occur?". In this step, the focus of the process moves to the sequence of actions that lead to events. Your goal is to find the causes for which the events record the effects. Expected event trigger types are:
+
 * A human operator makes a decision and issues a command
 * Some external system or sensor provides a stimulus
 * An event results from some policy - typically automated processing of a precursor event
@@ -94,23 +103,31 @@ The triggering command is identified in a blue (sticky) note this may become a m
 
 It is possible to chain events and commands as presented in the "one view" figure in the concepts section.
 
-* **Step 5: Describe the Data:** You can't truly define a command without understanding the data that is needed for the command to execute in order to produce the event.  . You can identify several types of data during this step.  First, users (personas) need data from the user interface in order to make decisions before executing a command.  That data forms part of the read model in a CQRS implementation. For each command and event pair, you add a data description of the expected attributes and data elements needed to take such a decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
+#### Step 5: Describe the Data
 
-  <img src="evt-stm-data.png" width="400">
+You can't truly define a command without understanding the data that is needed for the command to execute in order to produce the event.  . You can identify several types of data during this step.  First, users (personas) need data from the user interface in order to make decisions before executing a command.  That data forms part of the read model in a CQRS implementation. For each command and event pair, you add a data description of the expected attributes and data elements needed to take such a decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
+
+![evt-stm-data](evt-stm-data.png)
   
 Another important part of the process that becomes more fully fleshed out at this step is the description of *policies* that can trigger the generation of an event from a previous event (or set of events).  
 
 This first level of data definition helps to assess the microservice scope and responsibility as you start to see commonalities emerge from the data used among several related events.  Those concepts become more obvious in the next step.
   
-* **Step 6: Identify the Aggregates**: In DDD, entities and value objects can exist independently, but often, the relations are such that an entity or a value object has no value without its context.  [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) provide that context by being those "roots" that comprise one or more entities and value objects that are linked together through a lifecycle.  In event storming, aggregates emerge through the process by grouping events and commands that are related.  This grouping not only consists of related data (entities and value objects) but also related actions (commands) that are connected by the lifecycle of that aggregate. Aggregates ultimately suggest microservice boundaries. 
+#### Step 6: Identify the Aggregates
+
+In DDD, entities and value objects can exist independently, but often, the relations are such that an entity or a value object has no value without its context.  [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) provide that context by being those "roots" that comprise one or more entities and value objects that are linked together through a lifecycle.  In event storming, aggregates emerge through the process by grouping events and commands that are related.  This grouping not only consists of related data (entities and value objects) but also related actions (commands) that are connected by the lifecycle of that aggregate. Aggregates ultimately suggest microservice boundaries. 
 
 In the container shipment example, you can see that you can group several command and event pairs (with their associated data) together that are related through the lifecycle of an order for shipping.
 
 ![](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/ship-aggr-shipment.png)
 
-* **Step 7: Business Context:** In this step, you define terms and concepts with a clear meaning valid in a clear boundary. (The term definition can change outside of the business unit for which an application is developed).
+#### Step 7: Business Context
 
-* **Step 8: Looking forward with insight storming:** In event atorming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
+In this step, you define terms and concepts with a clear meaning valid in a clear boundary. (The term definition can change outside of the business unit for which an application is developed).
+
+#### Step 8: Looking forward with insight storming
+
+In event atorming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
 
 Insights storming extends the basic methodology by looking forward and considering what if you could know in advance that an event is going to occur. How would this change your actions, and what would you do in advance of that event actually happening?
 You can think of insight storming as extending the analysis to **Derived Events**.  Rather than being the factual recording of a past event, a derived event is a forward-looking or predictive event, that is, "this event is probably going to happen at some time in the next n hours”.
@@ -120,9 +137,10 @@ By using this forward-looking insight combined with the known business data from
 An important motivation that drives the use of an event-driven architecture is that it simplifies design and realization of highly responsive systems that react immediately and intelligently, that is, in a personalized and context-aware way, and optimally to new events as they occur.  This immediately suggests that predictive analytics and models to generate predictive insights have an important role to play. Predictive analytic insights are effectively probabilistic statements about which future events are likely to occur and what are the likely properties of those events. These probabilistic statements are typicaly generated by using models created by data scientists or using AI or ML. Correlating or joining independently gathered sources of information can also generate important predictive insights or be input to predictive analytic models.  
 
 Business owners and stakeholders in the event storming workshop can offer good intuitions in several areas:
+
 *  Which probabilistic insights are likely to lead to improved or optimal decision making and action? 
-   * The action could take the form of an immediate response to an event when it occurs.
-   * The action could be proactive behavior to avoid an undesirable event. 
+    * The action could take the form of an immediate response to an event when it occurs.
+    * The action could be proactive behavior to avoid an undesirable event. 
 *  What combined sources of information are likely to help create a model to predict this insight?
 
 With basic event storming, you look backwards at each event because an event is something that has already happened. When you identify data needed for an actor or policy to decide when and how to issue a command, there is a tendency to restrict consideration to properties of earlier known and captured business events. In insight storming you extend the approach to explicitly look forward and consider what is the probability that a particular event will occur at some future time and what would be its expected property values? How would this change the best action to take when and if this event occurs? Is there action we can take now proactively in advance of an expected undesirable event to prevent it happening or mitigate the consequences?
@@ -132,31 +150,34 @@ The insight method step amounts to getting workshop participants to identify der
 By identifying derived events, you can integrate analytic models and machine learning into the designed solution. Event and derived event feeds can be processed, filtered, joined, aggregated, modeled and scored to create valuable predictive insights.
 
  Use the following new notations for the insight step: 
+
  * Pale blue stickies for derived events 
- * Parallelogram shape to show when events and derived events are combined to enable deeper insight models and predictions. Identify predictive insights as early as possible in the development life cycle.  The best opportunity to do this is to add this step to the event storming workshop.
+ * Parallelogram shape to show when events and derived events are combined to enable deeper insight models and predictions. Identify predictive insights as early as possible in the development life cycle. The best opportunity to do this is to add this step to the event storming workshop.
 
 The two diagrams below show the results of the insight storming step for the use case of container shipment analysis.  The first diagram captures insights and associated linkages for each refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  
 
-  <img src="evt-stm-insight-cntnr.PNG" width="700">
+![evt-stm-insight-cntnr](evt-stm-insight-cntnr.PNG)
   
 The second diagram captures insights that could trigger recommendations to adjust ship course or speed in response to expected severe weather forcasts for the route ahead or predicted congestion and expected docking and unloading delays at the next port of call. 
   
-  <img src="evt-stm-insight-ship.PNG" width="700">
+
+![evt-stm-insight-ship](evt-stm-insight-ship.PNG)
+
 
 ## Event storming to user stories and epics
 In agile methodology, creating user stories or epics is one of the most important elements in project management. The commands and policies related to events can be easily described as user stories, because commands and decisions are done by actors. The actor could be a system as well.
 For the data you must model the "Create, Read, Update, Delete" operations as user stories, mostly supported by a system actor.
 
-  <img src="evt-stm-userstories.png" width="700">
+
+![evt-stm-userstories](evt-stm-userstories.png)
 
 An event is the result or outcome of a user story. Events can be added as part of the acceptance criteria of the user stories to verify that the event really occurs.
 
 ## Applying to the container shipment use case
 
-The K Container Shipment use case demonstrates an implementation solution to validate the event-driven architecture.  [container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/analysis/readme.md), shows event storming and design thinking main artifacts, including artifacts for the monitoring of refrigerated containers.
+The K Container Shipment use case demonstrates an implementation solution to validate the event-driven architecture. The [container shipment analysis example](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/), shows event storming and design thinking main artifacts, including artifacts for the monitoring of refrigerated containers.
 
-
-### Further Readings
+## Further Readings
 * [Introduction to event storming from Alberto Brandolini ](http://ziobrando.blogspot.com/2013/11/introducing-event-storming.html#.VbhQTn-9KK1)
 * [Event Storming Guide](https://www.boldare.com/blog/event-storming-guide/)
 * [Wikipedia Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design)

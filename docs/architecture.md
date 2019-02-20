@@ -1,6 +1,39 @@
-# Extended Architecture
+# Reference Architecture
 
-<img src="../hl-arch-ra-adv.png" width="1024px">
+We defined the starting point for a Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
+
+* Being able to communicate and persist events.
+* Being able to take direct action on events.
+* Processing streams of events to derive real time insight/intelligence.
+* Providing communication between event driven microservices and functions.
+
+With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below:
+
+
+![hl-arch-ra](hl-arch-ra.png)
+
+Where:
+
+1. [Event sources](evt-src/README.md): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices… 
+2. IBM Event Streams: Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
+3. IBM Cloud Functions: Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
+4. Streaming Analytics: Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
+5. Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
+6. Event Driven Microservices: Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+
+## Extended Architecture
+
+The event-driven reference architecture provides the framework to support event-driven applications and solutions. The extended architecture provides the connections for:
+
+  * Integration with legacy apps and data resources
+  * Integration with analytics or machine learning to derive real-time insights
+
+The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
+
+![hl-arch-ra-adv](hl-arch-ra-adv.png)
+
+ In 7. the AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular Event Store, and develop models. Models are pushed to streaming analytics component.
+
 
 ## Integration with analytics and machine learning
 

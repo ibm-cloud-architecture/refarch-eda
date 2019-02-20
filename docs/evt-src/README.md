@@ -20,8 +20,7 @@ Here is a list of common event sources:
 With IOT devices and sensors you typically have a gateway providing the connectivity for the device, and a level of event enrichment and filtering. In terms of domain driven design you would see the device and gateway as being the technical domain and the event-driven reference architecture as providing the infrastructure for the applications in a business domain.
 In practice, the IOT gateway or platform provides the connectivity and is the point of filtering and consolidation of events so that only business-relevant events are passed up to the business domain. The gateway can also be the point where the technical event is enhanced to relate to something recognizable at the business level.  One example of this is to relate a device number or identifier in the event to something that the business recognizes.
 
-
-<img src="../hl-arch-iot.png" width="1024px">
+![hl-arch-iot](hl-arch-iot.png)
 
 ## Clickstream data
 
@@ -34,14 +33,13 @@ There are various "collectors" that enable collection of standard clickstream ev
 Within the Apache Open Source communities the [Divolte](https://divolte.io/) collector is an example of one of these collectors that directly publishes events to Kafka topics.
 
 <img src="../hl-arch-clickstream.png" width="1024px">
+![hl-arch-clickstream](hl-arch-clickstream.png)
 
 ## Microservices as event producers and consumers
 
 The event-driven reference architecture provides support for event-driven microservices, this is microservices are connected and communicate via the pub/sub communication protocol within the Event Backbone.
 
 With Kafka as the event backbone and pub/sub messaging provider, microservices can use the Kafka API's to publish and listen for events.
-
-[Read more ...](../servicemesh/README.md) for more details
 
 # Event standards and schemas
 
@@ -67,5 +65,5 @@ The following code repositories can be used for event sourcing inspiration:
 * [Container stream analytics](https://github.com/ibm-cloud-architecture/refarch-kc-streams)
 * [Pump Simulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator) to send New Pump/ Asset event or Metric events to emulate intelligent IoT Electrical Pump.
 * [Simple text message producer](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#basic-text-message-pubsubscribe)
-* As well as the starting application generated from IBM Event Streams. See such app in the folder `gettingStarted` and explanation in [the README.](../../gettingStarted/EDAINESStarterApp/README.md)
-* [Nodejs producer and consumer studies]()
+* As well as the starting application generated from IBM Event Streams. See such app in the folder `gettingStarted` and explanation in the gettingStarted/EDAINESStarterApp/README.md
+

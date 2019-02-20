@@ -23,10 +23,7 @@ If you want to deploy it in more resilient deployment we provide other manifests
 $ ./deployZoopeeker.sh prod
 ```
 
-Once installed you do not need to reinstall it. The deployment on kubernetes may look like:
-
-![](../../docs/zookeeper-icp.png)
-
+Once installed you do not need to reinstall it.
 
 We are also delivering a script to remove zookeeper when you are done using it. (./removeZookeeper.sh)
 

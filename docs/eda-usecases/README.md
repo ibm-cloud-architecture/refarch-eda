@@ -74,8 +74,8 @@ Events and following an event driven approach requires a change of thinking comp
 
 An event driven approach with an *Event Backbone* providing a pub/sub communication capability for micro service communication and an event log which enables shared state can bring significant advantages:
 
-Where events are notifications of  changes in a business domain, with an event driven approach
+Where events are notifications of changes in a business domain, with an event driven approach
 
 * we can easily add new subscriber microservices to add new capabilities to the application as discussed above
 * We can also easily and none intrusively add handlers to feed the changes in the business domain into our big data  analytics and machine learning
-* With the event log and event stores we also build up a time sequenced history of changes of state. This complete history history can provide greater insights for data scientists when develloping machine learning models  
+* With the event log and event stores we also build up a time sequenced history of changes of state. This complete history can provide greater insights for data scientists when develloping machine learning models  
