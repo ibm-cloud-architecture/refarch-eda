@@ -15,11 +15,11 @@ With an event backbone providing the connectivity between the capabilities, we c
 Where:
 
 1. [Event sources](evt-src/README.md): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices… 
-2. IBM Event Streams: Provides a Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
-3. IBM Cloud Functions: Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
-4. Streaming Analytics: Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
+2. [IBM Event Streams](https://www.ibm.com/cloud/event-streams): Provides an Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
+3. [IBM Cloud Functions](https://cloud.ibm.com/openwhisk): Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
+4. [Streaming Analytics](https://cloud.ibm.com/catalog/services/streaming-analytics): Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
 5. Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
-6. Event Driven Microservices: Applications that run as server-less functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+6. [Event Driven Microservices](./evt-microservices/README.md): Applications that run as serverless functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
 
 ## Extended Architecture
 

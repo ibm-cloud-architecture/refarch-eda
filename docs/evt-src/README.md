@@ -61,9 +61,10 @@ Our recommendation is to follow CloudEvents where we have the ability to define 
 ## Code references
 
 The following code repositories can be used for event sourcing inspiration:
+
 * [ship movements/ container metrics event producer as a microservice](https://github.com/ibm-cloud-architecture/refarch-kc-ms)
 * [Container stream analytics](https://github.com/ibm-cloud-architecture/refarch-kc-streams)
 * [Pump Simulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator) to send New Pump/ Asset event or Metric events to emulate intelligent IoT Electrical Pump.
 * [Simple text message producer](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#basic-text-message-pubsubscribe)
-* As well as the starting application generated from IBM Event Streams. See such app in the folder `gettingStarted` and explanation in the gettingStarted/EDAINESStarterApp/README.md
+* As well as the starting application generated from IBM Event Streams. See such app in the folder `gettingStarted` and explanation in the [starter App](https://github.com/ibm-cloud-architecture/refarch-eda/tree/master/gettingStarted/EDAIESStarterApp)
 

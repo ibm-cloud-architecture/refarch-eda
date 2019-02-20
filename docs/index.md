@@ -1,5 +1,7 @@
 # Event Driven Reference Architecture
 
+To access the source repository go to >> [https://github.com/ibm-cloud-architecture/refarch-eda]( https://github.com/ibm-cloud-architecture/refarch-eda)
+
 The modern digital business works in real time; it informs interested parties of things of interest when they happen, it makes sense of, and derives insight from an ever-growing number of sources. It learns, predicts and is intelligent -- it is by nature Event Driven.
 
 Events are a way of capturing a statement of fact.  Events occur in a continuous stream as things happen in the real and digital worlds.  By taking advntage of this continous stream, applications can not only react in real time, but also reason about the future based upon what has happened in the past.

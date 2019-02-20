@@ -35,3 +35,14 @@ The IBM Event Streams offering provides a *Kafka* service for the Event Backbone
 * [IBM Event Streams Public Cloud](https://console.bluemix.net/catalog/services/event-streams)
 * [IBM Event Streams Private Cloud](https://www.ibm.com/cloud/event-streams)
 * [See also our own Kafka study article](../kafka/readme.md) on how to support high availability and how to deploy to your local environment or to a kubernetes cluster like IBM Cloud Private.
+
+## Deployments
+
+In term of event backbone deployment we propose different approaches:
+
+* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams).
+    * Deployment discussions for the KC solution are in [this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/iks/)
+* **IBM Cloud Private**
+    * [Event Streams deployment](../deployments/eventstreams/README.md).
+    * [Zookeeper deployment](../deployments/zookeeper/README.md) and [Kafka deployment](../deployments/kafka/README.md) for ICP.
+* Running locally with docker compose. See [this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/) for details.

@@ -19,12 +19,10 @@ Developers write the code which executes the required business logic.
 
 ## Supporting products
 
-[IBM Cloud Functions](https://console.bluemix.net/openwhisk) is a commercial service offering version of the [Apache Openwhisk project](https://openwhisk.apache.org)
+[IBM Cloud Functions](https://cloud.ibm.com/openwhisk) is a commercial service offering version of the [Apache Openwhisk project](https://openwhisk.apache.org)
 
-IBM Cloud Functions product offering https://www.ibm.com/cloud/functions
+IBM Cloud Functions product offering [https://www.ibm.com/cloud/functions](https://www.ibm.com/cloud/functions)
 
 ## Suggested reading
 
-Getting Started with Cloud Functions https://console.bluemix.net/openwhisk/
-
-Using Cloud functions with event trigger in Kafka  https://github.com/IBM/ibm-cloud-functions-message-hub-trigger
+Using Cloud functions with event trigger in Kafka [https://github.com/IBM/ibm-cloud-functions-message-hub-trigger](https://github.com/IBM/ibm-cloud-functions-message-hub-trigger)

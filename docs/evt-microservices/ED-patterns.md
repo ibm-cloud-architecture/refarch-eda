@@ -15,17 +15,27 @@ Traditional domain oriented implementation builds domain data model mapped to a 
 
 ![](evt-src-ex1.png)   
 
- If you need implement a query that look at what happenned to the order over a time period, you need to change the model and add historical records, basically building a log table. Designing a service to manage the life cycle of this order will, most of the time, add a delete operation to remove data. But most businesses do not remove data.  For legal reason, a business ledger has to include a new record to compensate a previous transaction. There is no erasing of previously logged transaction. It is always possible to understand what was done in the past. Some business applications need to keep this capability.
+ If you need implement a query that look at what happened to the order over a time period, you need to change the model and add historical records, basically building a log table. Designing a service to manage the life cycle of this order will, most of the time, add a delete operation to remove data. But most businesses do not remove data.  For legal reason, a business ledger has to include a new record to compensate a previous transaction. There is no erasing of previously logged transaction. It is always possible to understand what was done in the past. Some business applications need to keep this capability.
 
-**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. Applications or microservices can 
+**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events. When the state of a system changes, an application issues a notification event of the state change. Any interested parties can become consumers of the event and take required actions.  The state-change event is stored in an event log or event store in immutable time order.  The event log or store becomes the principal source of truth. The system state can be recreated to a point in time by reprocessing the events at any time in the future. The history of state changes becomes an audit record for the business and is often a useful source of data for data scientists to gain insights into the business.
 
-Historical records are immutable, and events represent facts of what happenned to the data. The previous order model changes to a time oriented immutable stream of events, organized by key:
+ The previous order model changes to a time oriented immutable stream of events, organized by key:
 
 ![](evt-src.png)   
 
- You can see the removing a product in the order is a new event. So now we can count how often products are removed. 
+You can see the removing a product in the order is a new event. So now we can count how often products are removed. 
  
- With a central event logs, producer appends event to the log, and consumers read them from an **offset** (a last committed read). 
+In some cases the event sourcing pattern is implemented completely within the event backbone, by using the event log and Kafka topics and streams. However, you can also consider implementing the pattern with an external event store, which provides optimizations for how the data may be accessed and used. For example [IBM Db2 Event store](https://www.ibm.com/products/db2-event-store) can provide the handler and event store connected to the backbone and provide optimization for down stream analytical processing of the data.
+
+An event store only needs to store three pieces of information:
+
+* The type of event or aggregate.
+* The sequence number of the event.
+* The data as a serialized entity.
+
+More data can be added to help with diagnosis and audit, but the core functionality only requires a narrow set of fields. This gives rise to a very simple data design that can be heavily optimized for appending and retrieving sequences of records.
+
+With a central event logs, producer appends event to the log, and consumers read them from an **offset** (a last committed read). 
 
 ![](./evt-sourcing.png)
 
@@ -55,8 +65,12 @@ One derived challenge is that the command may be executed multiple times, specia
 
 ## Command Query Responsibility Segregation (CQRS) pattern
 
-When doing event sourcing and domain driven design, we event source the aggregates or root entities. Aggregate creates events that are persisted. On top of the simple create, update and read by ID operation, the business requirements want to perform complext queries that can't be answered by a single aggregate. By just using event sourcing to be able to respond to a query like what are the orders of a customer, then we have to rebuild the history of all orders and filter per customer. It is a lot of computation. This is linked to the problem of having conflicting domain model between query and persistence.  
-Command Query Responsibility Segregation, CQRS, separates the read from the write model. The following figure presents the high level principles:
+When doing event sourcing and domain driven design, we event source the aggregates or root entities. Aggregate creates events that are persisted. On top of the simple create, update and read by ID operations, the business requirements want to perform complex queries that can't be answered by a single aggregate. By just using event sourcing to be able to respond to a query like what are the orders of a customer, then we have to rebuild the history of all orders and filter per customer. It is a lot of computation. This is linked to the problem of having conflicting domain model between query and persistence.  
+Command Query Responsibility Segregation, CQRS, separates the "command" operations, used to update application state (also named the 'write model'), from the "query/read" operations (the 'read model').  Updates are done as state notification events (change of state), and are persisted in the event log/store. On the read side you have the option of persisting the state in different stores optimized for how other applications may query/read the data.
+
+The CQRS application pattern is frequently associated with event sourcing.
+
+The following figure presents the high level principles:
 
 ![](./cqrs.png)
 
@@ -84,7 +98,7 @@ Some challenges to always consider:
 * how to support event version management
 * assess the size of the event history to keep and add data duplication which results to synchronization issues. 
 
-The CQRS pattern was introduced by [Greg Young](https://www.youtube.com/watch?v=JHGkaShoyNs), https://martinfowler.com/bliki/CQRS.html https://microservices.io/patterns/data/cqrs.html
+The CQRS pattern was introduced by [Greg Young](https://www.youtube.com/watch?v=JHGkaShoyNs), [Martin Fowler](https://martinfowler.com/bliki/CQRS.html)
 
 As soon as we see two arrows from the same component we have to ask ourselves how does it work: the write model has to persist Order in its own database and then send OrderCreated event to the topic... Should those operations be atomic and controlled with transaction?
 
@@ -112,18 +126,52 @@ On the view side, updates to the view part need to be indempotent.
 
 There is a delay between the data persistence and the availability of the data in the Read model. For most business applications it is perfectly acceptable. In web based data access most of the data are at stale. 
 
-When there is a need for the client, calling the query operation, to know if the data is up-to-date, the service can define a versioning strategy. When the order data was entered in a form within a single page application like our [kc- ui](https://github.com/ibm-cloud-architecture/refarch-kc-ui), the create order operation should return the order with the id created and the SPA will have the last data.
+When there is a need for the client, calling the query operation, to know if the data is up-to-date, the service can define a versioning strategy. When the order data was entered in a form within a single page application like our [kc- user interface](https://github.com/ibm-cloud-architecture/refarch-kc-ui), the create order operation should return the order with the id created and the SPA will have the last data.
 
 ### Schema change
 
 What to do when we need to add attribute to event?. So we need to create a versioninig schema for event structure. You need to use flexible schema like json schema, [Apache Avro](https://avro.apache.org/docs/current/) or [protocol buffer](https://developers.google.com/protocol-buffers/) and may be and event adapter (as a function?) to translate between the different event structures.
 
+## Saga pattern
+
+The adoption of a data source per microservice, there is an interesting challenge on how to support long running transaction. With event backbone two phase commit is not an option. Introduced in 1987 [by Hector Garcaa-Molrna Kenneth Salem paper](https://www.cs.cornell.edu/andru/cs711/2002fa/reading/sagas.pdf) a long running transaction that can be broken up to a collection of subtransactions that can be interleaved any way with other transactions. 
+
+With microservice each transaction updates data within a single service, each subsequent step may be triggered by previous completion. The following figure illustrates the context for an order:
+
+![](saga-ctx.png)
+
+When the order is created, it can be updated at any time by the user until he books it for the final order. As soon as the order is booked, the process needs to allocate the voyage, assigns containers and updates the list of containers to load on the ship. Those actions / commands are chained. The final state (in this schema not in the reality as the process has more steps) is the Order assigned state in the order microservice.
+
+SAGA pattern supports two implementation types: Choreography and Orchestration. 
+
+With Choreography each service produces and listens to other service’s events and decides if an action should be taken or not.
+
+![](saga-choreo.png)
+
+The first service executes a transaction and then publishes an event. It maintains the business entity status, (order.status) to the pending state until it is completed. This event is listened by one or more services which execute local transactions and publish new events.
+The distributed transaction ends when the last service executes its local transaction and does not publish any events or the event published is not heard by any of the saga’s participants.
+
+In case of failure, the source microservice is keeping state and timer to monitor for the completion event.
+
+![](saga-choreo-fail.png)
+
+Rolling back a distributed transaction does not come for free. Normally you have to implement another operation/transaction to compensate for what has been done before.
+
+With orchestration, one service is responsible to drive each participant on what to do and when.
+
+![](saga-ochestration.png)
+
+If anything fails, the orchestrator is also responsible for coordinating the rollback by sending commands to each participant to undo the previous operation.
+Orchestrator is a State Machine where each transformation corresponds to a command or message.
+Rollbacks are a lot easier when you have an orchestrator to coordinate everything
+
+
 ## Code References
 
-* The K Containers shipment use cases provides a supporting EDA example  https://github.com/ibm-cloud-architecture/refarch-kc
+* The K Containers shipment use cases provides a supporting EDA example [https://github.com/ibm-cloud-architecture/refarch-kc](ttps://github.com/ibm-cloud-architecture/refarch-kc)
 * Within K Containers shipment the following are example microservices illustrating some of those patterns  
-  * https://github.com/ibm-cloud-architecture/refarch-kc-ms
-  * https://github.com/ibm-cloud-architecture/refarch-kc-order-ms
+    * [https://github.com/ibm-cloud-architecture/refarch-kc-ms](https://github.com/ibm-cloud-architecture/refarch-kc-ms)
+    * [https://github.com/ibm-cloud-architecture/refarch-kc-order-ms](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms)
 
 
   

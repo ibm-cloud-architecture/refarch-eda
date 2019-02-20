@@ -1,19 +1,7 @@
 # Event Driven Reference Architecture
 
 This project represents the body of knowledge around event-driven architecture and can be considered as a live book, we are writing from our consulting engagements. 
-To read in book format go to this page: https://ibm-cloud-architecure/refarch-eda  
-
-## Deployments
-
-In term of event backbone deployment we propose different approaches:
-* **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams).
-  * Deployment discussions for the KC solution are in [this note](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docs/prepare-ibm-cloud.md)
-* **IBM Cloud Private**
-  * [Event Streams deployment](./deployments/eventstreams/README.md).
-  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md) for ICP.
-* Running on your developer workstation within kubernetes (Tested on Docker-Edge on Mac)
-  * [Zookeeper deployment](./deployments/zookeeper/README.md) and [Kafka deployment](./deployments/kafka/README.md).
-* Running locally with docker compose. See [this note](https://github.com/ibm-cloud-architecture/refarch-kc#run-locally) for details.
+To read the content of the event driven architecture in book format go to this page: https://ibm-cloud-architecure.github.io/refarch-eda  
 
 
 ### Building this booklet locally
@@ -49,10 +37,11 @@ We really value contributions and to maximize the impact of code contributions w
 The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 
 ## Project Status
-[10/2018] Started
-[11/2018] Implement ship simulator and stream analytics proof of concepts
-[01/2019] Publish content to IBM Architecture center
-[02/2109] Enhance design pattern and move content as book layout
+
+* [10/2018] Started
+* [11/2018] Implement ship simulator and stream analytics proof of concepts
+* [01/2019] Publish content to IBM Architecture center
+* [02/2109] Enhance design pattern and move content as book layout
 
 ## Contributors
 

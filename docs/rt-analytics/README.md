@@ -6,7 +6,7 @@ In this section we will take more detailed look at what this means in terms of r
 
 ## Streaming analytics (real-time analytics)
 
-Streaming analytics provides the capabilities to look into and understand the events flowing through unbounded real-time event streams. Streaming applications process the event flow and allow data and analytical functions to be applied to information in the stream. Streaming applications are written as multistep flows across the following capabilities:
+[Streaming analytics](https://cloud.ibm.com/catalog/services/streaming-analytics) provides the capabilities to look into and understand the events flowing through unbounded real-time event streams. Streaming applications process the event flow and allow data and analytical functions to be applied to information in the stream. Streaming applications are written as multistep flows across the following capabilities:
 
 * **Ingest** many sources of events.
 * **Prepare** data by transforming, filtering, correlating, aggregating on some metrics and leveraging other data sources for data enrichment.
