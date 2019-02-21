@@ -1,7 +1,7 @@
 # Event Driven Reference Architecture
 
 This project represents the body of knowledge around event-driven architecture and can be considered as a live book, we are writing from our consulting engagements. 
-To read the content of the event driven architecture in book format go to this page: https://ibm-cloud-architecure.github.io/refarch-eda  
+To read the content of the event driven architecture in book format go to this page: https://ibm-cloud-architecture.github.io/refarch-eda  
 
 
 ### Building this booklet locally
