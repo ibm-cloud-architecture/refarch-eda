@@ -27,7 +27,7 @@ The Starter Application for IBM Event Streams in Java - MicroProfile / Java EE p
 * IBM Cloud Private version of the [Helm CLI](https://www.ibm.com/support/knowledgecenter/SSBS6K_3.1.0/app_center/create_helm_cli.html)
 
 ### Configuration
-The sample is configured to use the Apache Kafka ® Java clients to communicate with IBM Event streams. It also uses [MicroProfile v1.2](https://microprofile.io/blog/2017/10/eclipse-microprofile-1.2-available) to provide basic application capabilities, like the health endpoint and uses the WebSocket 1.1 specification for frontend to backend communication.
+The sample is configured to use the Apache Kafka ® Java clients to communicate with IBM Event streams. It also uses [MicroProfile v1.2](https://microprofile.io/2017/10/03/eclipse-microprofile-1-2-is-now-available) to provide basic application capabilities, like the health endpoint and uses the WebSocket 1.1 specification for frontend to backend communication.
 
 These capabilities are provided through dependencies in the pom.xml file and Liberty features enabled in the server config file found in `src/main/liberty/config/server.xml`.
 
