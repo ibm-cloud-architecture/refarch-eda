@@ -2,22 +2,7 @@
 
 In this article we are presenting real time event processing and analytics using **Kafka** deployed on Kubernetes cluster. We are documenting how to deploy this capability on IBM Cloud Private using a [**Kafka**](https://Kafka.apache.org/) open source distribution or the new [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/) and how to remote connect from hosts outside of the cluster, how to support high availability...
 
-Update 12/2018 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
-
-## Table of contents
-
-* [Introduction - concepts - use cases](#introduction)
-* [Key concepts](#key-concepts)
-* [Architecture and design discussion](#architecture)
-* [Deployment](#deployment)
-  * [Kafka deployment](../deployments/kafka/README.md)
-  * [Zookeeper deployment](../deployments/zookeeper/README.md)
-  * [IBM Event Streams on IBM Cloud Private](../deployments/eventstreams/README.md)
-* [Producer implementation considerations](./producers.md)
-* [Consumer implementation considerations](./consumers.md)
-* [Monitoring with Prometheus and Grafana](./monitoring.md)
-* [Streaming applications](./kafka-stream.md)
-* [Compendium](#compendium)
+Update 02/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Introduction
 

@@ -34,11 +34,15 @@ The reference implementation includes a set of technologies we are using that re
 
 ## Intermediate
 
-* [Docker compose](https://docs.docker.com/compose/gettingstarted/)
-* [Understand docker networking](https://docs.docker.com/network/)
+* [Event driven design pattern for microservice](./evt-microservices/ED-patterns.md) 
+* [Docker compose - getting started](https://docs.docker.com/compose/gettingstarted/)
+* [Understand docker networking](https://docs.docker.com/network/) as we use docker compose to run the reference implementation locally. 
 * [IBM Event Streams - National Oceanic and Atmospheric Administration (NOAA) stream analytics app](https://developer.ibm.com/streamsdev/docs/detect-events-with-streams/) Event detection on continuous feed using Streaming Analytics in IBM Cloud. 
 * [Kafka monitoring](./kafka/monitoring.md)
 
+
 ## More advanced subjects
+
 * [Kafka Stream APIs](http://kafka.apache.org/11/javadoc/org/apache/kafka/streams/package-summary.html) and [our summary.](./kafka/kafka-stream.md)
 * [Kafka HA and enterprise deployment](./kafka/readme.md)
+* [End to end reference implementation of EDA solution]()
