@@ -27,22 +27,47 @@ The reference implementation includes a set of technologies we are using that re
 * [Angular tutorial](https://angular.io/tutorial)
 * [Docker getting started](https://docs.docker.com/get-started/)
 * [Getting started with Open Liberty](https://openliberty.io/guides/getting-started.html)
-* [Getting started with Event Streams](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-getting_started#getting_started)
+* [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/) and IBM developer [learning path for Kubernetes](https://developer.ibm.com/series/kubernetes-learning-path/)
+* [Deploy MicroProfile-based Java microservices on Kubernetes](https://developer.ibm.com/patterns/deploy-microprofile-java-microservices-on-kubernetes/)
+
+### Event Driven Specifics
+
+* [Why EDA now?](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture)
+* EDA fundamentals:
+    * [Reference architecture](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/reference-architecture)
+    * [Event sources](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-sources)
+    * [Event backbone](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-backbone)
+    * [Act after an event with IBM Cloud Functions](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-take-action-with-cloud-functions)
+    * [Processing continuous streaming events](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-streams)
+    * [Event-driven cloud-native applications](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-cloud-native-apps)
+    * [Event storming methodology](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-storming-methodology) and a [concrete example for container shipment use case.](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/)
+* [Getting started with IBM Cloud Event Streams](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-getting_started#getting_started)
+* [IBM Cloud Private Event Streams]()
 * [Kafka API consumer](http://kafka.apache.org/11/javadoc/index.html?org/apache/kafka/clients/consumer/KafkaConsumer.html) with our [own summary and implementation considerations](./kafka/consumers.md)
 * [Kafka API producer](http://kafka.apache.org/11/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html) ith our [own summary and implementation considerations](./kafka/producers.md)
-* [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
+*[IBM Cloud Streaming Analytics introduction](https://cloud.ibm.com/catalog/services/streaming-analytics) and [getting started](https://cloud.ibm.com/docs/services/StreamingAnalytics?topic=StreamingAnalytics-gettingstarted#gettingstarted)
+
 
 ## Intermediate
 
-* [Event driven design pattern for microservice](./evt-microservices/ED-patterns.md) 
 * [Docker compose - getting started](https://docs.docker.com/compose/gettingstarted/)
 * [Understand docker networking](https://docs.docker.com/network/) as we use docker compose to run the reference implementation locally. 
+* [The evolving hybrid integration reference architecture](https://developer.ibm.com/articles/mw-1606-clark-trs/): How to ensure your integration landscape keeps pace with digital transformation
+* [Kubernetes troubleshouting]()
+* [Applying a test driven practice for angular application](https://github.com/ibm-cloud-architecture/refarch-caseportal-app/blob/master/docs/tdd.md)
+
+### Event Driven Specifics
+
+* [Extended Reference Architecture](https://www.ibm.com/cloud/garage/architectures/eventDrivenExtendedArchitecture) with machine learning workbench and event sourcing as data source, and real time analytics for deployment.
+* [Event driven design pattern for microservice](./evt-microservices/ED-patterns.md) 
 * [IBM Event Streams - National Oceanic and Atmospheric Administration (NOAA) stream analytics app](https://developer.ibm.com/streamsdev/docs/detect-events-with-streams/) Event detection on continuous feed using Streaming Analytics in IBM Cloud. 
 * [Kafka monitoring](./kafka/monitoring.md)
 
 
-## More advanced subjects
+## More advanced subjects for event-driven solution
 
 * [Kafka Stream APIs](http://kafka.apache.org/11/javadoc/org/apache/kafka/streams/package-summary.html) and [our summary.](./kafka/kafka-stream.md)
 * [Kafka HA and enterprise deployment](./kafka/readme.md)
-* [End to end reference implementation of EDA solution]()
+* [End to end reference implementation of EDA solution](https://ibm-cloud-architecture.github.io/refarch-kc). A concrete end to end solution to illustrate the different event-driven patterns. 
+* [Knative introduction](https://developer.ibm.com/articles/knative-what-is-it-why-you-should-care/)
+

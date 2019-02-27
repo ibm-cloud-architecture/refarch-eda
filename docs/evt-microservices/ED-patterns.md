@@ -45,11 +45,10 @@ With a central event logs, producer appends event to the log, and consumers read
 
 To get the final state of an entity, the consumer needs to replay all the events, which means replaying the changes to the state from the last committed offset or from the last snapshot. 
 
-![](./evt-sourcing-replay.png)
 
 When replaying the event, it may be important to avoid generating side effects. A common side effect is to send a notification on state change to consumers. Sometime it may be too long to replay hundreds of events. In that case we can use snapshot, to capture the current state of an entity, and then replay events from the most recent snapshot. This is an optimization technique not needed for all event sourcing implementations. When state change events are in low volume there is no need for snapshots.
 
-Kafka is supporting the event sourcing pattern with [the topic and partition](../kafka/readme.md). In our [reference implementation](https://ibm-cloud-architecture.github.io/refarch-kc) we are validating event sourcing with Kafka in the [Order microservices](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) and specially [this set of test cases](https://github.com/ibm-cloud-architecture/refarch-kc-ms/tree/master/itg-tests#how-to-proof-the-event-sourcing-and-cqrs)
+Kafka is supporting the event sourcing pattern with [the topic and partition](../kafka/readme.md). In our [reference implementation](https://ibm-cloud-architecture.github.io/refarch-kc) we are validating event sourcing with Kafka in the [Order microservices](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) and specially [this set of test cases](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/itg-tests#how-to-proof-the-event-sourcing)
 
 The event sourcing pattern is well described in [this article on microservices.io](https://microservices.io/patterns/data/event-sourcing.html). It is a very important pattern for EDA and for microservices to microservices data synchronization implementations.
 
