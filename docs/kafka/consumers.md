@@ -1,7 +1,7 @@
 # Consumers design and implementation considerations
 
 Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
-The implementation is simple for a single thread consumer:
+The implementation is simple for a single thread consumer, and the code structure looks like:
 * prepare the properties
 * create an instance of KafkaConsumer to connect to a topic and a partition
 * loop on polling events 
