@@ -1,6 +1,7 @@
 # Event Driven Reference Architecture
 
-> To access the source repository go to >> [https://github.com/ibm-cloud-architecture/refarch-eda]( https://github.com/ibm-cloud-architecture/refarch-eda).   Updated 03/03/19.
+> To access the source repository go to >> [https://github.com/ibm-cloud-architecture/refarch-eda]( https://github.com/ibm-cloud-architecture/refarch-eda).   
+ Updated 03/03/19.
 
 > The content of this repository was the source of the event-driven reference architecture in the IBM Garage architecture center visible here. This git repository is maintained on a weekly basis and includes more content not yet formally published to IBM sites. As we are implementing the end to end solution we are updating this main git repository to keep best practices accurate.
 
