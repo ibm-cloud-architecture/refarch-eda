@@ -1,7 +1,7 @@
 # Event Driven Reference Architecture
 
 This project represents the body of knowledge around event-driven architecture and can be considered as a live book, we are writing from our consulting engagements. 
-All the content is visible [as a book format here](ttps://ibm-cloud-architecture.github.io/refarch-eda).  
+All the content is visible [as a book format here](https://ibm-cloud-architecture.github.io/refarch-eda).  
 
 The content of this repository was the source of the event-driven reference architecture in the [IBM Garage architecture center visible here](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture). This git repository is maintained on a weekly basis and includes more content not yet formally published to IBM sites. As we are implementing the end to end solution we are updating this main git repository to keep best practices accurate.
 
