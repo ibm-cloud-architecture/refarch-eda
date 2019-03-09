@@ -1,4 +1,5 @@
 site_name: Event Driven Architecture 
+repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
 nav:
   - Home: index.md
   - Concepts: concepts/README.md
@@ -25,5 +26,6 @@ nav:
     - Serverless: serverless/README.md
   - Skill Journey: eda-skill-journey.md
   - Compendium: compendium.md
-theme: material
+theme: 
+  name: material
 extra_css: ["extra.css"]
