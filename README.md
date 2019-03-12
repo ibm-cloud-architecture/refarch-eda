@@ -44,7 +44,8 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 * [10/2018] Started
 * [11/2018] Implement ship simulator and stream analytics proof of concepts
 * [01/2019] Publish content to IBM Architecture center
-* [02/2109] Enhance design pattern and move content as book layout
+* [02/2019] Enhance design pattern and move content as book layout
+* [03/2019] Work on event-driven pattern and skill journey
 
 ## Contributors
 
