@@ -1,12 +1,22 @@
 # Kafka Streaming
 
-Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. It is a very important technology to process real-time data for anlytics and event processing. 
+Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. 
+
+![](images/kafka-stream-arch.png)
+
+* An application's processor topology is scaled by breaking it into multiple tasks.
+* Tasks can then instantiate their own processor topology based on the assigned partitions.
+
+It is a very important technology to process real-time data for analytics and event processing, developing stateless or stateful processing.
 
 The Java code in the project: https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer includes examples of stateless consumers, a text producer, and some example of stateful operations. In general code for processing event does the following:
+
 * Set a properties object to specify which brokers to connect to and what kind of serialization to use.
-* Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key)
-* Create a topology of input source and sink target and action to perform on the records
-* Start the stream client to consume records
+* Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key).
+* Create a topology of input source and sink target and the set of actions to perform in between.
+* Start the stream client to consume records.
+
+Programming with KStream and Ktable is not easy at first as there are a lot of concept for data manipulations, serialization and operations chaining. 
 
 A stateful operator uses the streaming Domain Specific Language, and is used for aggregation, join and time window operators. Stateful transformations require a state store associated with the stream processor. The code below comes from Kafka examples and is counting word occurrence in text:
 
@@ -28,14 +38,16 @@ A stateful operator uses the streaming Domain Specific Language, and is used for
 ```
 
 * [KStream](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/KStream.html) represents KeyValue records coming as event stream from the topic.
-* flatMapValues() transforms the value of each record in "this" stream into zero or more values with the same key in the new KStream. So here the text line is split into words. The parameter is a [ValueMapper](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/ValueMapper.html) which applies transformation on values but keeping the key.
-* groupBy() Group the records of this KStream on a new key that is selected using the provided KeyValueMapper. So here it create new KStream with the extracted word as key.
-* count() counts the number of records in this stream by the grouped key. Materialized is an api to define a store to persist state. So here the state store is "counts-store".
-* Produced defines how to provide the optional parameters when producing to new topics.
+* flatMapValues() transforms the value of each record in "this" stream into zero or more values with the same key in a new KStream. So here the text line is split into words. The parameter is a [ValueMapper](https://Kafka.apache.org/10/javadoc/org/apache/Kafka/streams/kstream/ValueMapper.html) which applies transformation on values but keeps the key.
+* groupBy() Group the records of this KStream on a new key that is selected using the provided KeyValueMapper. So here it creates new KStream with the extracted word as key.
+* count() counts the number of records in this stream by the grouped key. Materialized is an api to define a store to persist state. So here the state store is "counts-store". As store is a in-memory table.
+* Produced defines how to provide the optional parameter types when producing to new topics.
 * KTable is an abstraction of a changelog stream from a primary-keyed table.
 
+See [this article from Confluent](https://docs.confluent.io/current/streams/architecture.html) for deeper kafka stream architecture presentation.
 
 ### Example to run the Word Count application:
+
 1. Be sure to create the needed different topics once the Kafka broker is started (test-topic, streams-wordcount-output):
 
 ```
@@ -67,3 +79,14 @@ mvn exec:java -Dexec.mainClass=ibm.cte.Kafka.play.WordCount
 ```
 
 Outputs of the WordCount application is actually a continuous stream of updates, where each output record is an updated count of a single word. A KTable is counting the occurrence of word, and a KStream send the output message with updated count.
+
+## Other examples
+
+We have implemented the container microservice of the K-Container solution using kstreams processing. See the presentation [here](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/kstreams), and go to the following code to see tests for the different process flow.
+
+* [Basic kstream processing on order events](https://github.com/ibm-cloud-architecture/refarch-kc-container-ms/blob/master/kstreams/src/test/java/ut/TestOrderCreation.java)
+
+## Further reading
+
+* The API and [product documentation](https://kafka.apache.org/21/documentation/streams/developer-guide/).
+* [Deep dive explanation for the differences between KStream and KTable](https://www.michael-noll.com/blog/2018/04/05/of-stream-and-tables-in-kafka-and-stream-processing-part1/)

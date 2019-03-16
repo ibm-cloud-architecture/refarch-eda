@@ -124,15 +124,7 @@ When you want to deploy solution that spreads over multiple regions to support g
 
 ### For Kafka stream
 
-![](images/kafka-stream-arch.png)
-
-* **Kafka** Streams partitions data for processing it. 
-* and **Kafka Streams**.
-* An application's processor topology is scaled by breaking it into multiple tasks.
-* Tasks can then instantiate their own processor topology based on the assigned partitions.
-
-See [this article from Confluent](https://docs.confluent.io/current/streams/architecture.html) for deeper kafka stream architecture presentation.
-
+We are detailing the specific guidances for using Kafka Streams implementation in a [separate note](./kafka-stream.md).
 
 ### Solution considerations
 
