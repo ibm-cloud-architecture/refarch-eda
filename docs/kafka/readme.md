@@ -2,7 +2,7 @@
 
 In this article we are presenting real time event processing and analytics using **Kafka** deployed on Kubernetes cluster. We are documenting how to deploy this capability on IBM Cloud Private using a [**Kafka**](https://Kafka.apache.org/) open source distribution or the new [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/) and how to remote connect from hosts outside of the cluster, how to support high availability...
 
-Update 02/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
+Update 03/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Introduction
 
@@ -67,7 +67,8 @@ Partitions are used by producers and consumers and data replication. Partitions 
 Zookeeper is used to persist the component and platform states and it runs in cluster to ensure high availability. One zookeeper server is the leader and other are used in backup.
 
 * Kafka does not keep state regarding consumers and producers.
-* Depending of kafka version offsets are maintained in Zookeeper or in **Kafka**. Newer version use an internal Kafka topic called __consumer_offsets. In any case consumers can read next message (or from a specific offset) correctly even during broker server outrages. We are detailing this in the asset consumer implementation in [this repository](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-consumer).
+* Depending of kafka version offsets are maintained in Zookeeper or in **Kafka**. Newer versions use an internal Kafka topic called __consumer_offsets. In any case consumers can read next message (or from a specific offset) correctly even during broker server outrages. 
+* Access Control is saved in Zookeeper
 * Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
 
 ### Consumer group
@@ -135,7 +136,7 @@ There are a set of design considerations to assess for each **Kafka** solution:
 Performance is more a function of number of partitions than topics. Expect that each topic has at least one partition. When considering latency you should aim for limiting to hundreds of topic-partition per broker node.
 
 What of the most important question is what topics to use?. What is an event type? Should we use one topic to support multiple event types? 
-Let define that an event type is linked to a main business entity like an Order, a ship, a FridgeredContainer. OrderCreated, OrderCancelled, OrderUpdated, OrderClosed are events linked to the states of the Order. The order of those events matter. So the natural approach is to use one topic per data type or schema, specially when using the topic as Event Sourcing where event order is important to build the audit log. You will use an unique partition to support that. The orderID is the partition key and all events related to the order are in the same topic.
+Let define that an event type is linked to a main business entity like an Order, a ship, a FridgeredContainer. OrderCreated, OrderCancelled, OrderUpdated, OrderClosed are events linked to the states of the Order. The order of those events matter. So the natural approach is to use one topic per data type or schema, specially when using the topic as Event Sourcing where event order is important to build the audit log. You will use a unique partition to support that. The orderID is the partition key and all events related to the order are in the same topic.
 
 The important requirement to consider is the sequencing or event order. When event order is very important then use a unique partition, and use the entity unique identifier as key. Ordering is not preserved across partitions.
 
@@ -177,8 +178,6 @@ See [implementation considerations discussion](./consumers.md)
 ### High Availability in the context of Kubernetes deployment
 
 The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages it own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes nodes and pods may change dynamically.
-
-
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
 
@@ -252,9 +251,10 @@ Zookeeper is not CPU intensive and each server should have a least 2 GB of heap 
 
 ## Compendium
 
-* [Start by reading Kafka introduction](https://Kafka.apache.org/intro/)
-* [Another introduction from the main contributors: Confluent](http://www.confluent.io/blog/introducing-Kafka-streams-stream-processing-made-simple)
+* [Start by reading Kafka introduction - a must read!](https://Kafka.apache.org/intro/)
+* [Another introduction from Confluent, one of the main contributors of the open source.](http://www.confluent.io/blog/introducing-Kafka-streams-stream-processing-made-simple)
 * [Develop Stream Application using Kafka](https://Kafka.apache.org/11/documentation/streams/)
+* [Tutorial on access control, user authentication and authorization from IBM.](https://developer.ibm.com/tutorials/kafka-authn-authz/)
 * [Validating the Stream deployment](https://developer.ibm.com/messaging/event-streams/docs/validating-the-deployment/)
 * [Kafka on Kubernetes using stateful sets](https://github.com/kubernetes/contrib/tree/master/statefulsets/Kafka)
 * [IBM Event Streams product based on Kafka delivered in ICP catalog](https://developer.ibm.com/messaging/event-streams/)
