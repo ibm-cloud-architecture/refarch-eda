@@ -9,9 +9,9 @@ As we do now want to rewrite the product documentation, we just want to highligh
 * Three proxy
 * Three worker nodes
 
-For worker nodes we need power and space. We allocated 12 CPUs 32 Gb Mem. 
+For worker nodes we need good CPUs and hard disk space. We allocated 12 CPUs - 32 Gb RAM. 
 
-You need to decide if persistence should be enabled for ZooKeeper and Kafka broker. Allocate one Persistence Volume per Kafka broker and one per ZooKeeper server or if you use dynamic provisioning be sure the expected volumes are present.
+You need to decide if persistence should be enabled for ZooKeepers and Kafka brokers. Pre allocate one Persistence Volume per Kafka broker and one per ZooKeeper server.  If you use dynamic persistence volume provisioning, ensure the expected volumes are present at installation time.
 
 The following parameters were changed from default settings:  
 
@@ -32,9 +32,9 @@ For the release name take care to do not use a too long name as there is an issu
 
 The figure above shows the following elements:
 * ConfigMaps for UI, Kafka proxy
-* The five deployment for each major components: UI, REST, proxy and access controller.
+* The five deployments for each major components: UI, REST, proxy and access controller.
 
-Next are the job which was run during installation and the current network policies: 
+Next is the job list which shows what was run during installation. The panel lists also the current network policies: 
 
 ![](images/ies-helm-rel02.png)
 
@@ -50,12 +50,12 @@ As we can see there are 3 kafka brokers, 3 zookeepers, 2 proxies, 2 access contr
 You can see the pods running on a node using the command: 
 `kubectl get pods --all-namespaces --field-selector=spec.nodeName=172.16.50.219`
 
+The figure below is for roles, rolebinding and secret as part of the Role Based Access Control settings.
 
-The figure below is for roles, rolebinding and secret as part of the Role Based Access Control.   
 ![](images/ies-helm-rel03.png)
 
 
-The services for zookeeper, Kafka and Event Stream REST api and user interface:  
+The figure below shows the services for zookeeper, Kafka and Event Stream REST api and user interface:  
 
 ![](images/ies-helm-serv.png)
 
@@ -64,7 +64,7 @@ The services expose capabilities to external world via nodePort type:
 * The REST api port 30121
 * stream proxy port bootstrap: 31348, broker 0: 32489...
 
-To get access to the Admin console by using the IP address of the master proxy node and the port number of the service, which you can get using the kubectl get service information command like:
+You get access to the Event Streams admin console by using the IP address of the master  / proxy node and the port number of the service, which you can get using the kubectl get service command like:
 ```
 kubectl get svc -n streaming "green-events-streams-ibm-es-ui-svc" -o 'jsonpath={.spec.ports[?(@.name=="admin-ui-https")].nodePort}'
 
@@ -75,13 +75,14 @@ Here is the admin console home page:
 
 ![](images/event-stream-admin.png)
 
-To connect an application or tool to this cluster, you will need the address of a bootstrap server, a certificate and an API key. The page to access that is on the top right corner: `Connect to this cluster`:
+To connect an application or tool to this cluster, you will need the address of a bootstrap server, a certificate and an API key. The page to access this information, is on the top right corner: `Connect to this cluster`:
 
 ![](images/ies-cluster-connection.png)
 
 Download certificate and Java truststore files, and the generated API key. A key can apply to all groups or being specific to a group. 
 
-To leverage the api key the code needs to set the following properties:
+In Java to leverage the api key the code needs to set the some properties:
+
 ```java
 properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
 properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -97,12 +98,12 @@ See code example in [ApplicationConfig.java](https://github.com/ibm-cloud-archit
 
 ## Some challenges during the installation
 
-As presented in the high availability discussion in [this note](../kafka#high-availability-in-the-context-of-kubernetes-deployment), normally we need 6 worker nodes to avoid allocating zookeeper and kafka servers on the same kubernetes nodes. The development installation is permissive on that constraint. The physical resources need to be there. 
-kafka brokers cannot be scheduled because 11 nodes have taints (can't meet the specs for the stateful set) and the remaining worker nodes don't have enough memory
+As presented in the high availability discussion in [this note](../kafka#high-availability-in-the-context-of-kubernetes-deployment), normally we need 6 worker nodes to avoid allocating zookeeper and kafka servers on the same kubernetes nodes. The community edition installation is permissive on that constraint, so both products could co-exist but in that case, ensure to have enough physical resources. 
+We have seen some Kafka brokers that could not be scheduled because some nodes have taints (can't meet the specs for the stateful set) and the remaining worker nodes don't have enough memory.
 
 ## Getting started application
 
-Use the Event Stream Toolbox to download a getting started application we can use to test deployment and as code base for future Kafka consumer / producer.
+Use the Event Stream Toolbox to download a getting started application we can use to test the deployment and as code base for future Kafka consumer / producer development.
 
 ![](images/ies-starter-app.png)  
 
@@ -114,15 +115,15 @@ The application runs in Liberty at the URL: http://localhost:9080/EDAIESStarterA
 
 ![](images/ies-start-app-run.png)  
 
-The figure below illustrates the fact that the connetion to the broker was not working for a short period of time, so the producer has error, but because of the buffering capabilities, it was able to pace and then as soon as the connection was re-established the consumer started to get the messages. No messages were lost.
+The figure below illustrates the fact that the connetion to the broker was not working for a short period of time, so the producer has error, but because of the buffering capabilities, it was able to pace and then as soon as the connection was re-established the consumer started to get the messages. No messages were lost!.
 
 ![](images/ies-start-app-run2.png) 
 
-We have two solution implementations using Kafka and Event Streams [the manufacturing asset analytics](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) and the [KC container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc)
+We have two solution implementations using Kafka and Event Streams [the manufacturing asset analytics](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) and the  most recent [KC container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc). We recommend using the second implementation.
 
 ## Verifying ICP Kafka installation
 
-Once connected to the cluster with kubectl, get the list of pods for the namespace you used to install Kafka / event streams:
+Once connected to the cluster with kubectl, get the list of pods for the namespace you used to install Kafka or IBM Event Streams:
 ```
 $ kubectl get pods -n streaming
 
@@ -154,32 +155,36 @@ Now you have access to the kafka tools. The most important thing is to get the h
 ```
 $ kubectl describe pods green-even-c353-ibm-es-zook-c4c0-0  --namespace streaming
 ```
-In the long result get the client port ( ZK_CLIENT_PORT: 2181) information and IP address (IP: 192.168.76.235). Using this information, in the bash sheel within the Kafka broker server we can do the following command to get the topics configured.
+In the long result get the client port ( ZK_CLIENT_PORT: 2181) information and IP address (IP: 192.168.76.235). Using this information, in the bash shell within the Kafka broker server we can do the following command to get the topics configured.
 
-```
-./Kafka-topics.sh --list -zookeeper  192.168.76.235:2181
+```shell
+$ ./Kafka-topics.sh --list -zookeeper  192.168.76.235:2181
+# We can also use the service name of zookeeper and let k8s DNS resolve the IP address
+$ ./Kafka-topics.sh --list -zookeeper  green-even-c353-ibm-es-zook-c4c0-0.streaming.svc.cluster.local:2181
 ```
 
 
 ### Using the Event Stream CLI
-If not done before you can install the Event Stream CLI on top of ICP CLI by first downloading it from the Event Stream console and then running this command:
+
+If not done already, you can install the Event Stream CLI on top of IBM cloud CLI by first downloading it from the Event Stream console and then running this command:
 ```
-bx plugin install ./es-plugin
+$ cloudctl plugin install ./es-plugin
 ```
-From there is a quick summary of the possible commands:
-```
+
+Here is a simple summary of the possible `cloudctl es` commands:
+```shell
 # Connect to the cluster
-bx es init
+cloudctl es init
 
 # create a topic  - default is 3 replicas
-bx es topic-create streams-plaintext-input
-bx es topic-create streams-wordcount-output --replication-factor 1 --partitions 1
+cloudctl es topic-create streams-plaintext-input
+cloudctl es topic-create streams-wordcount-output --replication-factor 1 --partitions 1
 
 # list topics
-bx es topics
+cloudctl es topics
 
 # delete topic
-bx es topic-delete streams-plaintext-input
+cloudctl es topic-delete streams-plaintext-input
 ```
 
 ## Further Readings

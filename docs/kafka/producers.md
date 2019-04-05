@@ -1,18 +1,18 @@
 # Producers considerations 
 
-Remember that producers are stateless. Consumers are managing the offset. So producers are more simple to implement.
+A producer is a thread safe kafka client API that publishes records to the cluster. It uses buffers, thread pool, and serializer to send data. They are stateless. This is the consumers that are managing the offsets. Producers are more simple to implement. 
 
 ## Design considerations
 
 When developing a record producer you need to assess the following:
 
-* What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size.
+* What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size. By default, the buffer size is set at 32Mb, but can be configured with `buffer.memory`. (See [producer configuration API]())
 * Can the producer batch events together to send them in batch over one send operation?
 * Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size
 * Assess *once to exactly once* delivery requirement. Look at idempotent producer.
 * Where the event timestamp comes from? Should the producer send operation set it or is it loaded from external data? Remember that `LogAppendTime` is considered to be processing time, and `CreateTime` is considered to be event time.
 
-See related discussion [on confluent web site](https://www.confluent.io/blog/put-several-event-types-kafka-topic/)
+See related discussions [on confluent web site](https://www.confluent.io/blog/put-several-event-types-kafka-topic/)
 
 ## Typical code structure
 
@@ -48,3 +48,7 @@ The following properties are helpful to tune at each topic and producer and will
 * [Simple test message](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/blob/master/asset-event-producer/src/main/java/ibm/cte/kafka/play/SimpleProducer.java)
 * [A Pump simulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator)
 * [Ship movement and container metrics event producers]()
+
+## More readings
+
+*[Creating advanced kafka producer in java - Cloudurable](http://cloudurable.com/blog/kafka-tutorial-kafka-producer-advanced-java-examples/index.html)

@@ -2,8 +2,20 @@
 
 #### Kafka
 
+
+* [Start by reading Kafka introduction - a must read!](https://Kafka.apache.org/intro/)
+* [Another introduction from Confluent, one of the main contributors of the open source.](http://www.confluent.io/blog/introducing-Kafka-streams-stream-processing-made-simple)
 * [IBM Streams Samples](https://ibmstreams.github.io/samples/)
 * [Kafka summary and deployment on IBM Cloud Private](./kafka/readme.md)
+* [Develop Stream Application using Kafka](https://Kafka.apache.org/11/documentation/streams/)
+* [Tutorial on access control, user authentication and authorization from IBM.](https://developer.ibm.com/tutorials/kafka-authn-authz/)
+* [Validating the Stream deployment](https://developer.ibm.com/messaging/event-streams/docs/validating-the-deployment/)
+* [Kafka on Kubernetes using stateful sets](https://github.com/kubernetes/contrib/tree/master/statefulsets/Kafka)
+* [IBM Event Streams product based on Kafka delivered in ICP catalog](https://developer.ibm.com/messaging/event-streams/)
+* [IBM Developer works article](https://developer.ibm.com/messaging/event-streams/docs/learn-about-Kafka/)
+* [Install Event Streams on ICP](https://developer.ibm.com/messaging/event-streams/docs/install-guide/)
+* [Spark and Kafka with direct stream, and persistence considerations and best practices](http://aseigneurin.github.io/2016/05/07/spark-Kafka-achieving-zero-data-loss.html)
+* [Example in scala for processing Tweets with Kafka Streams](https://www.madewithtea.com/processing-tweets-with-Kafka-streams.html)
 
 #### Microservices and event-driven patterns
 

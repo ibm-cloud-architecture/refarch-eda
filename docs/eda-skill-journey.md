@@ -5,7 +5,7 @@ Implementing cloud native, event-driven solution with microservices deployed on 
 The reference implementation includes a set of technologies we are using that represents the modern landscape of cloud native applications. A developer who wants to consume this content does not need to know everything at the expert level. But here is a list of technologies we are using in [our reference implementation](https://ibm-cloud-architecture.github.io/refarch-kc):
 
 * Nodejs / Javascript / Typescripts
-* Java 1.8
+* Java 1.8 amd microprofile architecture
 * Python 3.6
 * Angular 7, HTML, CSS
 * Maven, npm, bash
@@ -64,8 +64,11 @@ The following links should be studied in the proposed order and can serve as a l
 
 * [Understand docker networking](https://docs.docker.com/network/) as we use docker compose to run the reference implementation locally. 
 * [The evolving hybrid integration reference architecture](https://developer.ibm.com/articles/mw-1606-clark-trs/): How to ensure your integration landscape keeps pace with digital transformation
-* [Our Kubernetes troubleshouting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md)
+* [How to deploy, manage, and secure your container-based workloads on IKS](https://www.ibm.com/blogs/bluemix/2017/05/kubernetes-and-bluemix-container-based-workloads-part1/) and [part 2](https://www.ibm.com/blogs/bluemix/2017/05/kubernetes-and-bluemix-container-based-workloads-part2/)
+* [Our Kubernetes troubleshooting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md)
 * [Applying a test driven practice for angular application](https://github.com/ibm-cloud-architecture/refarch-caseportal-app/blob/master/docs/tdd.md)
+* [Java microprofile application](https://microprofile.io/)
+* [Our Cloud Architecture team's bluecompute solution: Microprofile based Microservice Apps Integration with MySQL Database Server](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/tree/microprofile)
 
 ### KC Solution labs
 

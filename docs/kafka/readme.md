@@ -1,17 +1,17 @@
 # Apache Kafka
 
-In this article we are presenting real time event processing and analytics using **Kafka** deployed on Kubernetes cluster. We are documenting how to deploy this capability on IBM Cloud Private using a [**Kafka**](https://Kafka.apache.org/) open source distribution or the new [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/) and how to remote connect from hosts outside of the cluster, how to support high availability...
+In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org/) is and group some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro/) every developer using Kafka should read.
 
 Update 03/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Introduction
 
-[Kafka](https://Kafka.apache.org/) is a distributed streaming platform with the following key capabilities:
+[Kafka](https://Kafka.apache.org/) is a distributed event streaming platform with the following key capabilities:
 
 * Publish and subscribe streams of records. Data are stored so consuming applications can pull the information they need, and keep track of what they have seen so far.
 * Atomic broadcast, send a record once, every subscriber gets it once.
 * Store streams of data records on disk and replicate within the cluster for fault-tolerance. Keep data for a time period before delete.
-* Built on top of the ZooKeeper synchronization service to keep topic, partitions and offsets states high available.
+* Built on top of the ZooKeeper synchronization service to keep topic, partitions and metadat highly available.
 
 ### Use cases
 
@@ -20,20 +20,21 @@ The typical use cases where **Kafka** helps are:
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services
-* Manage loosely coupled communication between microservices. (See [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh.md#asynchronous-loosely-coupled-solution-using-events) I present a way to support a service mesh solution using asynchronous event)
+* Implement [event soucing pattern](../evt-microservices/ED-patterns.md) out of the box
+* Manage loosely coupled communication between microservices. (See [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh.md#asynchronous-loosely-coupled-solution-using-events) where I present a way to support a service mesh solution using asynchronous event)
 
 ## Key concepts
 
-The diagram below presents the key components, we are detailing in this section:  
+The diagram below presents Kafka's key components:  
 
  ![](images/kafka-hl-view.png)
 
 ### Brokers
 
-* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers.
+* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers (really possible if the latency is very low at the 10ms or better). 
 * The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers. 
 
-In the figure above, the **Kafka** brokers are allocated on three servers, with three data replicas.
+In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated three times.
 
 ### Topics 
 
@@ -57,19 +58,19 @@ Partitions are used by producers and consumers and data replication. Partitions 
 * Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use. Each partition will run on a separate server. So if you have 5 brokers you can define topic with 5 partitions. 
 * Each partition is a time ordered immutable sequence of records, that are persisted for a long time period. It is a log. Topic is a labelled log.
 * Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumers, the traffic pattern, etc...
-* Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets). Ids are defined when event arrives at the broker level, and are local to the partition. They are unmutable. 
+* Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets). Those offset ids are defined when events arrived at the broker level, and are local to the partition. They are unmutable. 
 * When a consumer reads a topic, it actually reads data from all the partitions. As a consumer reads data from a partition, it advances its offset. To read an event the consumer needs to use the topic name, the partition number and the last offset to read from. 
-* Partitions guarantee that data with the same keys will be sent to the same consumer and in order. They improve throughtput.
+* Partitions guarantee that data with the same keys will be sent to the same consumer and in order.
+* Adding more partition, in the limit of number of borkers, improve throughtput.
 
 
 ### Zookeeper
 
-Zookeeper is used to persist the component and platform states and it runs in cluster to ensure high availability. One zookeeper server is the leader and other are used in backup.
+Zookeeper is used to persist the component and platform states and it runs in cluster to ensure high availability. One zookeeper server is the leader and other are used in backup. 
 
 * Kafka does not keep state regarding consumers and producers.
-* Depending of kafka version offsets are maintained in Zookeeper or in **Kafka**. Newer versions use an internal Kafka topic called __consumer_offsets. In any case consumers can read next message (or from a specific offset) correctly even during broker server outrages. 
-* Access Control is saved in Zookeeper
-* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
+* Depends on kafka version, offsets are maintained in Zookeeper or in **Kafka**: newer versions use an internal Kafka topic called __consumer_offsets. In any case consumers can read next message (or from a specific offset) correctly even during broker server outrages. 
+* Access Controls are saved in Zookeeper
 
 ### Consumer group
 
@@ -78,30 +79,30 @@ This is the way to group consumers so the processing of event is parallelized. T
 ### Kafka Stream Details
 
 I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created. To summarize, **Kafka** Stream has the following capabilities:
-
+* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
 * Embedded library for your application to use.
 * Integrate tables for state persistence with streams of events.
 * Consumes continuous real time flows of records and publish new flows.
 * Supports exactly-once processing semantics to guarantee that each record will be processed once and only once even when there is a failure.
 * Stream APIs transform, aggregate and enrich data, per record with milli second latency, from one topic to another one.
 * Supports stateful and windowing operations by processing one record at a time.
-* Can be integrated in java application and microservice. No need for separate processing cluster. It is a Java API. Stream app is done outside of the broker code!.
+* Can be integrated in java application. No need for separate processing cluster. It is a Java API. But a Stream app is executed outside of the broker code, which is different than message flow in an ESB.
 * Elastic, highly scalable, fault tolerance, it can recover from failure.
-* Deployed as container to Kubernetes or other orchestration platform, with some clear understanding of the impact.
 
 
 ## Architecture
-As a distributed cluster, kafka brokers ensure high availability to process new event. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication of 3 for each topic. Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance. Each partitition is replicated at least 3 times and allocated in different brokers. One replicate is the lead. In the case of broker failure, one of the existing partition in remaining running broker will take the lead:
+
+As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication of 3 for each topic. Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance. Each partitition is replicated at least 3 times and allocated in different brokers. One replicas is the lead. In the case of broker failure, one of the existing partition in remaining running brokers will take the lead:
 
 ![](images/kafka-ha.png)
 
 The keys in the data record determine the partitioning of data in **Kafka**. 
 
-As kafka is keeping its cluster states in zookeeper, you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds anyway. Zookeepers and Brokers should have HA communication, and each borker and node allocated on different racks and blades.
+As kafka is keeping its cluster states in zookeeper, you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds anyway. Zookeepers and Brokers should have high availability communication, and each borker and node allocated on different racks and blades.
 
 ![](images/ha-comp.png)
 
-Consumers and producers are using a list of bootstrap server names to contact the cluster. The list is used for cluster discovery, it does not need to keep the full set of server names or ip addresses. A Kafka cluster has exactly one broker that acts as the controller.
+Consumers and producers are using a list of bootstrap server names (also named advertiser.listeners ) to contact the cluster. The list is used for cluster discovery, it does not need to keep the full set of server names or ip addresses. A Kafka cluster has exactly one broker that acts as the controller.
 
 Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low laterncy dual network. With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property to assign kafka borker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from product documentation).
 
@@ -248,17 +249,3 @@ Within Kafka's boundary, data will not be lost, when doing proper configuration,
 
 Zookeeper is not CPU intensive and each server should have a least 2 GB of heap space and 4GB reserved. Two cpu per server should be sufficient. Servers keep their entire state machine in memory, and write every mutation to a durable WAL (Write Ahead Log) on persistent storage. To prevent the WAL from growing without bound, ZooKeeper servers periodically snapshot their in memory state to storage. Use fast and dynamically provisioned persistence storage for both WAL and snapshot.
 
-
-## Compendium
-
-* [Start by reading Kafka introduction - a must read!](https://Kafka.apache.org/intro/)
-* [Another introduction from Confluent, one of the main contributors of the open source.](http://www.confluent.io/blog/introducing-Kafka-streams-stream-processing-made-simple)
-* [Develop Stream Application using Kafka](https://Kafka.apache.org/11/documentation/streams/)
-* [Tutorial on access control, user authentication and authorization from IBM.](https://developer.ibm.com/tutorials/kafka-authn-authz/)
-* [Validating the Stream deployment](https://developer.ibm.com/messaging/event-streams/docs/validating-the-deployment/)
-* [Kafka on Kubernetes using stateful sets](https://github.com/kubernetes/contrib/tree/master/statefulsets/Kafka)
-* [IBM Event Streams product based on Kafka delivered in ICP catalog](https://developer.ibm.com/messaging/event-streams/)
-* [IBM Developer works article](https://developer.ibm.com/messaging/event-streams/docs/learn-about-Kafka/)
-* [Install Event Streams on ICP](https://developer.ibm.com/messaging/event-streams/docs/install-guide/)
-* [Spark and Kafka with direct stream, and persistence considerations and best practices](http://aseigneurin.github.io/2016/05/07/spark-Kafka-achieving-zero-data-loss.html)
-* [Example in scala for processing Tweets with Kafka Streams](https://www.madewithtea.com/processing-tweets-with-Kafka-streams.html)
