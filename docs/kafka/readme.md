@@ -2,7 +2,7 @@
 
 In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org/) is and group some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro/) every developer using Kafka should read.
 
-Update 03/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
+Update 04/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Introduction
 
@@ -31,10 +31,10 @@ The diagram below presents Kafka's key components:
 
 ### Brokers
 
-* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers (really possible if the latency is very low at the 10ms or better). 
-* The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers. 
+* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers. It is really possible if the latency is very low at the 10ms or better as there are a lot of communication between kafka brokers and kafka and zookeepers.  
+* The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers to get data. 
 
-In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated three times.
+In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated three times. In production it is recommended to use 5 nodes to authorise planned failure and un-planned failure. 
 
 ### Topics 
 
@@ -76,19 +76,6 @@ Zookeeper is used to persist the component and platform states and it runs in cl
 
 This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailinh consumer group implementation in [this note](./consumers.md)
 
-### Kafka Stream Details
-
-I recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created. To summarize, **Kafka** Stream has the following capabilities:
-* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
-* Embedded library for your application to use.
-* Integrate tables for state persistence with streams of events.
-* Consumes continuous real time flows of records and publish new flows.
-* Supports exactly-once processing semantics to guarantee that each record will be processed once and only once even when there is a failure.
-* Stream APIs transform, aggregate and enrich data, per record with milli second latency, from one topic to another one.
-* Supports stateful and windowing operations by processing one record at a time.
-* Can be integrated in java application. No need for separate processing cluster. It is a Java API. But a Stream app is executed outside of the broker code, which is different than message flow in an ESB.
-* Elastic, highly scalable, fault tolerance, it can recover from failure.
-
 
 ## Architecture
 
@@ -96,7 +83,7 @@ As a distributed cluster, kafka brokers ensure high availability to process new 
 
 ![](images/kafka-ha.png)
 
-The keys in the data record determine the partitioning of data in **Kafka**. 
+The keys in the data record determine the partitioning of data in **Kafka**. The records with the same key will be in the same partition.
 
 As kafka is keeping its cluster states in zookeeper, you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds anyway. Zookeepers and Brokers should have high availability communication, and each borker and node allocated on different racks and blades.
 
@@ -104,10 +91,14 @@ As kafka is keeping its cluster states in zookeeper, you also need to have at le
 
 Consumers and producers are using a list of bootstrap server names (also named advertiser.listeners ) to contact the cluster. The list is used for cluster discovery, it does not need to keep the full set of server names or ip addresses. A Kafka cluster has exactly one broker that acts as the controller.
 
-Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low laterncy dual network. With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property to assign kafka borker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from product documentation).
+Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low laterncy dual network. With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property to assign kafka broker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from the product documentation).
 
-Always assess the latency requirements and consumers needs. Throughtput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate server than the brokers nodes. 
+Always assess the latency requirements and consumers needs. Throughtput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate servers than the brokers nodes. 
 For high availability assess any potential single point of failure, such as server, rack, network, power supply...
+
+The figure below illustrates a kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes (could be better 5 nodes) and evnet driven microservices are deployed in separate nodes. Those microservices are consumers and producers of events from one to many topics. Kafka may be used as event sourcing.
+
+![](images/k8s-deploy.md)
 
 To add new broker, we can deploy the runtime to a new server / rack / blade, and give a unique ID. It will process new topic, but it is possible to use tool to migrate some existing topic/ partitions to the new server. The tool is used to reassign partitions across brokers. An ideal partition distribution would ensure even data load and partition sizes across all brokers. 
 
@@ -115,8 +106,11 @@ To add new broker, we can deploy the runtime to a new server / rack / blade, and
 
 With the current implementation it is recommended to have one cluster per data center. Consumers and producers are co-located to the broker cluster. When there are needs to keep some part of the data replicated in both data center, you need to assess what kind of data can be aggregated, and if Kafka mirroring tool can be used. The tool consumes from a source cluster, from a given topic, and produces to a destination cluster with the same named topic. It keeps the message key for partitioning so order is preserved. 
 
-![](images/ha-dc.png)
+![](images/ha-dc1.png)
 
+The above diagram is using Kafka MirroeMaker with a master to slave deployment. Within the data center 2, the brokers are here to manage the topics and event. As there is no consumers running nothing happen. Consumers and producers can be started when DC1 fails. In fact we could have consumer within the DC2 processing topics to manage a readonly model, keeping in memory their projection view, as presented in the CQRS pattern. 
+
+The second solution is to use one mirror maker in each site, for each topic. This is an active - actice topology: consumers and producers are on both sites. But to avoid infinite loop, 
 When you want to deploy solution that spreads over multiple regions to support global streaming, you need to address challenges like:
 
 * How do you make data available to applications across multiple data centers?
@@ -124,9 +118,6 @@ When you want to deploy solution that spreads over multiple regions to support g
 * How to be compliant on regulations, like GDPR?
 * How to address no duplication of records?
 
-### For Kafka stream
-
-We are detailing the specific guidances for using Kafka Streams implementation in a [separate note](./kafka-stream.md).
 
 ### Solution considerations
 

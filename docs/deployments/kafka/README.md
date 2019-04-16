@@ -1,4 +1,5 @@
 # Kafka Deployment
+
 We are proposing three deployment approaches:
 * Using IBM Event Streams (See [separate note](../eventstreams/README.md))
 * Using Kafka on development environment, mostly developer workstation
@@ -7,6 +8,7 @@ We are proposing three deployment approaches:
 We are defining two types of manifests, one set for development environment and one for production. The manifests and scripts are under each deployment folders.
 
 ## Development
+
 For kafka the manifests are in this project under the `deployments/kafka/dev` folder. We are using the google image: `gcr.io/google_samples/k8skafka:v1`.
 
 We tested on MacOS with Docker Edge and Kubernetes.

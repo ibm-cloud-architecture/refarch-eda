@@ -1,6 +1,18 @@
 # Kafka Streaming
 
-Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. 
+Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. We recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created. 
+
+To summarize, **Kafka** Stream has the following capabilities:
+
+* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
+* Embedded library for your application to use.
+* Integrate tables for state persistence with streams of events.
+* Consumes continuous real time flows of records and publish new flows.
+* Supports exactly-once processing semantics to guarantee that each record will be processed once and only once even when there is a failure.
+* Stream APIs transform, aggregate and enrich data, per record with milli second latency, from one topic to another one.
+* Supports stateful and windowing operations by processing one record at a time.
+* Can be integrated in java application. No need for separate processing cluster. It is a Java API. But a Stream app is executed outside of the broker code, which is different than message flow in an ESB.
+* Elastic, highly scalable, fault tolerance, it can recover from failure.
 
 ![](images/kafka-stream-arch.png)
 
@@ -9,14 +21,14 @@ Kafka Streams is a graph of processing nodes to implement the logic to process e
 
 It is a very important technology to process real-time data for analytics and event processing, developing stateless or stateful processing.
 
-The Java code in the project: https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer includes examples of stateless consumers, a text producer, and some example of stateful operations. In general code for processing event does the following:
+In general code for processing event does the following:
 
 * Set a properties object to specify which brokers to connect to and what kind of serialization to use.
-* Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key).
+* Define a stream client: if you want stream of record use KStream, if you want a changelog with the last value of a given key use KTable (Example of using KTable is to keep a user profile with userid as key). In the container shipment implementation we use KTable to keep the Reefer container inventory in memory. 
 * Create a topology of input source and sink target and the set of actions to perform in between.
 * Start the stream client to consume records.
 
-Programming with KStream and Ktable is not easy at first as there are a lot of concept for data manipulations, serialization and operations chaining. 
+Programming with KStream and Ktable is not easy at first, as there are a lot of concepts for data manipulations, serialization and operations chaining. It also uses function programming and chaining.
 
 A stateful operator uses the streaming Domain Specific Language, and is used for aggregation, join and time window operators. Stateful transformations require a state store associated with the stream processor. The code below comes from Kafka examples and is counting word occurrence in text:
 
@@ -82,7 +94,7 @@ Outputs of the WordCount application is actually a continuous stream of updates,
 
 ## Other examples
 
-We have implemented the container microservice of the K-Container solution using kstreams processing. See the presentation [here](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/kstreams), and go to the following code to see tests for the different process flow.
+We have implemented the container microservice of the Container Shipment solution using kstreams processing. See the presentation [here](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/kstreams), and go to the following code to see tests for the different process flow.
 
 * [Basic kstream processing on order events](https://github.com/ibm-cloud-architecture/refarch-kc-container-ms/blob/master/kstreams/src/test/java/ut/TestOrderCreation.java)
 
