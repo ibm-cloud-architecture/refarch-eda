@@ -7,6 +7,7 @@
 * [Another introduction from Confluent, one of the main contributors of the open source.](http://www.confluent.io/blog/introducing-Kafka-streams-stream-processing-made-simple)
 * [IBM Streams Samples](https://ibmstreams.github.io/samples/)
 * [Kafka summary and deployment on IBM Cloud Private](./kafka/readme.md)
+* [Planning event streams installation](https://ibm.github.io/event-streams/installing/planning/)
 * [Develop Stream Application using Kafka](https://Kafka.apache.org/11/documentation/streams/)
 * [Tutorial on access control, user authentication and authorization from IBM.](https://developer.ibm.com/tutorials/kafka-authn-authz/)
 * [Validating the Stream deployment](https://developer.ibm.com/messaging/event-streams/docs/validating-the-deployment/)
