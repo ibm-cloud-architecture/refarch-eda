@@ -1,13 +1,13 @@
 # Producers considerations 
 
-A producer is a thread safe kafka client API that publishes records to the cluster. It uses buffers, thread pool, and serializer to send data. They are stateless. This is the consumers that are managing the offsets. Producers are more simple to implement. 
+A producer is a thread safe kafka client API that publishes records to the cluster. It uses buffers, thread pool, and serializer to send data. They are stateless. This is the consumers that are managing the offsets. Producers are more simple to implement but still you need to assess some design considerations.
 
 ## Design considerations
 
 When developing a record producer you need to assess the following:
 
 * What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size. By default, the buffer size is set at 32Mb, but can be configured with `buffer.memory`. (See [producer configuration API](https://kafka.apache.org/10/javadoc/org/apache/kafka/clients/producer/ProducerConfig.html)
-* Can the producer batch events together to send them in batch over one send operation?
+* Can the producer batch events together to send them in batch over one send operation? 
 * Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size, and ensure to have at least 3 brokers and even 5 to maintain quorum in case of one failure. The client API is implemented to support reconnection.
 * Assess *once to exactly once* delivery requirement. Look at idempotent producer: retries will not introduce duplicate records.
 * Where the event timestamp comes from? Should the producer send operation set it or is it loaded from external data? Remember that `LogAppendTime` is considered to be processing time, and `CreateTime` is considered to be event time.
@@ -19,8 +19,8 @@ See related discussions [on confluent web site.](https://www.confluent.io/blog/p
 The producer code does the following steps:
 
 * define producer properties
-* create a producer 
-* send event records and get resulting metadata
+* create a producer instance
+* send event records and get resulting metadata. 
 
 Producers are thread safe. The send() operation is asynchronous and returns immediately once record has been stored in the buffer of records, and it is possible to add a callback to process the broker acknowledgement. 
 
@@ -49,7 +49,7 @@ The following properties are helpful to tune at each topic and producer and will
 
 * [Simple text message](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/blob/master/asset-event-producer/src/main/java/ibm/cte/kafka/play/SimpleProducer.java)
 * [A Pump simulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator)
-* [Ship movement and container metrics event producers]()
+* [Ship movement and container metrics event producers](https://github.com/ibm-cloud-architecture/refarch-kc-ms)
 
 ## More readings
 
