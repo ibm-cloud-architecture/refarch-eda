@@ -20,7 +20,7 @@ The typical use cases where **Kafka** helps are:
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services
-* Implement [event soucing pattern](../evt-microservices/ED-patterns.md) out of the box
+* Implement [event soucing pattern](../evt-microservices/ED-patterns.md) out of the box, using configuration to keep message for a long time period. Data are replicated between broker within the cluster and cross availability zones if needed. 
 * Manage loosely coupled communication between microservices. (See [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh.md#asynchronous-loosely-coupled-solution-using-events) where I present a way to support a service mesh solution using asynchronous event)
 
 ## Key concepts
@@ -109,16 +109,16 @@ With the current implementation it is recommended to have one cluster per data c
 
 ![](images/ha-dc1.png)
 
-The above diagram is using Kafka MirroeMaker with a master to slave deployment. Within the data center 2, the brokers are here to manage the topics and event. As there is no consumers running nothing happen. Consumers and producers can be started when DC1 fails. In fact we could have consumer within the DC2 processing topics to manage a readonly model, keeping in memory their projection view, as presented in the CQRS pattern. 
+The above diagram is using Kafka MirroeMaker with a master to slave deployment. Within the data center 2, the brokers are here to manage the topics and event. When there is no consumer running, nothing happen. Consumers and producers can be started when DC1 fails. In fact, we could have consumers within the DC2 processing topics to manage a readonly model, keeping in memory their projection view, as presented in the CQRS pattern. 
 
-The second solution is to use one mirror maker in each site, for each topic. This is an active - actice topology: consumers and producers are on both sites. But to avoid infinite loop, 
+The second solution is to use one mirror maker in each site, for each topic. This is an active - actice topology: consumers and producers are on both sites. But to avoid infinite loop, we need to use naming convention for the topic, or only produce in the cluster of the main topic. Consumers consume from the replicated topic. 
+
 When you want to deploy solution that spreads over multiple regions to support global streaming, you need to address challenges like:
 
 * How do you make data available to applications across multiple data centers?
 * How to serve data closer to the geography?
 * How to be compliant on regulations, like GDPR?
 * How to address no duplication of records?
-
 
 ### Solution considerations
 
@@ -136,7 +136,8 @@ The important requirement to consider is the sequencing or event order. When eve
 When dealing with entity, independent entities may be in separate topics, when strongly related one may stay together.
 
 Other best practices:
-* When event order about the same entity is important use the same topic and define partition key.
+
+* When event order is important use the same topic and use the entity unique identifier as partition key.
 * When two entities are related together by containment relationship then they can be in the same topic. 
 * Different entities are separated to different topics.
 * It is possible to group topics in coarse grained one when we discover that several consumers are listening to the same topics. 
@@ -170,23 +171,23 @@ See [implementation considerations discussion](./consumers.md)
 
 ### High Availability in the context of Kubernetes deployment
 
-The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages it own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes nodes and pods may change dynamically.
+The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages its own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes nodes and pods may change dynamically. 
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
 
-* At least three master nodes (always a odd number). One is active at master, the others are in standby.
+* At least three master nodes (always an odd number of nodes). One is active at master, the others are in standby. The election of the master is using the quorum algorithm. 
 * Three proxy nodes.
-* At least three worker nodes, but with zookeeper and Kafka clusters need to move to 6 nodes as we do not want to have zookeeper nodes with Kafka cluster broker on the same host.
+* At least three worker nodes, but with zookeeper and Kafka clusters, we may need to define six nodes as we do not want to have zookeeper nodes with Kafka cluster broker on the same host.
 * Externalize the management stack to three manager nodes
 * Shared storage outside of the cluster to support private image registry, audit logs, and statefulset data persistence.
-* Use `etcd` cluster: See recommendations [from this article](https://github.com/coreos/etcd/blob/master/Documentation/op-guide/clustering.md). The virtual IP manager assigns virtual IP address to master and proxy nodes and monitors the health of the cluster. It leverages `etcd` for storing information, so it is important that `etcd` is high available too.  
+* Use `etcd` cluster: See recommendations [from this article](https://github.com/coreos/etcd/blob/master/Documentation/op-guide/clustering.md). The virtual IP manager assigns virtual IP addresses to master and proxy nodes and monitors the health of the cluster. It leverages `etcd` for storing information, so it is important that `etcd` is high available too and connected to low latency network below 10ms.
 
 For IBM Cloud private HA installation see the [product documentation](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_2.1.0.3/installing/custom_install.html#HA)
 
 Traditionally disaster recovery and high availability were always consider separated subjects. Now active/active deployment where workloads are deployed in different data center, is more and more a common request. IBM Cloud Private is supporting [federation cross data centers](https://github.com/ibm-cloud-architecture/refarch-privatecloud/blob/master/Resiliency/Federating_ICP_clusters.md), but you need to ensure to have low latency network connections. Also not all deployment components of a solution are well suited for cross data center clustering.
 
-For **Kafka** context, the *Confluent* web site presents an interesting article for [**Kafka** production deployment](https://docs.confluent.io/current/kafka/deployment.html). One of their recommendation is to avoid cluster that spans multiple data centers and specially long distance ones.
-But the semantic of the event processing may authorize some adaptations. For sure you need multiple Kafka Brokers, which will connect to the same ZooKeeper ensemble running at least five nodes (you can tolerate the loss of one server during the planned maintenance of another). One Zookeeper server acts as a lead and the two others as stand-by.
+For **Kafka** context, the *Confluent* website presents an interesting article for [**Kafka** production deployment](https://docs.confluent.io/current/kafka/deployment.html). One of their recommendation is to avoid cluster that spans multiple data centers and specially long distance ones.
+But the semantic of the event processing may authorize some adaptations. For sure, you need multiple Kafka Brokers, which will connect to the same ZooKeeper ensemble running at least five nodes (you can tolerate the loss of one server during the planned maintenance of another server). One Zookeeper server acts as a lead and the two others as stand-by.
 
 The schema above illustrates the recommendations to separate Zookeeper from **Kafka** nodes for failover purpose as zookeeper keeps state of the **Kafka** cluster. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like:
 > **Kafka** pod should not run on same node as zookeeper pods.  
@@ -224,7 +225,7 @@ For configuring ICP for HA on VmWare read [this note](https://github.com/ibm-clo
 
 For **Kafka** streaming with stateful processing like joins, event aggregation and correlation coming from multiple partitions, it is not easy to achieve high availability cross clusters: in the strictest case every event must be processed by the streaming service exactly once. Which means:
 
-* producer emit data to different sites and be able to re-emit in case of failure. Brokers are known by producer via a list of hostname and port number.
+* producer emits data to different sites and be able to re-emit in case of failure. Brokers are known by producer via a list of hostnames and port numbers.
 * communications between zookeepers and cluster nodes are redundant and safe for data losses
 * consumers ensure idempotence... They have to tolerate data duplication and manage data integrity in their persistence layer.
 
@@ -240,5 +241,9 @@ Within Kafka's boundary, data will not be lost, when doing proper configuration,
 * Control the maximum message size the server can receive.    
 
 Zookeeper is not CPU intensive and each server should have a least 2 GB of heap space and 4GB reserved. Two cpu per server should be sufficient. Servers keep their entire state machine in memory, and write every mutation to a durable WAL (Write Ahead Log) on persistent storage. To prevent the WAL from growing without bound, ZooKeeper servers periodically snapshot their in memory state to storage. Use fast and dynamically provisioned persistence storage for both WAL and snapshot.
+
+#### Kubernetes Operator
+
+It is important to note that the deployment and management of stateful application in Kubernetes should now use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strinmzi kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplify the deployment of Kafka within k8s by adding a set of operators to deploy and manage kafka cluster, manage topics and manage users.
 
 See [compendium note](../compendium.md) for more readings.
