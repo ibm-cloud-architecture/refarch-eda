@@ -120,9 +120,9 @@ This first level of data definition helps to assess the microservice scope and r
 
 In DDD, entities and value objects can exist independently, but often, the relations are such that an entity or a value object has no value without its context.  [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) provide that context by being those "roots" that comprise one or more entities and value objects that are linked together through a lifecycle.  In event storming, aggregates emerge through the process by grouping events and commands that are related.  This grouping not only consists of related data (entities and value objects) but also related actions (commands) that are connected by the lifecycle of that aggregate. Aggregates ultimately suggest microservice boundaries. 
 
-In the container shipment example, you can see that you can group several command and event pairs (with their associated data) together that are related through the lifecycle of an order for shipping.
+In the container shipment example, you can see that you can group several commands and event pairs (with their associated data) together that are related through the lifecycle of an order for shipping.
 
-![](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docs/analysis/ship-aggr-shipment.png)
+<img src="https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docs/analysis/ship-aggr-shipment.png">
 
 #### Step 7: Define Bounded Context
 
