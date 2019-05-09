@@ -17,7 +17,8 @@ nav:
     - Event-driven patterns: evt-microservices/ED-patterns.md
     - Event streaming processing: kafka/kafka-stream.md
   - Real time analytics: rt-analytics/README.md
-  - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
+  - Reference implementations:
+    - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
   - Product guidances:
     - Kafka summary: kafka/readme.md
     - Kafka producer:  kafka/producers.md

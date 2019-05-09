@@ -1,4 +1,10 @@
-# Event storming methodology
+# Event driven solution implementation methodology
+
+In this article we are presenting an end to end set of activities to run a successful Minimum Viable Product for an even-driven solution using cloud native microservices and event backbone as the core technology approach.
+
+The discovery and analysis of the MVP scope starts with an [event storming workshop](#event-storming-workshop) where designer, architect work hand to hand with business users and domain subject matter experts. From the different outcomes of the workshop, the development team starts to outline components, microservices, business entities life cycle, etc... in a short [design iteration](). The scope is well define Epics, Hill and user stories defined, at least for the first iterations, and the MVP can start. 
+
+## Event Storming workshop
 
 Event storming is a workshop format for quickly exploring complex business domains by focusing on *domain events* generated in the context of a business process or a business application. A **domain event** is something meaningful that happened in the domain. The workshop focuses on communication between product owner, domain experts and developers.
 
@@ -122,7 +128,8 @@ In DDD, entities and value objects can exist independently, but often, the relat
 
 In the container shipment example, you can see that you can group several commands and event pairs (with their associated data) together that are related through the lifecycle of an order for shipping.
 
-<img src="https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docs/analysis/ship-aggr-shipment.png">
+![](ship-aggr-shipment.png)
+
 
 #### Step 7: Define Bounded Context
 
@@ -178,7 +185,16 @@ The second diagram captures insights that could trigger recommendations to adjus
 ![evt-stm-insight-ship](evt-stm-insight-ship.PNG)
 
 
-## Event storming to user stories and epics
+## Design iteration
+
+Attention we are not proposing to apply a waterfall approach, but before starting the deeper implementation with iterations, we want to spend sometime to define in more details what we want to build, how to organize the CI/CD projects and pipeline, select the development, test and product plaform, and define epics, user stories, components, microservices... This iteration can take from few hours to a week depending of the expected MVP goals. 
+
+For an event-driven solution a MVP for a single application should not take more than 3 to 4 iterations. 
+
+### Microservice 
+
+### Event storming to user stories and epics
+
 In agile methodology, creating user stories or epics is one of the most important elements in project management. The commands and policies related to events can be easily described as user stories, because commands and decisions are done by actors. The actor could be a system as well.
 For the data you must model the "Create, Read, Update, Delete" operations as user stories, mostly supported by a system actor.
 
