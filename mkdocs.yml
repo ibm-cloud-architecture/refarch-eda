@@ -27,6 +27,7 @@ nav:
     - Zookeeper deployment: deployments/zookeeper/README.md
     - Event Streams deployment: deployments/eventstreams/README.md
     - Serverless: serverless/README.md
+    - Postgresql: deployments/postgresql/README.md
   - Skill Journey: eda-skill-journey.md
   - Compendium: compendium.md
 theme: 
