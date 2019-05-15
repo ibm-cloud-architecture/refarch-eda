@@ -48,7 +48,9 @@ spec:
 For NFS use the following changes:
 ```
  spec:
-
+    nfs:
+      server:
+      path: /bitnami/postgresql
 ```
 
 * As we deploy postgres in a namespace scope, we need to specify an image policy to authorize access to docker.io repository:
@@ -118,3 +120,5 @@ Be sure to authorize docker.io/* in the ImagePolicy.
 ## More Readings
 
 * [ICP 2.1 Postgresql install recipe:](https://developer.ibm.com/recipes/tutorials/deploy-postgresql-into-ibm-cloud-private/) older recipeusing the configuration user interface in the ICP console.
+* [postgresql helm chart explanation and configuration](https://github.com/helm/charts/tree/master/stable/postgresql): a must read.
+* [](https://medium.com/@nicdoye/installing-postgresql-via-helm-237e026453b1)
