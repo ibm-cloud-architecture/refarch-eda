@@ -106,7 +106,7 @@ postgres=# \d containers
 
 For more information about the `psql` tool see [this note.](http://postgresguide.com/utilities/psql.html)
 
-## Troubleshouting
+## Troubleshooting
 
 >  admission webhook "trust.hooks.securityenforcement.admission.cloud.ibm.com" denied the request: Deny "docker.io/bitnami/postgresql:10.7.0", no matching repositories in ClusterImagePolicy and no ImagePolicies in the "greencompute" namespace
 
@@ -121,4 +121,5 @@ Be sure to authorize docker.io/* in the ImagePolicy.
 
 * [ICP 2.1 Postgresql install recipe:](https://developer.ibm.com/recipes/tutorials/deploy-postgresql-into-ibm-cloud-private/) older recipeusing the configuration user interface in the ICP console.
 * [postgresql helm chart explanation and configuration](https://github.com/helm/charts/tree/master/stable/postgresql): a must read.
-* [](https://medium.com/@nicdoye/installing-postgresql-via-helm-237e026453b1)
+* [Installing postgresql via Helm](https://medium.com/@nicdoye/installing-postgresql-via-helm-237e026453b1)
+* [Reefer container management microservice using Springboot, kafka and postgresql](https://github.com/ibm-cloud-architecture/refarch-kc-container-ms/tree/master/SpringContainerMS)
