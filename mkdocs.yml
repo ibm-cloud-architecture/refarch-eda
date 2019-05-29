@@ -9,8 +9,9 @@ nav:
     - Event Backbone: evt-backbone/README.md
     - Event Actions: evt-action/README.md
     - Event Managed States: evt-state/README.md
+    - Event Stream - Kafka architecture: kafka/arch.md
   - Event Storming: 
-    - Workshop: methodology/readme.md
+    - Event Storming Workshop: methodology/readme.md
     - Applied to Container Shipment Analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
   - Event driven patterns:
     - Microservices: evt-microservices/README.md
@@ -20,7 +21,8 @@ nav:
   - Reference implementations:
     - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
   - Product guidances:
-    - Kafka summary: kafka/readme.md
+    - Kafka architecture: kafka/arch.md
+    - Kafka concepts summary: kafka/readme.md
     - Kafka producer:  kafka/producers.md
     - Kafka consumer: kafka/consumers.md
     - Kafka deployment: deployments/kafka/README.md
