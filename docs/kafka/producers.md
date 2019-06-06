@@ -1,6 +1,8 @@
 # Producers considerations 
 
-A producer is a thread safe kafka client API that publishes records to the cluster. It uses buffers, thread pool, and serializer to send data. They are stateless. This is the consumers that are managing the offsets. Producers are more simple to implement but still you need to assess some design considerations.
+A producer is a thread safe kafka client API that publishes records to the cluster. It uses buffers, thread pool, and serializer to send data. They are stateless. This is the consumers that are managing the offsets. The assignment of messae to partition is done following different algorithms: round-robin, simple load balancing, or custom defined. 
+
+Producers are more simple to implement but still you need to assess some design considerations.
 
 ## Design considerations
 

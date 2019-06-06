@@ -2,7 +2,7 @@
 
 In this article we are presenting an end to end set of activities to run a successful Minimum Viable Product for an even-driven solution using cloud native microservices and event backbone as the core technology approach.
 
-The discovery and analysis of the MVP scope starts with an [event storming workshop](#event-storming-workshop) where designer, architect work hand to hand with business users and domain subject matter experts. From the different outcomes of the workshop, the development team starts to outline components, microservices, business entities life cycle, etc... in a short [design iteration](). The scope is well define Epics, Hill and user stories defined, at least for the first iterations, and the MVP can start. 
+The discovery and analysis of the MVP scope starts with an [event storming workshop](#event-storming-workshop) where designer, architect work hand to hand with business users and domain subject matter experts. From the different outcomes of the workshop, the development team starts to outline components, microservices, business entity life cycle, etc... in a short [design iteration](#design-iteration). The scope is well defined Epics, Hill and user stories defined, at least for the first iterations, and the MVP can start. 
 
 ## Event Storming workshop
 
@@ -188,11 +188,14 @@ The second diagram captures insights that could trigger recommendations to adjus
 
 ## Design iteration
 
-Attention we are not proposing to apply a waterfall approach, but before starting the deeper implementation with iterations, we want to spend sometime to define in more details what we want to build, how to organize the CI/CD projects and pipeline, select the development, test and product plaform, and define epics, user stories, components, microservices... This iteration can take from few hours to a week depending of the expected MVP goals. 
+Attention we are not proposing to apply a waterfall approach, but before starting the deeper implementation with iterations, we want to spend sometime to define in more details what we want to build, how to organize the CI/CD projects and pipeline, select the development, test and product plaform, and define epics, user stories, components, microservices... This iteration can take from few hours to a week, depending on the expected MVP goals. 
 
 For an event-driven solution a MVP for a single application should not take more than 3 to 4 iterations. 
 
-### Microservice 
+### Apply Domain-Driven Design
+
+See our separate note on [applying DDD and event storming for event-driven microservice implementation](ddd.md)
+
 
 ### Event storming to user stories and epics
 
@@ -216,3 +219,5 @@ The K Container Shipment use case demonstrates an implementation solution to val
 * [Eric Evans: "Domain Driven Design - Tacking complexity in the heart of software"](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software)
 * [Domain drive design with event storming introduction video](https://learning.oreilly.com/videos/domain-driven-design-distilled/9780134593449/9780134593449-DDDD_07_01?autoplay=false)
 * [Patterns related to Domain Driven Design](https://martinfowler.com/tags/domain%20driven%20design.html) by Martin Fowler
+* [Kyle Brown - IBM - Apply Domain-Driven Design to microservices architecture](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview)
+* [Applying DDD and event storming for event-driven microservice implementation](ddd.md)

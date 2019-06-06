@@ -2,21 +2,25 @@
 
 In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org/) is and group some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro/) every developer using Kafka should read.
 
-Update 04/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
+Update 06/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Introduction
 
-[Kafka](https://Kafka.apache.org/) is a distributed event streaming platform with the following key capabilities:
+[Kafka](https://Kafka.apache.org/) is a distributed real time event streaming platform with the following key capabilities:
 
 * Publish and subscribe streams of records. Data are stored so consuming applications can pull the information they need, and keep track of what they have seen so far.
+* It can handle hundred of reads and writes operation per second from many producers and consumers
 * Atomic broadcast, send a record once, every subscriber gets it once.
-* Store streams of data records on disk and replicate within the cluster for fault-tolerance. Keep data for a time period before delete.
-* Built on top of the ZooKeeper synchronization service to keep topic, partitions and metadat highly available.
+* Store streams of data records on disk and replicate within the distributed cluster for fault-tolerance. Keep data for a time period before delete.
+* Can grow elastically and transparently with no downtime
+* Built on top of the ZooKeeper synchronization service to keep topic, partitions and metadata highly available.
 
 ### Use cases
 
 The typical use cases where **Kafka** helps are:
 
+* Centralize online data pipeline to decouple applications and microservices
+* pub/sub messaging
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services
@@ -34,7 +38,7 @@ The diagram below presents Kafka's key components:
 * **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers. It is really possible if the latency is very low at the 10ms or better as there are a lot of communication between kafka brokers and kafka and zookeepers.  
 * The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers to get data. 
 
-In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated three times. In production it is recommended to use 5 nodes to authorise planned failure and un-planned failure. 
+In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated three times. In production, it is recommended to use five nodes to authorise planned failure and un-planned failure. 
 
 ### Topics 
 
@@ -43,7 +47,7 @@ Topics represent end points to put or get records to.
 * Each record consists of a key, a value, and a timestamp.
 * Producers publish data records to topic and consumers subscribe to topics. When a record is produced without specifying a partition, a partition will be chosen using a hash of the key. If the record did not provide a timestamp, the producer will stamp the record with its current time (creation time or log append time). Producers hold a pool of buffer to keep records not yet transmitted to the server.
 * Kafka store log data in its `log.dir` and topic maps to subdirectories in this log directory.
-* **Kafka** uses topics with a pub/sub combined with queue model: it uses the concept of consumer group to divide the processing over a collection of consumer processes, running in parallel, and message can be broadcasted to multiple groups.
+* **Kafka** uses topics with a pub/sub combined with queue model: it uses the concept of consumer group to divide the processing over a collection of consumer processes, running in parallel, and messages can be broadcasted to multiple groups.
 * Consumer performs asynchronous pull to the connected broker via the subscription to a topic.
 
 The figure below illustrates one topic having multiple partitions, replicated within the broker cluster:  
@@ -55,14 +59,22 @@ Partitions are used by producers and consumers and data replication. Partitions 
 
 ![](images/topic-part-offset.png)   
 
-* Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use. Each partition will run on a separate server. So if you have 5 brokers you can define topic with 5 partitions. 
+* Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use. Each partition will run on a separate server. If you have 5 brokers you can define topic with 5 partitions.
+* Kafka tolerates up to N-1 server failure without losing any messages. N is the replication factor for a given parition. 
 * Each partition is a time ordered immutable sequence of records, that are persisted for a long time period. It is a log. Topic is a labelled log.
+* Consumers see messages in the order they are stored in the log.
 * Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumers, the traffic pattern, etc...
 * Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets). Those offset ids are defined when events arrived at the broker level, and are local to the partition. They are unmutable. 
 * When a consumer reads a topic, it actually reads data from all the partitions. As a consumer reads data from a partition, it advances its offset. To read an event the consumer needs to use the topic name, the partition number and the last offset to read from. 
+* As brokers are stateless, the consumers are responsible to keep track of the offsets.
 * Partitions guarantee that data with the same keys will be sent to the same consumer and in order.
-* Adding more partition, in the limit of number of borkers, improve throughtput.
+* Adding more partition, in the limit of number of brokers, improve throughtput.
 
+### Replication
+
+Each partition can be replicated accross a number of server. The replication factor is capted by the number of brokers. Partitions have one leader and zero or more followers. The leader manages all the read and write requests for the partition. Leader is also responsible to track the in sync replicas. The followers replicate the leader content. 
+
+If a leader fails, followers elect a new one. When a producer sends message, he can control how to get the response from the committed message: wait for all replicas to succeed. Consumers receive only committed messages. 
 
 ### Zookeeper
 

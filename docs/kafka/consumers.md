@@ -1,6 +1,15 @@
 # Consumers design and implementation considerations
 
+## Important concepts
+
+Consumers belong to **consumer groups**. You specify the group name as part of the connection parameters. 
+
+Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Consumers can run in separate hosts and separate processes.
+
+Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer join or leave the group or when a new partition is added to an existing topic. There is always at least one consumer per partition. 
+
 Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
+
 The implementation is simple for a single thread consumer, and the code structure looks like:
 * prepare the properties
 * create an instance of KafkaConsumer to connect to a topic and a partition
@@ -21,7 +30,7 @@ This consumer-per-partition pattern maximizes throughput. When consumers run in 
 
 Also, a consumer can subscribe to multiple topics. The brokers are doing rebalancing of the assignment of topic-partition to a consumer that belong to a group. When creating a new consumer you can specify the group id in the options. 
 
-Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer join or leave the group or when a new partition is added to an existing topic.
+
 
 ## Offset management
 
