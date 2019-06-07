@@ -1,18 +1,21 @@
 # Install IBM Event Streams on ICP
 
-*(Tested on Nov 2018 on ibm-eventstreams-dev helm chart 0.1.2 on ICP 3.1)*
+*(Tested on April 2018 on ibm-eventstreams-dev helm chart 1.2.0 on ICP 3.1.2)*
 
 You can use the `ibm-eventstreams-dev` Helm chart from ICP catalog or download the intallation image and made it available in your ICP catalog. The product installation instructions can be found [here](https://ibm.github.io/event-streams/installing/installing/).  
 
-As we do now want to rewrite the product documentation, we just want to highlight what was done for our deployment. Our cluster has the following characteristics:
+As we do not want to rewrite the product documentation, we just want to highlight what was done for our deployment. Our cluster has the following characteristics:
+
 * Three masters also running ETCD cluster on 3 nodes
 * Three management nodes
 * Three proxy
-* Three worker nodes
+* Six worker nodes
 
-For worker nodes we need good CPUs and hard disk space. We allocated 12 CPUs - 32 Gb RAM. 
+For worker nodes we need good CPUs and hard disk space. We allocated 12 CPUs - 32 Gb RAM.  
 
 You need to decide if persistence should be enabled for ZooKeepers and Kafka brokers. Pre allocate one Persistence Volume per Kafka broker and one per ZooKeeper server.  If you use dynamic persistence volume provisioning, ensure the expected volumes are present at installation time.
+
+### Configuration Parameters 
 
 The following parameters were changed from default settings:  
 
@@ -25,6 +28,7 @@ The following parameters were changed from default settings:
   | zookeeper.persistence.useDynamicProvisioning | dynamically create persistent volume claims for the ZooKeeper nodes | true |
   | proxy.externalAccessEnabled | allow external access to Kafka from outside the Kubernetes cluster | true |
 
+The matching `server.properties` file is under the `deployments/eventstreams` folder. See parameters description in the [product documentation](https://kafka.apache.org/documentation/#brokerconfigs) 
 
 For the release name take care to do not use a too long name as there is an issue on name length limited to 63 characters. You can get the details of the release with: `helm list 'green-events-streams' --tls` or access helm detail via ICP console: Here is the helm release details:
 

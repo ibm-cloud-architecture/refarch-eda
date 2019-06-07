@@ -27,7 +27,7 @@ nav:
     - Kafka consumer: kafka/consumers.md
     - Kafka deployment: deployments/kafka/README.md
     - Zookeeper deployment: deployments/zookeeper/README.md
-    - Event Streams deployment: deployments/eventstreams/README.md
+    - Event Streams ICP deployment: deployments/eventstreams/README.md
     - Serverless: serverless/README.md
     - Postgresql: deployments/postgresql/README.md
   - Skill Journey: eda-skill-journey.md
