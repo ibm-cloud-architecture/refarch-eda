@@ -131,3 +131,5 @@ IBM has created a pair of connectors, available as source code or as part of IBM
 while the sink connector, from Kafka topic to MQ queue is at [ibm-messaging/kafka-connect-mq-sink](https://github.com/ibm-messaging/kafka-connect-mq-sink)
 
 ![](mq-kafka-connectors.png)
+
+We are proposing an MQ to Kafka implementation sample in [this repository](https://ibm-cloud-architecture.github.io/refarch-container-inventory/).
