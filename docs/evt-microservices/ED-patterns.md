@@ -1,16 +1,20 @@
 # Understanding event driven microservice patterns
 
+!!! abstract
+    In this article, we are detailing some of the most import event-driven patterns to be used during your microservice implementation and when adopting kafka as an event backbone.
+
 Adopting messaging (Pub/Sub) as a microservice communication backbone involves using at least the following patterns:
 
 * [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html), event driven microservices are still microservices, so we need to find them, and the domain-driven subdomains is a good approach to identify and classify business function and therefore microservices. With the event storming method, aggregates help to find those subdomain of responsibility. 
 * [Database per service](https://microservices.io/patterns/data/database-per-service.html) to enforce each service persists data privately and is accessible only via its API. Services are loosely coupled limiting impact to other service when database schema changes. The database technology is selected from business requirements. The implementation of transactions that span multiple services is complex and enforce using the Saga pattern. Queries that goes over multiple entities is a challenge and CQRS represents an interesting solution. 
+* [Strangler pattern](#strangler-pattern) is used to incrementally migrate an existing, monolytic application by replacing a set of features to a microservice but keep both running in parallel. 
 * [Saga pattern:](#saga-pattern) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable. 
 * [Event sourcing](#event-sourcing) persists the state of a business entity such an Order as a sequence of state-changing events. 
 * [Command Query Responsibility Segregation](#command-query-responsibility-segregation-cqrs-pattern) helps to separate queries from commands and help to address queries with cross-microservice boundary.
 
-We are detailing some of those patterns as they are related to the adoption of kafka as an event backbone.
 
-Update 03/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
+
+Update 06/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Event sourcing
 
@@ -99,13 +103,14 @@ With CQRS the "write" model can evolve overtime without impacting the read model
 CQRS results in an increased number of objects, with commands, operations, events,... and packaging in deployable components or containers. It adds potentially different type of data sources. It is more complex. 
 
 Some challenges to always consider: 
+
 * How to support event version management?
 * How much data to keep in the event store (history)?
 * Design data duplication which results to synchronization issues. 
 
 The CQRS pattern was introduced by [Greg Young](https://www.youtube.com/watch?v=JHGkaShoyNs), and described in [Martin Fowler's work on microservices.](https://martinfowler.com/bliki/CQRS.html)
 
-As soon as we see two arrows from the same component we have to ask ourselves how does it work: the write model has to persist Order in its own database and then sends OrderCreated event to the topic... Should those operations be atomic and controlled with transaction?
+As soon as we see two arrows from the same component we have to ask ourselves how does it work: the write model has to persist Order in its own database and then sends OrderCreated event to the topic... Should those operations be atomic and controlled with transaction? We are detailing this in next section.
 
 ### The consistency challenge
 
@@ -119,11 +124,17 @@ This implementation brings a problem on the `createOrder(order): order` operatio
 
 It is important to clearly study the Kafka consumer API and the different parameters on how to support the read offset. We are addressing those implementation best practices in [our consumer note.](../kafka/consumers.md)
 
+### CQRS and Change Data Capture
+
 There are other ways to support this dual operations level:
 
 * There is the open source [Debezium tool](https://debezium.io/) to help respond to insert, update and delete operations on database and generate event accordingly. It may not work on all database schema. 
 * Write the order to the database and in the same transaction write to an event table. Then use a polling to get the events to send to kafka from this event table and delete the row in the table once the event is sent. 
-* Use the Change Data Capture from the database transaction log and generate events from this log. The IBM [Infosphere CDC](https://www.ibm.com/support/knowledgecenter/cs/SSTRGZ_10.2.0/com.ibm.cdcdoc.mcadminguide.doc/concepts/overview_of_cdc.html) product helps to implement this pattern.
+* Use the Change Data Capture from the database transaction log and generate events from this log. The IBM [Infosphere CDC](https://www.ibm.com/support/knowledgecenter/cs/SSTRGZ_10.2.0/com.ibm.cdcdoc.mcadminguide.doc/concepts/overview_of_cdc.html) product helps to implement this pattern. For more detail about this solution see [this product tour](https://www.ibm.com/cloud/garage/dte/producttour/ibm-infosphere-data-replication-product-tour).
+
+The CQRS implementation using CDC will look like in the following diagram:
+
+![](cqrs-cdc.png)
 
 What is important to note is that the event needs to be flexible on the data payload. We are presenting a [event model](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms#data-and-event-model) in the reference implementation.
 
@@ -184,6 +195,20 @@ Orchestrator is a State Machine where each transformation corresponds to a comm
 Rollbacks are a lot easier when you have an orchestrator to coordinate everything.
 
 See also [this article](https://microservices.io/patterns/data/saga.html) from Chris Richardson on the Saga pattern.
+
+## Strangler pattern
+
+### Problem
+
+How to migrate a monolytics application to microservice without doing a big bang, redeveloping the application from white page. Replacing and rewritting an existing application can be a huge investment. Rewritting a subset of business functions while running current application in parallel may be relevant and reduce risk and velocity of changes. 
+
+### Solution
+
+The approach is to use a "strangler" interface to dispatch request to new or old features. Existing features to migrate are selected by trying to isolate sub components. 
+
+One of main challenge is to isolate data store and how the new microservices and the legacy application are accessing the shared data. Continuous data replication can be a solution to propagate write model to read model. Write model will most likely stays on the monolitic application, change data capture can be used, with event backbone to propagate change to read model.
+
+The facade needs to be scalable and not a single point of failure. It needs to support new APIs (RESTful) and old API (most likely SOAP).
 
 ## Code References
 

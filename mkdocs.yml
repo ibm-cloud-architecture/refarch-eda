@@ -39,3 +39,5 @@ nav:
 theme: 
   name: material
 extra_css: ["extra.css"]
+markdown_extensions:
+  - admonition
