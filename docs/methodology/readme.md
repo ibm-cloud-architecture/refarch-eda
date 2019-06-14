@@ -1,6 +1,6 @@
 # Event driven solution implementation methodology
 
-In this article we are presenting an end to end set of activities to run a successful Minimum Viable Product for an even-driven solution using cloud native microservices and event backbone as the core technology approach.
+In this article we are presenting an end to end set of activities to run a successful Minimum Viable Product for an event-driven solution using cloud native microservices and event backbone as the core technology approach.
 
 The discovery and analysis of the MVP scope starts with an [event storming workshop](#event-storming-workshop) where designer, architect work hand to hand with business users and domain subject matter experts. From the different outcomes of the workshop, the development team starts to outline components, microservices, business entity life cycle, etc... in a short [design iteration](#design-iteration). The scope is well defined Epics, Hill and user stories defined, at least for the first iterations, and the MVP can start. 
 
