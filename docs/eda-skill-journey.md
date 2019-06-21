@@ -36,6 +36,7 @@ From the list above, the following getting started and tutorials can be studied 
 
 * [Use the "Develop a Kubernetes app with Helm" toolchain on IBM Cloud](https://www.ibm.com/cloud/garage/tutorials/use-develop-kubernetes-app-with-helm-toolchain)
 * [Getting started in Python](https://www.python.org/about/gettingstarted/)
+* [Applying a test driven practice for angular application](https://github.com/ibm-cloud-architecture/refarch-caseportal-app/blob/master/docs/tdd.md)
 
 --- 
 
@@ -91,7 +92,7 @@ Now the event driven microservice involve specific technologies and practice. Th
 
 --- 
 
-# Hands-on labs
+## Hands-on labs
 
 The next steps beyond getting started and reading our technical point of view, you can try to deeper dive into the solution implementation and deployment: The source of this virtual bootcamp is the ["Reefer container shipment solution"](https://ibm-cloud-architecture.github.io/refarch-kc).
 
@@ -117,18 +118,39 @@ Here you have two options: running with docker compose, or running within Miniku
 
 ### Build and run the solution
 
-* [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/)
-* [Build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/)
+!!! goals
+    Build and run the solution so you can understand the maven, nodejs build process with docker stage build.
 
+* [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/)
+* [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#deploy-each-component-of-the-solution)
+* [Execute the integration tests](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/) to validate the solution end to end.
+* [Optional] [Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
+
+### Review event driven patterns
+
+* Review the [Event sourcing explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing)
+* Review the [CQRS pattern](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#command-query-responsibility-segregation-cqrs-pattern) and the implementation in the [order microservice]().
+
+
+
+#### Data replication with Kafka
+
+One of the common usage of using Kafka is to combine it with a Change Data Capture component to get update from a "legacy" data base to the new microservice runtime environment.
+
+We are detailing an approach in [this article](https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/).
+
+### Other deployments
 
 * [Deploying the solution on IBM Cloud Kubernetes Service](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/iks)
-
+* [Deploying the solution on IBM Cloud Private](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/icp)
+* [Develop a toolchain for one of the container manager service](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/cicd/)
 * [Our Kubernetes troubleshooting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md)
-* [Applying a test driven practice for angular application](https://github.com/ibm-cloud-architecture/refarch-caseportal-app/blob/master/docs/tdd.md)
 
-* [Our Cloud Architecture team's bluecompute solution: Microprofile based Microservice Apps Integration with MySQL Database Server](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/tree/microprofile)
+### Real time analytics and Machine learning
 
 * [IBM Cloud Streaming Analytics introduction](https://cloud.ibm.com/catalog/services/streaming-analytics) and [getting started](https://cloud.ibm.com/docs/services/StreamingAnalytics?topic=StreamingAnalytics-gettingstarted#gettingstarted)
+
+* [Apply predictive analytics on container metrics for predictive maintenance use case](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/metrics/)
 
 
 
