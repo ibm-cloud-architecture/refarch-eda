@@ -10,7 +10,7 @@ nav:
     - Event Actions: evt-action/README.md
     - Event Managed States: evt-state/README.md
     - Event Stream - Kafka architecture: kafka/arch.md
-    - Data Replication Pattern: kafka/data-replication.md
+    - Data Replication Pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/
   - Event Storming: 
     - Event Storming Workshop: methodology/readme.md
     - Applied to Container Shipment Analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
@@ -19,7 +19,7 @@ nav:
     - Microservices: evt-microservices/README.md
     - Event-driven patterns: evt-microservices/ED-patterns.md
     - Event streaming processing: kafka/kafka-stream.md
-    - Data Replication Pattern: kafka/data-replication.md
+    - Data Replication Pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/
   - Real time analytics: rt-analytics/README.md
   - Reference implementations:
     - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
@@ -28,8 +28,10 @@ nav:
     - Kafka concepts summary: kafka/readme.md
     - Kafka producer:  kafka/producers.md
     - Kafka consumer: kafka/consumers.md
+    - Kafka FAQ: kafka/FAQ.md
     - Kafka deployment: deployments/kafka/README.md
     - Zookeeper deployment: deployments/zookeeper/README.md
+    - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
     - Event Streams ICP deployment: deployments/eventstreams/README.md
     - Kafka Monitoring: kafka/monitoring.md
     - Serverless: serverless/README.md

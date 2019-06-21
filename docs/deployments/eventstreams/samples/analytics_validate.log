@@ -1,0 +1,37 @@
+[ apic41dev]# apicup subsys get analyt --validate 
+Kubernetes settings                                                  
+===================                                                  
+                                                                     
+Name                          Value                                   
+----                          -----                                  
+extra-values-file                                                     ✔ 
+ingress-type                  ingress                                 ✔ 
+mode                          dev                                     ✔ 
+namespace                     apiconnect                              ✔ 
+registry                      devcluster.icp:8500/apiconnect          ✔ 
+registry-secret               apiconnect-icp-secret                   ✔ 
+storage-class                 rbd-storage-class                       ✔ 
+                                                                     
+                                                                     
+Subsystem settings                                                   
+==================                                                   
+                                                                     
+Name                          Value                                   
+----                          -----                                  
+coordinating-max-memory-gb    3                                       ✘  coordinating-max-memory-gb must be 6 or greater 
+data-max-memory-gb            4                                       ✘  data-max-memory-gb must be 6 or greater 
+data-storage-size-gb          50                                      ✘  data-storage-size-gb must be 200 or greater 
+enable-message-queue          false                                   ✔ 
+es-storage-class              -                                       ✔ 
+master-max-memory-gb          8                                       ✔ 
+master-storage-size-gb        1                                       ✘  master-storage-size-gb must be 5 or greater 
+mq-storage-class              -                                       ✔ 
+                                                                     
+                                                                     
+Endpoints                                                            
+=========                                                            
+                                                                     
+Name                          Value                                   
+----                          -----                                  
+analytics-client              analytics-client.apic.local.csplab      ✔ 
+analytics-ingestion           analytics-ingestion.apic.local.csplab   ✔ 

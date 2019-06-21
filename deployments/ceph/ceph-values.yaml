@@ -1,0 +1,150 @@
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################
+
+# Default values for ibm-rook-rbd-cluster.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+arch:
+  amd64: "2 - No preference"
+
+rookOperatorNamespace: "rook-ceph"
+
+cluster:
+  #  The path on the host (hostPath) where config and data should be stored for each of the services.
+  dataDirHostPath: /var/lib/rook
+  mon:
+    #set the number of mons to be started. The number should be odd and between 1 and 9
+    count: 3
+    # enable (true) or disable (false) the placement of multiple mons on one node.
+    allowMultiplePerNode: true
+  network:
+    hostNetwork: false
+  dashboard:
+    enabled: true
+  placement:
+    all:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: cephfs
+        effect: NoSchedule
+    mon:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: cephfs
+        effect: NoSchedule
+    osd:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: cephfs
+        effect: NoSchedule
+    mgr:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: cephfs
+        effect: NoSchedule
+
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    deviceFilter: ""
+    location: ""
+    config:
+      # filestore or bluestore, the underlying storage format to use for each OSD.
+      storeType: bluestore
+      # this value can be removed for environments with normal sized disks (100 GB or larger)
+      databaseSizeMB: "1024"
+      # this value can be removed for environments with normal sized disks (20 GB or larger)
+      journalSizeMB: "1024"
+   # Individual nodes and their config can be specified as well, but 'useAllNodes' above must
+   # be set to false. Then, only the named  nodes below will be used as storage resources.
+   # Each node's 'name' field should match their 'kubernetes.io/hostname' label.
+   #
+   #
+#
+# UPDATE VARIABLES TO MATCH THE ENVIRONMENT
+#   
+    nodes:
+    - name: "X.X.X.X"
+      devices:
+      - name: "DISK_NAME"
+    - name: "Y.Y.Y.Y"
+      devices:
+      - name: "DISK_NAME"
+    - name: "Z.Z.Z.Z"
+      devices:
+      - name: "DISK_NAME"
+     
+  resources: ""
+
+pool:
+  # The failure domain across which the replicas or chunks of data will be spread. Possible
+  # values are osd or host, with the default of host
+  failureDomain: host
+  # Mechanism to be used by pool for resiliency. Pool can be replicated or erasure coded for resiliency.
+  # The allowed values  "replicated" or "erasurecoded"
+  resilienceType: "replicated"
+  # For optimal performance while adding redundancy to the system, configure the data to be copied in
+  # full to multiple locations.
+  replicated:
+    size: 3
+ # Erasure coding allows you to keep your data safe while reducing the storage overhead. Instead of
+ # creating multiple replicas of the data, erasure coding divides the original data into chunks of equal
+ # size, then generates extra chunks of that same size for redundancy.
+ # Note: High performance applications typically will not use erasure coding due to the performance
+ # overhead of creating and distributing the chunks in the cluster.
+  erasureCoded:
+    dataChunks: 2
+    codingChunks: 1
+
+storageClass:
+  name: rbd-storage-class
+  create: true
+  fsType: ext4
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+
+## Pre Validation Configuration Parameters
+preValidation:
+  enabled: false
+  image:
+    repository: "ibmcom/icp-storage-util" 
+    tag: "3.1.0"
+    pullPolicy: "IfNotPresent"

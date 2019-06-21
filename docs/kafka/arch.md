@@ -1,4 +1,4 @@
-# Event Stream / Kafka Architecture Considerations
+# IBM Event Streams / Kafka Architecture Considerations
 
 If you need to know the key concepts read [this article](./readme.md). 
 
@@ -116,6 +116,8 @@ The above diagram is using Kafka MirrorMaker with a master to slave deployment. 
 
 The second solution is to use one mirror maker in each site, for each topic. This is an active - actice topology: consumers and producers are on both sites. But to avoid infinite loop, we need to use naming convention for the topic, or only produce in the cluster of the main topic. Consumers consume from the replicated topic. 
 
+![](images/ha-dc2.png)
+
 When you want to deploy solution that spreads over multiple regions to support global streaming, you need to address the following challenges:
 
 * How do you make data available to applications across multiple data centers?
@@ -126,10 +128,14 @@ When you want to deploy solution that spreads over multiple regions to support g
 
 ## MQ integration
 
-IBM has created a pair of connectors, available as source code or as part of IBM Event Streams. The Source Connector, from MQ queue to Kafka topic is available in the github repository named [ibm-messaging/kafka-connect-mq-source](https://github.com/ibm-messaging/kafka-connect-mq-source)
+IBM has created a pair of connectors, available as source code or as part of IBM Event Streams product. The Source Connector responsible to support the integration from MQ queue to Kafka topic is available in the github repository named [ibm-messaging/kafka-connect-mq-source](https://github.com/ibm-messaging/kafka-connect-mq-source)
 
 while the sink connector, from Kafka topic to MQ queue is at [ibm-messaging/kafka-connect-mq-sink](https://github.com/ibm-messaging/kafka-connect-mq-sink)
 
+The following figure illustrates the high level components.
+
 ![](mq-kafka-connectors.png)
 
-We are proposing an MQ to Kafka implementation sample in [this repository](https://ibm-cloud-architecture.github.io/refarch-container-inventory/).
+It is important to note that the Kafka connectors is a cluster deployment for local high availability and scalability. 
+
+We are proposing an MQ to Kafka implementation sample in [the container inventory repository](https://ibm-cloud-architecture.github.io/refarch-container-inventory/) where we mockup the integration of a legacy DB managing shipment container inventory, it runs as a java appm jms producer and consumer on MQ queues. This solution is integrated in the global EDA reference solution implementation and specially the [Reefer container management](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms) microservice. 

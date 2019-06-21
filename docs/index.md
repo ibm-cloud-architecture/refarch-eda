@@ -1,6 +1,6 @@
 # Event Driven Reference Architecture
 
-!!! note
+!!! abstract
     The content of this repository was the source of the [event-driven reference architecture in the IBM Garage architecture center](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture). This git repository is maintained on a weekly basis and includes more content not yet formally published to IBM sites. As we are implementing the end to end solution we are updating this main git repository to keep best practices accurate.
 
 The modern digital business works in real time; it informs interested parties of things of interest when they happen, it makes sense of, and derives insight from an ever-growing number of sources. It learns, predicts and is intelligent -- it is by nature Event Driven.
