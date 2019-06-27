@@ -5,8 +5,6 @@ All the content is visible [as a book format here](https://ibm-cloud-architectur
 
 The content of this repository was the source of the event-driven reference architecture in the [IBM Garage architecture center visible here](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture). This git repository is maintained on a weekly basis and includes more content not yet formally published to IBM sites. As we are implementing the end to end solution we are updating this main git repository to keep best practices accurate.
 
-Update 03/03/2019.
-
 ### Building this booklet locally
 
 The content of this repository is written with markdown files, packaged with [MkDocs](https://www.mkdocs.org/) and can be built into a book-readable format by MkDocs build processes.

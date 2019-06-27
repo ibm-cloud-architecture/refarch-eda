@@ -36,9 +36,25 @@ The IBM Event Streams offering provides a *Kafka* service for the Event Backbone
 * [IBM Event Streams Private Cloud](https://www.ibm.com/cloud/event-streams)
 * [See also our own Kafka study article](../kafka/readme.md) on how to support high availability and how to deploy to your local environment or to a kubernetes cluster like IBM Cloud Private.
 
+## Messaging versus event streaming
+
+We recommend reading [this article](https://developer.ibm.com/messaging/2018/05/18/comparing-messaging-event-streaming-use-cases/) and [this one](https://developer.ibm.com/messaging/2019/02/05/comparing-messaging-pub-sub-and-event-streams/), to get insight between messaging (focusing on operations / actions to be performed by a system or service) versus event (focusing on the state / facts of a system with no knowledge of the downstream processing. To summarize messaging (like MQ) are to support:
+
+* Transient Data – data is only stored until a consumer has processed the message, or it expires
+* request / reply most of the time
+* Targeted reliable delivery: targeted to the entity that will process the request or receive the response. Reliable with transaction support.
+
+For events:
+
+* Stream history: consumers are interested by history and not just the most recent event
+* Scalable Consumption: A single event is consumed by many consumers with limited impact as the number of consumers grow.
+* Immutable Data 
+
+![](evt-msg.png)
+
 ## Deployments
 
-In term of event backbone deployment we propose different approaches:
+In term of event backbone deployment environment we propose different approaches:
 
 * **[IBM Cloud](https://cloud.ibm.com/)** with the [Event Streams service](https://cloud.ibm.com/catalog/services/event-streams).
     * Deployment discussions for the KC solution are in [this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/iks/)

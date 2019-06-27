@@ -1,6 +1,7 @@
 # Kafka Deployment
 
 We are proposing three deployment approaches:
+
 * Using IBM Event Streams (See [separate note](../eventstreams/README.md))
 * Using Kafka on development environment, mostly developer workstation
 * Using IBM Cloud private for production
@@ -26,6 +27,7 @@ gc-zookeeper-57dc5679bb-bh29q   1/1       Running   0          10m
 ```
 
 ### Verifying Kafka is connected to zookeeper
+
 The goal is to connect to the kafka running container and use the scripts inside kafka bin folder:
 
 ```shell

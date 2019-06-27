@@ -21,7 +21,7 @@ Per design Kafka aims to run within a single data center. But it is still recomm
 Always assess the latency requirements and consumers needs. Throughtput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate servers than the brokers nodes. 
 For high availability assess any potential single point of failure, such as server, rack, network, power supply...
 
-The figure below illustrates a kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes (We recommend 5 nodes) and event driven microservices are deployed in separate nodes. Those microservices are consumers and producers of events from one to many topics. Kafka may be used as event sourcing.
+The figure below illustrates a kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes (We still recommend 5 nodes to support quorum management in case of broker failure) and event driven microservices are deployed in separate nodes. Those microservices are consumers and producers of events from one to many topics. Kafka may be used as event sourcing.
 
 ![](images/k8s-deploy.png)
 
@@ -31,7 +31,7 @@ To add new broker, we can deploy the runtime to a new server / rack / blade, and
 
 ## High Availability in the context of Kubernetes deployment
 
-The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages its own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes nodes and pods may change dynamically. 
+The combination of kafka with kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is stateful platform and manages its own brokers, and replications across known servers. It knows the underlying infrastructure. In kubernetes, nodes and pods may change dynamically. 
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
 
@@ -46,10 +46,10 @@ For IBM Cloud private HA installation see the [product documentation](https://ww
 
 Traditionally disaster recovery and high availability were always consider separated subjects. Now active/active deployment where workloads are deployed in different data center, is more and more a common request. IBM Cloud Private is supporting [federation cross data centers](https://github.com/ibm-cloud-architecture/refarch-privatecloud/blob/master/Resiliency/Federating_ICP_clusters.md), but you need to ensure to have low latency network connections. Also not all deployment components of a solution are well suited for cross data center clustering.
 
-For **Kafka** context, the *Confluent* website presents an interesting article for [**Kafka** production deployment](https://docs.confluent.io/current/kafka/deployment.html). One of their recommendation is to avoid cluster that spans multiple data centers and specially long distance ones.
+For **Kafka** context, the *Confluent* website presents an interesting article for [**Kafka** production deployment](https://docs.confluent.io/current/kafka/deployment.html). One of their recommendation is to avoid cluster that spans multiple data centers and specially long distance ones, because of the latency, and the chatty interface between zookeeper and kafka brokers.
 But the semantic of the event processing may authorize some adaptations. For sure, you need multiple Kafka Brokers, which will connect to the same ZooKeeper ensemble running at least five nodes (you can tolerate the loss of one server during the planned maintenance of another server). One Zookeeper server acts as a lead and the two others as stand-by.
 
-The schema above illustrates the recommendations to separate Zookeeper from **Kafka** nodes for failover purpose as zookeeper keeps state of the **Kafka** cluster. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like:
+The diagram above illustrates a simple deployment where zookeeper servers and kakfka brokers are running in pods, in different worker nodes. It is a viable solution to start deploying solution on top of kafka. When you have bigger cluster, it may be interesting to separate Zookeeper from **Kafka** nodes to limit the risk of failover, as zookeeper keeps state of the **Kafka** cluster. You will limit to have both the zookeeper leader and one kafka broker dying at the same time. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like:
 > **Kafka** pod should not run on same node as zookeeper pods.  
 
 Here is an example of such spec:

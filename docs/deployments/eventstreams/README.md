@@ -42,6 +42,7 @@ You can get the details of the release with: `helm list 'green-events-streams' -
 
 
 The figure above shows the following elements:
+
 * ConfigMaps for UI, Kafka proxy
 * The five deployments for each major components: UI, REST, proxy and access controller.
 
@@ -71,6 +72,7 @@ The figure below shows the services for zookeeper, Kafka and Event Stream REST a
 ![](images/ies-helm-serv.png)
 
 The services expose capabilities to external world via nodePort type:
+
 * The IBM Event Streams admin console is visible at the port 31253 on the k8s proxy IP address: 172.16.50.227
 * The REST api port 30121
 * stream proxy port bootstrap: 31348, broker 0: 32489...
