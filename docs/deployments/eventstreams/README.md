@@ -2,7 +2,7 @@
 
 *(Tested on June 2019 on ibm-eventstreams-dev helm chart 1.2.0 on ICP 3.1.2)*
 
-You can use the `ibm-eventstreams-dev` or `ibm-eventstreams-prod` Helm chart from ICP catalog. The product installation instructions can be found [here](https://ibm.github.io/event-streams/installing/installing/).  
+You can use the `ibm-eventstreams-dev` or `ibm-eventstreams-prod` Helm chart from ICP catalog. The product installation instructions can be found [in event stream documentation](https://ibm.github.io/event-streams/installing/installing/).  
 
 !!! note
         If you need to upload the tar file for the event streams production (downloaded from IBM passport advantage or other support sites) use the following command:
@@ -10,7 +10,7 @@ You can use the `ibm-eventstreams-dev` or `ibm-eventstreams-prod` Helm chart fro
         cloudctl catalog load-archive --archive eventstreams.pak.tar.gz
         ```
 
-As we do not want to rewrite the product documentation, we just want to highlight what was done for our deployment. Our cluster has the following characteristics:
+As we do not want to rewrite the [product documentation](https://ibm.github.io/event-streams/installing/installing/), we just want to highlight what was done for our deployment. Our cluster has the following characteristics:
 
 * Three masters also running ETCD cluster on 3 nodes
 * Three management nodes
