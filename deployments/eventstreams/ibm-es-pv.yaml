@@ -88,3 +88,19 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/kafka/data"
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: greencompute-events-sr
+  labels:
+    type: local
+spec:
+  persistentVolumeReclaimPolicy: Recycle
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/kafka/registry"

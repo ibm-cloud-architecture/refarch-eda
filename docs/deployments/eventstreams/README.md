@@ -1,6 +1,6 @@
 # Install IBM Event Streams on ICP
 
-*(Tested on June 2019 on ibm-eventstreams-dev helm chart 1.2.0 on ICP 3.1.2)*
+*(Tested on July 2019 on ibm-eventstreams-dev helm chart 1.3.0 on ICP 3.2.0)*
 
 You can use the `ibm-eventstreams-dev` or `ibm-eventstreams-prod` Helm chart from ICP catalog. The product installation instructions can be found [in event stream documentation](https://ibm.github.io/event-streams/installing/installing/).  
 
@@ -10,16 +10,34 @@ You can use the `ibm-eventstreams-dev` or `ibm-eventstreams-prod` Helm chart fro
         cloudctl catalog load-archive --archive eventstreams.pak.tar.gz
         ```
 
-As we do not want to rewrite the [product documentation](https://ibm.github.io/event-streams/installing/installing/), we just want to highlight what was done for our deployment. Our cluster has the following characteristics:
+As we do not want to rewrite the very good [product documentation](https://ibm.github.io/event-streams/installing/installing/), we just want to highlight what we did for our own deployment. Our cluster has the following characteristics:
 
 * Three masters also running ETCD cluster on 3 nodes
 * Three management nodes
 * Three proxy
 * Six worker nodes
 
-For worker nodes we need good CPUs and hard disk space. We allocated 12 CPUs - 32 Gb RAM per worker nodes.
+For worker nodes we need good CPUs and hard disk space. We allocated 12 CPUs - 32 Gb RAM per worker nodes and around 300GB for each worker node.
 
 You need to decide if persistence should be enabled for ZooKeepers and Kafka brokers. Pre allocate one Persistence Volume per Kafka broker and one per ZooKeeper server.  If you use dynamic persistence volume provisioning, ensure the expected volumes are present at installation time.
+
+The yaml file for PV creation is in the `refarch-eda/deployments/eventstreams` folder. The command:
+
+```
+kubectl apply -f ibm-es-pv.yaml -n eventstreams
+```
+
+creates 7 volumes: 3 for zookeeper, and 3 for kafka and 1 for schema registry. The configuration is for development purpose, and uses local host path, so if the VM has an issue data will be lost. 
+
+```
+kubectl get pv -n eventstreams
+```
+
+We also created an empty config map so we can update the kafka server.properites in the future.
+
+```
+kubectl create configmap greencompute-events-km -n eventstreams
+```
 
 ### Configuration Parameters 
 
@@ -29,9 +47,9 @@ The following parameters were changed from default settings:
  | :------------- | :------------- | :------------- |
  | Kafka.autoCreateTopicsEnable     | Enable auto-creation of topics       | true |
  | persistence.enabled | enable persistent storage for the Kafka brokers | true |
- | persistence.useDynamicProvisioning | dynamically create persistent volume claims | true |
+ | persistence.useDynamicProvisioning | dynamically create persistent volume claims | false |
  | zookeeper.persistence.enabled | use persistent storage for the ZooKeeper nodes | true |
-  | zookeeper.persistence.useDynamicProvisioning | dynamically create persistent volume claims for the ZooKeeper nodes | true |
+  | zookeeper.persistence.useDynamicProvisioning | dynamically create persistent volume claims for the ZooKeeper nodes | false |
   | proxy.externalAccessEnabled | allow external access to Kafka from outside the Kubernetes cluster | true |
 
 The matching `server.properties` file is under the `deployments/eventstreams` folder. See parameters description in the [product documentation](https://kafka.apache.org/documentation/#brokerconfigs) 
@@ -114,6 +132,26 @@ See code example in [ApplicationConfig.java](https://github.com/ibm-cloud-archit
 As presented in the high availability discussion in [this note](../kafka#high-availability-in-the-context-of-kubernetes-deployment), normally we need 6 worker nodes to avoid allocating zookeeper and kafka servers on the same kubernetes nodes. The community edition installation is permissive on that constraint, so both products could co-exist but in that case, ensure to have enough physical resources. 
 We have seen some Kafka brokers that could not be scheduled because some nodes have taints (can't meet the specs for the stateful set) and the remaining worker nodes don't have enough memory.
 
+### Helm release does not install
+
+If you do not see a helm release added to the helm release list, try to see if the installation pod is working. For example the following command, returns a pod name for the release creation job:
+
+```
+kubctl get pods -n eventstreams
+
+NAME                                               READY   STATUS             RESTARTS   AGE
+eventstreams-ibm-es-release-cm-creater-job-gkgx2   0/1     ImagePullBackOff   0          1m
+```
+
+You caan then access the pod logs to assess what's going on:
+
+```
+kubectl logs eventstreams-ibm-es-release-cm-creater-job-gkgx2 -n eventstreams
+```
+
+One possible common issue is related to the pod trying and failing to pull image from local repository. To find the solution, you need to know the name of the helm repository: 
+
+
 ## Getting started application
 
 Use the Event Stream Toolbox to download a getting started application we can use to test the deployment and as code base for future Kafka consumer / producer development.
@@ -134,7 +172,7 @@ The figure below illustrates the fact that the connetion to the broker was not w
 
 We have two solution implementations using Kafka and Event Streams [the manufacturing asset analytics](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) and the  most recent [KC container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc). We recommend using the second implementation.
 
-## Verifying ICP Kafka installation
+## Verifying ICP Events Streams installation
 
 Once connected to the cluster with kubectl, get the list of pods for the namespace you used to install Kafka or IBM Event Streams:
 ```

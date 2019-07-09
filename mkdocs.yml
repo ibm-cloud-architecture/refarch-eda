@@ -26,16 +26,19 @@ nav:
   - Product guidances:
     - Kafka architecture: kafka/arch.md
     - Kafka concepts summary: kafka/readme.md
-    - Kafka producer:  kafka/producers.md
-    - Kafka consumer: kafka/consumers.md
+    - Kafka producer development practices:  kafka/producers.md
+    - Kafka consumer development practices: kafka/consumers.md
     - Kafka FAQ: kafka/FAQ.md
-    - Kafka deployment: deployments/kafka/README.md
-    - Zookeeper deployment: deployments/zookeeper/README.md
-    - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
-    - Event Streams ICP deployment: deployments/eventstreams/README.md
     - Kafka Monitoring: kafka/monitoring.md
     - Serverless: serverless/README.md
-    - Postgresql: deployments/postgresql/README.md
+  - Deployments:
+      - Event Streams ICP deployment: deployments/eventstreams/README.md
+      - Kafka deployment: deployments/kafka/README.md
+      - Zookeeper deployment: deployments/zookeeper/README.md
+      - Postgresql: deployments/postgresql/README.md
+      - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
+      - Kafka deployment with Strimzi: deployments/strimzi/deploy.md
+      - ICP Troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
   - Skill Journey: eda-skill-journey.md
   - Compendium: compendium.md
 theme: 
