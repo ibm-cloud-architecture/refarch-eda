@@ -1,31 +1,30 @@
 # Apache Kafka
 
-In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org/) is and group some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro/) every developer using Kafka should read.
+In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org/) is and are grouping some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro/) every developer using Kafka should read.
 
-Update 06/2019 - *Author: [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)*  
 
 ## Introduction
 
 [Kafka](https://Kafka.apache.org/) is a distributed real time event streaming platform with the following key capabilities:
 
 * Publish and subscribe streams of records. Data are stored so consuming applications can pull the information they need, and keep track of what they have seen so far.
-* It can handle hundred of reads and writes operation per second from many producers and consumers
+* It can handle hundreds of read and write operations per second from many producers and consumers
 * Atomic broadcast, send a record once, every subscriber gets it once.
-* Store streams of data records on disk and replicate within the distributed cluster for fault-tolerance. Keep data for a time period before delete.
-* Can grow elastically and transparently with no downtime
+* Store streams of data records on disk and replicate within the distributed cluster for fault-tolerance. Persist data for a given time period before delete.
+* Can grow elastically and transparently with no downtime.
 * Built on top of the ZooKeeper synchronization service to keep topic, partitions and metadata highly available.
 
 ### Use cases
 
 The typical use cases where **Kafka** helps are:
 
-* Centralize online data pipeline to decouple applications and microservices
-* pub/sub messaging
+* Centralize online data pipeline to decouple applications and microservices.
+* Pub/sub messaging for cloud native application inter microservices.
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
-* Logs collector from multiple services
-* Implement [event soucing pattern](../evt-microservices/ED-patterns.md) out of the box, using configuration to keep message for a long time period. Data are replicated between broker within the cluster and cross availability zones if needed. 
-* Manage loosely coupled communication between microservices. (See [this note](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/service-mesh.md#asynchronous-loosely-coupled-solution-using-events) where I present a way to support a service mesh solution using asynchronous event)
+* Logs collector from multiple services.
+* Implement [event soucing pattern](../evt-microservices/ED-patterns.md) out of the box, using configuration to keep message for a long time period. Data are replicated between brokers within the cluster and cross availability zones if needed. 
+* Manage loosely coupled communication between microservices. (See [this note](https://ibm-cloud-architecture.github.io/refarch-integration/service-mesh/readme/#asynchronous-loosely-coupled-solution-using-events) where we present a way to support a service mesh solution using asynchronous event)
 
 ## Key concepts
 

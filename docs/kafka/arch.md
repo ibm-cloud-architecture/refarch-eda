@@ -1,6 +1,6 @@
 # IBM Event Streams / Kafka Architecture Considerations
 
-If you need to know the key concepts read [this article](./readme.md). 
+If you need to understand the Kafka key concepts read [this article](./readme.md). 
 
 ## High Availability
 

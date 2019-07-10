@@ -37,3 +37,8 @@
 * Using Cloud functions with event trigger in Kafka [https://github.com/IBM/ibm-cloud-functions-message-hub-trigger](https://github.com/IBM/ibm-cloud-functions-message-hub-trigger)
 * [Serverless](https://github.com/ibm-cloud-architecture/refarch-integration/tree/master/docs/serverless)
 * IBM Cloud Functions product offering [https://www.ibm.com/cloud/functions](https://www.ibm.com/cloud/functions)
+
+### Integration
+
+* Interesting article on [the evolving hybrid integration reference architecture](https://developer.ibm.com/articles/mw-1606-clark-trs/): How to ensure your integration landscape keeps pace with digital transformation.
+* [Companion web site for hybrid integration reference architecture](https://ibm-cloud-architecture.github.io/refarch-integration)
