@@ -89,7 +89,7 @@ The following content is for architects, and developers who want to understand t
 * Read introduction to [act on events with IBM Cloud Functions](./evt-action/README.md)
 
 
-### Lab3: Methodology (2 hours read)
+### Lab 3: Methodology (2 hours read)
 
 This lab persents how to start an event driven solution implementation. 
 
@@ -120,37 +120,19 @@ For those who are interested by how to apply the event stormind and domain drive
 
 ### Lab 4: Prepare a local environment
 
+!!! goals
+    Install Kafka - zookeeper and postgresql docker images and start them in docker-compose or minikube
+
 As the goal of those labs is not to redo IKS service creation, or installing products training, we can support to run all the components on the same computer. To do so, you have two options: running with docker compose, or running within Minikube.
 
-First be sure to have cloned the solution implementation repository using git command: 
-```
-git clone https://github.com/ibm-cloud-architecture/refarch-kc/
-```
-
-Open a terminal window and go to the `refarch-kc` folder.
-
-Use the command:
-```
-./script/clone.sh
-``` 
-
-to get all the solution repositories. You should have at least the following repositories:
-
-```
-refarch-kc-container-ms
-refarch-kc-order-ms
-refarch-kc-ui
-refarch-kc
-refarch-kc-ms
-refarch-kc-streams
-```
+First be sure to complete the pre-requisites by following [those steps](ttps://ibm-cloud-architecture.github.io/refarch-kc/pre-requisites.md).
 
 Then do one of the following choice:
 
 1. To run the solution with a local Kafka / zookeeper backbone using docker compose, in [less than 3 minutes with the steps describe in this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#start-kafka-and-zookeeper).
 1. Or use [Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#pre-requisites) to get kafka, zookeeper and poastgreSQl up and running on kubernetes
 
-### Build and run the solution
+### Lab 5: Build and run the solution
 
 !!! goals
     Build and run the solution so you can understand the Java-maven, Nodejs build process with docker stage build.
@@ -158,11 +140,12 @@ Then do one of the following choice:
 * [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#build-the-solution)
 * [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#deploy-each-component-of-the-solution)
 * [Execute the integration tests](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/) to validate the solution end to end.
-* [Optional] [Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
+* [Optional]: [Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
 
-### Review event driven patterns
+### Lab 6: Review event driven patterns implementation
 
-* Review the [Event sourcing explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing)
+* Review the [Event sourcing explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing) and how it is tested with some integration tests: 
+
 * Review the [CQRS pattern](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#command-query-responsibility-segregation-cqrs-pattern) and the implementation in the [order microservice]().
 
 * Review the CQRS code in the [order management microservice implementation]()
