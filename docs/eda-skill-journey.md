@@ -38,23 +38,26 @@ From the list above, the following getting started and tutorials can be studied 
 ### Angular
 
 One of the repository includes an Angular app, so if you want to be familiar with Angular here are two good articles:
+
 * [Angular tutorial](https://angular.io/tutorial) - This is for the user interface but this is more optional.
 * [Applying a test driven practice for angular application](https://github.com/ibm-cloud-architecture/refarch-caseportal-app/blob/master/docs/tdd.md)
 
 ### Python
 
-The integration tests, and 
-* [Getting started in Python](https://www.python.org/about/gettingstarted/)
+The integration tests are done in Python to illustrate how to integrate kafka with python, and also because it is simple to do develop tests with this scripting language: 
+
+* A good [getting started in Python](https://www.python.org/about/gettingstarted/)
 
 
 ### Kubernetes, docker
 
+
+* In case you do not know it, there is this [Docker getting started tutorial](https://docs.docker.com/get-started/)
 * As we can use docker compose to control the dependencies between microservices and run all the solution as docker containers, it is important to read the [Docker compose - getting started](https://docs.docker.com/compose/gettingstarted/) article. 
-* [Docker getting started](https://docs.docker.com/get-started/)
 * [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/) and IBM developer [learning path for Kubernetes](https://developer.ibm.com/series/kubernetes-learning-path/) and the Garage course [Kubernetes 101](https://www.ibm.com/cloud/garage/content/course/kubernetes-101/0).
 * [Use the "Develop a Kubernetes app with Helm" toolchain on IBM Cloud](https://www.ibm.com/cloud/garage/tutorials/use-develop-kubernetes-app-with-helm-toolchain)
 * [Understand docker networking](https://docs.docker.com/network/) as we use docker compose to run the reference implementation locally. 
-* [Knative introduction](https://developer.ibm.com/articles/knative-what-is-it-why-you-should-care/)
+* This is still optional but as we will adopt Knative, [this introduction](https://developer.ibm.com/articles/knative-what-is-it-why-you-should-care/) is relevant to read.
 * [How to deploy, manage, and secure your container-based workloads on IKS](https://www.ibm.com/blogs/bluemix/2017/05/kubernetes-and-bluemix-container-based-workloads-part1/) and [part 2](https://www.ibm.com/blogs/bluemix/2017/05/kubernetes-and-bluemix-container-based-workloads-part2/)
 
 --- 
@@ -118,7 +121,7 @@ For those who are interested by how to apply the event stormind and domain drive
 * followed by the [event storming analysis report](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/) (30 minutes read).
 * and [the derived design](https://ibm-cloud-architecture.github.io/refarch-kc/design/readme/) from this analysis. (15 minutes reading)
 
-### Lab 4: Prepare a local environment
+### Lab 4: Prepare your local environment (30 mn)
 
 !!! goals
     Install Kafka - zookeeper and postgresql docker images and start them in docker-compose or minikube
@@ -129,9 +132,9 @@ First be sure to complete the pre-requisites by following [those steps](ttps://i
 
 Then do one of the following choice:
 
-1. To run the solution with a local Kafka / zookeeper backbone using docker compose, in [less than 3 minutes with the steps describe in this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#start-kafka-and-zookeeper).
-1. Or use [Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#pre-requisites) to get kafka, zookeeper and poastgreSQl up and running on kubernetes
-
+1. To run the solution with a local Kafka / zookeeper backbone using docker compose, in less than 3 minutes with [the steps described in this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#start-kafka-and-zookeeper).
+1. Or use [Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#pre-requisites) to get kafka, zookeeper and postgreSQl up and running on a unique node kubernetes cluster.
+    
 ### Lab 5: Build and run the solution
 
 !!! goals
@@ -139,10 +142,46 @@ Then do one of the following choice:
 
 * [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#build-the-solution)
 * [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#deploy-each-component-of-the-solution)
-* [Execute the integration tests](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/) to validate the solution end to end.
-* [Optional]: [Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
 
-### Lab 6: Review event driven patterns implementation
+### Lab 6: Perform tests
+
+#### Perform the smoke tests locally
+
+Finally, run the smoke tests to assess all the components are running well. For that in the `refarch-kc` project run the script:
+
+For docker-compose:
+```
+./scripts/smokeTests.sh LOCAL
+```
+
+for MINIKUBE:
+
+```
+./scripts/smokeTests.sh MINIKUBE
+```
+
+You should see an Order created for the "GoodManuf" customer. Then the order is visible in the command and the query microservices. 
+
+!!! warning
+    To stop docker-compose deployment use the following command:
+    ```
+    ./scripts/stopLocalEnv.sh  LOCAL
+    ```
+    or for the minikube
+    ```
+    stopLocalEnv.sh  MINIKUBE
+    ```
+
+#### Execute integration tests
+
+ [Execute the integration tests](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/) to validate the solution end to end.
+
+#### Optional: Execute the demonstration
+
+[Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
+
+
+### Lab 7: Review event driven patterns implementation
 
 * Review the [Event sourcing explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing) and how it is tested with some integration tests: 
 
@@ -150,35 +189,45 @@ Then do one of the following choice:
 
 * Review the CQRS code in the [order management microservice implementation]()
 
-#### Data replication with Kafka
+* [Kafka Python API](https://github.com/confluentinc/confluent-kafka-python) and some examples in our [integration tests project](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/)
+* [Kafka Nodejs API used in the voyage microservice](https://ibm-cloud-architecture.github.io/refarch-kc-ms/voyagems/)
+
+### Lab 8: Run the solution on IBM Cloud
+
+* [Deploying the solution on IBM Cloud Kubernetes Service](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/iks)
+
+Perform smokeTests locally on the solution running on IKS.
+
+### Lab 9: Optional - Run the solution on IBM CLoud Private
+
+* [Deploying the solution on IBM Cloud Private](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/icp)
+
+### Lab 10: Data replication with Kafka
 
 One of the common usage of using Kafka is to combine it with a Change Data Capture component to get update from a "legacy" data base to the new microservice runtime environment.
 
 We are detailing an approach in [this article](https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/).
 
-### Other deployments
-
-* [Deploying the solution on IBM Cloud Kubernetes Service](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/iks)
-* [Deploying the solution on IBM Cloud Private](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/icp)
-* [Develop a toolchain for one of the container manager service](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/cicd/)
-* [Our Kubernetes troubleshooting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md)
-
-### Real time analytics and Machine learning
+### Lab 11: Real time analytics and Machine learning
 
 * [IBM Cloud Streaming Analytics introduction](https://cloud.ibm.com/catalog/services/streaming-analytics) and [getting started](https://cloud.ibm.com/docs/services/StreamingAnalytics?topic=StreamingAnalytics-gettingstarted#gettingstarted)
 
 * [Apply predictive analytics on container metrics for predictive maintenance use case](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/metrics/)
 
 
+### Other subjects
+
+* [Develop a toolchain for one of the container manager service](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/cicd/)
+* [Our Kubernetes troubleshooting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md)
+
+* [Kafka monitoring](./kafka/monitoring.md)
+
+
+* [IBM Event Streams - stream analytics app](https://developer.ibm.com/streamsdev/docs/detect-events-with-streams/) Event detection on continuous feed using Streaming Analytics in IBM Cloud. 
+
+
+
 ## Slack channel
 
 Contact us on '#eda-ac` channel under the [ibmcase.slack.com](http://ibmcase.slack.com) workspace.
 
-
-
-
-
-* [IBM Event Streams - stream analytics app](https://developer.ibm.com/streamsdev/docs/detect-events-with-streams/) Event detection on continuous feed using Streaming Analytics in IBM Cloud. 
-* [Kafka monitoring](./kafka/monitoring.md)
-* [Kafka Python API](https://github.com/confluentinc/confluent-kafka-python) and some examples in our [integration tests project](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/)
-* [Kafka Nodejs API used in the voyage microservice](https://ibm-cloud-architecture.github.io/refarch-kc-ms/voyagems/)
