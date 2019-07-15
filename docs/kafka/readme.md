@@ -34,17 +34,17 @@ The diagram below presents Kafka's key components:
 
 ### Brokers
 
-* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers. It is really possible if the latency is very low at the 10ms or better as there are a lot of communication between kafka brokers and kafka and zookeepers.  
-* The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data too, and subscribed by consumers to get data. 
+* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers. It is really possible if the network latency between data centers is very low, at the 10ms or better, as there are a lot of communication between kafka brokers and between kafka and zookeepers. So the advice is to avoid cross data centers deployment.  
+* The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data to, and subscribed by consumers to get data. Data in topic is persisted to file systems for a retention time period (Defined at the topic level). The file system can be network based. 
 
-In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated three times. In production, it is recommended to use five nodes to authorise planned failure and un-planned failure. 
+In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated two times. In production, it is recommended to use five nodes to authorise planned failure and un-planned failure, and when doing replicas, use a replica factors equals to the number of brokers
 
 ### Topics 
 
 Topics represent end points to put or get records to.
 
-* Each record consists of a key, a value, and a timestamp.
-* Producers publish data records to topic and consumers subscribe to topics. When a record is produced without specifying a partition, a partition will be chosen using a hash of the key. If the record did not provide a timestamp, the producer will stamp the record with its current time (creation time or log append time). Producers hold a pool of buffer to keep records not yet transmitted to the server.
+* Each record consists of a key, a value (the data payload as byte array), and a timestamp.
+* Producers publish data records to topic and consumers subscribe to topics. When a record is produced without specifying a partition, a partition will be chosen using a hash of the key. If the record did not provide a timestamp, the producer will stamp the record with its current time (creation time or log append time). Producers hold a pool of buffers to keep records not yet transmitted to the server.
 * Kafka store log data in its `log.dir` and topic maps to subdirectories in this log directory.
 * **Kafka** uses topics with a pub/sub combined with queue model: it uses the concept of consumer group to divide the processing over a collection of consumer processes, running in parallel, and messages can be broadcasted to multiple groups.
 * Consumer performs asynchronous pull to the connected broker via the subscription to a topic.

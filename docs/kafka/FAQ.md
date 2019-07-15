@@ -22,7 +22,6 @@ Kafka is part of the architecture, while Akka is an implementation choice for on
 [vert.x](https://vertx.io/) is another open source implementation of such internal messaging mechanism but supporting more language:  Java, Groovy, Ruby, JavaScript, Ceylon, Scala, and Kotlin.
 
 
-
 ## Other FAQs
 
 [FAQ from confluent](https://cwiki.apache.org/confluence/display/KAFKA/FAQ#FAQ-HowareKafkabrokersdependonZookeeper?)
