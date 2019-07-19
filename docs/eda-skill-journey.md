@@ -134,8 +134,119 @@ Then do one of the following choice:
 
 1. To run the solution with a local Kafka / zookeeper backbone using docker compose, in less than 3 minutes with [the steps described in this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#start-kafka-and-zookeeper).
 1. Or use [Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#pre-requisites) to get kafka, zookeeper and postgreSQl up and running on a unique node kubernetes cluster.
-    
-### Lab 5: Build and run the solution
+
+### Lab 5: Prepare IBM Cloud IKS Openshift environment
+
+The following tutorial: ["Creating an IBM Cloud Red Hat OpenShift Container Platform cluster"](https://cloud.ibm.com/docs/containers?topic=containers-openshift_tutorial) will get you creating an openshift cluster within IBM Cloud. 
+
+Be sure to have administration privilege to be able to create cluster under your account. It will take 30 mn to get the cluster provisioned. 
+
+You can follow the steps to create the cluster with the console or use the ibm cloud CLI.
+
+1. Get the private and public vlan IP address for your zone:
+
+    ```
+    ibmcloud ks vlans --zone wdc06
+    ```
+
+    It will return something like
+
+    ```
+    ID        Name                     Number   Type      Router         Supports Virtual Workers   
+    <private_VLAN_ID to keep secret>          2445     private   bcr01a.wdc06   true   
+    <public_VLAN_ID to keep secret>           1305    public    fcr01a.wdc06   true   
+
+    ```
+
+1. Create the cluster with small hardware
+
+    ```
+    ibmcloud ks cluster-create --name greencluster --location wdc06 --kube-version 3.11_openshift --machine-type b3c.4x16.encrypted  --workers 3 --public-vlan <public_VLAN_ID> --private-vlan <private_VLAN_ID>
+    ```
+
+1. Verify your cluster once created:
+
+    ```
+    ibmcloud ks cluster-get --cluster  greencluster
+    ```
+
+    ```
+    Retrieving cluster greencluster...
+    OK
+                
+    Name:                           greencluster   
+    ID:                             <keep it secret>   
+    State:                          normal   
+    Created:                        2019-07-16T20:47:34+0000   
+    Location:                       wdc06   
+    Master URL:                     https://<secret_too>.us-east.containers.cloud.ibm.com:21070   
+    Public Service Endpoint URL:    https://<secret_too>.us-east.containers.cloud.ibm.com:21070   
+    Private Service Endpoint URL:   -   
+    Master Location:                Washington D.C.   
+    Master Status:                  Ready (2 days ago)   
+    Master State:                   deployed   
+    Master Health:                  normal   
+    Ingress Subdomain:              greencluster.us-east.containers.appdomain.cloud   
+    Ingress Secret:                 greencluster   
+    Workers:                        3   
+    Worker Zones:                   wdc06   
+    Version:                        3.11.104_1507_openshift   
+    Owner:                          <secret_too>   
+    Monitoring Dashboard:           -   
+    Resource Group ID:              <secret_too>   
+    Resource Group Name:            default   
+
+    ```
+
+1. Download the configuration files to connect to your cluster
+
+    ```
+    ibmcloud ks cluster-config --cluster greencluster
+    ```
+
+    Then export the KUBECONFIG variable.
+
+    ```
+    export KUBECONFIG=/Users/<you on your computer>/.bluemix/plugins/container-service/clusters/greencluster/kube-config-wdc06-greencluster.yml
+    ```
+    Now any `oc` command will work.
+
+1. Access the Openshift container platform console using the master URL
+
+    Something like: https://<secret_too>.us-east.containers.cloud.ibm.com:21070 
+
+    ![]()
+
+### Lab 6: Deploy Event Streams on IBM Cloud
+
+Before deploying a getting started simple kafka producer on Openshift we will need to create an event stream instance on IBM Cloud.
+
+To provision your service, go to the IBM Cloud Catalog and search for `Event Streams`. It is in the *Integration* category. Create the service and specify a name, a region/location (select the same as your cluster), and a resource group, add a tag if you want to, then select the standard plan.
+
+!!! warning
+    If you are using a non default resource group, you need to be sure your userid as editor role to the resource group to be able to create service under the resource group.
+
+![](./deployments/eventstreams/images/IES-service.png)
+
+* In the service credentials page of the event stream service, create new credentials to get the Kafka broker list, the admim URL and the api_key needed to authenticate the consumers or producers.
+
+ ![](./deployments/eventstreams/images/IES-IC-credentials.png)
+
+We will use a kubernetes secret to define the api key (see detail [in this section](#using-api-keys))
+
+* In the *Manage* panel add the topics needed for the solution. We need at least the following:
+
+ ![](./deployments/eventstreams/images/IES-IC-topics.png) 
+
+
+### Lab 7: Get a simple getting started event producer on openshift with Event Stream
+
+For the getting started example, we use a simple order producer app, done with python.
+
+
+is very simple and will let you validate you environment.
+
+### Lab 8: Build and run the solution
 
 !!! goals
     Build and run the solution so you can understand the Java-maven, Nodejs build process with docker stage build.
@@ -143,7 +254,7 @@ Then do one of the following choice:
 * [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#build-the-solution)
 * [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#deploy-each-component-of-the-solution)
 
-### Lab 6: Perform tests
+### Lab 9: Perform tests
 
 #### Perform the smoke tests locally
 
@@ -172,16 +283,16 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
     stopLocalEnv.sh  MINIKUBE
     ```
 
-#### Execute integration tests
+#### Execute integration tests on the local environment
 
  [Execute the integration tests](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/) to validate the solution end to end.
 
-#### Optional: Execute the demonstration
+#### Optional: Execute the demonstration script
 
 [Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
 
 
-### Lab 7: Review event driven patterns implementation
+### Lab 10: Review the CQRS patterns implementation
 
 * Review the [Event sourcing explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing) and how it is tested with some integration tests: 
 
@@ -192,23 +303,23 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 * [Kafka Python API](https://github.com/confluentinc/confluent-kafka-python) and some examples in our [integration tests project](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/)
 * [Kafka Nodejs API used in the voyage microservice](https://ibm-cloud-architecture.github.io/refarch-kc-ms/voyagems/)
 
-### Lab 8: Run the solution on IBM Cloud
+### Lab 11: Run the solution on IBM Cloud
 
 * [Deploying the solution on IBM Cloud Kubernetes Service](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/iks)
 
 Perform smokeTests locally on the solution running on IKS.
 
-### Lab 9: Optional - Run the solution on IBM CLoud Private
+### Lab 12: Optional - Run the solution on IBM Cloud Private
 
 * [Deploying the solution on IBM Cloud Private](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/icp)
 
-### Lab 10: Data replication with Kafka
+### Lab 13: Data replication with Kafka
 
 One of the common usage of using Kafka is to combine it with a Change Data Capture component to get update from a "legacy" data base to the new microservice runtime environment.
 
 We are detailing an approach in [this article](https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/).
 
-### Lab 11: Real time analytics and Machine learning
+### Lab 14: Real time analytics and Machine learning
 
 * [IBM Cloud Streaming Analytics introduction](https://cloud.ibm.com/catalog/services/streaming-analytics) and [getting started](https://cloud.ibm.com/docs/services/StreamingAnalytics?topic=StreamingAnalytics-gettingstarted#gettingstarted)
 

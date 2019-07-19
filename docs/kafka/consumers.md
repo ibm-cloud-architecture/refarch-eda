@@ -35,6 +35,7 @@ Also, a consumer can subscribe to multiple topics. The brokers are doing rebalan
 ## Offset management
 
 Recall that offset is just a numeric identifier of a consumer position of the last record read within a partition. Consumers periodically need to commit the offsets of messages they have received to show they have processed the message and in case of failure from where they should reconnect. It is possible to commit by calling API or by setting some properties at the consumer creation level to enable autocommit offset. When doing manual offet, there are two types of manually committed:
+
 * offsets—synchronous
 * asynchronous. 
 
@@ -54,6 +55,7 @@ Do the solution is fine with at-least-once delivery or exactly-once is a must ha
 * [Nodejs kafka consumers and producers](https://github.com/jbcodeforce/nodejs-kafka)
 
 ## Kafka useful Consumer APIs
+
 * [KafkaConsumer](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html) a topic consumer which support:
   * transparently handles brokers failure
   * transparently adapt to partition migration within the cluster
@@ -64,6 +66,7 @@ Do the solution is fine with at-least-once delivery or exactly-once is a must ha
   * if a process fails, the partitions assigned to it will be reassigned to other consumers in the same group
 * [ConsumerRecords](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecords.html) holds the list ConsumerRecord per partition for a particular topic.
 * [ConsumerRecord](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecord.html) A key/value pair to be received from Kafka. This also consists of a topic name and a partition number from which the record is being received, an offset that points to the record in a Kafka partition, and a timestamp
+
 ## References
 
 * [IBM Event Streams - Consuming messages](https://ibm.github.io/event-streams/about/consuming-messages/)

@@ -45,6 +45,8 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 * [01/2019] Publish content to IBM Architecture center
 * [02/2019] Enhance design pattern and move content as book layout
 * [03/2019] Work on event-driven pattern and skill journey
+* [06/2019] Minikube deployment
+* [07/2019] Labs skill journey
 
 ## Contributors
 
@@ -54,9 +56,10 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
   * [Martin Siegenthaler](https://www.linkedin.com/in/martin-siegenthaler-7654184/)
   * [David Engebretsen](https://www.linkedin.com/in/david-engebretsen/)
   * [Francis Parr](https://www.linkedin.com/in/francis-parr-26041924)
-* [IBM Event Stream team]
 * [IBM Decision Insight team]
   * [Jose De Freitas](https://www.linkedin.com/in/jose-de-freitas-755a501b/)
-* [Hemankita Perabathini](https://www.linkedin.com/in/hemankita-perabathini/)
-
+* IBM Garage team: 
+    * [Hemankita Perabathini](https://www.linkedin.com/in/hemankita-perabathini/)
+    * [John Martin]
+    * [Wil Plannel]
 Please [contact me](mailto:boyerje@us.ibm.com) for any questions.
