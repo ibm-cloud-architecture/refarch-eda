@@ -222,23 +222,13 @@ To validate the event stream and an openshift app are communicating, we use a si
 
 ![](order-producer-python.png)
 
-### Lab 8: Build and run the solution
+### Lab 8: Build and run the solution locally
 
 !!! goals
     Build and run the solution so you can understand the Java-maven, Nodejs build process with docker stage build.
 
-* [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#build-the-solution)
-* [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#deploy-each-component-of-the-solution)
-
-
-### Lab 2: Review event driven microservice development (8 hours read)
-
-* Read [Event driven design patterns for microservice](../evt-microservices/ED-patterns.md) with the Command Query Responsability Segregation, event sourcing and saga patterns. 
-* Read how to [process continuous streaming events](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-streams)
-* [Event-driven cloud-native applications](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-cloud-native-apps)
-
-* The Cloud Private [IBM Event Streams](https://www.ibm.com/cloud/event-streams) product running on  private cloud
-* Read introduction to [act on events with IBM Cloud Functions](../evt-action/README.md)
+* [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/)
+* [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/)
 
 ### Lab 9: Perform tests
 
@@ -269,7 +259,7 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
     stopLocalEnv.sh  MINIKUBE
     ```
 
-#### Execute integration tests on the local environment
+#### Optional: Execute integration tests on the local environment
 
  [Execute the integration tests](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/) to validate the solution end to end.
 
@@ -280,7 +270,9 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 
 ### Lab 10: Review the CQRS patterns implementation
 
-* Review the [Event sourcing explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing) and how it is tested with some integration tests: 
+* Read [Event driven design patterns for microservice](../evt-microservices/ED-patterns.md) with the Command Query Responsability Segregation, event sourcing and saga patterns. 
+
+* Review the [Event sourcing design pattern explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing) and how it is tested with some integration tests: 
 
 * Review the [CQRS pattern](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#command-query-responsibility-segregation-cqrs-pattern) and the implementation in the [order microservice]().
 
@@ -288,6 +280,7 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 
 * [Kafka Python API](https://github.com/confluentinc/confluent-kafka-python) and some examples in our [integration tests project](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/)
 * [Kafka Nodejs API used in the voyage microservice](https://ibm-cloud-architecture.github.io/refarch-kc-ms/voyagems/)
+
 
 ### Lab 11: Run the solution on IBM Cloud
 
@@ -322,7 +315,11 @@ We are detailing an approach in [this article](https://ibm-cloud-architecture.gi
 
 * [IBM Event Streams - stream analytics app](https://developer.ibm.com/streamsdev/docs/detect-events-with-streams/) Event detection on continuous feed using Streaming Analytics in IBM Cloud. 
 
+* Read how to [process continuous streaming events](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-streams)
+* [Event-driven cloud-native applications](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-cloud-native-apps)
 
+* The Cloud Private [IBM Event Streams](https://www.ibm.com/cloud/event-streams) product running on  private cloud
+* Read introduction to [act on events with IBM Cloud Functions](../evt-action/README.md)
 
 ## Slack channel
 
