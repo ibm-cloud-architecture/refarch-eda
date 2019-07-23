@@ -5,22 +5,20 @@ nav:
   - Concepts: concepts/README.md
   - Architecture: 
     - Reference diagrams: architecture.md
-    - Event Sources: evt-src/README.md
-    - Event Backbone: evt-backbone/README.md
-    - Event Actions: evt-action/README.md
-    - Event Managed States: evt-state/README.md
-    - Event Stream - Kafka architecture: kafka/arch.md
-    - Data Replication Pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/
-  - Event Storming: 
-    - Event Storming Workshop: methodology/readme.md
-    - Applied to Container Shipment Analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
+    - Event sources: evt-src/README.md
+    - Event backbone: evt-backbone/README.md
+    - Event actions: evt-action/README.md
+    - Event managed states: evt-state/README.md
+    - Event Stream & Kafka architecture: kafka/arch.md
+  - Methodology: 
+    - Event Storming: methodology/readme.md
+    - Event Storming applied to container shipment analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
     - Domain driven design: methodology/ddd.md
   - Event driven patterns:
     - Microservices: evt-microservices/README.md
     - Event-driven patterns: evt-microservices/ED-patterns.md
-    - Event streaming processing: kafka/kafka-stream.md
-    - Data Replication Pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/
-  - Real time analytics: rt-analytics/README.md
+    - Kafka streaming processing: kafka/kafka-stream.md
+    - Data replication pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/
   - Reference implementations:
     - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
   - Product guidances:
@@ -29,7 +27,7 @@ nav:
     - Kafka producer development practices:  kafka/producers.md
     - Kafka consumer development practices: kafka/consumers.md
     - Kafka FAQ: kafka/FAQ.md
-    - Kafka Monitoring: kafka/monitoring.md
+    - Kafka monitoring: kafka/monitoring.md
     - Serverless: serverless/README.md
   - Deployments:
       - Event Streams ICP deployment: deployments/eventstreams/README.md
@@ -38,8 +36,9 @@ nav:
       - Postgresql: deployments/postgresql/README.md
       - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
       - Kafka deployment with Strimzi: deployments/strimzi/deploy.md
-      - ICP Troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
-  - Skill Journey: eda-skill-journey.md
+      - ICP troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
+  - Real time analytics: rt-analytics/README.md
+  - Skill journey: training/eda-skill-journey.md
   - Compendium: compendium.md
 theme: 
   name: material
