@@ -1,15 +1,19 @@
 # Event Driven Reference Architecture
 
 !!! abstract
-    The content of this repository was the source of the [event-driven reference architecture in the IBM Garage architecture center](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture). This git repository is maintained on a weekly basis and includes more content not yet formally published to IBM sites. As we are implementing the end to end solution we are updating this main git repository to keep best practices accurate.
+    The content of this repository was the source of the [event-driven reference architecture in the IBM Garage architecture center](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture). This git repository is maintained on a weekly basis and includes more content not yet formally published to IBM sites. As we are implementing the end to end solution we are updating this main git repository to keep best practices accurate. When content is stable it moves to the [IBM Garage architecture center](https://www.ibm.com/cloud/garage/architectures).
 
 The modern digital business works in real time; it informs interested parties of things of interest when they happen, it makes sense of, and derives insight from an ever-growing number of sources. It learns, predicts and is intelligent -- it is by nature Event Driven.
+
+Event-driven architecture (EDA) is an architecture pattern that promotes the production, detection, consumption of, and reaction to events. This architectural pattern can be applied to the systems that transmit events among loosely coupled software components and services. 
+
+The business value is that you can easily extend EDA with new components that are ready to produce or consume events that already are in place in the overall system. While events are more visible, new business capabilities are addressed, like applying insight in real time when events occur. EDA helps also to improve continous availability of microservice architecture.  
 
 Events are a way of capturing a statement of fact.  Events occur in a continuous stream as things happen in the real and digital worlds.  By taking advntage of this continous stream, applications can not only react in real time, but also reason about the future based upon what has happened in the past.
 
 For enterprise IT teams, embracing event driven development is foundational to the next generation of digital business applications. IT  teams will need to be able to design, develop, deploy and operate event driven solutions, in cloud native styles.
 
-While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven approaches in this Cloud Native context.  Indeed we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive. Two aspects of a cloud-native architecture are essential to developing an event driven architecture:
+While event driven architectures and reactive programming models are not new concepts, the move to Cloud Native architectures with Microservices, Container based workloads and "server-less" computing allow us to revisit event driven approaches in this Cloud Native context.  Indeed, we could think of event driven as extending the Resilience, Agility and Scale characteristics of "Cloud Native" to also be Reactive and Responsive. Two aspects of a cloud-native architecture are essential to developing an event driven architecture:
 
 * Microservices - These provide the loosely coupled application architecture which enables deployment in highly distributed patterns for Resilience, Agility and Scale.
 * Cloud Native platforms with Containers and "Serverless deployments" - These provide the application platform and tools which realize the Resilience, Agility and Scale promise of the microservices architectures.
@@ -59,10 +63,10 @@ In general terms, an *Event Source*, or event producer is any component capable 
 
 The Event Backbone is the center of the Event Driven Architecture providing the event communication and persistence layer with the following capabilities:
 
- * Pub/Sub style event communication between event producers and consumers
- * An Event Log to persist events for a given period of time
- * Replay of events
- * Subscriptions from multiple consumers
+ * Pub/Sub style event communication between event producers and consumers.
+ * An Event Log to persist events for a given period of time.
+ * Replay of events.
+ * Subscriptions from multiple consumers.
 
  [Read more ...](evt-backbone/README.md)
 
@@ -131,4 +135,4 @@ EDAs are typically not used for distributed transactional processing because thi
 ## Sample EDA Applications
 
 * [Container shipment solution](https://github.com/ibm-cloud-architecture/refarch-kc): this solution presents real time analytics, pub-sub architecture pattern and micro-service communication on Kafka.
-* [Predictive maintenance - analytics and EDA](https://github.com/ibm-cloud-architecture/refarch-asset-analytics) how to mix Apache Kafka, stateful stream, Apache Cassandra and ICP for data to develop machine learning model deployed as a service.
+

@@ -218,7 +218,7 @@ This secret is used by all the solution microservices which are using Kafka / Ev
 
 ### Lab 7: Get a simple getting started event producer deployed on openshift with Event Stream
 
-To validate the event stream and an openshift app are communicating, we use a simple order producer app we have developed as part of the Reefer container solution. It is done with python and can be found in [this repository](https://github.com/jbcodeforce/order-producer-python). We use Openshift source to image workflow to deploy this app to Openshift. Follow the steps in the repository readme to deploy the app.
+To validate the event stream and an openshift app are communicating, we use a simple order producer app we have developed as part of the Reefer container solution. It is done with python and can be found in [this repository](https://github.com/jbcodeforce/order-producer-python). We use Openshift source to image workflow to deploy this app to Openshift. Follow the steps in the readme as part of the lab.
 
 ![](order-producer-python.png)
 

@@ -5,7 +5,7 @@ We defined the starting point for a Cloud Native Event Driven Architecture to be
 * Being able to communicate and persist events.
 * Being able to take direct action on events.
 * Processing streams of events to derive real time insight/intelligence.
-* Providing communication between event driven microservices and functions.
+* Providing communication mechanism between event driven microservices and functions.
 
 With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below:
 
