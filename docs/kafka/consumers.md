@@ -4,6 +4,10 @@
 
 Consumers belong to **consumer groups**. You specify the group name as part of the connection parameters. 
 
+```
+
+```
+
 Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Consumers can run in separate hosts and separate processes.
 
 Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer join or leave the group or when a new partition is added to an existing topic. There is always at least one consumer per partition. 
@@ -11,6 +15,7 @@ Organized in cluster the coordinator servers are responsible for assigning parti
 Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
 
 The implementation is simple for a single thread consumer, and the code structure looks like:
+
 * prepare the properties
 * create an instance of KafkaConsumer to connect to a topic and a partition
 * loop on polling events 
@@ -21,7 +26,7 @@ Example of Javascript implementation is in [this repository](https://github.com/
 
 But the complexity comes from the offset management and multithreading needs. So the following important considerations need to be addressed while implementing a consumer:
 
-## Assess number of consumer needed 
+## Assess number of consumers needed 
 
 The KafkaConsumer is not thread safe so it is recommended to run in a unique thread. But if needed you can implement a multi-threads solution, but as each thread will open a TCP connection to the Kafka broker, be sure to close the connection to avoid memory leak. The alternate is to start n processus. 
 

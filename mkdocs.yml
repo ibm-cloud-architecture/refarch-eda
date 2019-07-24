@@ -30,6 +30,7 @@ nav:
     - Kafka monitoring: kafka/monitoring.md
     - Serverless: serverless/README.md
   - Deployments:
+      - Event Streams IBM CLOUD deployment: deployments/eventstreams/es-ibm-cloud.md
       - Event Streams ICP deployment: deployments/eventstreams/README.md
       - Kafka deployment: deployments/kafka/README.md
       - Zookeeper deployment: deployments/zookeeper/README.md

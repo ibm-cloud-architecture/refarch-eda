@@ -14,6 +14,21 @@ Also it is important to note that the Kafka Stream API supports exactly once sem
 
 Kafka as a distributed system using cluster, it needs to keep cluster states, sharing configuration like topic, assess which node is still alive within the cluster, support registrering new node added to the cluster, being able to support dynamic restart. Zookeeper is an orchestrator for distributed system, it maintains kafka cluster integrity, select broker leader... 
 
+## Retention time for topic what does it mean?
+
+The message sent to a cluster is kept for a max period of time or until a max size is reached. Those topic properties are: `retention.ms` and `retention.bytes`. Messages stay in the log even if they are consumed. The oldest messages are marked for deletion or compaction depending of the cleanup policy (delete or compact) set to `cleanup.policy` parameter.
+
+See the kafka documentation on [topic configuration parameters](https://kafka.apache.org/documentation/#topicconfigs). 
+
+Here is a command to create a topic with specific retention properties:
+
+```
+bin/kafka-configs --zookeeper XX.XX.XX.XX:2181 --entity-type topics --entity-name orders --alter --add-config  retention.ms=55000 --add-config  retention.ms=55000
+```
+
+But there is also the `offsets.retention.minutes` property, set at the cluster level to control when the offset information will be deleted. It is defaulted to 1 day, but the max possible value is 7 days. This is to avoid keeping too much information in the broker memory and avoid to miss data when consumers run not continuously. So consumers need to commit their offset. If the consumer properties `auto.offset.reset=earliest` it will reprocess all the events, or skips to the latest if set to latest. In this last case if the consumers are offline for more than this time window, they will lose events.
+
+
 ## Differences between Akka and Kafka?
 
 [Akka](https://akka.io/) is a open source toolkit for Scala or Java to simplify multithreading programming and makes application more reactive by adopting an asynchronous mechanism to access to io: database or HTTP request. To support asynchronous communication between 'actors', it uses messaging, internal to the JVM. 
@@ -24,4 +39,6 @@ Kafka is part of the architecture, while Akka is an implementation choice for on
 
 ## Other FAQs
 
-[FAQ from confluent](https://cwiki.apache.org/confluence/display/KAFKA/FAQ#FAQ-HowareKafkabrokersdependonZookeeper?)
+[IBM Event streams on Cloud FAQ](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-faqs) 
+
+[FAQ from Confluence](https://cwiki.apache.org/confluence/display/KAFKA/FAQ#FAQ-HowareKafkabrokersdependonZookeeper?)

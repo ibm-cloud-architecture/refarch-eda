@@ -51,6 +51,7 @@ The following content is for architects, and developers who want to understand t
 
 ![](../deployments/eventstreams/images/IES-service.png)
 
+See [this note](../deployments/eventstreams//es-ibm-cloud.md) for creating Event Stream with Enterprise plan.
 
 * Review another getting started from [Apache Kafka quickstart](https://kafka.apache.org/quickstart) 
 * Finally review the Confluent point of view on [getting started](https://www.confluent.io/blog/apache-kafka-getting-started/) as it covers some of the persona involved in a kafka based solution. 
