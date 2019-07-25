@@ -11,7 +11,8 @@ nav:
     - Event managed states: evt-state/README.md
     - Event Stream & Kafka architecture: kafka/arch.md
   - Methodology: 
-    - Event Storming: methodology/readme.md
+    - Event driven methodology: methodology/readme.md
+    - Event Storming: methodology/eventstorming.md
     - Event Storming applied to container shipment analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
     - Domain driven design: methodology/ddd.md
   - Event driven patterns:
