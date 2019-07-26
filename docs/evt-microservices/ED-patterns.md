@@ -173,6 +173,8 @@ When the order is created, it can be updated at any time by the user until he/sh
 
 SAGA pattern supports two types of implementation: Choreography and Orchestration. 
 
+### Services choreography
+
 With Choreography each service produces and listens to other service’s events and decides if an action should be taken or not.
 
 ![](saga-choreo.png)
@@ -184,7 +186,9 @@ In case of failure, the source microservice is keeping state and timer to monito
 
 ![](saga-choreo-fail.png)
 
-Rolling back a distributed transaction does not come for free. Normally you have to implement another operation/transaction to compensate for what has been done before.
+Rolling back a distributed transaction does not come for free. Normally you have to implement another operation/transaction to compensate for what has been done before. This will be a new event sent by the service responsible of the transaction integrity.
+
+### Services orchestration
 
 With orchestration, one service is responsible to drive each participant on what to do and when.
 

@@ -60,7 +60,8 @@ See [this note](../deployments/eventstreams//es-ibm-cloud.md) for creating Event
 
 It is important to understand how to start a project using event. This lab persents how to start an event driven solution implementation using the event storming and domain driven design:
 
-* The adopted, well estabilished, approach to develop event-driven application, is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with event insight practices to identify potential real time analytics use cases.
+* We are proposing a [set of activities](../methodology/readme.md) to develop and release an event-driven solution based on the agile development approach described in the IBM Garage method. 
+* The adopted approach for event identification is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with event insight practices to identify potential real time analytics use cases.
 * So we use the event storming methodology for the Refrigerator container application. [This article](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/) presents the outcome of this work.
 * Once the event storming deliver events, commands, aggregates we can start doing some [Domain Design Driven](../methodology/ddd.md) exercises and apply it to the business application.
 
