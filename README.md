@@ -60,6 +60,11 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
   * [Jose De Freitas](https://www.linkedin.com/in/jose-de-freitas-755a501b/)
 * IBM Garage team: 
     * [Hemankita Perabathini](https://www.linkedin.com/in/hemankita-perabathini/)
-    * [John Martin]
+    * [John Martin]()
     * [Wil Plannel]
+* IBM Lab Services
+    * [Sila Kissuu](https://www.linkedin.com/in/kissuu/)
+    * [Zach Silverstein](https://www.linkedin.com/in/zsilverstein/)
+
+
 Please [contact me](mailto:boyerje@us.ibm.com) for any questions.
