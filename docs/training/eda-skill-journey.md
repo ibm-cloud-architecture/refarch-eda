@@ -23,13 +23,13 @@ A developer who wants to consume this content does not need to know everything a
 
     We have build a getting started and tutorial list for you to study [here](core-techno-getstarted.md).
 
-## Event Driven specifics
+## Event Driven Concepts
 
 Now the development of event driven solution involves specific technologies and practices. The following links should be studied in the proposed order:
 
 * [Why Event Driven Architecture now?](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture)
 
-### Lab 1: Understand EDA fundamentals (8 hours)
+### 1- Reading: Understand EDA fundamentals (8 hours)
 
 The following content is for architects, and developers who want to understand the technologies and capabilities of an event driven architecture.
 
@@ -42,7 +42,7 @@ The following content is for architects, and developers who want to understand t
 * Review one of the common industry use case using Kafka, to perform [data replication using kafka and Change Data Capture](https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/).
 
 
-### Lab 2: Getting started with Event Streams and Kafka (3 hours)
+### 2- Hands on Lab: Getting started with Event Streams and Kafka (3 hours)
 
 * Start by creating an Event Stream service in IBM Cloud by performing the [IBM Event Stream Getting started](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-getting_started&locale=en-US). To provision your service, go to the IBM Cloud Catalog and search for `Event Streams`. It is in the *Integration* category. Create the service and specify a name, a region/location (select the same as your cluster), and a resource group, add a tag if you want to, then select the standard plan.
 
@@ -56,14 +56,19 @@ See [this note](../deployments/eventstreams//es-ibm-cloud.md) for creating Event
 * Review another getting started from [Apache Kafka quickstart](https://kafka.apache.org/quickstart) 
 * Finally review the Confluent point of view on [getting started](https://www.confluent.io/blog/apache-kafka-getting-started/) as it covers some of the persona involved in a kafka based solution. 
 
-### Lab 3: Methodology (2 hours read)
+### 3 - Readings : Methodology (2 hours read)
 
 It is important to understand how to start a project using event. This lab persents how to start an event driven solution implementation using the event storming and domain driven design:
 
 * We are proposing a [set of activities](../methodology/readme.md) to develop and release an event-driven solution based on the agile development approach described in the IBM Garage method. 
-* The adopted approach for event identification is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with event insight practices to identify potential real time analytics use cases.
-* So we use the event storming methodology for the Refrigerator container application. [This article](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/) presents the outcome of this work.
+* The adopted approach for event identification is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with the event insight practice used to identify potential real time analytics use cases.
 * Once the event storming deliver events, commands, aggregates we can start doing some [Domain Design Driven](../methodology/ddd.md) exercises and apply it to the business application.
+
+For those of you, who are interested to know how to apply the event storming and domain driven design methodology to the Reefer shipment process,  you can review the following articles:
+
+* [The solution introduction](https://ibm-cloud-architecture.github.io/refarch-kc/introduction) to get a sense of the goals of this application. (10 minutes read)
+* followed by the [event storming analysis report](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/) (30 minutes read).
+* and [the derived design](https://ibm-cloud-architecture.github.io/refarch-kc/design/readme/) from this analysis. (15 minutes reading)
 
 --- 
 
@@ -78,15 +83,8 @@ As next steps beyond getting started and reading our technical point of view, yo
 
 You can run the solution locally, on IBM Cloud Private, on IBM Kubernetes Services or Openshift.
 
-### Understand the event storming analysis and derived design
 
-For those of you, who are interested to know how to apply the event storming and domain driven design methodology to the Reefer shipment process,  you can review the following articles:
-
-* [The solution introduction](https://ibm-cloud-architecture.github.io/refarch-kc/introduction) to get a sense of the goals of this application. (10 minutes read)
-* followed by the [event storming analysis report](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/) (30 minutes read).
-* and [the derived design](https://ibm-cloud-architecture.github.io/refarch-kc/design/readme/) from this analysis. (15 minutes reading)
-
-### Lab 4: Prepare your local environment (30 mn)
+### 4 - Hands on lab: Prepare your local environment (30 mn)
 
 !!! goals
     Install Kafka - zookeeper and postgresql docker images and start them in docker-compose or minikube environment
@@ -98,13 +96,15 @@ Then do one of the following choice:
 1. To run a local Kafka / zookeeper backbone using docker compose, in less than 3 minutes follow [the steps described in this note](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/#start-kafka-and-zookeeper).
 1. Or use [Minikube/ docker kubernetes](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/#pre-requisites) to get kafka, zookeeper and postgreSQl up and running on a unique node kubernetes cluster.
 
-### Lab 5: Prepare IBM Cloud IKS Openshift environment
+### 5 - Hands on lab: Prepare IBM Cloud IKS Openshift environment
 
-The following tutorial: ["Creating an IBM Cloud Red Hat OpenShift Container Platform cluster"](https://cloud.ibm.com/docs/containers?topic=containers-openshift_tutorial) will get you creating an openshift cluster within IBM Cloud. 
+You can run the solution locally, but you can also deploy it to a kubernetes cluster. So this lab is more optional or you can do it later when you are familar with the solution. If you want to build and run the solution locally go to step 8 below.
 
-Be sure to have administration privilege to be able to create cluster under your account. It will take 30 minutes to get the cluster provisioned. 
+So if you are interested by a public cloud deployment, you can follow this tutorial: ["Creating an IBM Cloud Red Hat OpenShift Container Platform cluster"](https://cloud.ibm.com/docs/containers?topic=containers-openshift_tutorial). 
 
-You can follow the steps to create the cluster with the console or use the ibm cloud CLI.
+Be sure to have administration privilege, within your account, to be able to create cluster. It will take less than 30 minutes to get the cluster provisioned. 
+
+You can follow the steps to create the cluster with the console or use the IBM Cloud CLI.
 
 1. Be sure to be logged to your IBM Cloud account:
     ```
@@ -184,13 +184,15 @@ You can follow the steps to create the cluster with the console or use the ibm c
 
     ![](os-console.png)
 
-### Lab 6: Create Kafka topics and get service credentials
+### 6 - Hands on lab: Create Kafka topics and get service credentials
 
 From the Event Stream services you created in [Lab 2](#lab-2-getting-started-with-event-streams-and-kafka-3-hours) go to the service credentials page, create new credentials to get the Kafka brokers list, the admim URL and the api_key needed to authenticate the consumer or producer code.
 
  ![](../deployments/eventstreams/images/IES-IC-credentials.png)
 
-The Event streams broker API key is needed to connect any deployed consumers or producers within kubernetes cluster to access the service in IBM Cloud. To avoid sharing security keys, we propose to define a kubernetes secret and deploy it to the IKS cluster.
+The Event streams broker API key is needed to connect any consumers or producers to access the service in IBM Cloud. 
+
+When those producers and consumers are deployed to kubernetes, the way to share security keys, is to define a kubernetes secret and deploy it to the IKS cluster.
 
 * Define a Event Stream API key secret: to configure a secret under the `greencompute` namespace.  
 
@@ -202,13 +204,19 @@ The Event streams broker API key is needed to connect any deployed consumers or 
 
     For Openshift use the name of the project as namespace
     ```
-    kubectl create secret generic eventstreams-apikey --from-literal=binding='9WKJ' -n reefer-shipment-solution
+    kubectl create secret generic eventstreams-apikey --from-literal=binding='<replace with api key>' -n reefer-shipment-solution
     ```
 
 * Verify the secrets:
 
     ```
     kubectl describe secrets -n greencompute
+    ```
+
+    or for openshift using project:
+
+    ```
+    kubectl describe secrets -n reefer-shipment-solution 
     ```   
 
 This secret is used by all the solution microservices which are using Kafka / Event Streams. The detail of how we use it with environment variables, is described in one of the project [here.](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/fleet-ms/README.md#run-on-ibm-cloud-with-kubernetes-service)
@@ -218,13 +226,23 @@ This secret is used by all the solution microservices which are using Kafka / Ev
  ![](../deployments/eventstreams/images/IES-IC-topics.png) 
 
 
-### Lab 7: Get a simple getting started event producer deployed on openshift with Event Stream
+!!! Note
+        In your local deployment the kafka topics are created automatically using the launch script.
 
-To validate the event stream and an openshift app are communicating, we use a simple order producer app we have developed as part of the Reefer container solution. It is done with python and can be found in [this repository](https://github.com/jbcodeforce/order-producer-python). We use Openshift source to image workflow to deploy this app to Openshift. Follow the steps in the readme as part of the lab.
+
+### 7 - Hands on lab: Get a simple getting started event producer deployed on openshift with Event Stream
+
+!!! Note 
+        For local deployment, [smoke test](#perform-the-smoke-tests-locally) scripts helps to show the event produced and consumed.
+
+
+To validate the IBM Event Stream and the openshift app are communicating, we use a simple order producer app we have developed as part of the Reefer container solution. It is done with python and can be found in [this repository](https://github.com/jbcodeforce/order-producer-python). We use Openshift source to image workflow to deploy this app to Openshift. Follow the steps in the readme as part of the lab.
 
 ![](order-producer-python.png)
 
-### Lab 8: Build and run the solution locally
+There are other tools to use to quickly 
+
+### 8 - Hands on lab: Build and run the solution locally
 
 !!! goals
     Build and run the solution so you can understand the Java-maven, Nodejs build process with docker stage build.
@@ -232,7 +250,7 @@ To validate the event stream and an openshift app are communicating, we use a si
 * [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/)
 * [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/)
 
-### Lab 9: Perform tests
+### 9 - Hands on: Perform tests
 
 #### Perform the smoke tests locally
 
@@ -270,7 +288,7 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 [Execute the demonstration script](https://ibm-cloud-architecture.github.io/refarch-kc/demo/readme/)
 
 
-### Lab 10: Review the CQRS patterns implementation
+### 10 - Reading: Review the CQRS patterns implementation
 
 * Read [Event driven design patterns for microservice](../evt-microservices/ED-patterns.md) with the Command Query Responsability Segregation, event sourcing and saga patterns. 
 
