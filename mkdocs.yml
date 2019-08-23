@@ -39,7 +39,9 @@ nav:
       - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
       - Kafka deployment with Strimzi: deployments/strimzi/deploy.md
       - ICP troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
-  - Real time analytics: rt-analytics/README.md
+  - Real time analytics: 
+    - Concepts: rt-analytics/README.md
+    - Reefer Container Predictive Maintenance: https://github.com/jbcodeforce/refarch-reefer-ml
   - Skill journey: training/eda-skill-journey.md
   - Compendium: compendium.md
 theme: 
