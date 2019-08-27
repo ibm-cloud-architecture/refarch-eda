@@ -37,7 +37,7 @@ The diagram below presents Kafka's key components:
 * **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers. It is really possible if the network latency between data centers is very low, at the 10ms or better, as there are a lot of communication between kafka brokers and between kafka and zookeepers. So the advice is to avoid cross data centers deployment.  
 * The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data to, and subscribed by consumers to get data. Data in topic is persisted to file systems for a retention time period (Defined at the topic level). The file system can be network based. 
 
-In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated two times. In production, it is recommended to use five nodes to authorise planned failure and un-planned failure, and when doing replicas, use a replica factors equals to the number of brokers
+In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated two times. In production, it is recommended to use at least five nodes to authorise planned failure and un-planned failure, and when doing replicas, use a replica factor equals to the number of brokers.
 
 ### Topics 
 
@@ -47,33 +47,33 @@ Topics represent end points to put or get records to.
 * Producers publish data records to topic and consumers subscribe to topics. When a record is produced without specifying a partition, a partition will be chosen using a hash of the key. If the record did not provide a timestamp, the producer will stamp the record with its current time (creation time or log append time). Producers hold a pool of buffers to keep records not yet transmitted to the server.
 * Kafka store log data in its `log.dir` and topic maps to subdirectories in this log directory.
 * **Kafka** uses topics with a pub/sub combined with queue model: it uses the concept of consumer group to divide the processing over a collection of consumer processes, running in parallel, and messages can be broadcasted to multiple groups.
-* Consumer performs asynchronous pull to the connected broker via the subscription to a topic.
+* Consumer performs asynchronous pull to the connected brokers via the subscription to a topic.
 
 The figure below illustrates one topic having multiple partitions, replicated within the broker cluster:  
 ![](./images/kafka-topic-partition.png)  
 
 ### Partitions
 
-Partitions are used by producers and consumers and data replication. Partitions are basically used to parallelize the event processing when a single server would not be able to process all events, using the broker clustering. So to manage increase in the load of messages Kafka uses partitions.
+Partitions are basically used to parallelize the event processing when a single server would not be able to process all events, using the broker clustering. So to manage increase in the load of messages, Kafka uses partitions.
 
 ![](images/topic-part-offset.png)   
 
-* Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use. Each partition will run on a separate server. If you have 5 brokers you can define topic with 5 partitions.
-* Kafka tolerates up to N-1 server failure without losing any messages. N is the replication factor for a given parition. 
+* Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use. 
+* Kafka tolerates up to N-1 server failure without losing any messages. N is the replication factor for a given partition. 
 * Each partition is a time ordered immutable sequence of records, that are persisted for a long time period. It is a log. Topic is a labelled log.
 * Consumers see messages in the order they are stored in the log.
-* Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumers, the traffic pattern, etc...
-* Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets). Those offset ids are defined when events arrived at the broker level, and are local to the partition. They are unmutable. 
+* Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumers, the traffic pattern, etc... You can have 2000 partitions per broker.
+* Each partitioned message has a unique sequence id called **offset** ("abcde, ab, a ..." in the figure above are offsets). Those offset ids are defined when events arrived at the broker level, and are local to the partition. They are inmutable. 
 * When a consumer reads a topic, it actually reads data from all the partitions. As a consumer reads data from a partition, it advances its offset. To read an event the consumer needs to use the topic name, the partition number and the last offset to read from. 
-* As brokers are stateless, the consumers are responsible to keep track of the offsets.
+* Brokers keep offset information in an hidden topic.
 * Partitions guarantee that data with the same keys will be sent to the same consumer and in order.
-* Adding more partition, in the limit of number of brokers, improve throughtput.
+
 
 ### Replication
 
-Each partition can be replicated accross a number of server. The replication factor is capted by the number of brokers. Partitions have one leader and zero or more followers. The leader manages all the read and write requests for the partition. Leader is also responsible to track the in sync replicas. The followers replicate the leader content. 
+Each partition can be replicated accross a number of server. The replication factor is capted by the number of brokers. Partitions have one leader and zero or more followers. The leader manages all the read and write requests for the partition. Leader is also responsible to track the "in sync" replicas. The followers replicate the leader content. 
 
-If a leader fails, followers elect a new one. When a producer sends message, he can control how to get the response from the committed message: wait for all replicas to succeed. Consumers receive only committed messages. 
+If a leader fails, followers elect a new one. When a producer sends message, it can control how to get the response from the committed message: wait for all replicas to succeed, wait for one acknowledge, fire and forget. Consumers receive only committed messages. 
 
 ### Zookeeper
 
@@ -85,7 +85,7 @@ Zookeeper is used to persist the component and platform states and it runs in cl
 
 ### Consumer group
 
-This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailinh consumer group implementation in [this note](./consumers.md)
+This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailing consumer group implementation in [this note](./consumers.md)
 
 
 ## Architecture
