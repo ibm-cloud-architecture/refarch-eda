@@ -52,24 +52,26 @@ Knowing that exactly once delivery is one of the hardest problems to solve in di
 
 Producer can set acknowledge level to control the delivery semantic:
 
-* At least once: means the producer set ACKS_CONFIG=all and get an acknowledgement message when the message has been written at least one time in the cluster (assume replicas = 3).  If the ack is not received, the producer may retry, which may generate duplicate records in case the broker stops after saving to the topic and before sending back the acknowledgement message.
+* At least once: means the producer set ACKS_CONFIG=1 and get an acknowledgement message when the message has been written at least one time in the cluster (assume replicas = 3).  If the ack is not received, the producer may retry, which may generate duplicate records in case the broker stops after saving to the topic and before sending back the acknowledgement message.
 * At most semantic: means the producer will not do retry in case of no acknowldege received. It may create log and compensation, but the message is lost.
 * Exactly once means even if the producer sends the message twice the system will send only one message to the consumer. Once the consumer commits the read offset, it will not receive the message again, even if it restarts. Consumer offset needs to be in sync with produced event.
 
-With the identpotence property (ENABLE_IDEMPOTENCE_CONFIG = true), the record sent has a sequence number, that the broker will consider to avoid having duplicate records per partition. The sequence number is persisted in a log so event in case of broker leader failure, the new leader will have a good view of the states of the system. 
+With the idempotence property (ENABLE_IDEMPOTENCE_CONFIG = true), the record sent has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. If a message is received with a lower sequence number, it means a producer is doing some retries on records already processed, so the broker will drop it, to avoid having duplicate records per partition. The sequence number is persisted in a log so even in case of broker leader failure, the new leader will have a good view of the states of the system. 
 
 !!! note
         The replication mechanism guarantees that when a message is written to the leader replica, it will be replicated to all available replicas.
+        As soon as you want to get acknowledge of all replicates, it is obvious to set idempotence to true. It does not impact performance.
 
 To add to these, as topic may have multiple partitions, kafka supports atomic writes to all partitions, so that all records are saved or none of them are visible to consumers. This transaction control is done by using the producer transactional API, and a unique transaction identifier to keep integrated state. The consumer is also interested to configure the reading of the transactional messages by defining the isolation level. 
 
-Read [this article](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/) from confluent.
+There is an interesting [article](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/) from Baeldung team about exactly once processing in kafka with code example.
 
 ## Code Examples
 
 * [Simple text message](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/blob/master/asset-event-producer/src/main/java/ibm/cte/kafka/play/SimpleProducer.java)
-* [A Pump simulator](https://github.com/ibm-cloud-architecture/refarch-asset-analytics/tree/master/asset-event-producer#pump-simulator)
+* [Order management with CQRS in Java]((https://github.com/ibm-cloud-architecture/refarch-kc-order-ms))
 * [Ship movement and container metrics event producers](https://github.com/ibm-cloud-architecture/refarch-kc-ms)
+* [Springboot with kafka template]((https://github.com/ibm-cloud-architecture/refarch-kc-container-ms))
 
 ## More readings
 
