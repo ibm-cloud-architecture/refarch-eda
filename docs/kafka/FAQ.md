@@ -28,6 +28,19 @@ bin/kafka-configs --zookeeper XX.XX.XX.XX:2181 --entity-type topics --entity-nam
 
 But there is also the `offsets.retention.minutes` property, set at the cluster level to control when the offset information will be deleted. It is defaulted to 1 day, but the max possible value is 7 days. This is to avoid keeping too much information in the broker memory and avoid to miss data when consumers run not continuously. So consumers need to commit their offset. If the consumer properties `auto.offset.reset=earliest` it will reprocess all the events, or skips to the latest if set to latest. In this last case if the consumers are offline for more than this time window, they will lose events.
 
+## What are the topic characteristics I need to define during requirements?
+
+This is a requirement gathering related question, to understand what need to be done for configuration topic configuration but also consumer and producer configuration, as well as retention strategy.
+
+* Number of brokers in the cluster
+* fire or forget or persist data for which amount of time
+* Need for HA, set replicas to number of broker or at least the value of 3
+* Type of data to transport 
+* volume per day
+* Accept snapshot
+* Need to do ge replication to other kafka cluster
+* Network filesystem used on the target kubernetes cluster and current storage class
+
 
 ## Differences between Akka and Kafka?
 
@@ -35,6 +48,7 @@ But there is also the `offsets.retention.minutes` property, set at the cluster l
 Kafka is part of the architecture, while Akka is an implementation choice for one of the component of the business application deployed inside the architecture. 
 
 [vert.x](https://vertx.io/) is another open source implementation of such internal messaging mechanism but supporting more language:  Java, Groovy, Ruby, JavaScript, Ceylon, Scala, and Kotlin.
+
 
 
 ## Other FAQs
