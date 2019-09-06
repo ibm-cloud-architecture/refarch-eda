@@ -1,5 +1,18 @@
 # Event Stream Service on IBM Cloud
 
+The installation instructions are here: [ibm.github.io/event-streams](https://ibm.github.io/event-streams/installing/installing/).
+
+## Things to consider before installation
+
+* Software and hardware [pre-requisites](https://ibm.github.io/event-streams/installing/prerequisites/) 
+* Can start small with the 3 brokers cluster. See [configuration note](https://ibm.github.io/event-streams/installing/configuring/)
+* Be sure the servers running the nodes and then event streams pods have enough resource available, using `free -m` linux command for memory and `df` for disk
+* Define the persistence strategy to support persisting logs from the Kafka topic and zookeepers metadata. 
+* Do you need to encrypt traffic to the cluster with your own certificates?
+* Do you want to use TLS for pod to pod communication?
+* For geo-replication defines the number of workers dedicated to do replication.
+
+## Provision the service
 To provision your service, go to the IBM Cloud Catalog and search for `Event Streams`. It is in the *Integration* category. Create the service and specify a name, a region and a resource group, add a tag if you want to, then select the enterprise plan. 
 
 ![](images/IES-service.png)
