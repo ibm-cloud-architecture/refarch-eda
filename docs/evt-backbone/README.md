@@ -98,6 +98,7 @@ The IBM Event Streams offering provides a *Kafka* service for the Event Backbone
 * [IBM Event Streams Public Cloud](https://console.bluemix.net/catalog/services/event-streams)
 * [IBM Event Streams Private Cloud](https://www.ibm.com/cloud/event-streams)
 * [See also our own Kafka study article](../kafka/readme.md) on how to support high availability and how to deploy to your local environment or to a kubernetes cluster like IBM Cloud Private.
+* [Active MQ Artemis](https://activemq.apache.org/components/artemis/) and our study [notes]()
 
 ## Messaging versus event streaming
 

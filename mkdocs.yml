@@ -46,6 +46,7 @@ nav:
   - Compendium: compendium.md
 theme: 
   name: material
+  logo: images/cloud.png
 extra_css: ["extra.css"]
 markdown_extensions:
   - admonition
