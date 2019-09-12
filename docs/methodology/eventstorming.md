@@ -47,7 +47,7 @@ A timeline of domain events is the critical output of the first step in the even
 One-View Figure.
 
 * **Actors** consume data by using a user interface and use the UI to interact with the system via commands. Actors could also be replace by articial intelligent agents.
-* **Commands** are the result of some user decision or policy, and act on relevant data which are part of a Read model in the [CQRS](../evt-microservices/ED-patterns.md#command-query-responsibility-segregation) pattern.
+* **Commands** are the result of some user decision or policy, and act on relevant data which are part of a Read model in the [CQRS](../design-patterns/cqrs.md) pattern.
 * **Policies** (represented by lilac stickies) are reactive logics that take place after an event occurs, and trigger other commands. Policies always start with the phrase "whenever...". They can be a manual step a human follows, such as a documented procedure or guidance, or they may be automated. When applying the [Agile Business Rule Development methodology](http://abrd.github.io) it will be mapped to a Decision within the [Decision Model Notation](https://www.omg.org/spec/DMN/About-DMN/).
 * **External systems** produce events.
 * **Data** can be presented to users in a user interface or modified by the system.
@@ -112,7 +112,7 @@ It is possible to chain events and commands as presented in the "one view" figur
 
 #### Step 5: Describe the Data
 
-You can't truly define a command without understanding the data that is needed for the command to execute in order to produce the event. You can identify several types of data during this step.  First, users (personas) need data from the user interface in order to make decisions before executing a command.  That data forms part of the read model in a [CQRS](../evt-microservices/ED-patterns.md) implementation. For each command and event pair, you add a data description of the expected attributes and data elements needed to take such a decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
+You can't truly define a command without understanding the data that is needed for the command to execute in order to produce the event. You can identify several types of data during this step.  First, users (personas) need data from the user interface in order to make decisions before executing a command.  That data forms part of the read model in a [CQRS](../design-patterns/cqrs.md) implementation. For each command and event pair, you add a data description of the expected attributes and data elements needed to take such a decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
 
 ![evt-stm-data](evt-stm-data.png)
   

@@ -9,4 +9,3 @@
 
 UNDER construction!
 
-![](../under-construction.png)

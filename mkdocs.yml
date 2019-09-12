@@ -15,9 +15,12 @@ nav:
     - Event Storming: methodology/eventstorming.md
     - Event Storming applied to container shipment analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
     - Domain driven design: methodology/ddd.md
-  - Event driven patterns:
+  - Event driven design patterns:
     - Microservices: evt-microservices/README.md
-    - Event-driven patterns: evt-microservices/ED-patterns.md
+    - Event-driven patterns: design-patterns/ED-patterns.md
+    - Event Sourcing: design-patterns/event-sourcing.md
+    - CQRS: design-patterns/cqrs.md
+    - Saga: design-patterns/saga.md
     - Kafka streaming processing: kafka/kafka-stream.md
     - Data replication pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/
   - Reference implementations:

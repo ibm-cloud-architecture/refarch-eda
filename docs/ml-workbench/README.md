@@ -8,6 +8,3 @@ The goals here are to illustrate how we can integrate tools like notebook, used 
 
 
 
-UNDER construction!
-
-![](../under-construction.png)

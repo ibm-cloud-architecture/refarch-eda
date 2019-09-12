@@ -11,7 +11,7 @@ With the adoption of microservices, the focus on synchronous communication betwe
 With event-driven microservices, the communication point becomes the Pub/Sub layer of the event backbone. By adopting an event-based approach for intercommunication between microservices, the microservices applications are naturally responsive (event-driven). This approach enhances the loose coupling nature of microservices because it decouples producers and consumers.  Further, it enables the sharing of data across microservices through the event log.
 These *event* style characteristics are increasingly important considerations when you develop microservices style applications. In practical terms microservices applications are a combination of synchronous API-driven, and asynchronous event-driven communication styles. For the implementation point of view a set of established patterns are used, such as Database per Service, Event Sourcing, Command Query Responsibility Segregation, Saga, ...
 
-[Read more on patterns](./ED-patterns.md)
+[Read more on patterns](../design-patterns/ED-patterns.md)
 
 ### Supporting products and suggested reading
 

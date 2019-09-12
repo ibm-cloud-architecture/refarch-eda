@@ -23,7 +23,7 @@ The typical use cases where **Kafka** helps are:
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services.
-* Implement [event soucing pattern](../evt-microservices/ED-patterns.md) out of the box, using configuration to keep message for a long time period. Data are replicated between brokers within the cluster and cross availability zones if needed. 
+* Implement [event soucing pattern](../design-patterns/event-sourcing.md) out of the box, using configuration to keep message for a long time period. Data are replicated between brokers within the cluster and cross availability zones if needed. 
 * Manage loosely coupled communication between microservices. (See [this note](https://ibm-cloud-architecture.github.io/refarch-integration/service-mesh/readme/#asynchronous-loosely-coupled-solution-using-events) where we present a way to support a service mesh solution using asynchronous event)
 
 ## Key concepts

@@ -9,13 +9,13 @@ While the prime focus for an event-driven architecture is processing events, in 
 
 ## Event sourcing
 
-When the state of a system changes, an application issues a notification event of the state change. We are detailing this pattern [here >>](../evt-microservices/ED-patterns.md) 
+When the state of a system changes, an application issues a notification event of the state change. We are detailing this pattern [here >>](../design-patterns/event-sourcing.md) 
 
 ## Command Query Responsibility Segregation (CQRS)
 
 The event log leads to more work to support business query as it requires converting the events into the application state suitable to the query.
 
-We are detailing this pattern [here >>](../evt-microservices/ED-patterns.md) 
+We are detailing this pattern [here >>](../design-patterns/cqrs.md) 
 
 See the following [order management project](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) for a detail explanation and implementation of the CQRS and event sourcing patterns.
 

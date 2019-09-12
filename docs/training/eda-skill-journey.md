@@ -290,13 +290,13 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 
 ### 10 - Reading: Review the CQRS patterns implementation
 
-* Read [Event driven design patterns for microservice](../evt-microservices/ED-patterns.md) with the Command Query Responsability Segregation, event sourcing and saga patterns. 
+* Read [Event driven design patterns for microservice](../design-patterns/ED-patterns.md) with the Command Query Responsability Segregation, event sourcing and saga patterns. 
 
-* Review the [Event sourcing design pattern explanations](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#event-sourcing) and how it is tested with some integration tests: 
+* Review the [Event sourcing design pattern explanations](../design-patterns/event-sourcing.md) and how it is tested with some integration tests: 
 
-* Review the [CQRS pattern](https://ibm-cloud-architecture.github.io/refarch-eda/evt-microservices/ED-patterns/#command-query-responsibility-segregation-cqrs-pattern) and the implementation in the [order microservice]().
+* Review the [CQRS pattern](../design-patterns/cqrs.md).
 
-* Review the CQRS code in the [order management microservice implementation]()
+* Review the CQRS code in the [order management microservice implementation](https://ibm-cloud-architecture.github.io/refarch-kc-order-ms)
 
 * [Kafka Python API](https://github.com/confluentinc/confluent-kafka-python) and some examples in our [integration tests project](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/)
 * [Kafka Nodejs API used in the voyage microservice](https://ibm-cloud-architecture.github.io/refarch-kc-ms/voyagems/)
