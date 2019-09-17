@@ -26,14 +26,3 @@ The approach is to use a "strangler" interface to dispatch request to new or old
 One of main challenge is to isolate data store and how the new microservices and the legacy application are accessing the shared data. Continuous data replication can be a solution to propagate write model to read model. Write model will most likely stays on the monolitic application, change data capture can be used, with event backbone to propagate change to read model.
 
 The facade needs to be scalable and not a single point of failure. It needs to support new APIs (RESTful) and old API (most likely SOAP).
-
-## Code References
-
-* The K Containers shipment use cases provides a supporting EDA example [https://github.com/ibm-cloud-architecture/refarch-kc](ttps://github.com/ibm-cloud-architecture/refarch-kc)
-* Within K Containers shipment the following are example microservices illustrating some of those patterns  
-    * [https://github.com/ibm-cloud-architecture/refarch-kc-ms](https://github.com/ibm-cloud-architecture/refarch-kc-ms)
-    * [https://github.com/ibm-cloud-architecture/refarch-kc-order-ms](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms)
-
-
-  
-

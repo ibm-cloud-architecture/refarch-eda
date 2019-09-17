@@ -2,23 +2,24 @@
 
 ## Problems and Constraints
 
-
-## Solution and Pattern
-
 Most business applications are state based persistent where any update changes the previous state of business entities. The database keeps the last committed update. But some business application needs to **explain how it reaches its current state**. For that the application needs to keep history of business facts. 
 Traditional domain oriented implementation builds a domain data model and map it to a RDBMS. As an example, in the simple `Order model` below, the database record will keep the last state of the order, the different addresses and the last ordered items in separate tables.
 
 ![](images/evt-src-ex1.png)   
 
-If you need to implement a query that looks at what happened to the order over a time period, you need to change the model and add historical records, basically building a log table. Designing a service to manage the life cycle of this order will, most of the time, add a "delete operation" to remove data.  For legal reason, most businesses do not remove data. As an example, a business ledger has to include new record(s) to compensate a previous transaction. There is no erasing of previously logged transactions. It is always possible to understand what was done in the past. Most business application needs to keep this capability.
+If you need to implement a query that looks at what happened to the order over a time period, you need to change the model and add historical records, basically building a log table.
 
-**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events or "facts" ordered over time. When the state of a system changes, an application issues a notification event of the state change. Any interested parties can become consumers of the event and take required actions.  The state-change event is immutable stored in an event log or event store in time order.  The event log or store becomes the principal source of truth. The system state can be recreated from a point in time by reprocessing the events. The history of state changes becomes an audit record for the business and is often a useful source of data for business analysts to gain insights into the business.
+Designing a service to manage the life cycle of this order will, most of the time, add a "delete operation" to remove data.  For legal reason, most businesses do not remove data. As an example, a business ledger has to include new record(s) to compensate a previous transaction. There is no erasing of previously logged transactions. It is always possible to understand what was done in the past. Most business application needs to keep this capability.
 
-The previous order model changes to a time oriented immutable stream of events, organized by the orderID key:
+## Solution and Pattern
+
+**Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events or "facts" ordered over time. 
 
 ![](images/evt-src.png)   
 
-You can see the "removing an item" in the order is a new event. With this capability, we can count how often a specific product is removed. 
+When the state of a system changes, an application issues a notification event of the state change. Any interested parties can become consumers of the event and take required actions.  The state-change event is immutable stored in an event log or event store in time order.  The event log becomes the principal source of truth. The system state can be recreated from a point in time by reprocessing the events. The history of state changes becomes an audit record for the business and is often a useful source of data for business analysts to gain insights into the business.
+
+You can see the "removing an item" in the order is a new event. With this capability, we can count how often a specific product is removed for the shopping cart. 
  
 In some cases, the event sourcing pattern is implemented completely within the event backbone.  Kafka topic and partitions are the building blocks for event sourcing. However, you can also consider implementing the pattern with an external event store, which provides optimizations for how the data may be accessed and used. For example [IBM Db2 Event store](https://www.ibm.com/products/db2-event-store) can provide the handlers and event store connected to the backbone and can provide optimization for down stream analytical processing of the data.
 
@@ -35,6 +36,16 @@ With a central event logs, producers append events to the log, and consumers rea
 ![](./images/evt-sourcing.png)
 
 To get the final state of an entity, the consumer needs to replay all the events, which means replaying the changes to the state from the last committed offset or from the last snapshot or the origin of "time". 
+
+### Advantages
+
+The main goal is to be able to understand what happens to a business entity over time. But there are a set of interesting things that can be done:
+
+* We can rebuild the data project within a microservice after it crashes, be reloading the event log.
+* As events are ordered with time, we can apply complex event processing with temporal queries, time window operations, and looking at non-event.
+* Be able to reverse the state and correct data with new events.
+
+### Considerations
 
 When replaying the event, it may be important to avoid generating side effects. A common side effect is to send a notification on state change to other consumers. So the consumer of events need to be adapted to the query and business requirement. For example if the code needs to answer to the question: "what happened to the order over time for order ID = 75?" then there is no side effect, only a report can be created each time the consumer runs.
 
@@ -57,3 +68,13 @@ One derived challenge is that the command may be executed multiple times, especi
 * The event backbone needs to guarantee that events are delivered at least once and the microservices are responsible to manage their offset from the stream source and deal with inconsistency, by detecting duplicate events.
 * At the microservice level, updating data and emitting event needs to be an atomic operation, to avoid inconsistency if the service crashes after the update to the datasource and before emitting the event. This can be done with an eventTable added to the microservice datasource and an event publisher that reads this table on a regular basis and change the state of the event once published. Another solution is to have a database transaction log reader or miner responsible to publish event on new row added to the log.
 * One other approach to avoid the two-phase commit and inconsistency is to use an Event Store or Event Sourcing pattern to keep track of what is done on the business entity with enough information to rebuild the data state. Events are becoming facts describing state changes done on the business entity.
+
+## Code repository
+
+All the microservices implementing the Reefer management solution is using event sourcing, as we use kafka with long persistence. The order management service is using CQRS combined with event sourcing: [https://github.com/ibm-cloud-architecture/refarch-kc-order-ms](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) and an integration test validate the pattern [here](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/#how-to-proof-the-event-sourcing).
+
+## Compendium
+
+* [Martin Fowler - event sourcing pattern](https://martinfowler.com/eaaDev/EventSourcing.html)
+* [Microservice design pattern from Chris Richardson](https://microservices.io/patterns/data/event-sourcing.html)
+* [Greg Young video on event sourcing at the goto; conference](https://www.youtube.com/watch?v=8JKjvY4etTY)
