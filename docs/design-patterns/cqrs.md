@@ -99,6 +99,19 @@ The connection between the command bus and the event bus is facilitated by an ap
 
 The changes that are logged can be the commands from the command bus or the update events published to the event bus
 
+### Considerations
+
+Keep these decisions in mind while applying this pattern:
+
+* **Client impact**: Applying CQRS not only changes how data is stored and accessed, but also changes the APIs that clients use to access data. This means that each client must be redesigned to use the new APIs.
+* **Riskiness**: A lot of the complexity of the pattern solution involves duplicating the data in two databases and keeping them synchronized. Risk comes from querying data that is stale or downright wrong because of problems with the synchronization. Eventual data consistency is given in microservice world, and acceptable in a lot of case.
+* **Command queuing**: Using a command bus as part of the write solution to queue the commands is optional but powerful (in the next section we illustrate a way to use event bus for command too). In addition to the benefits of queuing, the command objects can easily be stored in the change log and easily be converted into notification events.
+* **Change log**: The log of changes to the database of record can be either the list of commands from the command bus or the list of event notifications published on the event bus. The Event Sourcing pattern assumes it’s a log of events, but that pattern doesn’t include the command bus. An event list may be easier to scan as a history, whereas a command list is easier to replay.
+* **Create commands**: Strick interpretation of the Command Query Separation (CQS) pattern says that command operations do not have return types. A possible exception is commands that create data: An operation that creates a new record or document typically returns the key for accessing the new data, which is convenient for the client. However, if the create operation is invoked by a command on a command bus, returning the key to the client involve promise and callbacks.
+* **Messaging queues and topics**: While messaging is used to implement both the command bus and event bus, the two busses use messaging differently. The command bus uses a semantic to guarantee exactly once delivery. The event bus uses topics so that each event is broadcast to all event processors.
+* **Query database persistence**: The database of record is always persistent. The query database is a cache that can be a persistent cache or an in-memory cache. If the cache is in-memory and is lost, it must be rebuilt completely from the database of record.
+* **Security**: Controls on reading data and updating data can be applied separately using the two parts of the solution.
+
 ### Combining event sourcing and CQRS
 
 The CQRS application pattern is frequently associated with event sourcing: when doing event sourcing and domain driven design, we event source the aggregates or root entities. Aggregate creates events that are persisted. On top of the simple create, update and read by ID operations, the business requirements want to perform complex queries that can't be answered by a single aggregate. By just using event sourcing to be able to respond to a query like "what are the orders of a customer", then we have to rebuild the history of all orders and filter per customer. It is a lot of computation. This is linked to the problem of having conflicting domain models between query and persistence.  
