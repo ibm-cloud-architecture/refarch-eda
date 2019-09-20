@@ -32,7 +32,7 @@ Before even beginning to apply the pattern, let’s consider the typical app des
 
 The domain model is an object representation of the database documents or records. It is comprised of domain objects that represent individual documents or records and the business logic for managing and using them. Domain-Driven Design (DDD) models these domain objects as entities—“objects that have a distinct identity that runs through time and different representations”—and aggregates—“a cluster of domain objects that can be treated as a single unit”; the aggregate root maintains the integrity of the aggregate as a whole. 
 
-Ideally, the domain model’s API should be more domain-specific than simply CRUDing of data. Instead, it should expose higher-level operations that represent business functionality like `findCustomer(), placeOrder(), transferFunds()`, and so on. These operations read and update data as needed, sometimes doing both in a single operation. They are correct as long as they fit the way the business works.
+Ideally, the domain model’s API should be more domain-specific than simply CRUDing of data. Instead, it should expose higher-level operations that represent business functionality like `findCustomer()`, `placeOrder()`, `transferFunds()`, and so on. These operations read and update data as needed, sometimes doing both in a single operation. They are correct as long as they fit the way the business works.
 
 ### Separate read and write APIs
 
