@@ -2,13 +2,21 @@
 
 ## Problems and Constraints
 
-An application accesses data both to read and to modify it. The primitive data tasks are often expressed as create, read, update, and delete (CRUD); using them is known as CRUDing the data. App code usually does not make much distinction between the tasks; individual operations often mix reading the data with changing the data as needed.
+A domain model encapsulates domain data with the behavior for maintaining the correctness of that data as it is modified, structuring the data based on how it is stored in the database and to facilitate managing the data. Multiple clients can independently update the data concurrently. Different clients may not use the data the way the domain model structures it, may not agree with each other on how it should be structured.
 
-As part of application modernisation and the adoption of microservice, the database per service approach leads to interesting challenges of how to support business queries joining different data sources. 
+**When a domain model becomes overburdened managing complex aggregate objects, concurrent updates, and numerous cross-cutting views, how can it be refactored to separate different aspects of how the data is used?**
 
-Each microservice should store and manage its own data, user interface may need to display data from several microservices, or a business report needs to combined data from multiple microservices. Where this query should be implemented?
+An application accesses data both to read and to modify it. The primitive data tasks are often expressed as create, read, update, and delete (CRUD); using them is known as CRUDing the data. Application code often does not make much distinction between the tasks; individual operations may mix reading the data with changing the data as needed.
 
-Another example is an enterprise database of record managing data required by many apps. It can become overloaded with too many clients needing too many connections to run too many threads performing too many transactions—such that the database becomes a performance bottleneck and can even crash. If the database contains data that is used by much of the enterprise, how can it be made more scalable?
+This simple approach works well when all clients of the data can use the same structure and contention is low. A single domain model can manage the data, make it accessible as domain objects, and ensure updates maintain its consistency. However, this approach becomes inadaquate when different clients want different views across multiple sets of data, when the data is too widely used, and/or when multiple clients updating the data my unknowlingly conflict with each other. 
+
+For example, in a microservices architecture, each microservice should store and manage its own data, but a user interface may need to display data from several microservices. A query that gathers bits of data from multiple sources can be inefficient (time and bandwidth consumed accessing multiple data sources, CPU consumed transforming data, memory consumed by intermediate objects) and must be repeated each time the data is accessed.
+
+Another example is an enterprise database of record managing data required by multiple applications. It can become overloaded with too many clients needing too many connections to run too many threads performing too many transactions--such that the database becomes a performance bottleneck and can even crash.
+
+Another example is maintaining consistency of the data while clients concurrently make independent updates to the data. While each update may be consistent, they may conflict with each other. Database locking ensures that the updates don't change the same data concurrently, but doesn't ensure multiple independent changes result in a consistent data model.
+
+When data usage is more complex than a single domain model can facilitate, a more sophisticated approach is needed.
 
 ## Solution and Pattern
 
@@ -32,7 +40,7 @@ Before even beginning to apply the pattern, let’s consider the typical app des
 
 The domain model is an object representation of the database documents or records. It is comprised of domain objects that represent individual documents or records and the business logic for managing and using them. Domain-Driven Design (DDD) models these domain objects as entities—“objects that have a distinct identity that runs through time and different representations”—and aggregates—“a cluster of domain objects that can be treated as a single unit”; the aggregate root maintains the integrity of the aggregate as a whole. 
 
-Ideally, the domain model’s API should be more domain-specific than simply CRUDing of data. Instead, it should expose higher-level operations that represent business functionality like `findCustomer(), placeOrder(), transferFunds()`, and so on. These operations read and update data as needed, sometimes doing both in a single operation. They are correct as long as they fit the way the business works.
+Ideally, the domain model’s API should be more domain-specific than simply CRUDing of data. Instead, it should expose higher-level operations that represent business functionality like `findCustomer()`, `placeOrder()`, `transferFunds()`, and so on. These operations read and update data as needed, sometimes doing both in a single operation. They are correct as long as they fit the way the business works.
 
 ### Separate read and write APIs
 
