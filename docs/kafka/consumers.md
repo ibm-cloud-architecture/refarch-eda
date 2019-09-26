@@ -5,7 +5,7 @@
 Consumers belong to **consumer groups**. You specify the group name as part of the connection parameters. 
 
 ```
-
+  properties.put(ConsumerConfig.GROUP_ID_CONFIG,  groupid);
 ```
 
 Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Consumers can run in separate hosts and separate processes.
@@ -19,10 +19,10 @@ The implementation is simple for a single thread consumer, and the code structur
 * prepare the properties
 * create an instance of KafkaConsumer to connect to a topic and a partition
 * loop on polling events 
-  * process the ConsumerRecords and commit the offset by code or use the autocommit attibute of the consumer,   
+  * process the ConsumerRecords and commit the offset by code or use the autocommit attibute of the consumer 
 
-Examples of Java consumers can be found in [this project](https://github.com/ibm-cloud-architecture/refarch-kc-ms).
-Example of Javascript implementation is in [this repository](https://github.com/jbcodeforce/nodejs-kafka)
+Examples of Java consumers can be found in [this project](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) under the order-command-ms folder.
+Example of Javascript implementation is in [this repository/folder](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/voyages-ms/server/utils/kafka.js)
 
 But the complexity comes from the offset management and multithreading needs. So the following important considerations need to be addressed while implementing a consumer:
 

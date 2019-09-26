@@ -44,7 +44,7 @@ nav:
       - ICP troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
   - Real time analytics: 
     - Concepts: rt-analytics/README.md
-    - Reefer Container Predictive Maintenance: https://github.com/jbcodeforce/refarch-reefer-ml
+    - Reefer Container Predictive Maintenance: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
   - Skill journey: training/eda-skill-journey.md
   - Compendium: compendium.md
 theme: 

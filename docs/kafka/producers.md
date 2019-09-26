@@ -62,9 +62,49 @@ With the idempotence property (ENABLE_IDEMPOTENCE_CONFIG = true), the record sen
         The replication mechanism guarantees that when a message is written to the leader replica, it will be replicated to all available replicas.
         As soon as you want to get acknowledge of all replicates, it is obvious to set idempotence to true. It does not impact performance.
 
-To add to these, as topic may have multiple partitions, kafka supports atomic writes to all partitions, so that all records are saved or none of them are visible to consumers. This transaction control is done by using the producer transactional API, and a unique transaction identifier to keep integrated state. The consumer is also interested to configure the reading of the transactional messages by defining the isolation level. 
+To add to these, as topic may have multiple partitions, kafka supports atomic writes to all partitions, so that all records are saved or none of them are visible to consumers. This transaction control is done by using the producer transactional API, and a unique transaction identifier to keep integrated state. Here is an example of such configuration that can be done in a producer contructor method:
 
-There is an interesting [article](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/) from Baeldung team about exactly once processing in kafka with code example.
+```java
+producerProps.put("enable.idempotence", "true");
+producerProps.put("transactional.id", "prod-1");
+kafkaProducer.initTransactions()
+```
+
+`initTransactions()` registers the producer with the broker as one that can use transactions, identifying it by its transactional.id and a sequence number, or epoch.
+
+In case of multiple partitions, the broker will store a list of all updated partitions for a given transaction.
+
+See the [code in order command]() microservice.
+
+The consumer is also interested to configure the reading of the transactional messages by defining the isolation level. Consumer waits to read transactional messages until the associated transaction has been committed. Here is an example of consumer code and configuration
+
+```java
+consumerProps.put("enable.auto.commit", "false");
+consumerProps.put("isolation.level", "read_committed");
+```
+
+With `read_committed`, no messages that were written to the input topic in the same transaction will be read by this consumer until they are all written.
+
+The consumer commits its offset with code, and specify the last offset to read.
+```java
+offsetsToCommit.put(partition, new OffsetAndMetadata(offset + 1))
+producer.sendOffsetsToTransaction(offsetsToCommit, "order-group-id");
+```
+
+The producer then commit the transaction.
+```
+try {
+        kafkaProducer.beginTransaction();
+	ProducerRecord<String, String> record = new ProducerRecord<>(ApplicationConfig.ORDER_COMMAND_TOPIC, key, value);
+	Future<RecordMetadata> send = kafkaProducer.send(record);
+	send.get(ApplicationConfig.PRODUCER_TIMEOUT_SECS, TimeUnit.SECONDS);
+	kafkaProducer.commitTransaction();
+} catch (KafkaException e){
+      	kafkaProducer.abortTransaction();
+}
+```
+
+There is an interesting [article](https://www.baeldung.com/kafka-exactly-once) from Baeldung team about exactly once processing in kafka with code example.
 
 ## Code Examples
 
@@ -76,3 +116,4 @@ There is an interesting [article](https://www.confluent.io/blog/exactly-once-sem
 ## More readings
 
 *[Creating advanced kafka producer in java - Cloudurable](http://cloudurable.com/blog/kafka-tutorial-kafka-producer-advanced-java-examples/index.html)
+* [Confluent blog: Exactly-once Semantics are Possible: Here’s How Kafka Does it](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/))
