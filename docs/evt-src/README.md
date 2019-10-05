@@ -8,12 +8,13 @@ Here is a list of common event sources:
 
 * IOT devices or sensors showing device status changes
 * Click Stream data from web or mobile applications
-* Mobile applications (HTTP to Back-end For Front-end service and then to topic)
+* Mobile applications (HTTP to Back-end for Front-end service and then to topic)
 * Geospacial data
 * Weather alerts
 * Social media feeds
 * Real-time voice feeds
 * Other messaging backbone
+* Data change event streams from databases (change data capture)
 
 ## IOT devices and sensors
 
