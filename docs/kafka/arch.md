@@ -104,7 +104,7 @@ Zookeeper is not CPU intensive and each server should have a least 2 GB of heap 
 
 ### Kubernetes Operator
 
-It is important to note that the deployment and management of stateful application in Kubernetes should, now, use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strinmzi kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplify the deployment of Kafka within k8s by adding a set of operators to deploy and manage kafka cluster, manage topics and manage users.
+It is important to note that the deployment and management of stateful application in Kubernetes should, now, use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strimzi Kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplifies the deployment of Kafka within k8s by adding a set of operators to deploy and manage Kafka clusters, topics, users and more.
 
 ## Multi regions for disaster recovery
 
