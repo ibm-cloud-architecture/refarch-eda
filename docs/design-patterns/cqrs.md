@@ -174,9 +174,9 @@ It is important to clearly study the Kafka consumer API and the different parame
 
 There are other ways to support this dual operations level:
 
-* When using Kafka, the [Kafka connect](https://kafka.apache.org/documentation/#connect) has capability to subscribe to database via JDBC and listen to tables updates and then produces events to kafka.
-* There is a change data capture open source, the [Debezium tool](https://debezium.io/) that help respond to insert, update and delete operations on database and generate event accordingly. It do not support all database on the market. 
-* Write the order to the database and in the same transaction write to an event table. Then use a polling to get the events to send to kafka from this event table and delete the row in the table once the event is sent. 
+* When using Kafka, [Kafka Connect](https://kafka.apache.org/documentation/#connect) has the capability to subscribe to databases via JDBC, allowing to poll tables for updates and then produce events to Kafka.
+* There is an open-source change data capture solution based on extracting change events from database transaction logs, [Debezium](https://debezium.io/) that helps to respond to insert, update and delete operations on databases and generate events accordingly. It supports databases like MySQL, Postgres, MongoDB and others. 
+* Write the order to the database and in the same transaction write to an event table (["outbox pattern"](https://debezium.io/documentation/reference/0.10/configuration/outbox-event-router.html)). Then use a polling to get the events to send to Kafka from this event table and delete the row in the table once the event is sent. 
 * Use the Change Data Capture from the database transaction log and generate events from this log. The IBM [Infosphere CDC](https://www.ibm.com/support/knowledgecenter/cs/SSTRGZ_10.2.0/com.ibm.cdcdoc.mcadminguide.doc/concepts/overview_of_cdc.html) product helps to implement this pattern. For more detail about this solution see [this product tour](https://www.ibm.com/cloud/garage/dte/producttour/ibm-infosphere-data-replication-product-tour).
 
 The CQRS implementation using CDC will look like in the following diagram:
