@@ -91,7 +91,7 @@ offsetsToCommit.put(partition, new OffsetAndMetadata(offset + 1))
 producer.sendOffsetsToTransaction(offsetsToCommit, "order-group-id");
 ```
 
-The producer then commit the transaction.
+The producer then commits the transaction.
 ```
 try {
         kafkaProducer.beginTransaction();
