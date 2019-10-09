@@ -107,9 +107,11 @@ Be sure to have administration privilege, within your account, to be able to cre
 You can follow the steps to create the cluster with the console or use the IBM Cloud CLI.
 
 1. Be sure to be logged to your IBM Cloud account:
+
     ```
     ibmcloud login -a https://cloud.ibm.com  -u <userid> -p <password> -c <accoundID>
     ```
+
 1. Get the private and public vlan IP address for your zone:
 
     ```
@@ -248,7 +250,7 @@ There are other tools to use to quickly
     Build and run the solution so you can understand the Java-maven, Nodejs build process with docker stage build.
 
 * [Build and deploy the solution locally using docker compose](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/local/)
-* [Or build and deploy the solution locally using Minikube](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/minikube/)
+
 
 ### 9 - Hands on: Perform tests
 
