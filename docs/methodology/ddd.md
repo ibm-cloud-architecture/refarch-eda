@@ -24,7 +24,7 @@ We make use of the following materials generated during Event Storming and analy
     * Policies. 
     * Event prediction and probability flows. 
 
-The derivation of these material was described in: [Analysis](../analysis/readme.md).
+The derivation of these material was described in: [the event storming introduction](eventstorming.md).
 
 Here is an example of starting material illustrating the beginning of the process:
 
