@@ -9,9 +9,11 @@ Producers are more simple to implement but still you need to assess some design 
 When developing a record producer you need to assess the following:
 
 * What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size. By default, the buffer size is set at 32Mb, but can be configured with `buffer.memory`. (See [producer configuration API](https://kafka.apache.org/10/javadoc/org/apache/kafka/clients/producer/ProducerConfig.html)
-* Can the producer batch events together to send them in batch over one send operation? 
+* Can the producer batch events together to send them in batch over one send operation? By design kafka producer batch events.
 * Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size, and ensure to have at least 3 brokers and even 5 to maintain quorum in case of one failure. The client API is implemented to support reconnection.
+	* When deploying kafka on Kubernetes, it is important to proxy the broker URLs with a proxy server outside of kubernetes. 
 * Assess *exactly once* delivery requirement. Look at idempotent producer: retries will not introduce duplicate records.
+* Partitions help to scale the consumer processing of message, but it also helps the producer to be more efficient as it can send message in parallel to different partition.
 * Where the event timestamp comes from? Should the producer send operation set it or is it loaded from external data? Remember that `LogAppendTime` is considered to be processing time, and `CreateTime` is considered to be event time.
 
 See related discussions [on confluent web site.](https://www.confluent.io/blog/put-several-event-types-kafka-topic/)
@@ -56,7 +58,7 @@ Producer can set acknowledge level to control the delivery semantic:
 * At most semantic: means the producer will not do retry in case of no acknowldege received. It may create log and compensation, but the message is lost.
 * Exactly once means even if the producer sends the message twice the system will send only one message to the consumer. Once the consumer commits the read offset, it will not receive the message again, even if it restarts. Consumer offset needs to be in sync with produced event.
 
-With the idempotence property (ENABLE_IDEMPOTENCE_CONFIG = true), the record sent has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. If a message is received with a lower sequence number, it means a producer is doing some retries on records already processed, so the broker will drop it, to avoid having duplicate records per partition. The sequence number is persisted in a log so even in case of broker leader failure, the new leader will have a good view of the states of the system. 
+With the idempotence property (ENABLE_IDEMPOTENCE_CONFIG = true), the record sent, has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. If a message is received with a lower sequence number, it means a producer is doing some retries on record already processed, so the broker will drop it, to avoid having duplicate records per partition. The sequence number is persisted in a log so even in case of broker leader failure, the new leader will have a good view of the states of the system. 
 
 !!! note
         The replication mechanism guarantees that when a message is written to the leader replica, it will be replicated to all available replicas.
@@ -74,7 +76,7 @@ kafkaProducer.initTransactions()
 
 In case of multiple partitions, the broker will store a list of all updated partitions for a given transaction.
 
-See the [code in order command]() microservice.
+See the [code in order command](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/53bbb8cdeac413883ca2ccf521eb0797a43f45a3/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderCommandProducer.java#L46) microservice.
 
 The consumer is also interested to configure the reading of the transactional messages by defining the isolation level. Consumer waits to read transactional messages until the associated transaction has been committed. Here is an example of consumer code and configuration
 
@@ -83,18 +85,20 @@ consumerProps.put("enable.auto.commit", "false");
 consumerProps.put("isolation.level", "read_committed");
 ```
 
-With `read_committed`, no messages that were written to the input topic in the same transaction will be read by this consumer until they are all written.
+With `read_committed`, no message that was written to the input topic in the same transaction will be read by this consumer only message replicas are all written.
 
-The consumer commits its offset with code, and specify the last offset to read.
+The consumer commits its offset with code, and specifies the last offset to read.
+
 ```java
 offsetsToCommit.put(partition, new OffsetAndMetadata(offset + 1))
 producer.sendOffsetsToTransaction(offsetsToCommit, "order-group-id");
 ```
 
 The producer then commits the transaction.
+
 ```
 try {
-        kafkaProducer.beginTransaction();
+    kafkaProducer.beginTransaction();
 	ProducerRecord<String, String> record = new ProducerRecord<>(ApplicationConfig.ORDER_COMMAND_TOPIC, key, value);
 	Future<RecordMetadata> send = kafkaProducer.send(record);
 	send.get(ApplicationConfig.PRODUCER_TIMEOUT_SECS, TimeUnit.SECONDS);

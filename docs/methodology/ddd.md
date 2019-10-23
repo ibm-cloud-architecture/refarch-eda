@@ -8,11 +8,11 @@ The goals for the design step are:
 
 * To support highly modular cloud native microservices. 
 * To adopt event coupled microservices - facilitating independent modification and evolution of each microservice separately.
-* To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of microservice: data eventual consitency, transaction cross domain, and complex queries between aggregates managed by different services.
+* To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of microservice implementation: data consitency, transaction cross domain, and complex queries between aggregates managed by different services.
 
-## Starting materials generated during Event Storming and Analysis
+## Starting materials generated during the Event Storming workshop
 
-We make use of the following materials generated during Event Storming and analysis of the Container Shipment example problem: 
+We make use of the following materials generated during Event Storming and analysis workshop: 
 
 * Event Sequence flow.
 * Events – business description.
@@ -26,32 +26,84 @@ We make use of the following materials generated during Event Storming and analy
 
 The derivation of these material was described in: [the event storming introduction](eventstorming.md).
 
-Here is an example of starting material illustrating the beginning of the process:
+Here is an example of starting material illustrating the beginning of the process for the Reefer shipping business process:
 
 ![](images/event-storming-order.png)
 
+From there we complement the analysis and start the domain design.
 
 ## Steps in the design process 
 
-Here we describe in generic terms, each step in the process of deriving event-linked microservice specifications.
-
----
-
 ### Step 1: Assess domain and subdomains
 
-Domain is what an organization does, and it includes the how to perform its operations. It is composed of sub domains. A Core Domain is a part of the business Domain that is of primary importance to the success of the organization, the organization needs to excel at it.
+Domain is what an organization does, and it includes the how to perform its operations.  It is composed of sub domains. A Core Domain is a part of the business Domain that is of primary importance to the success of the organization, the organization needs to excel at it.
 
 During the event storming analysis, you define the domain and groups a set of subdomains like orders, invoice, customer, ... and external systems. Here is an example of such domain and subdomains:
 
 ![](images/domain-subdomains.png)
 
-We have three core subdomains and the rest as support.
+We have three core subdomains and the rest are supports.
 
 ---
 
-### Step 2: Defined the potential applications
+### Step 2: Defined the potential application
 
-At the high level, when doing the analysis, you should have some insight decision of the top level application to develop, but it is also important to see list other systems to interact to. A classic system context diagram is a nice tool to represent that. The EDA reference implementation solution includes such [system context diagram](https://ibm-cloud-architecture.github.io/refarch-kc/design/architecture/#system-context).
+At the high level, when doing the analysis, you should have some insight decision of the top level application to develop, but it is also important to also list other systems to interact with. A classic system context diagram is a nice tool to represent that. The EDA reference implementation solution includes such [system context diagram](https://ibm-cloud-architecture.github.io/refarch-kc/design/architecture/#system-context).
+
+Each interface needs to be documented using an efficient tools of [interface characteristics](https://www.ibm.com/developerworks/websphere/techjournal/1201_clark/1201_clark.html). 
+
+full set of interface characteristics is shown below:
+
+* FUNCTIONAL DEFINITION
+
+    * Principal data objects
+    * Operation/function
+    * Read or change
+    * Request/response objects
+
+* TECHNICAL INTERFACE
+        
+    * Transport
+    * Protocol
+    * Data format
+
+* INTERACTION TYPE
+
+    * Request-response or fire-forget
+    * Thread-blocking or asynchronous
+    * Batch or individual
+    * Message size
+
+* PERFORMANCE
+
+    * Response times
+    * Throughput
+    * Volumes
+    * Concurrency
+
+* INTEGRITY
+    * Validation
+    * Transactionality
+    * Statefulness
+    * Event sequence
+    * Idempotence
+
+* SECURITY
+
+    * Identity/authentication
+    * Authorization
+    * Data ownership
+    * Privacy
+
+* RELIABILITY
+
+    * Availability
+    * Delivery assurance
+
+* ERROR HANDLING
+    * Error management capabilities
+    * Known exception conditions
+    * Unexpected error presentation
 
 ---
 
@@ -82,6 +134,8 @@ An aggregate is a cluster of associated objects that we treat as a unit for the 
  
 #### Bounded Contexts
 
+Bounded Context explicitly defines the boundaries of your model. This concept is critical in large software projects. A Bounded Context sets the limits around what a specific team works on and helps them to define their own vocabulary within that particular context. When you define a bounded context, you define who uses it, how they use it, where it applies within a larger application context, and what it consists of in terms of things like Swagger documentation and code repositories.
+
 Within a business context every use of a given domain term, phrase, or sentence, **the Ubiquitous Language** inside the boundary has a specific contextual meaning. So order context is a boundary context and groups order, ordered product type, pickup and shipping addresses, delivery specifications, delivery history. 
 
 #### Repositories
@@ -95,6 +149,9 @@ A complete event driven microservices specification (the target of this design s
 
 * Event Topics 
     * Used to configure the Event Backbone 
+    * Mapped to the life cycle of the root entity
+    * Topics can be chained to address different consumer semantic
+    * Single partition for keeping order and support exactly once delivery
 * Event types within each event topic 
 * Microservices: 
     * They may be finer grained than aggregates or mapped to aggregate boundaries.
