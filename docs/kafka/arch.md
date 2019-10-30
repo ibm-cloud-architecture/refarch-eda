@@ -123,7 +123,7 @@ Performance may be linked to different focuses:
 
 * Resilience: ensuring replication and not loosing data
 * Throughput: ensuring message processing performance
-* Size: support larger message
+* Payload size: support larger message
 
 ### Resilience
 
@@ -133,7 +133,27 @@ The replication of message data between brokers can consume a lot of network ban
 
 ### Throughput
 
-To achieve higher throughput the messages could not be replicated across brokers and the acknowledgement can be set to only one broker. The number of producers and consumers are aligned, and the number of partition match the number of consumers. All consumers are in the same consumer group.   
+To achieve higher throughput the messages are not replicated across brokers and the acknowledgement can be set to only one broker. Expose resilienc to failures.
+
+The number of producers and consumers are aligned, and the number of partition match the number of consumers. All consumers are in the same consumer group. Measurement has to be done from the producer code.
+With 12 producers on a 3 brokers cluster and small payload (128 bytes), with 24 consumers the measured throughput is around 2.3 M messages / second.
+
+### Payload size
+
+From measurement tests done using Kafka producer performance tool, there is a 1/log(s) curve, where below 10k bytes the performances are correct and then slowly degrade from 3000 msg /s (10k bytes msg) to 65 msg/s (515kb msg).
+
+To do performance test the [event-streams-sample-producer](https://github.com/IBM/event-streams-sample-producer) github provides producer tool in Java, using a group of threads to run in multi cores machine. This project can be dockerized, and deployed in k8s. It uses the kafka tool named: `ProducerPerformance.java` in the jar: 
+
+```
+<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-tools</artifactId>
+</dependency>
+```
+
+### Parameter considerations
+
+There are a lot of factors and parameters that needs to be tuned to improve performance at the brokers threading level (`num.replica.fetchers, num.io.threads, num.network.threads, log.cleaner.threads` ) and the pod resources constraints. See [configuration documentation](https://kafka.apache.org/documentation/#configuration).
 
 ## Multi regions for disaster recovery
 

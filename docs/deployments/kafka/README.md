@@ -1,32 +1,37 @@
 # Kafka Deployment
 
-We are proposing different deployment approaches:
+A frequently asked question related to deployment is whether Kafka should be deployed on its own servers or within kubernetes. While a lot of kakfa based product providers have selected to deploy to kubernetes via operators, like Strimzi, or helm chart, it may make sense to separate the Kafka broker servers on their own VM or even bare-metal. We want to highlight the following criterias to assess before going to non kubernetes deployment:
+
+* Fast persistence storage capacity and technology used to support persistence volumes. You need high level throughput storage. 
+* Skill set around kubernetes deployment and operations
+* Maintenance of operating system, software version for standalone servers
+
+* Advantages of deploying Kafka on Kubernetes:
+    * Simplified and fast deployment of the solution. Event better with Helm or Operators.
+    * Consistent management plane with the consumer & producer applications.
+    * Kafka version upgrades are provided through new container images, reducing configuration drift over updating VM’s in place.
+    * Kubernetes can manage automatic rebooting brokers in the event of failure, which simplifies management. The brokers are constantly monitored for liveness.
+    * Consumer application can use cluster internal hostnames, potentially reducing the number of network hops to/from producer/consumer applications.
+    * Can leverage logging and monitoring tools that are part of the Kubernetes platform.
+    * Easy to scale by adding new broker 
+    * Automatic version rolling upgrade without impacting Kafka brokers availability.
+    * Cloud Platform agnostic.
+
+* Disadvantages of deploying Kafka on Kubernetes:
+    * Kafka (and ZooKeeper) must have very fast highly-available persistent storage available. This limits the storage options for Kafka/ZooKeeper data to those storage options supported by Kubernetes.
+    * Teams used to managing Kafka on VM’s or bare metal will have to learn the complexities of Kubernetes to effectively manage Kafka on Kubernetes.
+
+
+In our implementation solution are proposing different deployment approaches:
 
 * Using IBM Event Streams on kubernetes or Openshift (See [separate note](../eventstreams/README.md))
-* Using Kafka on development environment, mostly developer workstation
-* Using IBM Event Streams as service in IBM Cloud. (See [this note](../eventstreams/es-ibm-cloud.md))
+* Using Kafka on development environment, mostly developer workstation using docker and docker-compose. (See [this note for reference](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docs/deployments/docker.md#setting-up-kafka-and-zookeeper))
+* Using IBM Event Streams as service on IBM Cloud platform. (See [this note](../eventstreams/es-ibm-cloud.md))
 
 We are defining two types of manifests, one set for development environment and one for production. The manifests and scripts are under each deployment folders.
 
-## Development
 
-For kafka the manifests are in this project under the `deployments/kafka/dev` folder. We are using the google image: `bitnami/kafka`.
-
-We tested on MacOS with Docker Edge and Kubernetes.
-
-We are also providing scripts to deploy Kafka to a kubernetes cluster:
-
-```shell
-$ pwd
-> deployments/kafka
-$ ./deployKafka.sh
-$ kubectl get pods -n greencompute
-NAME                            READY     STATUS    RESTARTS   AGE
-gc-kafka-0                      1/1       Running   0          2m
-gc-zookeeper-57dc5679bb-bh29q   1/1       Running   0          10m
-```
-
-### Verifying Kafka is connected to zookeeper
+## Verifying Kafka is connected to zookeeper
 
 The goal is to connect to the kafka running container and use the scripts inside kafka bin folder:
 

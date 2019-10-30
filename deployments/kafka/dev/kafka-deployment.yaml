@@ -23,7 +23,7 @@ spec:
           value: 192.168.1.89:30181
         - name: KAFKA_CREATE_TOPICS
           value: "test-topic:1:1"
-        image: wurstmeister/kafka
+        image: bitmani/kafka
         imagePullPolicy: IfNotPresent
         name: kafka
         ports:
