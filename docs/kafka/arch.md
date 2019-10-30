@@ -4,13 +4,19 @@ If you need to understand the Kafka key concepts read [this article](./readme.md
 
 ## High Availability
 
-As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication factor set to 3 for each topic, so no data will be lost. Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance. Each partitition is replicated at least 3 times and allocated in different brokers. One replicas is the **leader**. In the case of broker failure (broker 1 in figure below), one of the existing partition in the remaining running brokers will take the leader role (e.g. red partition in broker 3):
+As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication factor set to 3 for each topic, so no data will be lost. 
+
+The brokers need to run on separate physical machines. 
+
+Usually replicas is done in-sync, and the configuration settings can specify the number of replicas in-sync needed: for example a 3 replicas can have a minimum in-sync of 2, to tolerate 1 out of sync replica (1 broker outage).
+
+Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance. Each partitition is replicated at least 3 times and allocated in different brokers. One replicas is the **leader**. In the case of broker failure (broker 1 in figure below), one of the existing partition in the remaining running brokers will take the leader role (e.g. red partition in broker 3):
 
 ![](images/kafka-ha.png)
 
 The keys in the data record determine the partitioning of data in **Kafka**. The records with the same key will be in the same partition.
 
-As kafka is keeping its cluster states in zookeeper, you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds (< 15ms) anyway. Zookeepers and Brokers should have high availability communication via dual network, and each broker and node allocated on different racks and blades.
+As kafka is keeping its cluster states in zookeeper, you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only be performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds (< 15ms) anyway. Zookeepers and Brokers should have high availability communication via dual network, and each broker and node allocated on different racks and blades.
 
 ![](images/ha-comp.png)
 
@@ -18,15 +24,17 @@ Consumers and producers are using a list of bootstrap server names (also named a
 
 Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low laterncy dual networks. With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property to assign kafka broker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from the product documentation).
 
-Always assess the latency requirements and consumers needs. Throughtput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate servers than the brokers nodes. 
+Always assess the latency requirements and consumers needs. Throughtput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate servers than the brokers nodes. Running in parallele also mean the order of event arrivals will be lost, so consumers who needs ordering facts need to rebuild the order or the topic needs to have a unique partition.
+
 For high availability assess any potential single point of failure, such as server, rack, network, power supply...
 
-The figure below illustrates a kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes (We still recommend 5 nodes to support quorum management in case of broker failure) and event driven microservices are deployed in separate nodes. Those microservices are consumers and producers of events from one to many topics. Kafka may be used as event sourcing.
+The figure below illustrates a kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes (We still recommend 5 nodes to support quorum management in case of broker failure) and event driven microservices are deployed in separate nodes. Those microservices are consumers and producers of events from one to many topics. 
 
 ![](images/k8s-deploy.png)
 
 We recommend reading [this event stream article](https://ibm.github.io/event-streams/installing/planning/) for planning installation on k8s. 
-To add new broker, we can deploy the runtime to a new server / rack / blade, and give a unique ID. It will process new topic, but it is possible to use tool to migrate some existing topic/ partitions to the new server. The tool is used to reassign partitions across brokers. An ideal partition distribution would ensure even data load and partition sizes across all brokers. 
+
+To add new broker, you can deploy the runtime to a new server / rack / blade, and give it a unique ID. Broker will process new topic, but it is possible to use tool to migrate some existing topic/ partitions to the new server. The tool is used to reassign partitions across brokers. An ideal partition distribution would ensure even data load and partition sizes across all brokers. 
 
 
 ## High Availability in the context of Kubernetes deployment
@@ -102,9 +110,30 @@ Within Kafka's boundary, data will not be lost, when doing proper configuration,
 
 Zookeeper is not CPU intensive and each server should have a least 2 GB of heap space and 4GB reserved. Two cpu per server should be sufficient. Servers keep their entire state machine in memory, and write every mutation to a durable WAL (Write Ahead Log) on persistent storage. To prevent the WAL from growing without bound, ZooKeeper servers periodically snapshot their in memory state to storage. Use fast and dynamically provisioned persistence storage for both WAL and snapshot.
 
-### Kubernetes Operator
+## Kubernetes Operator
 
 It is important to note that the deployment and management of stateful application in Kubernetes should, now, use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strimzi Kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplifies the deployment of Kafka within k8s by adding a set of operators to deploy and manage Kafka clusters, topics, users and more.
+
+## Performance considerations
+
+Performance will vary depending of the current kafka broker nodes load: in kubernetes deployment, with small production topology, nodes may shared with other pods. It is recommended to control the environment with dedicated nodes for Kafka to achieve higher throughput.  Performance will always depend on
+numerous factors including message throughput, message size, hardware, configuration settings, ...
+
+Performance may be linked to different focuses:
+
+* Resilience: ensuring replication and not loosing data
+* Throughput: ensuring message processing performance
+* Size: support larger message
+
+### Resilience
+
+When defining a topic, we need to specify the replicas factor to match the be at least 3 and then set the minimum number of in-sync replicas that specifies how may replicas must acknowledge a write to satisfy a producer that requests acknowledgments from all replicas. (`min.insync.replicas`).
+
+The replication of message data between brokers can consume a lot of network bandwidth so isolating replication traffic from application traffic can benefit performance. To achieve this, all replication traffic is configured to flow on a dedicated internal network.
+
+### Throughput
+
+To achieve higher throughput the messages could not be replicated across brokers and the acknowledgement can be set to only one broker. The number of producers and consumers are aligned, and the number of partition match the number of consumers. All consumers are in the same consumer group.   
 
 ## Multi regions for disaster recovery
 
@@ -139,3 +168,5 @@ The following figure illustrates the high level components.
 It is important to note that the Kafka connectors is a cluster deployment for local high availability and scalability. 
 
 We are proposing an MQ to Kafka implementation sample in [the container inventory repository](https://ibm-cloud-architecture.github.io/refarch-container-inventory/) where we mockup the integration of a legacy DB managing shipment container inventory, it runs as a java appm jms producer and consumer on MQ queues. This solution is integrated in the global EDA reference solution implementation and specially the [Reefer container management](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms) microservice. 
+
+

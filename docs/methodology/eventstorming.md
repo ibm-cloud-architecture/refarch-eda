@@ -192,10 +192,6 @@ Attention we are not proposing to apply a waterfall approach, but before startin
 
 For an event-driven solution a MVP for a single application should not take more than 3 to 4 iterations. 
 
-### Apply Domain-Driven Design
-
-See our separate note on [applying DDD and event storming for event-driven microservice implementation](ddd.md)
-
 
 ### Event storming to user stories and epics
 
@@ -211,6 +207,10 @@ An event is the result or outcome of a user story. Events can be added as part o
 
 The K Container Shipment use case demonstrates an implementation solution to validate the event-driven architecture. The [container shipment analysis example](https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/), shows event storming and design thinking main artifacts, including artifacts for the monitoring of refrigerated containers.
 
+## Some practice notes
+
+* you can apply event storming at different level: for example at the beginning of a project to understand the high level process at stake. with a big group of people, you will stay at the high level. But it can be used to model a lower level microservice, to assess event consumed and produced.
+
 ## Further Readings
 
 * [Introduction to event storming from Alberto Brandolini ](http://ziobrando.blogspot.com/2013/11/introducing-event-storming.html#.VbhQTn-9KK1)
@@ -220,4 +220,4 @@ The K Container Shipment use case demonstrates an implementation solution to val
 * [Domain drive design with event storming introduction video](https://learning.oreilly.com/videos/domain-driven-design-distilled/9780134593449/9780134593449-DDDD_07_01?autoplay=false)
 * [Patterns related to Domain Driven Design](https://martinfowler.com/tags/domain%20driven%20design.html) by Martin Fowler
 * [Kyle Brown - IBM - Apply Domain-Driven Design to microservices architecture](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview)
-* [Applying DDD and event storming for event-driven microservice implementation](ddd.md)
+* [Applying DDD and event storming for event-driven microservice implementation from our own work](ddd.md)

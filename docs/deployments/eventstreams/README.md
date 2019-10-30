@@ -1,6 +1,6 @@
 # Install IBM Event Streams on ICP
 
-*(Tested on July 2019 on ibm-eventstreams-dev helm chart 1.3.0 on ICP 3.2.0)*
+*(Tested on September 2019 using ibm-eventstreams-prod helm chart 1.3.0 on ICP 3.2.0)*
 
 You can use the `ibm-eventstreams-dev` or `ibm-eventstreams-prod` Helm chart from ICP catalog. The product installation instructions can be found [in event stream documentation](https://ibm.github.io/event-streams/installing/installing/).  
 

@@ -1,20 +1,20 @@
 # Kafka Deployment
 
-We are proposing three deployment approaches:
+We are proposing different deployment approaches:
 
-* Using IBM Event Streams (See [separate note](../eventstreams/README.md))
+* Using IBM Event Streams on kubernetes or Openshift (See [separate note](../eventstreams/README.md))
 * Using Kafka on development environment, mostly developer workstation
-* Using IBM Cloud private for production
+* Using IBM Event Streams as service in IBM Cloud. (See [this note](../eventstreams/es-ibm-cloud.md))
 
 We are defining two types of manifests, one set for development environment and one for production. The manifests and scripts are under each deployment folders.
 
 ## Development
 
-For kafka the manifests are in this project under the `deployments/kafka/dev` folder. We are using the google image: `gcr.io/google_samples/k8skafka:v1`.
+For kafka the manifests are in this project under the `deployments/kafka/dev` folder. We are using the google image: `bitnami/kafka`.
 
 We tested on MacOS with Docker Edge and Kubernetes.
 
-We are also providing scripts to deploy Kafka:
+We are also providing scripts to deploy Kafka to a kubernetes cluster:
 
 ```shell
 $ pwd
@@ -62,13 +62,13 @@ Two scripts exist in the `scripts` folder in this repository. Those scripts are 
 Start the consumer in a terminal window
 
 ```shell
-./scripts/consumetext.sh
+./scripts/kafka/consumetext.sh
 ```
 
 And start the producer in a second terminal:
 
 ```shell
-./script/producetext.sh
+./scripts/kafka/producetext.sh
 ```
 
 You should see the text:
@@ -111,12 +111,12 @@ We have done shell scripts for you to do those command and test your local **Kaf
 * sendText.sh  Send a multiple lines message on mytopic topic- open this one in one terminal.
 * consumeMessage.sh  Connect to the topic to get messages. and this second in another terminal.
 
-### Considerations
+### Deployment considerations
 
-One major requirement to address which impacts kubernetes Kafka Services configuration and Kafka Broker server configuration is to assess remote access need: do we need to have applications not deployed on Kubernetes that should push or consume message to/from topics defined in the Kafka Brokers running in pods. Normally the answer should be yes as all deployments are Hybrid cloud per nature.
+One major requirement to address which impacts kubernetes Kafka Services configuration and Kafka Broker server configuration is to assess remote access need: do we need to have applications not deployed on Kubernetes that will publish and/or consume message to/from topics defined in the Kafka Brokers running in pods. Normally the answer should be yes as all deployments are hybrid cloud per nature.
 As the current client API is doing its own load balancing between brokers we will not be able to use ingress or dynamic node port allocation.
 
-Let explain by starting to review Java code to access brokers. The properties needed to access
+Let explain by starting to review Java code to access brokers. The properties needed to access is BOOTSTRAP_SERVERS:
 
 ```java
 public static String BOOTSTRAP_SERVERS = "172.16.40.133:32224,172.16.40.137:32224,172.16.40.135:32224";
@@ -127,7 +127,7 @@ kafkaProducer = new KafkaProducer<>(properties);
 
 ```
 
-To connect to broker  their addresses and port numbers need to be specified. This information should come from external properties file, but the code above is for illustration. The problem is that once deployed in Kubernetes,  Kafka broker runs as pod so have dynamic port numbers if we expose a service using NodePort, and the IP address may change overtime while pod are scheduled to Node. The list of brokers need to be in the format: <host>:<port>, <host>:<port>,<host>:<port>. So host list, without port number will not work, forbidden the use of virtual host name defined with Ingress manifest and managed by Kubernetes ingress proxy. An external load balancer will not work too.
+To connect to broker  their addresses and port numbers need to be specified. This information should come from external properties file (the code above is for illustration). The problem is that once deployed in Kubernetes,  Kafka broker runs as pod so have dynamic port numbers if we expose a service using NodePort, the IP address may change overtime while pod are scheduled to Node. The list of brokers need to be in the format: <host>:<port>, <host>:<port>,<host>:<port>. A host list, without port number will not work, forbidden the use of virtual host name defined with Ingress manifest and managed by Kubernetes ingress proxy. An external load balancer will not work too.
 Here is an example of return message when the broker list is not set right: `Connection to node -1 could not be established. Broker may not be available`.
 
 There are two options to support remote connection: implement a proxy, deployed inside the Kubernetes cluster, with 3 or 5 hostnames and port to expose the brokers, or use static NodePort. As of now for development we used NodePort:
