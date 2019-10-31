@@ -28,7 +28,7 @@ Preparations for the event storming workshop include the following steps:
 Many of the concepts addressed during the event storming workshop are defined in the [Domain Driven Design](https://www.ibm.com/cloud/garage/content/code/domain-driven-design/) approach.
 The following diagrams present the elements used during the analysis.  The first diagram shows the initial set of concepts that are used in the process.
 
- ![evt-stm-item1](evt-stm-item1.png)
+ ![evt-stm-item1](images/evt-stm-item1.png)
 
 Domain events are also named *business events*.  An event is some action or happening which occurred in the system at a specific time in the past. The first step in the event storming process consists of these actions:
 
@@ -38,7 +38,7 @@ Domain events are also named *business events*.  An event is some action or happ
 
 The act of writing event descriptions often results in questions to be resolved later, or discussions about definitions that need to be recorded to ensure that everyone agrees on basic domain concepts.
 
-![evt-stm-item2](evt-stm-item2.png)
+![evt-stm-item2](images/evt-stm-item2.png)
 
 A timeline of domain events is the critical output of the first step in the event storming process.  The timeline gives everyone a common understanding of when events take place in relation to each other.  You still need to be able to take this initial level of understanding and move it towards an implementation.  In making that step, you must expand your thinking to encompass the idea of a command, which is the action that kicks off the processing that triggers an event.  As part of understanding the role of the command, you will also want to know who invokes a command (actors) and what information is needed to allow the command to be executed.  This diagram show how those analysis elements are linked together:
 
@@ -53,7 +53,7 @@ One-View Figure.
 * **Data** can be presented to users in a user interface or modified by the system.
 
 Events can be created by commands or  by external systems including IOT devices.  They can be triggerred by the processing of other events or by some period of elapsed time. When an event is repeated or occurs regularly on a schedule, draw a clock or calendar icon in the corner of the sticky note for that event.
-As the events are identified and sequenced into a time line, you might find multiple independent subsequences that are not directly coupled to each other and thatrepresent different perspectives of the system, but occur in overlapped periods of time. These parallel event streams can be addressed by putting them into separate swimlanes delineated by using horizontal blue painter's tape. As the events are organized into a timeline, possibly with swim lanes, you can identify pivotal events. Pivotal events indicate major changes in the domain and often form the boundary between one phase of the system and another. Pivotal events will typically separate (a [bounded context](https://martinfowler.com/bliki/BoundedContext.html) in DDD terms). Pivotal events are identified with vertical blue painters tape (crossing all the swimlanes).
+As the events are identified and sequenced into a time line, you might find multiple independent subsequences that are not directly coupled to each other and that represent different perspectives of the system, but occur in overlapped periods of time. These parallel event streams can be addressed by putting them into separate swimlanes delineated by using horizontal blue painter's tape. As the events are organized into a timeline, possibly with swim lanes, you can identify pivotal events. Pivotal events indicate major changes in the domain and often form the boundary between one phase of the system and another. Pivotal events will typically separate (a [bounded context](https://martinfowler.com/bliki/BoundedContext.html) in DDD terms). Pivotal events are identified with vertical blue painters tape (crossing all the swimlanes).
 
 An example of a section of a completed event time line with pivotal events and swimlanes is shown below.
 
@@ -67,6 +67,8 @@ During the workshop, avoid documenting processing steps. The event storming meth
 #### Step 1: Domain events discovery
 
 Begin by writing each domain event on an orange sticky note with a few words and a verb in a past tense. Describe **What's happened**. At first just "storm" the events by having each domain expert generate an individual lists of domain events. You might not need to initially place the events on the ordered timeline as they write them.  The events must be worded in a way that is meaningful to the domain experts and business stakeholder. You are explaining what happens in business terms, not what happens inside the implementation of the system.
+
+![](images/evt-storming-1.png)
 
 You don't need to describe all the events in your domain, but you must cover the process that you are interested in exploring from end to end. Therefore, make sure that you identify the start and end events and place them on the timeline at the beginning and end of the wall covered with paper. Place the other events that you identified between these two endpoints in the closest approximation that the team can agree to a sequential order. Don’t worry about overlaps at this point; overlaps are addressed later.
 
@@ -90,10 +92,9 @@ The second type of boundary is a subject boundary. You can detect a subject boun
 
 You can delineate these different sets of simultaneous event streams by applying blue painter’s tape horizontally, dividing the board into different swim lanes.
 
+Below is an example of a set of ordered domain events with pivotal events and subject swim lanes indicated.  This example comes from applying event storming to the domain of container shipping process and is discussed in more detail in the [container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md). When the reefer container is plugged to the Vessel, it starts to emit telemetries, we change context. 
 
-Below is an example of a set of ordered domain events with pivotal events and subject swim lanes indicated.  This example comes from applying event storming to the domain of container shipping process and is discussed in more detail in the [container shipment analysis example](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/analysis/readme.md).
-
-![](evt-timeline.png)
+![](images/pivotal-swimlane.png)
 
 #### Step 4: Locate the Commands
 
@@ -106,7 +107,11 @@ Commands are the most common mechanism by which events are created.  The key to 
 * An event results from some policy - typically automated processing of a precursor event
 * The completion of some determined period of elapsed time.
 
-The triggering command is identified in a blue (sticky) note this may become a microservice api in a later implementation the human persona issuing the command is identified and shown in a yellow note. The diagram in next section illustrates the manufacturer actor using the place a shipment order command to create a shipment order placed event as a result of getting a quote from a previous request for quotation so he can deliver goods in container.
+The triggering command is identified in a blue (sticky) note. Command may become a microservice operation exposed via API. The human persona issuing the command is identified and shown in a yellow note. 
+Some events may be created by applying business policies. 
+The diagram below illustrates the manufacturer actor using the place a shipment order command to create a shipment order placed event, as well as .
+
+![commands-br](images/commands-br.png)
 
 It is possible to chain events and commands as presented in the "one view" figure above in the concepts section.
 
@@ -114,7 +119,7 @@ It is possible to chain events and commands as presented in the "one view" figur
 
 You can't truly define a command without understanding the data that is needed for the command to execute in order to produce the event. You can identify several types of data during this step.  First, users (personas) need data from the user interface in order to make decisions before executing a command.  That data forms part of the read model in a [CQRS](../design-patterns/cqrs.md) implementation. For each command and event pair, you add a data description of the expected attributes and data elements needed to take such a decision. Here is a simple example for a `shipment order placed` event created from a `place a shipment order action`.
 
-![evt-stm-data](evt-stm-data.png)
+![evt-stm-data](images/evt-stm-data.png)
   
 Another important part of the process that becomes more fully fleshed out at this step is the description of *policies* that can trigger the generation of an event from a previous event (or set of events).  
 
@@ -125,11 +130,15 @@ This first level of data definition helps to assess the microservice scope and r
   
 #### Step 6: Identify the Aggregates
 
-In DDD, entities and value objects can exist independently, but often, the relations are such that an entity or a value object has no value without its context.  [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) provide that context by being those "roots" that comprise one or more entities and value objects that are linked together through a lifecycle.  In event storming, aggregates emerge through the process by grouping events and commands that are related.  This grouping not only consists of related data (entities and value objects) but also related actions (commands) that are connected by the lifecycle of that aggregate. Aggregates ultimately suggest microservice boundaries. 
+In DDD, entities and value objects can exist independently, but often, the relations are such that an entity or a value object has no value without its context.  [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) provide that context by being those "roots" that comprise one or more entities and value objects that are linked together through a lifecycle. The following diagram illustrates a detail example of aggregates for a fresh product shipment over sea.
+
+![](images/aggregates-boundaries.png)
+
+In event storming, we may not be able to get this level of detail during the first workshop, but aggregates emerge through the process by grouping events and commands that are related together.  This grouping not only consists of related data (entities and value objects) but also related actions (commands) that are connected by the lifecycle of that aggregate. Aggregates ultimately suggest microservice boundaries. 
 
 In the container shipment example, you can see that you can group several commands and event pairs (with their associated data) together that are related through the lifecycle of an order for shipping.
 
-![](ship-aggr-shipment.png)
+![](images/ship-aggr-shipment.png)
 
 
 #### Step 7: Define Bounded Context
@@ -143,7 +152,7 @@ In this step, you define terms and concepts with a clear meaning valid in a clea
 
 Here is an example of bounded context that will, most likely, lead to a microservice:
 
-![](evt-stm-bounded-ctx.png)
+![](images/evt-stm-bounded-ctx.png)
 
 
 Keep the model strictly consistent within these bounds.
@@ -179,11 +188,11 @@ By identifying derived events, you can integrate analytic models and machine lea
 
 The two diagrams below show the results of the insight storming step for the use case of container shipment analysis.  The first diagram captures insights and associated linkages for each refrigerated container, identifying when automated changes to the thermostat settings can be made, when unit maintenance should be scheduled and when the container contents must be considered spoiled.  
 
-![evt-stm-insight-cntnr](evt-stm-insight-cntnr.PNG)
+![evt-stm-insight-cntnr](images/evt-stm-insight-cntnr.PNG)
   
 The second diagram captures insights that could trigger recommendations to adjust ship course or speed in response to expected severe weather forcasts for the route ahead or predicted congestion and expected docking and unloading delays at the next port of call. 
 
-![evt-stm-insight-ship](evt-stm-insight-ship.PNG)
+![evt-stm-insight-ship](images/evt-stm-insight-ship.PNG)
 
 
 ## Design iteration
@@ -199,7 +208,7 @@ In agile methodology, creating user stories or epics is one of the most importan
 For the data you must model the "Create, Read, Update, Delete" operations as user stories, mostly supported by a system actor.
 
 
-![evt-stm-userstories](evt-stm-userstories.png)
+![evt-stm-userstories](images/evt-stm-userstories.png)
 
 An event is the result or outcome of a user story. Events can be added as part of the acceptance criteria of the user stories to verify that the event really occurs.
 
