@@ -60,6 +60,7 @@ Both approaches are valid, pre-processing through streaming analytics provides o
 * The scoring function is then easily reincorporated into the streaming analytics processing to generate predictions and insights.
 
 These combined techniques can lead to the creation of real-time intelligent applications:
+
 1. Event-driven architecture
 2. Identification of predictive insights using event storming methodology
 3. Developing models for these insights using machine learning

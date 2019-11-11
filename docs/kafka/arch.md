@@ -4,7 +4,7 @@ If you need to understand the Kafka key concepts read [this article](./readme.md
 
 ## High Availability
 
-As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication factor set to 3 for each topic, so no data will be lost. 
+As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication factor set to 3 for each topic, so no data should be lost. 
 
 The brokers need to run on separate physical machines. 
 
@@ -33,6 +33,8 @@ The figure below illustrates a kubernetes deployment, where zookeeper and kafka 
 ![](images/k8s-deploy.png)
 
 We recommend reading [this event stream article](https://ibm.github.io/event-streams/installing/planning/) for planning installation on k8s. 
+
+The advantages of deploying Kafka on kubernetes cluster is to facilitate the management of stateful sets, by scheduling both the persistence volume and broker pods in a clean rolling rehydration. Services add a logical name to access brokers for any deployed workload within the cluster. The virtual network also enable transparentyl TLS communication between components.
 
 To add new broker, you can deploy the runtime to a new server / rack / blade, and give it a unique ID. Broker will process new topic, but it is possible to use tool to migrate some existing topic/ partitions to the new server. The tool is used to reassign partitions across brokers. An ideal partition distribution would ensure even data load and partition sizes across all brokers. 
 

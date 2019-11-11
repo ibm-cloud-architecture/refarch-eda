@@ -90,7 +90,7 @@ This is the way to group consumers so the processing of event is parallelized. T
 
 ## Architecture
 
-See [this separate note](arch.md)
+See [this separate note](arch.md) addresses high availability and kubernetes deployment.
 
 
 ## Solution considerations
