@@ -31,17 +31,18 @@ nav:
     - Kafka consumer development practices: kafka/consumers.md
     - Kafka streaming processing: kafka/kafka-stream.md
     - Kafka FAQ: kafka/FAQ.md
+    - Adopting Avro with Kafka: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
     - Kafka monitoring: kafka/monitoring.md
     - Serverless: serverless/README.md
   - Deployments:
       - Event Streams IBM CLOUD deployment: deployments/eventstreams/es-ibm-cloud.md
-      - Event Streams ICP deployment: deployments/eventstreams/README.md
+      - Event Streams Cloud Pak Integration deployment: deployments/eventstreams/README.md
       - Kafka deployment: deployments/kafka/README.md
       - Zookeeper deployment: deployments/zookeeper/README.md
       - Postgresql: deployments/postgresql/README.md
       - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
       - Kafka deployment with Strimzi: deployments/strimzi/deploy.md
-      - ICP troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
+      - Troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
   - Real time analytics: 
     - Concepts: rt-analytics/README.md
     - Reefer Container Predictive Maintenance: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
