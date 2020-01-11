@@ -96,6 +96,20 @@ Outputs of the WordCount application is actually a continuous stream of updates,
 
 * Avoid external database lookup as part of the stream: As kafka can handle million of records per second, so a lookup to an external database to do a join between a primary key that is in the event and a table in the database to do a data enrichment, for example is a bad practice. The approach will be to use Ktable, with state store and perform a join in memory.
 
+## Faust: a python library to do kafka streaming
+
+[Faust](https://faust.readthedocs.io/en/latest/index.html) is a python library to support stream processing. It does not have its own DSL as Kafka streams in Java has, but just python functions.
+
+It uses rocksdb to support tables.
+
+For the installation, in your python environment do a `pipenv run pip install faust`, or `pip install faust`. Then use faust as a CLI. So to start an agent as worker use:
+
+```
+faust -A nameofthepythoncode -l info
+```
+
+Multiple instances of a Faust worker can be started independently to distribute stream processing across machines and CPU cores.
+
 ## Other examples
 
 We have implemented the container microservice of the Container Shipment solution using kstreams processing. See the presentation [here](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/kstreams), and go to the following code to see tests for the different process flow.

@@ -23,10 +23,10 @@ See the kafka documentation on [topic configuration parameters](https://kafka.ap
 Here is a command to create a topic with specific retention properties:
 
 ```
-bin/kafka-configs --zookeeper XX.XX.XX.XX:2181 --entity-type topics --entity-name orders --alter --add-config  retention.ms=55000 --add-config  retention.ms=55000
+bin/kafka-configs --zookeeper XX.XX.XX.XX:2181 --entity-type topics --entity-name orders --alter --add-config  retention.ms=55000 --add-config  retention.byte=100000
 ```
 
-But there is also the `offsets.retention.minutes` property, set at the cluster level to control when the offset information will be deleted. It is defaulted to 1 day, but the max possible value is 7 days. This is to avoid keeping too much information in the broker memory and avoid to miss data when consumers run not continuously. So consumers need to commit their offset. If the consumer properties `auto.offset.reset=earliest` it will reprocess all the events, or skips to the latest if set to latest. In this last case if the consumers are offline for more than this time window, they will lose events.
+But there is also the `offsets.retention.minutes` property, set at the cluster level to control when the offset information will be deleted. It is defaulted to 1 day, but the max possible value is 7 days. This is to avoid keeping too much information in the broker memory and avoid to miss data when consumers run not continuously. So consumers need to commit their offset. If the consumer settings define: `auto.offset.reset=earliest`, the consumer will reprocess all the events each time it restarts, (or skips to the latest if set to `latest`). When using `latest`, if the consumers are offline for more than the offsets retention time window, they will lose events.
 
 ## What are the topic characteristics I need to define during requirements?
 
@@ -35,7 +35,8 @@ This is a requirement gathering related question, to understand what need to be 
 * Number of brokers in the cluster
 * fire or forget or persist data for which amount of time
 * Need for HA, set replicas to number of broker or at least the value of 3
-* Type of data to transport 
+* Type of data to transport
+* Schema management to control change to the payload definition
 * volume per day
 * Accept snapshot
 * Need to do ge replication to other kafka cluster
@@ -50,9 +51,12 @@ Kafka is part of the architecture, while Akka is an implementation choice for on
 [vert.x](https://vertx.io/) is another open source implementation of such internal messaging mechanism but supporting more language:  Java, Groovy, Ruby, JavaScript, Ceylon, Scala, and Kotlin.
 
 
+## Event streams resource requirements 
+
+See the [detailed tables](https://ibm.github.io/event-streams/installing/prerequisites/#helm-resource-requirements) in the product documentation.
 
 ## Other FAQs
 
 [IBM Event streams on Cloud FAQ](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-faqs) 
 
-[FAQ from Confluence](https://cwiki.apache.org/confluence/display/KAFKA/FAQ#FAQ-HowareKafkabrokersdependonZookeeper?)
+[FAQ from Confluent](https://cwiki.apache.org/confluence/display/KAFKA/FAQ#FAQ-HowareKafkabrokersdependonZookeeper?)
