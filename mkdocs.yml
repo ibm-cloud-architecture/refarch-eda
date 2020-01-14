@@ -25,11 +25,12 @@ nav:
   - Reference implementations:
     - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
   - Product guidances:
-    - Architecture considerations: kafka/arch.md
     - Kafka concepts summary: kafka/readme.md
+    - Architecture considerations: kafka/arch.md
     - Kafka producer development practices:  kafka/producers.md
     - Kafka consumer development practices: kafka/consumers.md
     - Kafka streaming processing: kafka/kafka-stream.md
+    - Kafka Connect: kafka/connect.md
     - Kafka FAQ: kafka/FAQ.md
     - Adopting Avro with Kafka: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
     - Kafka monitoring: kafka/monitoring.md
