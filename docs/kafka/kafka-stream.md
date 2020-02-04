@@ -1,13 +1,14 @@
 # Kafka Streaming
 
-Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. We recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created. 
+Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. We recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created.
 
-To summarize, **Kafka** Stream has the following capabilities:
+To summarize, **Kafka Stream** has the following capabilities:
 
-* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer, stateful storage and consumer groups. It treats both past and future data the same way.
-* Embedded library for your application to use.
-* Integrate tables for state persistence with streams of events.
+* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer APIs, stateful storage and consumer groups. It treats both past and future data the same way.
+* This is an embedded library to integrate in your application.
+* Integrate tables for state persistence combined streams of events.
 * Consumes continuous real time flows of records and publish new flows.
+* Can scale vertically, by increasing the number of threads for each Kafka Streams application on a single machine, or horizontally by adding an additional machine with the same `application.id`.
 * Supports exactly-once processing semantics to guarantee that each record will be processed once and only once even when there is a failure.
 * Stream APIs transform, aggregate and enrich data, per record with milli second latency, from one topic to another one.
 * Supports stateful and windowing operations by processing one record at a time.

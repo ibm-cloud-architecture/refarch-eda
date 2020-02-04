@@ -7,13 +7,15 @@ With the adoption of one data source per microservice, there is an interesting c
 
 ## Solution and Pattern
 
-Introduced in 1987 [by Hector Garcaa-Molrna Kenneth Salem paper](https://www.cs.cornell.edu/andru/cs711/2002fa/reading/sagas.pdf) the Saga pattern help to support a long running transaction that can be broken up to a collection of sub transactions that can be interleaved any way with other transactions. 
+Introduced in 1987 [by Hector Garcaa-Molrna Kenneth Salem paper](https://www.cs.cornell.edu/andru/cs711/2002fa/reading/sagas.pdf) the Saga pattern help to support a long running transaction that can be broken up to a collection of sub transactions that can be interleaved any way with other transactions.
 
-With microservice each transaction updates data within a single service, each subsequent steps may be triggered by previous completion. The following figure, based on [our solution implementation](https://ibm-cloud-architecture.github.io/refarch-kc), illustrates those concepts for an order:
+With microservice each transaction updates data within a single service, each subsequent steps may be triggered by previous completion. The following figure, based on [our solution implementation](https://ibm-cloud-architecture.github.io/refarch-kc), illustrates those concepts for an order transaction:
 
 ![](images/saga-ctx.png)
 
-When the order is created, it can be updated at any time by the user until he/she books it as the final order. As soon as the order is booked, the process needs to allocate the voyage, assigns containers and updates the list of containers to load on the ship. Those actions / commands are chained. The final state (in this schema not in the reality as the process has more steps) is the Order assigned state in the order microservice.
+When the order is created, the business process says, we need to allocate a "voyage", assign containers and update the list of containers to load on the ship. Those actions / commands are chained. The final state (in this schema, not in the reality, as the process has more steps) is the Order assigned state in the order microservice.
+
+With a unique application implementation, the integrity between order, voyage and container tables will be done via transactions. With distributed system we could apply two phase commit transaction.  
 
 SAGA pattern supports two types of implementation: Choreography and Orchestration. 
 
@@ -43,3 +45,5 @@ Orchestrator is a State Machine where each transformation corresponds to a comm
 Rollbacks are a lot easier when you have an orchestrator to coordinate everything.
 
 See also [this article](https://microservices.io/patterns/data/saga.html) from Chris Richardson on the Saga pattern.
+
+## Compensation
