@@ -11,6 +11,7 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 * [Event sourcing](event-sourcing.md) persists the state of a business entity such an Order as a sequence of state-changing events. 
 * [Command Query Responsibility Segregation](cqrs.md) helps to separate queries from commands and help to address queries with cross-microservice boundary.
 * [Saga pattern:](saga.md) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
+* [Event reprocessing with dead letter](#event-reprocessing-with-dead-letter-pattern): event driven microservice may have to call external service via synchronous call, we need to process failure to get response from those service, using event backbone.
 
 
 ## Strangler pattern
@@ -26,3 +27,23 @@ The approach is to use a "strangler" interface to dispatch request to new or old
 One of main challenge is to isolate data store and how the new microservices and the legacy application are accessing the shared data. Continuous data replication can be a solution to propagate write model to read model. Write model will most likely stays on the monolitic application, change data capture can be used, with event backbone to propagate change to read model.
 
 The facade needs to be scalable and not a single point of failure. It needs to support new APIs (RESTful) and old API (most likely SOAP).
+
+## Event reprocessing with dead letter pattern
+
+With event driven microservice, it is not just about pub/sub. There are use cases where the microservice needs to call existing service via an HTTP or RPC call. The call may fail. So what should be the processing to be done to retry and gracefully fail by leveraging the power of topics and the concept of dead letter.
+
+This pattern is influenced by the adoption of Kafka as event backbone and the offset management offered by Kafka. Once a message is read from a Kafka topic by a consumer the offset can be automatically committed so the consumer can poll the next batch of events, or in most the case manually committed, to support business logic to process those events. 
+
+The figure below demonstrates the problem to address: the `reefer management microservice` get order event to process by allocating a reefer container to the order. The call to update the container inventory fails. 
+
+![Dead letter context](images/dl-1.png)
+
+At first glance, the approach is to commit the offset only when the three internal operations are succesful: write to reefer database (2), update the container inventory using legacy application service (3), and produce new event to `orders` (4) and `containers` (5) topics. Step (4) and (5) will not be done as no response from (3) happened. 
+
+In fact a better approach is to commit the read offset on the orders topic, and then starts the processing: the goal is to do not impact the input throughput. In case of step (2) or (3) fails the order is published to an order-retries topic:
+
+![Dead letter context](images/dl-2.png)
+
+
+
+For more detail we recommend this article from Uber engineering: [Building Reliable Reprocessing and Dead Letter Queues with Apache Kafka](https://eng.uber.com/reliable-reprocessing/).
