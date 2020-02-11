@@ -21,7 +21,7 @@ nav:
     - Event Sourcing: design-patterns/event-sourcing.md
     - CQRS: design-patterns/cqrs.md
     - Saga: design-patterns/saga.md
-    - Data replication pattern: https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/data/data-replication/
+    - Data replication pattern: design-patterns/data-replication.md
   - Reference implementations:
     - Container shipment implementation solution: https://ibm-cloud-architecture.github.io/refarch-kc
   - Product guidances:
