@@ -117,7 +117,7 @@ The configuration to connect to event streams on IBM Cloud needs to define the b
 
 This API key must provide permission to produce and consume messages for all topics, and also to create topics.
 
-With Event streams on Cloud the [following document](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-kafka_connect) explains what properties to add to the worker and connectors configuration. 
+With Event streams on Cloud the [following document](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-kafka_connect) explains what properties to add to the worker and connectors configuration.
 
 ```properties
 bootstrap.servers=broker-3-qnsdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprt...
@@ -138,9 +138,44 @@ As discribed in the [product documentation](https://ibm.github.io/event-streams/
 * **connect-offsets**: This topic is used to store offsets for Kafka Connect.
 * **connect-status**: This topic will store status updates of connectors and tasks.
 
-Then the connector configuration needs to specify some other properties:
+Then the connector configuration needs to specify some other properties (See [kafka documentation](https://kafka.apache.org/documentation/#connectconfigs)):
+
+* group.id to specify the connect cluster name.
+* key and value converters.
+* replication factors and topic name for the three needed topics, if Kafka connect is able to create topic on the cluster.
+* When using Event Streams as kafka cluster, add the `sasl` properties as described in the [product documentation](https://cloud.ibm.com/docs/services/EventStreams?topic=eventstreams-kafka_connect#distributed_worker).
+
+See [this properties file](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docker/kafka-connect/distributed-workers.properties) as an example.
+
+To illustrate the Kakfa Connect distributed mode, we will add a source connector from a Mongo DB data source using [this connector](https://www.mongodb.com/kafka-connector). 
+
+![Mongo source ](images/kconnect-mongo.png)
+
+When using as a source, the connector publishes data changes from MongoDB into Kafka topics for streaming to consuming apps. Data is captured via Change Streams within the MongoDB cluster and published into Kafka topics. The installation of a connector is done by adding the jars from the connector into the plugin path as defined in the connector properties. In the case of mongodb kafka connector the manual installation instructions are in [this github](https://github.com/mongodb/mongo-kafka/blob/master/docs/install.md). The download page includes an uber jar.
+
+As we run the kakfa connect as docker container, the approach is to build a new docker image based one of the Kafka image publicly available. For example from the bitnami image. The dockerfile looks like:
+
+```dockerfile
+FROM bitnami/kafka:2
+COPY mongo-kafka-connect-1.0.0-all.jar  /opt/bitnami/kafka/libs
+```
+
+Then we can build the image and start the new connector:
+
+```shell
+docker build -t ibmcase/kafkaconnect .
+docker run -ti  --rm --name kconnect -v $(pwd):/home --network kafkanet -p 8083:8083 ibmcase/kafkaconnect bash -c ""
+```
+
+## Verifying the connectors via the REST api
+
+The documentation about the REST APIs for the distributed connector is in [this site](https://docs.confluent.io/current/connect/references/restapi.html).
+
+For example the http://localhost:8083/connectors is the base URL when running locally.
 
 ## Deploy the connector as a service within Openshift cluster
+
+Using [Strimzi](https://strimzi.io/) operator we can deploy Kafka connector distributed cluster. 
 
 To Be done! 
 
@@ -149,3 +184,4 @@ To Be done!
 * [Apache Kafka connect documentation](https://kafka.apache.org/documentation/#connect)
 * [Confluent Connector Documentation](https://docs.confluent.io/current/connect/index.html)
 * [IBM Event Streams Connectors](https://ibm.github.io/event-streams/connecting/connectors/)
+* [MongoDB Connector for Apache Kafka](https://github.com/mongodb/mongo-kafka)
