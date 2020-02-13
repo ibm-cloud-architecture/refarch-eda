@@ -187,7 +187,7 @@ while the sink connector, from Kafka topic to MQ queue is at [ibm-messaging/kafk
 
 The following figure illustrates the high level components.
 
-![MQ kafka connector](mq-kafka-connectors.png)
+![MQ kafka connector](images/mq-kafka-connectors.png)
 
 It is important to note that the Kafka connectors is a cluster deployment for local high availability and scalability.
 

@@ -16,6 +16,15 @@ The content of this repository is written with markdown files, packaged with [Mk
 4. `mkdocs serve`
 5. Go to `http://127.0.0.1:8000/` in your browser.
 
+### Building this booklet locally but with docker
+
+In some cases you might not want to alter your Python setup and rather go with a docker image instead. This requires docker is running locally on your computer though.
+
+* docker pull squidfunk/mkdocs-material
+* git clone https://github.com/ibm-cloud-architecture/refarch-eda.git (or your forked repository if you plan to edit)
+* docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
+* Go to http://127.0.0.1:8000/ in your browser.
+
 ### Pushing the book to GitHub Pages
 
 1. Ensure that all your local changes to the `master` branch have been committed and pushed to the remote repository.
