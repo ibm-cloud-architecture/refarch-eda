@@ -1,33 +1,33 @@
 # Kafka Connect
 
-[Kafka connect](https://kafka.apache.org/documentation/#connect) is an open source component for easily integrate external systems with Kafka. It works with IBM Event Streams and Red Hat AMQ Streams.   It uses the concepts of source and sink connectors to ingest or deliver data to Kafka topics.
+[Kafka connect](https://kafka.apache.org/documentation/#connect) is an open source component for easily integrate external systems with Kafka. It works with IBM Event Streams and Red Hat AMQ Streams.   It uses the concepts of source and sink connectors to ingest or deliver data to / from  Kafka topics.
 
 ![Kafka component](images/kafka-components.png)
 
-The concepts are detailed in [this note](https://docs.confluent.io/current/connect/concepts.html) or [IBM Event streams](https://ibm.github.io/event-streams/connecting/connectors/) and below is a quick summary:
+The generate concepts are detailed in [this note](https://docs.confluent.io/current/connect/concepts.html) or in the [IBM Event streams product documentation](https://ibm.github.io/event-streams/connecting/connectors/). Here is a quick summary:
 
-* **connector** represents a logical job to move data from / to kafka  to / from external systems. A lot of [existing connectors](https://ibm.github.io/event-streams/connectors/) can be reused, or you can implement your own plugin. 
-* **workers** are JVM running the connector. For production deployment workers run in cluster. 
+* **connector** represents a logical job to move data from / to kafka  to / from external systems. A lot of [existing connectors](https://ibm.github.io/event-streams/connectors/) can be reused, or you can implement your owns.
+* **workers** are JVM running the connector. For production deployment workers run in cluster or "distributed mode".
 * **tasks**: each worker coordinates a set of tasks to copy data. Task states are saved in kafka topics. They can be started, stopped at any time to support resilience, and scalable data pipeline.
 
 ![Connectors and tasks](images/connector-tasks.png)
 
-When a connector is submitted to the cluster, the workers rebalance the full set of connectors in the cluster and their tasks so that each worker has approximately the same amount of work. 
+When a connector is submitted to the cluster, the workers rebalance the full set of connectors in the cluster and their tasks so that each worker has approximately the same amount of work.
 
 ## Characteristics
 
-* Copy vast quantities of data from source to kafka: work at the database level
-* Support streaming and batch
+* Copy vast quantities of data from source to kafka: work at the database level.
+* Support streaming and batch.
 * Scale at the organization level, even if it can support a standalone, mono connector approach to start small, it is possible to run in parallel on distributed cluster.
-* Copy data, externalize transformation in other framework.
-* Kafka Connect defines three models: data model, worker model and connector model
-* Provide a REST interface to manage connectors and monitor jobs
+* Copy data, externalizing transformation in other framework.
+* Kafka Connect defines three models: data model, worker model and connector model.
+* Provide a REST interface to manage connectors and monitor jobs.
 
 ## Installation
 
 The  Kafka connect framework fits well into a kubernetes deployment. We have different options for that deployment.
 
-We recommend reading the [IBM  event streams documentation](https://ibm.github.io/event-streams/connecting/setting-up-connectors/) for installing Kafka connect with IBM Event Streams or may be using [Strimzi Kafka connect operator](https://strimzi.io/docs/0.9.0/#kafka-connect-str) to deploy on Kubernetes cluster.
+We recommend reading the [IBM  event streams documentation](https://ibm.github.io/event-streams/connecting/setting-up-connectors/) for installing Kafka connect with IBM Event Streams or you can also leverage the [Strimzi Kafka connect operator](https://strimzi.io/docs/0.9.0/#kafka-connect-str).
 
 With IBM Event Streams on premise deployment, the connectors setup is part of the user admin console toolbox:
 
@@ -35,25 +35,11 @@ With IBM Event Streams on premise deployment, the connectors setup is part of th
 
 *Deploying connectors against an IBM Event Streams cluster, you need to have API key with permissions to produce and consume messages for all topics.*
 
-When running in distributed mode, the connectors need three topics as presented in the `create topics` table [here](https://ibm.github.io/event-streams/connecting/setting-up-connectors/). Using IBM Event Streams CLI, the topics are created via the commands like:
-
-```shell
-# log to the kubernetes cluster:
-cloudctl login -a https://icp-console.apps.green.ocp.csplab.local
-# initialize the event streams CLI plugin
-cloudctl es init
-# Create the Kafka topic
-cloudctl es topic-create -n connect-configs -p 1 -r 3 -c cleanup.policy=compact
-cloudctl es topic-create -n connect-offsets -p 25 -r 3 -c cleanup.policy=compact
-cloudctl es topic-create -n connect-status -p 5 -r 3 -c cleanup.policy=compact
-cloudctl es topics
-```
-
 As an extendable framework, kafka connect, can have new connector plugins. To deploy new connector, the kafka docker image defining the connector needs to be updated with the connector jar and redeployed to kubernetes cluster or to other environment. With IBM Event Streams on Openshift, the toolbox includes a kafka connect environment packaging, that defines a Dockerfile and configuration files to build your own image with the connectors jar files you need. The configuration files defines the properties to connect to Event Streams kafka brokers using API keys and SASL.
 
 Here is the [list of supported connectors](https://ibm.github.io/event-streams/connectors/) for IBM Event Streams.
 
-From the dockerfile we can build a new kafka connect environment image:
+From the downloaded dockerfile we can build a new kafka connect environment image like:
 
 ```shell
 docker build -t ibmcase/kafkaconnect:0.0.1 .
@@ -140,7 +126,7 @@ sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule require
 
 ```
 
-Using the same file source stream connector to send records and a simple consumer console to trace the output like:
+Using the same `file source stream connector` to send records and a simple consumer console to trace the output like:
 
 ```
 docker run -ti  -v $(pwd)/config:/opt/kafka/config --entrypoint bash  ibmcase/kafkaconnect:0.0.1
@@ -153,11 +139,25 @@ The console-consumer.properties specifies the SASL properties to connect to the 
 
 ## Distributed mode
 
-As discribed in the [product documentation](https://ibm.github.io/event-streams/connecting/setting-up-connectors/), with distributed mode at least three topics need to be added:
+When running in distributed mode, the connectors need three topics as presented in the `create topics` table [here](https://ibm.github.io/event-streams/connecting/setting-up-connectors/). 
 
 * **connect-configs**: This topic will store the connector and task configurations.
 * **connect-offsets**: This topic is used to store offsets for Kafka Connect.
 * **connect-status**: This topic will store status updates of connectors and tasks.
+
+Using IBM Event Streams CLI, the topics are created via the commands like:
+
+```shell
+# log to the kubernetes cluster:
+cloudctl login -a https://icp-console.apps.green.ocp.csplab.local
+# initialize the event streams CLI plugin
+cloudctl es init
+# Create the Kafka topic
+cloudctl es topic-create -n connect-configs -p 1 -r 3 -c cleanup.policy=compact
+cloudctl es topic-create -n connect-offsets -p 25 -r 3 -c cleanup.policy=compact
+cloudctl es topic-create -n connect-status -p 5 -r 3 -c cleanup.policy=compact
+cloudctl es topics
+```
 
 Then the connector configuration needs to specify some other properties (See [kafka documentation](https://kafka.apache.org/documentation/#connectconfigs)):
 
@@ -170,7 +170,7 @@ With Event Streams as part of the Cloud Pak for integration, the administration 
 
 See [this properties file](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docker/kafka-connect/distributed-workers.properties) as an example.
 
-To start locally a Kafka connect in distributed mode, connected to Event Streams deployed on-premise use:
+To start locally a Kafka connect in distributed mode, connected to Event Streams deployed on-premise use the following command (the entry point in the dockerfile use the connect-distributed mode script):
 
 ```shell
 docker run -v $(pwd)/config:/opt/kafka/config -p 8083:8083 ibmcase/kafkaconnect:0.0.1
@@ -194,7 +194,7 @@ For example the http://localhost:8083/connectors is the base URL when running lo
 
 ## Deploy the Kafka connect as a service within Openshift cluster
 
-When you use IBM Event Streams on Openshift, you can deploy the connector environment as Docker containers, and define the needed `connect-*` topics. See the [product documentation](https://ibm.github.io/event-streams/connecting/setting-up-connectors/) for details.
+When you use IBM Event Streams on Openshift, you can deploy the connector environment as Docker containers, and define the needed `connect-*` topics as explained in previous section.
 
 Another approach is to use [Strimzi](https://strimzi.io/) operator.
 
@@ -210,7 +210,7 @@ We are using a local kafka cluster started with docker-compose as defined in the
 docker network create kafkanet
 ```
 
-* Start the kafka broker (bitnami distribution) and zookeeper under the `refarch-kc/docker` folder:
+* Start the kafka broker (bitnami distribution) and zookeeper node using the command below under the `refarch-kc/docker` folder:
 
 ```shell
 docker-compose -f backbone-compose.yml up -d
