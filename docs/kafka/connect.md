@@ -128,12 +128,12 @@ sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule require
 
 Using the same `file source stream connector` to send records and a simple consumer console to trace the output like:
 
-```
+```shell
 docker run -ti  -v $(pwd)/config:/opt/kafka/config --entrypoint bash  ibmcase/kafkaconnect:0.0.1
 
 esuser@3245874dcdd3: cd /opt/kafka/bin/
 esuser@3245874dcdd3: ./kafka-console-consumer.sh --bootstrap-server eventstream140-ibm-es-proxy-route-broker-0-eventstreams.apps.green.ocp.csplab.local:443 --consumer.config /opt/kafka/config/console-consumer.properties --topic clickstream --from-beginning"
-``` 
+```
 
 The console-consumer.properties specifies the SASL properties to connect to the remote broker using API key.
 
@@ -194,7 +194,7 @@ For example the http://localhost:8083/connectors is the base URL when running lo
 
 ## Deploy the Kafka connect as a service within Openshift cluster
 
-When you use IBM Event Streams on Openshift, you can deploy the connector environment as Docker containers, and define the needed `connect-*` topics as explained in previous section.
+When you use IBM Event Streams on Openshift, you can deploy the IBM kafka connector environment as Docker containers, and define the needed `connect-*` topics as explained in previous section. The product documentation describes how to do that.
 
 Another approach is to use [Strimzi](https://strimzi.io/) operator.
 

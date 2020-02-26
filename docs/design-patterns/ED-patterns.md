@@ -12,6 +12,7 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 * [Command Query Responsibility Segregation](cqrs.md) helps to separate queries from commands and help to address queries with cross-microservice boundary.
 * [Saga pattern:](saga.md) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
 * [Event reprocessing with dead letter](#event-reprocessing-with-dead-letter-pattern): event driven microservice may have to call external service via synchronous call, we need to process failure to get response from those service, using event backbone.
+* [Transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html): A service command typically needs to update the database and send messages/events. The approach is to use a outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone.
 
 
 ## Strangler pattern
