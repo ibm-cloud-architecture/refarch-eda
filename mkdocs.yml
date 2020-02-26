@@ -1,16 +1,17 @@
-site_name: Event Driven Architecture 
+site_name: Event Driven Architecture
 repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
+google_analytics: UA-149377589-3
 nav:
   - Home: index.md
   - Concepts: concepts/README.md
-  - Architecture: 
+  - Architecture:
     - Reference diagrams: architecture.md
     - Event sources: evt-src/README.md
     - Event backbone: evt-backbone/README.md
     - Event actions: evt-action/README.md
     - Event managed states: evt-state/README.md
     - Event Stream & Kafka architecture: kafka/arch.md
-  - Methodology: 
+  - Methodology:
     - Event driven methodology: methodology/readme.md
     - Event Storming: methodology/eventstorming.md
     - Event Storming applied to container shipment analysis: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
@@ -44,12 +45,12 @@ nav:
       - Ceph deployment on ICP: deployments/eventstreams/Install_Ceph_on_ICP.md
       - Kafka deployment with Strimzi: deployments/strimzi/deploy.md
       - Troubleshouting: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
-  - Real time analytics: 
+  - Real time analytics:
     - Concepts: rt-analytics/README.md
     - Reefer Container Predictive Maintenance: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
   - Skill journey: training/eda-skill-journey.md
   - Compendium: compendium.md
-theme: 
+theme:
   name: material
   logo: images/cloud.png
 extra_css: ["extra.css"]
