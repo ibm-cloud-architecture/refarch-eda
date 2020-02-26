@@ -1,6 +1,8 @@
 site_name: Event Driven Architecture
 repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
-google_analytics: UA-149377589-3
+google_analytics:
+  - 'UA-149377589-3'
+  - 'auto'
 nav:
   - Home: index.md
   - Concepts: concepts/README.md
