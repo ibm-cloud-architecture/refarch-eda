@@ -1,11 +1,11 @@
 # Apache Kafka
 
-In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org/) is and are grouping some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams/). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro/) every developer using Kafka should read.
+In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.org) is and are grouping some references and notes we gathered during our different implementations and  **Kafka** deployment within Kubernetes cluster. We are documenting how to deploy Kafka on IBM Cloud Private or deploying [IBM Event Streams product](https://developer.ibm.com/messaging/event-streams). This content does not replace [the excellent introduction](https://Kafka.apache.org/intro) every developer using Kafka should read.
 
 
 ## Introduction
 
-[Kafka](https://Kafka.apache.org/) is a distributed real time event streaming platform with the following key capabilities:
+[Kafka](https://Kafka.apache.org) is a distributed real time event streaming platform with the following key capabilities:
 
 * Publish and subscribe streams of records. Data are stored so consuming applications can pull the information they need, and keep track of what they have seen so far.
 * It can handle hundreds of read and write operations per second from many producers and consumers
