@@ -67,6 +67,7 @@ mm2-offset-syncs.target.internal                              1            3
 mm2-offsets.target.internal                                   25           3
 mm2-status.target.internal                                    5            3
 ```
+
 And on the target cluster:
 
 ```
@@ -82,8 +83,12 @@ source.test
 
 The `source.test` topic is the replicated `test` topic from the source cluster.
 
+![](images/mm-k-connect.png)
 
 ## Active - Passive
+
+To support active - passive, one site has producers and consumers on local topics, and topic data are replicated on active cluster without online consumers
+
 
 ## Active - Active
 
