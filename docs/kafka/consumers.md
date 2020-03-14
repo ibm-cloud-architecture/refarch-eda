@@ -66,11 +66,11 @@ As soon as you are coding manual commit, it is strongly recommended to implement
 
 When dealing with heavy load storing offset in zookeeper is non advisable. It is even, now recognized as a bad practice. To manage offset use the new consumer API, and for example commits offset synchronously when a specified number of events are read from the topic and the persistence to the back end succeed.
 
-Assess if it is possible to loose messages from topic.  If so, when a consumer restarts it will start consuming the topic from the end of the queue. Does this solution acceptable? 
+Assess if it is acceptable to loose messages from topic.  If so, when a consumer restarts it will start consuming the topic from the end of the queue.
 
-As storing a message to an external system and storing the offsets are two separate operations, and in case of failure between them, it is possible to have stale offsets, which will introduce duplicate messages when consumers restart to process from last known committed offset. In this case idempotence may be needed to support updating the same row in the table, or use the event timestamp as update timestamp in the database record or other clever solution. 
+As storing a message to an external system and storing the offsets are two separate operations, and in case of failure between them, it is possible to have stale offsets, which will introduce duplicate messages when consumers restart to process from last known committed offset. In this case, idempotence is needed to support updating the same row in the table, or use the event timestamp as update timestamp in the database record or use other clever solution.
 
-As presented in the producer coding practice, using transaction to to support "exactly-once", also means the consumers should read committed data only. This can be achieved by setting the `isolation.level=read_committed` in the consumer's configuration. The last offset will be the first message in the partition beloging to an open not yet committed transaction. This offset is known as the 'Last Stable Offset'(LSO).
+As presented in the producer coding practice, using transaction to support "exactly-once", also means the consumers should read committed data only. This can be achieved by setting the `isolation.level=read_committed` in the consumer's configuration. The last offset will be the first message in the partition beloging to an open not yet committed transaction. This offset is known as the 'Last Stable Offset'(LSO).
 
 ## Repositories with consumer code
 
