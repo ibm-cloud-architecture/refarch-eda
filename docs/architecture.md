@@ -10,7 +10,7 @@ We defined the starting point for a Cloud Native Event Driven Architecture to be
 With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below:
 
 
-![hl-arch-ra](hl-arch-ra.png)
+![hl-arch-ra](images/hl-arch-ra.png)
 
 Where:
 
@@ -30,7 +30,7 @@ The event-driven reference architecture provides the framework to support event-
 
 The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
 
-![hl-arch-ra-adv](hl-arch-ra-adv.png)
+![hl-arch-ra-adv](images/hl-arch-ra-adv.png)
 
  In 7. the AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular Event Store, and develop models. Models are pushed to streaming analytics component.
 
@@ -48,7 +48,7 @@ With real-time event streams, the challenge is in handling unbounded data or a c
 Following our event-driven reference architecture the event stream would be a Kafka topic on the event backbone.  From here there are two possibilities for making that event data available and consumable to the data scientist:
 
 * The event stream or event log can be accessed directly through Kafka and pulled into the analysis process
-* The event stream can be pre-processed by the streaming analytics system and stored for future use in the analysis process. You have a choice of store type to use. Within public IBM cloud object storage [Cloud Object Store ](https://www.ibm.com/cloud/object-storage) can be used as a cost-effective historical store.
+* The event stream can be pre-processed by the streaming analytics system and stored for future use in the analysis process. You have a choice of store type to use. Within public IBM cloud object storage [Cloud Object Store](https://www.ibm.com/cloud/object-storage) can be used as a cost-effective historical store.
 
 Both approaches are valid, pre-processing through streaming analytics provides opportunity for greater manipulation of the data, or storing data over time windows for complex event processing. However, the more interesting distinction is where you use a predictive (ML model) to score arriving events or stream data in real time. In this case you may use streaming analytics to extract and save the event data for analysis, model building, and model training and also for scoring (executing) a derived model in line in the real time against arriving event data.
 
@@ -72,7 +72,7 @@ These are scalable easily extensible, and adaptable applications responding in n
 
 To complete the extended architecture for integration with analytics and machine learning, consider the toolset and frameworks that the data scientist can use to derive the models.  [Watson Studio](https://www.ibm.com/marketplace/watson-studio)  provides tools for data scientists, application developers, and subject matter experts to collaboratively and easily work with data to build and train models at scale.  
 
-For more information see [Getting started ](https://dataplatform.cloud.ibm.com/docs/content/getting-started/overview-ws.html) with Watson Studio.
+For more information see [Getting started](https://dataplatform.cloud.ibm.com/docs/content/getting-started/overview-ws.html) with Watson Studio.
 
 ## Legacy integration
 

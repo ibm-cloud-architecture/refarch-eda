@@ -79,7 +79,7 @@ As next steps beyond getting started and reading our technical point of view, yo
 !!! note
         At the end of this training you should have the following solution up and running (See detailed description [here](https://ibm-cloud-architecture.github.io/refarch-kc/design/architecture/#components-view)):
 
-    ![](../kc-mvp-components.png)
+    ![](../images/kc-mvp-components.png)
 
 You can run the solution locally, on IBM Cloud Private, on IBM Kubernetes Services or Openshift.
 

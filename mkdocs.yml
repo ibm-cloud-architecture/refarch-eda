@@ -50,7 +50,6 @@ nav:
   - Real time analytics:
     - Concepts: rt-analytics/README.md
     - Reefer Container Predictive Maintenance: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
-  - Skill journey: training/eda-skill-journey.md
   - Compendium: compendium.md
 theme:
   name: material

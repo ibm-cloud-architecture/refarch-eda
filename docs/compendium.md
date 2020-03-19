@@ -22,6 +22,7 @@
 * [Does Apache Kafka do ACID transactions? - Andrew Schofield](https://medium.com/@andrew_schofield/does-apache-kafka-do-acid-transactions-647b207f3d0e)
 * [Spark and Kafka with direct stream, and persistence considerations and best practices](http://aseigneurin.github.io/2016/05/07/spark-Kafka-achieving-zero-data-loss.html)
 * [Example in scala for processing Tweets with Kafka Streams](https://www.madewithtea.com/processing-tweets-with-Kafka-streams.html)
+* [Our skill journey](training/eda-skill-journey.md) but it is under work to migrate to IBM learning journey.
 
 ### Microservices and event-driven patterns
 
