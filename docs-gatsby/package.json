@@ -1,0 +1,21 @@
+{
+  "name": "example",
+  "private": true,
+  "version": "1.22.1",
+  "license": "Apache 2.0",
+  "scripts": {
+    "dev": "gatsby develop -H 0.0.0.0",
+    "dev:clean": "yarn clean && yarn dev",
+    "build": "gatsby build",
+    "build:clean": "yarn clean && gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "build:analyze": "ANALYZE=true yarn build"
+  },
+  "dependencies": {
+    "gatsby": "^2.19.0",
+    "gatsby-theme-carbon": "^1.22.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  }
+}

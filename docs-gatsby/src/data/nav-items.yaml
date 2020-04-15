@@ -1,0 +1,61 @@
+
+- title: Business problem statement
+  pages:
+    - title: Introduction
+      path: introduction
+    - title: Event storming analysis
+      path: analysis/readme
+- title: From Analysis to Microservice Specifications
+  pages:
+    - path: design/readme
+- title: Architecture
+  pages:
+    - path: design/architecture
+
+- title: Development practices
+  pages:
+    - title: Adopting Schema Registry and Avro
+      path: avro/avro
+    - title: Saga applied to container solution
+      path: saga/saga
+    - title: Dead letter pattern for this solution
+      path: dlq/dlq
+    - title: Order cancellation principle
+      path: cancellation/cancellation
+    - title:  Container anomaly
+      path: containerAnomaly/containerAnomaly
+- title: Related repositories
+  pages:
+  - path: deployments/reposlist
+- title: Deployments
+  pages:
+    - title: Backing services
+      path: deployments/backing-services
+    - title: Application Components
+      path: deployments/application-components
+    - title: Docker
+      path: deployments/docker
+    - title: Troubleshooting
+      path: deployments/troubleshooting
+- title: Security
+  pages:
+    - path: security
+
+- title: Integration tests
+  pages:
+    - title: Overview
+      path: itg-tests/itgtests
+    - title: Happy Path
+      path: itg-tests/happy-path/happy_path
+    - title: Saga Pattern
+      path: itg-tests/saga/saga
+    - title: Order cancellation
+      path: itg-tests/order-cancelled/order_cancelled
+    - title: Dead Letter
+      path: itg-tests/dlq/dlq
+    - title: Container Anomaly
+      path: itg-tests/containerAnomaly/containerAnomaly
+
+- title: Demonstration script
+  pages:
+      - path: demo/readme
