@@ -1,5 +1,9 @@
 # Consumers design and implementation considerations
 
+This note includes some quick summary of different pratices we discovered and studied over time. It may be useful for beginner or seasonned developers who want some refresh after sometime out of kafka.
+
+Updated 4/7/2020
+
 ## Important concepts
 
 Consumers belong to **consumer groups**. You specify the group name as part of the connection parameters.
@@ -12,13 +16,13 @@ Consumer groups are grouping consumers to cooperate to consume messages from one
 
 ![consumer group](images/consumer-group.png)
 
-Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer joins or leaves the group or when a new partition is added to an existing topic. There is always at least one consumer per partition.
+Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer joins or leaves the group or when a new partition is added to an existing topic (via admin tool). There is always at least one consumer per partition. If a topic has multiple partitions and there is only one consumer in the consumer group, it will get all the messages from all the partitions.
 
 Membership in a consumer group is maintained dynamically. When a consumer fails, the partitions assigned to it will be reassigned to other consumers in the same group. When a new consumer joins the group, partitions will be moved from existing consumers to the new one. Group rebalancing is also used when new partitions are added to one of the subscribed topics. The group will automatically detect the new partitions through periodic metadata refreshes and assign them to members of the group.
 
 ![](images/consumer-groups.png)
 
-Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
+Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/24/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
 
 In it interesting to note that:
 
@@ -28,9 +32,9 @@ In it interesting to note that:
 The implementation is simple for a single thread consumer, and the code structure looks like:
 
 * prepare the consumer properties
-* create an instance of KafkaConsumer to connect to a topic and a partition
-* loop on polling events: the cosnsumer subscribes to a set of topics and ensure its liveness via the poll API
-  * process the ConsumerRecords and commit the offset by code or use the autocommit attibute of the consumer
+* create an instance of KafkaConsumer to connect to a topic
+* loop on polling events: the consumer subscribes to a set of topics and ensures its liveness with the broker via the poll API
+    * process the ConsumerRecords and commit the offset by code or use the autocommit attibute of the consumer
 
 As long as the consumer continues to call poll(), it will stay in the group and continue to receive messages from the partitions it was assigned. When the consumer does not send heartbeats for a duration of `session.timeout.ms`, then it is considered dead and its partitions will be reassigned.
 

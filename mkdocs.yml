@@ -34,6 +34,7 @@ nav:
     - Kafka consumer development practices: kafka/consumers.md
     - Kafka streaming processing: kafka/kafka-stream.md
     - Kafka Connect: kafka/connect.md
+    - Mirror Maker 2.0: mirrormaker.md
     - Kafka FAQ: kafka/FAQ.md
     - Adopting Avro with Kafka: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
     - Kafka monitoring: kafka/monitoring.md
