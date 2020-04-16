@@ -1,61 +1,97 @@
 
-- title: Business problem statement
+- title: Home
   pages:
-    - title: Introduction
-      path: introduction
-    - title: Event storming analysis
-      path: analysis/readme
-- title: From Analysis to Microservice Specifications
+      path: index
+- title: Concepts
   pages:
-    - path: design/readme
+    - path: concepts/README
 - title: Architecture
   pages:
-    - path: design/architecture
-
-- title: Development practices
+    - title: Reference diagrams
+    - path: architecture
+    - title: Event sources
+    - path: evt-src/README
+    - title: Event backbone
+    - path: evt-backbone/README
+    - title: Event actions
+    - path: evt-action/README
+    - title: Event managed states
+    - path: evt-state/README
+    - title: Event Stream & Kafka architecture
+    - path: kafka/arch
+- title: Methodology
   pages:
-    - title: Adopting Schema Registry and Avro
-      path: avro/avro
-    - title: Saga applied to container solution
-      path: saga/saga
-    - title: Dead letter pattern for this solution
-      path: dlq/dlq
-    - title: Order cancellation principle
-      path: cancellation/cancellation
-    - title:  Container anomaly
-      path: containerAnomaly/containerAnomaly
-- title: Related repositories
+    - title: Event driven methodology
+      path: methodology/readme
+    - title: Event Storming
+      path: methodology/eventstorming
+    - title: Event Storming applied to container shipment analysis
+      path: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
+    - title: Domain driven design for event based solution
+      path: methodology/ddd
+- title: Event driven design patterns
   pages:
-  - path: deployments/reposlist
-- title: Deployments
+    - title: Microservices
+      path: evt-microservices/README
+    - title: Event-driven patterns
+      path: design-patterns/ED-patterns
+    - title: Event Sourcing
+      path: design-patterns/event-sourcing
+    - title: CQRS
+      path: design-patterns/cqrs
+    - title: Saga
+      path: design-patterns/saga
+    - title: Data replication pattern
+      path: design-patterns/data-replication
+- title: Reference implementations
   pages:
-    - title: Backing services
-      path: deployments/backing-services
-    - title: Application Components
-      path: deployments/application-components
-    - title: Docker
-      path: deployments/docker
+    - title: Containe Shipment implementation solution
+      path: https://ibm-cloud-architecture.github.io/refarch-kc
+- title: Product guidances
+  pages:
+    - title: Kafka concepts summary
+      path: kafka/readme
+    - title: Architecture considerations
+      path: kafka/arch
+    - title: Kafka producer development practices
+      path: kafka/producers
+    - title: Kafka consumer development practices 
+      path: kafka/consumers
+    - title: Kafka streaming processing
+      path: kafka/kafka-stream
+    - title: Kafka Connect
+      path: kafka/connect
+    - title: Kafka FAQ
+      path: kafka/FAQ
+    - title: Adopting Avro with Kafka
+      path: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
+    - title: Kafka monitoring
+      path: kafka/monitoring
+    - title: Severless
+      path: severless/README
+- title: Deployment
+  pages:
+    - title: Event Streams IBM CLOUD deployment
+      path: deployments/eventstreams/es-ibm-cloud
+    - title: Event Streams Cloud Pak Integration deployment
+      path: deployments/eventstreams/README
+    - title: Kafka deployment
+      path: deployments/kafka/README
+    - title: Zookeeper deployment
+      path: deployments/zookeper/README
+    - title: Postgresql
+      path: deployments/postgresql/README
+    - title: Ceph deployment on ICP
+      path: deployments/eventstreams/Install_Ceph_on_ICP
+    - title: Kafka deployment with Strimzi
+      path: deployments/strimzi/deploy
     - title: Troubleshooting
-      path: deployments/troubleshooting
-- title: Security
+      path: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
+- title: Real time analytics
   pages:
-    - path: security
-
-- title: Integration tests
-  pages:
-    - title: Overview
-      path: itg-tests/itgtests
-    - title: Happy Path
-      path: itg-tests/happy-path/happy_path
-    - title: Saga Pattern
-      path: itg-tests/saga/saga
-    - title: Order cancellation
-      path: itg-tests/order-cancelled/order_cancelled
-    - title: Dead Letter
-      path: itg-tests/dlq/dlq
-    - title: Container Anomaly
-      path: itg-tests/containerAnomaly/containerAnomaly
-
-- title: Demonstration script
-  pages:
-      - path: demo/readme
+    - title: Concepts
+      path: rt-analytics/README
+    - title: Reefer Container Predictive Maintenance
+      path: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
+    - title: Compendium
+      path: compendium
