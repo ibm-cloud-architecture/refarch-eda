@@ -1,5 +1,9 @@
 # Consumers design and implementation considerations
 
+This note includes some quick summary of different pratices we discovered and studied over time. It may be useful for beginner or seasonned developers who want some refresh after sometime out of kafka.
+
+Updated 4/7/2020
+
 ## Important concepts
 
 Consumers belong to **consumer groups**. You specify the group name as part of the connection parameters.
@@ -12,18 +16,31 @@ Consumer groups are grouping consumers to cooperate to consume messages from one
 
 ![consumer group](images/consumer-group.png)
 
-Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer joins or leaves the group or when a new partition is added to an existing topic. There is always at least one consumer per partition.
+Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. The rebalancing of partition to consumer is done when a new consumer joins or leaves the group or when a new partition is added to an existing topic (via admin tool). There is always at least one consumer per partition. If a topic has multiple partitions and there is only one consumer in the consumer group, it will get all the messages from all the partitions.
 
-Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
+Membership in a consumer group is maintained dynamically. When a consumer fails, the partitions assigned to it will be reassigned to other consumers in the same group. When a new consumer joins the group, partitions will be moved from existing consumers to the new one. Group rebalancing is also used when new partitions are added to one of the subscribed topics. The group will automatically detect the new partitions through periodic metadata refreshes and assign them to members of the group.
+
+![](images/consumer-groups.png)
+
+Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/24/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
+
+In it interesting to note that:
+
+* To support a queue processing like other integration messaging systems are doing, you need to have all the consumers assigned to a single consumer group, so that each record delivery would be balanced over the group like with a queue.
+* To support pub/sub like other messaging systems, each consumer would have its own consumer group, and subscribes to all the records published to the topic.
 
 The implementation is simple for a single thread consumer, and the code structure looks like:
 
-* prepare the properties
-* create an instance of KafkaConsumer to connect to a topic and a partition
-* loop on polling events
-  * process the ConsumerRecords and commit the offset by code or use the autocommit attibute of the consumer
+* prepare the consumer properties
+* create an instance of KafkaConsumer to connect to a topic
+* loop on polling events: the consumer subscribes to a set of topics and ensures its liveness with the broker via the poll API
+    * process the ConsumerRecords and commit the offset by code or use the autocommit attibute of the consumer
 
-Examples of Java consumers can be found in [the order management microservice project](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/master/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderEventAgent.java) under the order-command-ms folder.
+As long as the consumer continues to call poll(), it will stay in the group and continue to receive messages from the partitions it was assigned. When the consumer does not send heartbeats for a duration of `session.timeout.ms`, then it is considered dead and its partitions will be reassigned.
+
+Examples of Java consumers can be found in [the order management microservice project](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/master/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderEventAgent.java) under the order-command-ms folder. 
+
+We are proposing a deep dive study on this manual offset commit in [this consumer code](https://github.com/jbcodeforce/quarkus-event-driven-consumer-microservice-template) that persists events to cassandra. 
 Example of Javascript implementation is in [this repository/folder](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/voyages-ms/server/utils/kafka.js)
 
 But the complexity comes from the offset management and multithreading needs. So the following important considerations need to be addressed while implementing a consumer.
@@ -39,16 +56,25 @@ Also, a consumer can subscribe to multiple topics. The brokers are doing rebalan
 
 ## Offset management
 
-Recall that offset is just a numeric identifier of a consumer position of the last record read within a partition. Consumers periodically need to commit the offsets of messages they have received to show they have processed the message and in case of failure from where they should reconnect. It is possible to commit by calling API or by setting some properties at the consumer creation level to enable autocommit offset. When doing manual offet, there are two types of manually committed:
+Recall that offset is just a numeric identifier of a consumer position of the last record read within a partition. Consumers periodically need to commit the offsets of messages they have received to show they have processed the messages and in case of failure from where they should reconnect. It is possible to commit by calling API or by setting some properties at the consumer creation level to enable autocommit offset. 
+
+When doing manual offset commit, there are two types of approaches:
 
 * offsets—synchronous
 * asynchronous
 
-When dealing with heavy load storing offset in zookeeper is non advisable. It is even now recognize as a bad practice. To manage offset use the new consumer API, and for example commits offset synchronously when a specified number of events are read from the topic and the persistence to the back end succeed.
+```
+```
 
-Assess if it is possible to loose messages from topic.  If so, when a consumer restarts it will start consuming the topic from the end of the queue.
+As soon as you are coding manual commit, it is strongly recommended to implement the ConsumerRebalanceListener interface to be able to do the state modifications when the topic is rebalanced. 
 
-Does this solution acceptable? As the operation to store a message and the storage of offsets are two separate operations, and in case of failure between them, it is possible to have stale offsets, which will introduce duplicate messages when consumers restart to process from last known committed offset. "exactly-once" means grouping record and offset persistence in an atomic operation.
+When dealing with heavy load storing offset in zookeeper is non advisable. It is even, now recognized as a bad practice. To manage offset use the new consumer API, and for example commits offset synchronously when a specified number of events are read from the topic and the persistence to the back end succeed.
+
+Assess if it is acceptable to loose messages from topic.  If so, when a consumer restarts it will start consuming the topic from the end of the queue.
+
+As storing a message to an external system and storing the offsets are two separate operations, and in case of failure between them, it is possible to have stale offsets, which will introduce duplicate messages when consumers restart to process from last known committed offset. In this case, idempotence is needed to support updating the same row in the table, or use the event timestamp as update timestamp in the database record or use other clever solution.
+
+As presented in the producer coding practice, using transaction to support "exactly-once", also means the consumers should read committed data only. This can be achieved by setting the `isolation.level=read_committed` in the consumer's configuration. The last offset will be the first message in the partition beloging to an open not yet committed transaction. This offset is known as the 'Last Stable Offset'(LSO).
 
 ## Repositories with consumer code
 

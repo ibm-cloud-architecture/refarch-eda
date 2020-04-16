@@ -155,8 +155,25 @@ bash-4.2$ cd /opt/kafka/bin
 bash-4.2$ ./kafka-console-consumer.sh --bootstrap-server  my-cluster-kafka-bootstrap-jb-kafka-strimzi.gse-eda-demos-fa9ee67c9ab6a7791435450358e564cc-0001.us-east.containers.appdomain.cloud:443 --consumer-property security.protocol=SSL --consumer-property ssl.truststore.password=password --consumer-property ssl.truststore.location=/home/truststore.jks --topic test --from-beginning
 ```
 
-* For a producer the approach is the same but suing the producer properties:
+* For a producer the approach is the same but using the producer properties:
 
 ```
 ./kafka-console-producer.sh --broker-list  my-cluster-kafka-bootstrap-jb-kafka-strimzi.gse-eda-demos-fa9ee67c9ab6a7791435450358e564cc-0001.us-east.containers.appdomain.cloud:443 --producer-property security.protocol=SSL --producer-property ssl.truststore.password=password --producer-property ssl.truststore.location=/home/truststore.jks --topic test   
+```
+
+Those properties can be in file
+
+```shell
+bootstrap.servers=my-cluster-kafka-bootstrap-jb-kafka-strimzi.gse-eda-demos-fa9ee67c9ab6a7791435450358e564cc-0001.us-east.containers.appdomain.cloud
+security.protocol=SSL
+ssl.truststore.password=password
+ssl.truststore.location=/home/truststore.jks
+```
+
+and then use the following parameters in the command line:
+
+```shell
+./kafka-console-producer.sh --broker-list my-cluster-kafka-bootstrap-jb-kafka-strimzi.gse-eda-demos-fa9ee67c9ab6a7791435450358e564cc-0001.us-east.containers.appdomain.cloud:443 --producer.config /home/strimzi.properties --topic test
+
+./kafka-console-consumer.sh --bootstrap-server my-cluster-kafka-bootstrap-jb-kafka-strimzi.gse-eda-demos-fa9ee67c9ab6a7791435450358e564cc-0001.us-east.containers.appdomain.cloud:443  --topic test  --consumer.config /home/strimzi.properties --from-beginning 
 ```

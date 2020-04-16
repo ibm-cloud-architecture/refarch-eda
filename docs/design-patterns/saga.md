@@ -53,5 +53,5 @@ Orchestrator is a State Machine where each transformation corresponds to a comm
 
 See also [this article](https://microservices.io/patterns/data/saga.html) from Chris Richardson on the Saga pattern.
 
-We have implemented the choreography saga pattern in the order management, voyage and refeer management microservices within the [EDA reference implementation solution](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/reposlist/) with a detailed explanation of the integration tests to validate the [happy path](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/happy-path/happy_path/) and the [exception path](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/saga/saga/) with compensation.
+We have implemented the choreography saga pattern in the order management, voyage and refeer management microservices within the [EDA reference implementation solution](https://ibm-cloud-architecture.github.io/refarch-kc/deployments/reposlist/) with a detailed explanation of the integration tests to validate the [happy path](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/happy-path/happy_path/), and the [exception path](https://ibm-cloud-architecture.github.io/refarch-kc/itg-tests/saga/saga/) with compensation.
 

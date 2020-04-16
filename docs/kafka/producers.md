@@ -55,24 +55,28 @@ The following properties are helpful to tune at each topic and producer and will
 
 Knowing that exactly once delivery is one of the hardest problems to solve in distributed systems, how kafka does it?. Broker can fail or a network may respond slowly while a producer is trying to send events.
 
-Producer can set acknowledge level to control the delivery semantic:
+Producer can set acknowledge level to control the delivery semantic to ensure not loosing data. The following semantic is supported:
 
 * **At least once**: means the producer set ACKS_CONFIG=1 and get an acknowledgement message when the message sent, has been written to at least one time in the cluster (assume replicas = 3).  If the ack is not received, the producer may retry, which may generate duplicate records in case the broker stops after saving to the topic and before sending back the acknowledgement message.
-* **At most semantic**: means the producer will not do retry in case of no acknowldege received. It may create log and compensation, but the message is lost.
+* **At most semantic**: means the producer will not do retry in case of no acknowldege received. It may create log and compensation, but the message may be lost.
 * **Exactly once** means even if the producer sends the message twice the system will send only one message to the consumer. Once the consumer commits the read offset, it will not receive the message again, even if it restarts. Consumer offset needs to be in sync with produced event.
 
-With the idempotence property (ENABLE_IDEMPOTENCE_CONFIG = true), the record sent, has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. 
+At the best case scenario, with a replica factor set to 3, a broker responding on time to the producer, and with a consumer committing its offset and reading from the last committed offset it is possible to get only one message end to end.
 
-![Exactly once](images/exactly-one-1.png)
+![](images/exactly-one-0.png)
 
-If a message is received with a lower sequence number, it means a producer is doing some retries on record already processed, so the broker will drop it, to avoid having duplicate records per partition. The broker will drop the messages with a sequence less or equals to the last committed sequence number, and accept the other ones. In the diagram below, the 3nd message in the batch did not get an acknowledge, so the producer resends the batch, and the brokers reject duplicates and accept the 3nd message.
+Sometime the brokers will not send acknowledge in expected time, and the producer may decide to send the records again, generating duplicate...
 
-![Excatly once - retries](images/exactly-one-2.png)
+![](images/exactly-one-1.png)
+
+To avoid duplicate message at the broker level, when acknowledge is set to ALL, the producer can also set idempotence flag: ENABLE_IDEMPOTENCE_CONFIG = true. With the idempotence property, the record sent, has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. If a message is received with a lower sequence number, it means a producer is doing some retries on record already processed, so the broker will drop it, to avoid having duplicate records per partition.
+
+![Exactly once](images/exactly-one-2.png)
 
 The sequence number is persisted in a log so even in case of broker leader failure, the new leader will have a good view of the states of the system.
 
 !!! note
-        The replication mechanism guarantees that when a message is written to the leader replica, it will be replicated to all available replicas.
+        The replication mechanism guarantees that, when a message is written to the leader replica, it will be replicated to all available replicas.
         As soon as you want to get acknowledge of all replicates, it is obvious to set idempotence to true. It does not impact performance.
 
 To add to this discussion, as topic may have multiple partitions, kafka supports atomic writes to all partitions, so that all records are saved or none of them are visible to consumers. This transaction control is done by using the producer transactional API, and a unique transaction identifier is added to the message sent to keep integrated state. Here is an example of such configuration that can be done in a producer contructor method:
@@ -83,7 +87,7 @@ producerProps.put("transactional.id", "prod-1");
 kafkaProducer.initTransactions()
 ```
 
-`initTransactions()` registers the producer with the broker as one that can use transaction, identifying it by its transactional.id and a sequence number, or epoch.
+`initTransactions()` registers the producer with the broker as one that can use transaction, identifying it by its `transactional.id` and a sequence number, or epoch.
 
 In case of multiple partitions, the broker will store a list of all updated partitions for a given transaction.
 

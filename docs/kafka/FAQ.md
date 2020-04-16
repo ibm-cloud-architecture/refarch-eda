@@ -42,6 +42,15 @@ This is a requirement gathering related question, to understand what need to be 
 * Need to do ge replication to other kafka cluster
 * Network filesystem used on the target kubernetes cluster and current storage class
 
+## What are the impacts of having not enough resource for kafka?
+
+The table in this [Event Streams product documentation](https://ibm.github.io/event-streams/installing/prerequisites/#helm-resource-requirements) illustrates the resource requirements for a getting started cluster. When resources start to be at stress, then Kafka communication to ZooKeeper and/or other Kafka brokers can suffer resulting in out-of-sync partitions and container restarts perpetuating the issue. Resource constraints is one of the first things we consider when diagnosing ES issues.
+
+## What does out-of-synch partition mean and occur?
+
+With partition leader and replication to the followers, the number of in-synch replicas is at least the number of expected replicas. For example for a replicas = 3 the in-synch is set to 2, and it represents the minimum number of replicas that must acknowledge a write for the write to be considered successful. The record is considered “committed” when all ISRs for partition wrote to their log. Only committed records are readable from consumer.
+
+So out-of-synch will happen if the followers are not able to send their acknowledge to the replica leader.
 
 ## Differences between Akka and Kafka?
 

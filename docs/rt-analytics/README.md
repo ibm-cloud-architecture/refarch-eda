@@ -122,12 +122,5 @@ Our decision for the Event Driven Architecture is to include:
 * IBM streams as the performant, functionally rich real time event stream processing engine
 * Event Streams (Kafka Streams), for manipulation of event streams within microservices
 
-IBM streams also supports Apache Beam as the open source Streams Application language,  which would allow portability of streams applications across, Flink, Spark, Google DataFlow...
-
-### Decision Insights
-
-Decision insight is a stateful operator to manage business decision on enriched event linked to business context and business entities. This is the cornerstone to apply business logic and best action using time related business rules.
-[See this note too](../dsi/README.md)
-
-IBM [Operational Decision Manager Product documentation](https://www.ibm.com/support/knowledgecenter/en/SSQP76_8.9.1/com.ibm.odm.itoa.overview/topics/con_what_is_i2a.html
+IBM streams also supports Apache Beam as the open source Streams Application language,  which would allow portability of streams applications across, Flink, Spark, Google DataFlow..
 

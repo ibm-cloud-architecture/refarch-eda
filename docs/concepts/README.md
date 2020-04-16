@@ -34,7 +34,7 @@ There is a long history of *messaging* in IT systems.  You can easily see an eve
 * **Messaging:** Messages transport a payload and messages are persisted until consumed. Message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
 * **Events:** Events are persisted as a replayable stream history. Event consumers are not tied to the producer. An event is a record of something that has happened and so can't be changed. (You can't change history.)
 
-<img src="../hl-arch-concepts1.png" width="1024px">
+<img src="../images/hl-arch-concepts1.png" width="1024px">
 
 ## Loose coupling
 
