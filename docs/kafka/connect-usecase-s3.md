@@ -31,7 +31,10 @@ As different use cases will require different configuration details to accommoda
 
 **Amazon Web Services account**
 - As this scenario will make use of [AWS S3](https://aws.amazon.com/s3/), an active Amazon Web Services account is required.
-- Using the configuration described here, an additional IAM user can be created with the [`AmazonS3FullAccess` policy](https://console.aws.amazon.com/iam/home?region=us-east-1#/policies/arn:aws:iam::aws:policy/AmazonS3FullAccess$serviceLevelSummary) attached to it _(as it will need both read and write access to S3)_
+- Using the configuration described in this walkthrough, an additional IAM user can be created for further separation of permission, roles, and responsibilities.
+- This new IAM user should contain:
+  -  The [`AmazonS3FullAccess` policy](https://console.aws.amazon.com/iam/home?region=us-east-1#/policies/arn:aws:iam::aws:policy/AmazonS3FullAccess$serviceLevelSummary) attached to it _(as it will need both read and write access to S3)_,
+  -  An [S3 Bucket Policy](https://docs.aws.amazon.com/AmazonS3/latest/dev/walkthrough1.html) set on the Bucket to allow the IAM user to perform CRUD actions on the bucket and its objects.
 - Create a file named `aws-credentials.properties` with the following format:
 
    ```
