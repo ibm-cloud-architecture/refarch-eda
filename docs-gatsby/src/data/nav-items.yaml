@@ -1,24 +1,24 @@
 
 - title: Home
   pages:
-      path: index
+    - path: index
 - title: Concepts
   pages:
     - path: concepts/README
 - title: Architecture
   pages:
     - title: Reference diagrams
-    - path: architecture
+      path: architecture
     - title: Event sources
-    - path: evt-src/README
+      path: evt-src/README
     - title: Event backbone
-    - path: evt-backbone/README
+      path: evt-backbone/README
     - title: Event actions
-    - path: evt-action/README
+      path: evt-action/README
     - title: Event managed states
-    - path: evt-state/README
+      path: evt-state/README
     - title: Event Stream & Kafka architecture
-    - path: kafka/arch
+      path: kafka/arch
 - title: Methodology
   pages:
     - title: Event driven methodology
