@@ -1,10 +1,15 @@
 module.exports = {
   siteMetadata: {
-    title: '',
-    description: 'A Gatsby theme for the carbon design system',
+    title: 'Event Driven Architecture',
+    description: 'This project represents the body of knowledge around event-driven architecture and can be considered as a live book, we are writing from our consulting engagements',
     keywords: 'gatsby,theme,carbon',
+    repository: {
+      baseUrl: 'https://github.com/ibm-cloud-architecture/refarch-eda',
+      subDirectory: '/docs-gatsby',
+      branch: 'master'
+    }
   },
-  pathPrefix: `/gtc`,
+  pathPrefix: `/refarch-eda`,
   plugins: [
     {
       resolve: 'gatsby-plugin-manifest',
@@ -20,12 +25,15 @@ module.exports = {
     {
       resolve: 'gatsby-theme-carbon',
       options: {
-        repository: {
-          baseUrl:
-            'https://github.com/carbon-design-system/gatsby-theme-carbon',
-          subDirectory: '/packages/example',
-        },
+       isSearchEnabled: true,
+       titleType: 'append'
       },
     },
+    {
+      resolve: `gatsby-plugin-google-analytics`,
+      options: {
+        trackingId: "UA-149377589-3"
+      }
+    }
   ],
 };
