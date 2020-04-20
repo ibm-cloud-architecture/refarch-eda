@@ -50,7 +50,7 @@
       path: kafka/arch
     - title: Kafka producer development practices
       path: kafka/producers
-    - title: Kafka consumer development practices 
+    - title: Kafka consumer development practices
       path: kafka/consumers
     - title: Kafka streaming processing
       path: kafka/kafka-stream
@@ -70,10 +70,10 @@
       path: deployments/eventstreams/es-ibm-cloud
     - title: Event Streams Cloud Pak Integration deployment
       path: deployments/eventstreams/README
-    - title: Kafka deployment
-      path: deployments/kafka/README
-    - title: Zookeeper deployment
-      path: deployments/zookeper/README
+    #- title: Kafka deployment
+    #  path: deployments/kafka/README
+    #- title: Zookeeper deployment
+    #  path: deployments/zookeper/README
     - title: Postgresql
       path: deployments/postgresql/README
     - title: Ceph deployment on ICP
