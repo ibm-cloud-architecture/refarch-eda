@@ -1,7 +1,3 @@
-
-- title: Home
-  pages:
-    - path: index
 - title: Concepts
   pages:
     - path: concepts/README
@@ -25,8 +21,8 @@
       path: methodology/readme
     - title: Event Storming
       path: methodology/eventstorming
-    - title: Event Storming applied to container shipment analysis
-      path: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
+    # - title: Event Storming applied to container shipment analysis
+    #   path: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
     - title: Domain driven design for event based solution
       path: methodology/ddd
 - title: Event driven design patterns
@@ -43,10 +39,9 @@
       path: design-patterns/saga
     - title: Data replication pattern
       path: design-patterns/data-replication
-- title: Reference implementations
-  pages:
-    - title: Containe Shipment implementation solution
-      path: https://ibm-cloud-architecture.github.io/refarch-kc
+# - title: Reference implementations
+    # - title: Container Shipment implementation solution
+    #   path: https://ibm-cloud-architecture.github.io/refarch-kc
 - title: Product guidances
   pages:
     - title: Kafka concepts summary
@@ -63,12 +58,12 @@
       path: kafka/connect
     - title: Kafka FAQ
       path: kafka/FAQ
-    - title: Adopting Avro with Kafka
-      path: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
+    # - title: Adopting Avro with Kafka
+    #   path: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
     - title: Kafka monitoring
       path: kafka/monitoring
-    - title: Severless
-      path: severless/README
+    - title: Serverless
+      path: serverless/README
 - title: Deployment
   pages:
     - title: Event Streams IBM CLOUD deployment
@@ -85,13 +80,13 @@
       path: deployments/eventstreams/Install_Ceph_on_ICP
     - title: Kafka deployment with Strimzi
       path: deployments/strimzi/deploy
-    - title: Troubleshooting
-      path: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
+    # - title: Troubleshooting
+    #   path: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
 - title: Real time analytics
   pages:
     - title: Concepts
       path: rt-analytics/README
-    - title: Reefer Container Predictive Maintenance
-      path: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
+    # - title: Reefer Container Predictive Maintenance
+    #   path: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
     - title: Compendium
       path: compendium
