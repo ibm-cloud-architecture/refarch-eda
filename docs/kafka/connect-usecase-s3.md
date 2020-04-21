@@ -126,6 +126,7 @@ log4j.appender.CONSOLE.filter.h.AcceptOnMatch=false
 #### Deploy the baseline Kafka Connect Cluster
 
 Review the YAML description for our `KafkaConnectS2I` custom resource below, named `connect-cluster-101`. Pay close attention to _(using YAML notation)_:
+- `spec.logging.name` should point to the name of the ConfigMap created in the previous step to configure custom `log4j` logging filters _(optional)_
 - `spec.bootstrapServers` should be updated with your local Event Streams endpoints
 - `spec.tls.trustedCertificates[0].secretName` should match the Kubernetes Secret containing the IBM Event Streams certificate
 - `spec.authentication.passwordSecret.secretName` should match the Kubernetes Secret containing the IBM Event Streams API key
@@ -172,7 +173,7 @@ spec:
     status.storage.topic: connect-cluster-101-status
 ```
 
-Save the YAML above into a file named `kafka-connect.yaml`. If you created the ConfigMap in the previous step to filter out `accesskey` and `secretkey` values from the logs, uncomment the 3 `spec.logging` lines to allow for the custom logging filters to be enabled during Kafka Connect cluster creation. Then this resource can be created via `kubectl apply -f kafka-connect.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
+Save the YAML above into a file named `kafka-connect.yaml`. If you created the ConfigMap in the previous step to filter out `accesskey` and `secretkey` values from the logs, uncomment the `spec.logging` lines to allow for the custom logging filters to be enabled during Kafka Connect cluster creation. Then this resource can be created via `kubectl apply -f kafka-connect.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
 #### Build the Camel Kafka Connector
 
