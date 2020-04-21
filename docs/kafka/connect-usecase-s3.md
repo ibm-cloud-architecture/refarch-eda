@@ -75,9 +75,58 @@ As different use cases will require different configuration details to accommoda
 
 We will take advantage of some of the developer experience improvements that OpenShift and the Strimi Operator brings to the Kafka Connect framework. The Strimzi Operator provides a `KafkaConnect` custom resource which will manage a Kafka Connect cluster for us with minimal system interaction. The only work we need to do is to update the container image that the Kafka Connect deployment will use with the necessary Camel Kafka Connector binaries, which OpenShift can help us with through the use of its Build capabilities.
 
+#### (Optional) Create ConfigMap for log4j configuration
+
+Due to the robust nature of Apache Camel, the default logging settings for the Apache Kafka Connect classes will send potentially sensitive information to the logs during Apache Camel context configuration. To avoid this, we can provide an updated logging configuration to the `log4j` configuration that is used by our deployments.
+
+Save the properties file below and name it `log4j.properties`. Then create a ConfigMap via `kubectl create configmap custom-connect-log4j --from-file=log4j.properties`. This ConfigMap will then be used in our KafkaConnect cluster creation to filter out any logging output containing `accesskey` or `secretkey` permutations.
+
+```properties
+# Do not change this generated file. Logging can be configured in the corresponding kubernetes/openshift resource.
+log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
+log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
+log4j.appender.CONSOLE.layout.ConversionPattern=%d{ISO8601} %p %m (%c) [%t]%n
+connect.root.logger.level=INFO
+log4j.rootLogger=${connect.root.logger.level}, CONSOLE
+log4j.logger.org.apache.zookeeper=ERROR
+log4j.logger.org.I0Itec.zkclient=ERROR
+log4j.logger.org.reflections=ERROR
+
+# Due to back-leveled version of log4j that is included in Kafka Connect,
+# we can use multiple StringMatchFilters to remove all the permutations
+# of the AWS accessKey and secretKey values that may get dumped to stdout
+# and thus into any connected logging system.
+log4j.appender.CONSOLE.filter.a=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.a.StringToMatch=accesskey
+log4j.appender.CONSOLE.filter.a.AcceptOnMatch=false
+log4j.appender.CONSOLE.filter.b=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.b.StringToMatch=accessKey
+log4j.appender.CONSOLE.filter.b.AcceptOnMatch=false
+log4j.appender.CONSOLE.filter.c=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.c.StringToMatch=AccessKey
+log4j.appender.CONSOLE.filter.c.AcceptOnMatch=false
+log4j.appender.CONSOLE.filter.d=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.d.StringToMatch=ACCESSKEY
+log4j.appender.CONSOLE.filter.d.AcceptOnMatch=false
+
+log4j.appender.CONSOLE.filter.e=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.e.StringToMatch=secretkey
+log4j.appender.CONSOLE.filter.e.AcceptOnMatch=false
+log4j.appender.CONSOLE.filter.f=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.f.StringToMatch=secretKey
+log4j.appender.CONSOLE.filter.f.AcceptOnMatch=false
+log4j.appender.CONSOLE.filter.g=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.g.StringToMatch=SecretKey
+log4j.appender.CONSOLE.filter.g.AcceptOnMatch=false
+log4j.appender.CONSOLE.filter.h=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.CONSOLE.filter.h.StringToMatch=SECRETKEY
+log4j.appender.CONSOLE.filter.h.AcceptOnMatch=false
+```
+
 #### Deploy the baseline Kafka Connect Cluster
 
 Review the YAML description for our `KafkaConnectS2I` custom resource below, named `connect-cluster-101`. Pay close attention to _(using YAML notation)_:
+- `spec.logging.name` should point to the name of the ConfigMap created in the previous step to configure custom `log4j` logging filters _(optional)_
 - `spec.bootstrapServers` should be updated with your local Event Streams endpoints
 - `spec.tls.trustedCertificates[0].secretName` should match the Kubernetes Secret containing the IBM Event Streams certificate
 - `spec.authentication.passwordSecret.secretName` should match the Kubernetes Secret containing the IBM Event Streams API key
@@ -92,6 +141,9 @@ metadata:
   annotations:
     strimzi.io/use-connector-resources: "true"
 spec:
+  #logging:
+  #  type: external
+  #  name: custom-connect-log4j
   replicas: 1
   bootstrapServers: es-1-ibm-es-proxy-route-bootstrap-eventstreams.apps.cluster.local:443
   tls:
@@ -121,7 +173,7 @@ spec:
     status.storage.topic: connect-cluster-101-status
 ```
 
-Once you have updated the YAML and saved it in a file named `kafka-connect.yaml`, this resource can be created via `kubectl apply -f kafka-connect.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
+Save the YAML above into a file named `kafka-connect.yaml`. If you created the ConfigMap in the previous step to filter out `accesskey` and `secretkey` values from the logs, uncomment the `spec.logging` lines to allow for the custom logging filters to be enabled during Kafka Connect cluster creation. Then this resource can be created via `kubectl apply -f kafka-connect.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
 #### Build the Camel Kafka Connector
 
@@ -219,7 +271,7 @@ Once you have updated the YAML and saved it in a file named `kafka-source-connec
 
 ## Next steps
 
-- Using IAM Credentials in the Connector configuration _(as the default Java code currently outputs `aws_access_key_id` and `aws_secret_access_key` to container runtime logs due to their existence as configuration properties)_
+- Enable use  of IAM Credentials in the Connector configuration _(as the default Java code currently outputs `aws_access_key_id` and `aws_secret_access_key` to container runtime logs due to their existence as configuration properties)_
 - Optionally configure individual connector instances to startup with offset value of -1 _(to enable to run from beginning of available messages)_
 - Implement a build system to produce container images with the Camel Kafka Connector binaries already present
 
