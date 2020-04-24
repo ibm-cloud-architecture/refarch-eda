@@ -28,6 +28,7 @@ As different use cases will require different configuration details to accommoda
 - This deployment scenario will make use of the [Strimzi Operator](https://strimzi.io/docs/0.17.0/) for Kafka deployments and the custom resources it manages.
 - A minimum version of `0.17.0` is required for this scenario. This scenario has been explicitly validated with version `0.17.0`.
 - The simplest scenario is to deploy the Strimzi Operator to [watch all namespaces](https://strimzi.io/docs/0.17.0/#deploying-cluster-operator-to-watch-whole-cluster-deploying-co) for relevant custom resource creation and management.
+- This can be done in the OpenShift console via the **Operators > Operator Hub** page.
 
 **Amazon Web Services account**
 - As this scenario will make use of [AWS S3](https://aws.amazon.com/s3/), an active Amazon Web Services account is required.
@@ -234,6 +235,7 @@ spec:
 
 Once you have updated the YAML and saved it in a file named `kafka-sink-connector.yaml`, this resource can be created via `kubectl apply -f kafka-sink-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
+**NOTE:** If you require objects in S3 to reside in a sub-folder of the bucket root, you can place a folder name prefix in the `keyName` query parameter of the `camel.sink.url` configuration option above. For example, `camel.sink.url: aws-s3://my-s3-bucket?keyName=myfoldername/${exchangeId}_${date:now:yyyyMMdd-HHmmss}`.
 
 ## S3 to Kafka Source Connector
 
@@ -268,6 +270,8 @@ spec:
 ```
 
 Once you have updated the YAML and saved it in a file named `kafka-source-connector.yaml`, this resource can be created via `kubectl apply -f kafka-source-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
+
+**NOTE:** If you require the connector to only read objects from a subdirecotry of the S3 bucket root, you can set the `camel.component.aws-s3.configuration.prefix` configuration option with the value of the subdirectory name. For example, `camel.component.aws-s3.configuration.prefix: myfoldername` .
 
 ## Next steps
 
