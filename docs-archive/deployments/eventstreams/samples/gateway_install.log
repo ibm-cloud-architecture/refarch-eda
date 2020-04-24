@@ -1,0 +1,77 @@
+[ apic]# ./installGateway.sh 
+Set gateway system properties
+
+Error: subsystem named gwy already exists
+DEBU[0000] migration of apiconnect-up yaml file not required 
+DEBU[0000] generating CA gw-ca                          
+DEBU[0000] generating certificate apic-gw-service-ingress 
+DEBU[0000] generating certificate gateway-peering       
+DEBU[0001] generating certificate api-gateway-ingress   
+DEBU[0001] expected key usages: [1]                     
+DEBU[0001] expected key usages: []                      
+DEBU[0001] processing validation for secret: portal-client 
+DEBU[0001] processing validation for secret: root-ca    
+DEBU[0001] processing validation for secret: analytics-client-client 
+DEBU[0001] processing validation for secret: analytics-ingestion-client 
+DEBU[0001] processing validation for secret: ingress-ca 
+DEBU[0001] processing validation for secret: apic-gw-service-ingress 
+DEBU[0001] processing validation for secret: gateway-peering 
+DEBU[0001] processing validation for secret: gw-ca      
+DEBU[0001] processing validation for secret: mgmt-db-ca 
+DEBU[0001] processing validation for secret: api-gateway-ingress 
+DEBU[0001] secret def {map[ca.crt:[{ca api-gateway-ingress}] tls.crt:[{certificate api-gateway-ingress}] tls.key:[{key api-gateway-ingress}]] tls } 
+DEBU[0001] Building secret api-gateway-tls              
+DEBU[0001] adding ca api-gateway-ingress                
+DEBU[0001] adding certificate api-gateway-ingress       
+DEBU[0001] adding key api-gateway-ingress               
+DEBU[0001] secret def {map[cacert.pem:[{ca gateway-peering}] gwd_ca.pem:[{ca apic-gw-service-ingress}] gwd_cert.pem:[{certificate apic-gw-service-ingress}] gwd_key.pem:[{key apic-gw-service-ingress}] peering_cert.pem:[{certificate gateway-peering} {ca gateway-peering}] peering_key.pem:[{key gateway-peering}]]  } 
+DEBU[0001] Building secret apic-gw-service-tls          
+DEBU[0001] adding key gateway-peering                   
+DEBU[0001] adding ca gateway-peering                    
+DEBU[0001] adding ca apic-gw-service-ingress            
+DEBU[0001] adding certificate apic-gw-service-ingress   
+DEBU[0001] adding key apic-gw-service-ingress           
+DEBU[0001] adding certificate gateway-peering           
+DEBU[0001] adding ca gateway-peering                    
+DEBU[0000] migration of apiconnect-up yaml file not required 
+DEBU[0000] Creating temp plan in /tmp/subsys-install-plan567511097 
+DEBU[0000] expected key usages: [1]                     
+DEBU[0000] expected key usages: []                      
+DEBU[0000] expected key usages: [1]                     
+DEBU[0000] expected key usages: []                      
+DEBU[0000] processing validation for secret: apic-gw-service-ingress 
+DEBU[0000] processing validation for secret: gw-ca      
+DEBU[0000] processing validation for secret: portal-client 
+DEBU[0000] processing validation for secret: analytics-client-client 
+DEBU[0000] processing validation for secret: analytics-ingestion-client 
+DEBU[0000] processing validation for secret: api-gateway-ingress 
+DEBU[0000] processing validation for secret: root-ca    
+DEBU[0000] processing validation for secret: ingress-ca 
+DEBU[0000] processing validation for secret: mgmt-db-ca 
+DEBU[0000] processing validation for secret: gateway-peering 
+DEBU[0000] secret def {map[ca.crt:[{ca api-gateway-ingress}] tls.crt:[{certificate api-gateway-ingress}] tls.key:[{key api-gateway-ingress}]] tls } 
+DEBU[0000] Building secret api-gateway-tls              
+DEBU[0000] adding key api-gateway-ingress               
+DEBU[0000] adding ca api-gateway-ingress                
+DEBU[0000] adding certificate api-gateway-ingress       
+DEBU[0000] secret def {map[peering_key.pem:[{key gateway-peering}] cacert.pem:[{ca gateway-peering}] gwd_ca.pem:[{ca apic-gw-service-ingress}] gwd_cert.pem:[{certificate apic-gw-service-ingress}] gwd_key.pem:[{key apic-gw-service-ingress}] peering_cert.pem:[{certificate gateway-peering} {ca gateway-peering}]]  } 
+DEBU[0000] Building secret apic-gw-service-tls          
+DEBU[0000] adding ca gateway-peering                    
+DEBU[0000] adding ca apic-gw-service-ingress            
+DEBU[0000] adding certificate apic-gw-service-ingress   
+DEBU[0000] adding key apic-gw-service-ingress           
+DEBU[0000] adding certificate gateway-peering           
+DEBU[0000] adding ca gateway-peering                    
+DEBU[0000] adding key gateway-peering                   
+DEBU[0000] Executing plan /tmp/subsys-install-plan567511097 
+DEBU[0000] Running helm ls                              
+⠦  Beginning installation DEBU[0005] helm ls: [r31f4a26f5e r5d88581ca1 rc4ea5d1d3e ] 
+⠙  Beginning installation DEBU[0010] concatHash for dynamic-gateway-service is 4a90c30b74277c75f89c302959d4825def0cfd6c330612b1391faccd73a22120:d489a1a2a95d9a1b7094bf53466b8461777963bc20a854008162cbdf685afe93 
+DEBU[0010] appliedConcatHash for dynamic-gateway-service is  
+DEBU[0010] Known helm deployments: [r31f4a26f5e r5d88581ca1 rc4ea5d1d3e ] 
+DEBU[0010] New install/update r554d996560               
+DEBU[0010] Installing chart dynamic-gateway-service     
+DEBU[0010] [helm install /tmp/subsys-install-plan567511097/helm/dynamic-gateway-service --name=r554d996560 --namespace=apiconnect --values=/tmp/subsys-install-plan567511097/values/dynamic-gateway-service.yml] 
+⠹  Installing chart dynamic-gateway-service DEBU[0010] Wait conditions for dynamic-gateway-service: [map[name:Gateway service svc:r554d996560-dynamic-gateway-service type:service]] 
+DEBU[0010] Gateway service service online               
+Installed chart dynamic-gateway-service

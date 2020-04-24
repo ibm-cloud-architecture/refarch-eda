@@ -1,0 +1,1122 @@
+[root@rsun-rhel-bootmaster01 ceph]# ./setup.sh 
+namespace/rook-ceph created
+"rook-beta" has been added to your repositories
+NAME                 	CHART VERSION      	APP VERSION	DESCRIPTION                                       
+rook-beta/rook-ceph  	v0.8.3             	           	File, Block, and Object Storage Services for yo...
+rook-master/rook-ceph	v0.8.0-204.gaae5c97	           	File, Block, and Object Storage Services for yo...
+[debug] Created tunnel using local port: '41509'
+
+[debug] SERVER: "127.0.0.1:41509"
+
+[debug] Original chart version: "v0.8.3"
+[debug] Fetched rook-beta/rook-ceph to /root/.helm/cache/archive/rook-ceph-v0.8.3.tgz
+
+[debug] Key="/root/.helm/key.pem", Cert="/root/.helm/cert.pem", CA="/root/.helm/ca.pem"
+
+[debug] CHART PATH: /root/.helm/cache/archive/rook-ceph-v0.8.3.tgz
+
+NAME:   rook-ceph-v0.8.3
+REVISION: 1
+RELEASED: Thu Nov 15 18:39:19 2018
+CHART: rook-ceph-v0.8.3
+USER-SUPPLIED VALUES:
+image:
+  prefix: rook
+  pullPolicy: IfNotPresent
+  repository: rook/ceph
+  tag: v0.8.3
+resources:
+  limits:
+    cpu: 100m
+    memory: 1024Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+COMPUTED VALUES:
+hyperkube:
+  pullPolicy: IfNotPresent
+  repository: k8s.gcr.io/hyperkube
+  tag: v1.7.12
+image:
+  prefix: rook
+  pullPolicy: IfNotPresent
+  repository: rook/ceph
+  tag: v0.8.3
+logLevel: INFO
+mon:
+  healthCheckInterval: 45s
+  monOutTimeout: 300s
+nodeSelector: null
+pspEnable: true
+rbacEnable: true
+resources:
+  limits:
+    cpu: 100m
+    memory: 1024Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+tolerations: []
+
+HOOKS:
+MANIFEST:
+
+---
+# Source: rook-ceph/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rook-ceph-system
+  labels:
+    operator: rook
+    storage-backend: ceph
+    chart: "rook-ceph-v0.8.3"
+---
+# Source: rook-ceph/templates/resources.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: volumes.rook.io
+spec:
+  group: rook.io
+  names:
+    kind: Volume
+    listKind: VolumeList
+    plural: volumes
+    singular: volume
+    shortNames:
+    - rv
+  scope: Namespaced
+  version: v1alpha2
+---
+# Source: rook-ceph/templates/resources.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: clusters.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: Cluster
+    listKind: ClusterList
+    plural: clusters
+    singular: cluster
+    shortNames:
+    - rcc
+  scope: Namespaced
+  version: v1beta1
+---
+# Source: rook-ceph/templates/resources.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: filesystems.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: Filesystem
+    listKind: FilesystemList
+    plural: filesystems
+    singular: filesystem
+    shortNames:
+    - rcfs
+  scope: Namespaced
+  version: v1beta1
+---
+# Source: rook-ceph/templates/resources.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: objectstores.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: ObjectStore
+    listKind: ObjectStoreList
+    plural: objectstores
+    singular: objectstore
+    shortNames:
+    - rco
+  scope: Namespaced
+  version: v1beta1
+---
+# Source: rook-ceph/templates/resources.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: pools.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: Pool
+    listKind: PoolList
+    plural: pools
+    singular: pool
+    shortNames:
+    - rcp
+  scope: Namespaced
+  version: v1beta1
+---
+# Source: rook-ceph/templates/clusterrole.yaml
+# The cluster role for managing the Rook CRDs
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: rook-ceph-global
+  labels:
+    operator: rook
+    storage-backend: ceph
+rules:
+- apiGroups:
+  - ""
+  resources:
+  # Pod access is needed for fencing
+  - pods
+  # Node access is needed for determining nodes where mons should run
+  - nodes
+  - nodes/proxy
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  # PVs and PVCs are managed by the Rook provisioner
+  - persistentvolumes
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - create
+  - update
+  - delete
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete  
+- apiGroups:
+  - ceph.rook.io
+  resources:
+  - "*"
+  verbs:
+  - "*"
+- apiGroups:
+  - rook.io
+  resources:
+  - "*"
+  verbs:
+  - "*"
+---
+# Source: rook-ceph/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: rook-ceph-system-psp-user
+  labels:
+    operator: rook
+    storage-backend: ceph
+    chart: "rook-ceph-v0.8.3"
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - 00-rook-ceph-operator
+  verbs:
+  - use
+---
+# Source: rook-ceph/templates/clusterrole.yaml
+# The cluster role for managing all the cluster-specific resources in a namespace
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: rook-ceph-cluster-mgmt
+  labels:
+    operator: rook
+    storage-backend: ceph
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - pods
+  - services
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - create
+  - update
+  - delete
+- apiGroups:
+  - extensions
+  resources:
+  - deployments
+  - daemonsets
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+---
+# Source: rook-ceph/templates/clusterrolebinding.yaml
+# Grant the rook system daemons cluster-wide access to manage the Rook CRDs, PVCs, and storage classes
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rook-ceph-global
+  labels:
+    operator: rook
+    storage-backend: ceph
+    chart: "rook-ceph-v0.8.3"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rook-ceph-global
+subjects:
+- kind: ServiceAccount
+  name: rook-ceph-system
+  namespace: rook-ceph
+---
+# Source: rook-ceph/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: rook-ceph-system-psp-users
+  labels:
+    operator: rook
+    storage-backend: ceph
+    chart: "rook-ceph-v0.8.3"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rook-ceph-system-psp-user
+subjects:
+- kind: ServiceAccount
+  name: rook-ceph-system
+  namespace: rook-ceph
+---
+# Source: rook-ceph/templates/role.yaml
+# The role for the operator to manage resources in the system namespace
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rook-ceph-system
+  labels:
+    operator: rook
+    storage-backend: ceph
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - create
+  - update
+  - delete
+- apiGroups:
+  - extensions
+  resources:
+  - daemonsets
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+---
+# Source: rook-ceph/templates/rolebinding.yaml
+# Grant the operator, agent, and discovery agents access to resources in the rook-ceph-system namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rook-ceph-system
+  namespace: rook-ceph
+  labels:
+    operator: rook
+    storage-backend: ceph
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rook-ceph-system
+subjects:
+- kind: ServiceAccount
+  name: rook-ceph-system
+  namespace: rook-ceph
+---
+# Source: rook-ceph/templates/deployment.yaml
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: rook-ceph-operator
+  labels:
+    operator: rook
+    storage-backend: ceph
+    chart: "rook-ceph-v0.8.3"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rook-ceph-operator
+  template:
+    metadata:
+      labels:
+        app: rook-ceph-operator
+        chart: "rook-ceph-v0.8.3"
+    spec:
+      containers:
+      - name: rook-ceph-operator
+        image: "rook/ceph:v0.8.3"
+        imagePullPolicy: IfNotPresent
+        args: ["ceph", "operator"]
+        env:
+        - name: ROOK_LOG_LEVEL
+          value: INFO
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: ROOK_MON_HEALTHCHECK_INTERVAL
+          value: 45s
+        - name: ROOK_MON_OUT_TIMEOUT
+          value: 300s
+        resources:
+          limits:
+            cpu: 100m
+            memory: 1024Mi
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          
+      serviceAccountName: rook-ceph-system
+---
+# Source: rook-ceph/templates/psp.yaml
+# PSP for rook-ceph-operator
+
+# Most of the teams follow the kubernetes docs and have these PSPs.
+# * privileged (for kube-system namespace)
+# * restricted (for all logged in users)
+#
+# If we name it as `rook-ceph-operator`, it comes next to `restricted` PSP alphabetically,
+# and applies `restricted` capabilities to `rook-system`. Thats reason this is named with `00-rook-ceph-operator`,
+# so it stays somewhere close to top and `rook-system` gets the intended PSP.
+#
+# More info on PSP ordering : https://kubernetes.io/docs/concepts/policy/pod-security-policy/#policy-order
+
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: 00-rook-ceph-operator
+spec:
+  fsGroup:
+    rule: RunAsAny
+  privileged: true
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - '*'
+  allowedCapabilities:
+  - '*'
+  hostPID: true
+  hostIPC: true
+  hostNetwork: true
+E1115 18:39:19.477379   14009 portforward.go:303] error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:41509->127.0.0.1:55698: write tcp4 127.0.0.1:41509->127.0.0.1:55698: write: broken pipe
+LAST DEPLOYED: Thu Nov 15 18:39:19 2018
+NAMESPACE: rook-ceph
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/ServiceAccount
+NAME              SECRETS  AGE
+rook-ceph-system  1        0s
+
+==> v1beta1/CustomResourceDefinition
+NAME                       AGE
+volumes.rook.io            0s
+clusters.ceph.rook.io      0s
+filesystems.ceph.rook.io   0s
+objectstores.ceph.rook.io  0s
+pools.ceph.rook.io         0s
+
+==> v1beta1/ClusterRoleBinding
+NAME                        AGE
+rook-ceph-global            0s
+rook-ceph-system-psp-users  0s
+
+==> v1beta1/Role
+NAME              AGE
+rook-ceph-system  0s
+
+==> v1beta1/RoleBinding
+NAME              AGE
+rook-ceph-system  0s
+
+==> v1/Pod(related)
+NAME                                 READY  STATUS             RESTARTS  AGE
+rook-ceph-operator-5865bd8766-dv7w9  0/1    ContainerCreating  0         0s
+
+==> v1beta1/ClusterRole
+NAME                       AGE
+rook-ceph-global           0s
+rook-ceph-system-psp-user  0s
+rook-ceph-cluster-mgmt     0s
+
+==> v1beta1/Deployment
+NAME                DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+rook-ceph-operator  1        1        1           0          0s
+
+==> v1beta1/PodSecurityPolicy
+NAME                   DATA  CAPS  SELINUX   RUNASUSER  FSGROUP   SUPGROUP  READONLYROOTFS  VOLUMES
+00-rook-ceph-operator  true  *     RunAsAny  RunAsAny   RunAsAny  RunAsAny  false           *
+
+
+NOTES:
+The Rook Operator has been installed. Check its status by running:
+  kubectl --namespace rook-ceph get pods -l "app=rook-ceph-operator"
+
+Visit https://rook.io/docs/rook/master for instructions on how
+to create & configure Rook clusters
+
+podsecuritypolicy.extensions/rook-privileged created
+clusterrole.rbac.authorization.k8s.io/privileged-psp-user created
+clusterrolebinding.rbac.authorization.k8s.io/rook-ceph-cluster-psp created
+Waiting for the pods to come up
+NAME                                  READY     STATUS    RESTARTS   AGE
+rook-ceph-agent-9r5k8                 1/1       Running   0          1m
+rook-ceph-agent-f7f5n                 1/1       Running   0          1m
+rook-ceph-agent-hx4xx                 1/1       Running   0          1m
+rook-ceph-agent-mjdw2                 1/1       Running   0          1m
+rook-ceph-agent-tw464                 1/1       Running   0          1m
+rook-ceph-operator-5865bd8766-dv7w9   1/1       Running   0          2m
+rook-discover-8vl75                   1/1       Running   0          1m
+rook-discover-dm8hs                   1/1       Running   0          1m
+rook-discover-hl755                   1/1       Running   0          1m
+rook-discover-mwjc9                   1/1       Running   0          1m
+rook-discover-n2kt2                   1/1       Running   0          1m
+No resources found.
+[debug] Created tunnel using local port: '42478'
+
+[debug] SERVER: "127.0.0.1:42478"
+
+[debug] Original chart version: ""
+[debug] Key="/root/.helm/key.pem", Cert="/root/.helm/cert.pem", CA="/root/.helm/ca.pem"
+
+[debug] CHART PATH: /mnt/share/ceph/beta/ibm-rook-rbd-cluster
+
+NAME:   ibm-rook-rbd-cluster-v0.8.3
+REVISION: 1
+RELEASED: Thu Nov 15 18:41:21 2018
+CHART: ibm-rook-rbd-cluster-0.8.3
+USER-SUPPLIED VALUES:
+arch:
+  amd64: 2 - No preference
+cluster:
+  dashboard:
+    enabled: true
+  dataDirHostPath: /var/lib/rook
+  mon:
+    allowMultiplePerNode: true
+    count: 3
+  network:
+    hostNetwork: false
+  placement:
+    all:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+    mgr:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+    mon:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+    osd:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+  resources: ""
+  storage:y.y.y.y
+    config:
+      databaseSizeMB: "1024"
+      journalSizeMB: "1024"
+      storeType: bluestore
+    deviceFilter: ""
+    location: ""
+    nodes:
+    - devices:
+      - name: sdd
+      name: x.x.x.x
+    - devices:
+      - name: sdd
+      name: y.y.y.y
+    - devices:
+      - name: sdd
+      name: z.z.z.z
+    useAllDevices: false
+    useAllNodes: false
+pool:
+  erasureCoded:
+    codingChunks: 1
+    dataChunks: 2
+  failureDomain: host
+  replicated:
+    size: 3
+  resilienceType: replicated
+preValidation:
+  enabled: false
+  image:
+    pullPolicy: IfNotPresent
+    repository: ibmcom/icp-storage-util
+    tag: 3.1.0
+rookOperatorNamespace: rook-ceph
+storageClass:
+  create: true
+  fsType: ext4
+  name: rbd-storage-class
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+
+COMPUTED VALUES:
+arch:
+  amd64: 2 - No preference
+cluster:
+  dashboard:
+    enabled: true
+  dataDirHostPath: /var/lib/rook
+  mon:
+    allowMultiplePerNode: true
+    count: 3
+  network:
+    hostNetwork: false
+  placement:
+    all:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+    mgr:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+    mon:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+    osd:
+      enabled: false
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: hostgroup
+          operator: In
+          values:
+          - cephfs
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: cephfs
+  resources: ""
+  storage:
+    config:
+      databaseSizeMB: "1024"
+      journalSizeMB: "1024"
+      storeType: bluestore
+    deviceFilter: ""
+    location: ""
+    nodes:
+    - devices:
+      - name: sdd
+      name: x.x.x.x
+    - devices:
+      - name: sdd
+      name: y.y.y.y
+    - devices:
+      - name: sdd
+      name: z.z.z.z
+    useAllDevices: false
+    useAllNodes: false
+pool:
+  erasureCoded:
+    codingChunks: 1
+    dataChunks: 2
+  failureDomain: host
+  replicated:
+    size: 3
+  resilienceType: replicated
+preValidation:
+  enabled: false
+  image:
+    pullPolicy: IfNotPresent
+    repository: ibmcom/icp-storage-util
+    tag: 3.1.0
+rookOperatorNamespace: rook-ceph
+sch:
+  global: {}
+storageClass:
+  create: true
+  fsType: ext4
+  name: rbd-storage-class
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+
+HOOKS:
+MANIFEST:
+
+---
+# Source: ibm-rook-rbd-cluster/templates/storageclass.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rbd-storage-class
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rbd-storage-class"
+provisioner: rook.io/block
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  pool:  ibm-rook-rbd-cluster-v0.8.3-ibm-rook-rbd-cluster-rook-ceph-pool
+  clusterName: rook-ceph
+  fstype: ext4
+---
+# Source: ibm-rook-rbd-cluster/templates/serviceaccount.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+# Service account to allow the cluster pods in this namespace to work with configmaps
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-cluster"
+---
+# Source: ibm-rook-rbd-cluster/templates/role.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-cluster"
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: [ "get", "list", "watch", "create", "update", "delete" ]
+---
+# Source: ibm-rook-rbd-cluster/templates/configmap-sa-rolebindings.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+# Allow the pods in this namespace to work with configmaps
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-cluster"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rook-ceph-cluster
+subjects:
+- kind: ServiceAccount
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+---
+# Source: ibm-rook-rbd-cluster/templates/operator-sa-rolebindings.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+
+# Allow the operator to create resources in this cluster's namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rook-ceph-cluster-mgmt
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-cluster-mgmt"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rook-ceph-cluster-mgmt  # This Cluster role is created by operator chart.
+subjects:
+- kind: ServiceAccount
+  name: rook-ceph-system
+# namespace: rook-ceph-system ## We need to chage this!!
+# Namespace under which Rook Operator Chart has been deployed.
+  namespace: rook-ceph
+---
+# Source: ibm-rook-rbd-cluster/templates/osd-psp-rolebindings.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+
+# RBAC: Allow the rook-ceph-osd serviceAccount to use the privileged PSP
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rook-ceph-osd-psp
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-osd-psp"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: privileged-psp-user
+subjects:
+- kind: ServiceAccount
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+---
+# Source: ibm-rook-rbd-cluster/templates/rolebindings.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+# RBAC: Allow the default serviceAccount to use the priviliged PSP
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rook-default-psp
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-default-psp"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: privileged-psp-user
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: rook-ceph
+---
+# Source: ibm-rook-rbd-cluster/templates/precheck.yaml
+##############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################
+---
+# Source: ibm-rook-rbd-cluster/templates/cluster.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+apiVersion: ceph.rook.io/v1beta1
+kind: Cluster
+metadata:
+  name: ibm-rook-rbd-cluster-v0.8.3-ibm-rook-4c61-rook-ce-7c4c
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-cluster"
+spec:
+  # The path on the host where configuration files will be persisted. If not
+  # specified, a kubernetes emptyDir will be created (not recommended).
+  # Important: if you reinstall the cluster, make sure you delete this directory
+  # from each host or else the mons will fail to start on the new cluster.
+  dataDirHostPath: /var/lib/rook
+  # The service account under which to run the daemon pods in this cluster if the default
+  # account is not sufficient (OSDs)
+  serviceAccount: rook-ceph-cluster
+  # set the amount of mons to be started
+  mon:
+    count: 3
+    allowMultiplePerNode: true
+  # enable the ceph dashboard for viewing cluster status
+  dashboard:
+    enabled: true
+  network:
+  # toggle to use hostNetwork
+    hostNetwork: false
+ 
+  # Placement configuration for the cluster services. It includes the following keys: mgr, mon,
+  # osd and all. Each service will have its placement configuration generated by merging the generic
+  # configuration under all with the most specific one (which will override any attributes). 
+  placement:
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    location: 
+    config:
+      # The default and recommended storeType is dynamically set to bluestore for devices
+      # and filestore for directories.
+      storeType: bluestore
+      # This value can be removed for environments with normal sized disks (100 GB or larger)
+      databaseSizeMB: "1024"
+      # This value can be removed for environments with normal sized disks (20 GB or larger)
+      journalSizeMB: "1024"
+    nodes:
+      - devices:
+        - name: sdd
+        name: x.x.x.x
+      - devices:
+        - name: sdd
+        name: y.y.y.y
+      - devices:
+        - name: sdd
+        name: z.z.z.z
+---
+# Source: ibm-rook-rbd-cluster/templates/pool.yaml
+###############################################################################
+# Licensed Materials - Property of IBM
+# 5737-E67
+# (C) Copyright IBM Corporation 2016, 2018 All Rights Reserved
+# US Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+###############################################################################         
+
+apiVersion: ceph.rook.io/v1beta1
+kind: Pool
+metadata:
+  name: ibm-rook-rbd-cluster-v0.8.3-ibm-rook-rbd-cluster-rook-ceph-pool
+  namespace: rook-ceph
+  labels:
+    app: "ibm-rook-rbd-cluster"
+    chart: "ibm-rook-rbd-cluster-0.8.3" 
+    heritage: "Tiller"
+    release: "ibm-rook-rbd-cluster-v0.8.3"
+    component: "rook-ceph-pool"
+spec:
+  failureDomain: host
+  replicated:
+    size: 3
+
+  # For an erasure-coded pool, comment out the replication size above and uncomment the following settings.
+  # Make sure you have enough OSDs to support the replica size or erasure code chunks.
+LAST DEPLOYED: Thu Nov 15 18:41:21 2018
+NAMESPACE: rook-ceph
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1beta1/RoleBinding
+NAME                    AGE
+rook-ceph-cluster       1s
+rook-ceph-cluster-mgmt  1s
+
+==> v1/RoleBinding
+rook-ceph-osd-psp  1s
+rook-default-psp   1s
+
+==> v1beta1/Cluster
+NAME                                                    AGE
+ibm-rook-rbd-cluster-v0.8.3-ibm-rook-4c61-rook-ce-7c4c  1s
+
+==> v1beta1/Pool
+ibm-rook-rbd-cluster-v0.8.3-ibm-rook-rbd-cluster-rook-ceph-pool  1s
+
+==> v1/StorageClass
+NAME               PROVISIONER    AGE
+rbd-storage-class  rook.io/block  1s
+
+==> v1/ServiceAccount
+NAME               SECRETS  AGE
+rook-ceph-cluster  1        1s
+
+==> v1beta1/Role
+NAME               AGE
+rook-ceph-cluster  1s
+
+
+NOTES:
+         
+
+1. Installation of Rook RBD Cluster ibm-rook-rbd-cluster-v0.8.3-ibm-rook-4c61-rook-ce-7c4c successful.
+
+   kubectl get cluster ibm-rook-rbd-cluster-v0.8.3-ibm-rook-4c61-rook-ce-7c4c --namespace rook-ceph
+
+2. A RBD pool rook-ceph-pool is also created.
+
+   kubectl get pool --namespace rook-ceph
+
+3. Storage class rbd-storage-class can be used to create RBD volumes.
+
+   kubectl get storageclasses rbd-storage-class
