@@ -192,7 +192,7 @@ To illustrate the Kakfa Connect distributed mode, we will add a source connector
 
 ![Mongo source ](images/kconnect-mongo.png)
 
-When using as a source, the connector publishes data changes from MongoDB into Kafka topics for streaming to consuming apps. Data is captured via Change Streams within the MongoDB cluster and published into Kafka topics. The installation of a connector is done by adding the jars from the connector into the plugin path (`/opt/connectors`) as defined in the connector properties. In the case of mongodb kafka connector the manual installation instructions are in [this github](https://github.com/mongodb/mongo-kafka/blob/master/docs/install.md). The download page includes an uber jar.
+When using as a source, the connector publishes data changes from MongoDB into Kafka topics for streaming to consuming apps. Data is captured via Change Streams within the MongoDB cluster and published into Kafka topics. The installation of a connector is done by adding the jars from the connector into the plugin path (`/opt/connectors`) as defined in the connector properties. In the case of mongodb kafka connector the manual installation instructions are in [this github](https://github.com/mongodb/mongo-kafka/blob/master/docs/install.mdx). The download page includes an uber jar.
 
 As we run the kakfa connect as docker container, the approach is to build a new docker image based one of the Kafka image publicly available.
 

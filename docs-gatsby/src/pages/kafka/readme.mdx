@@ -26,7 +26,7 @@ The typical use cases where **Kafka** helps are:
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services.
-* Implement [event soucing pattern](../design-patterns/event-sourcing.md) out of the box, using configuration to keep message for a long time period. Data are replicated between brokers within the cluster and cross availability zones if needed. 
+* Implement [event soucing pattern](../design-patterns/event-sourcing.mdx) out of the box, using configuration to keep message for a long time period. Data are replicated between brokers within the cluster and cross availability zones if needed. 
 * Manage loosely coupled communication between microservices. (See [this note](https://ibm-cloud-architecture.github.io/refarch-integration/service-mesh/readme/#asynchronous-loosely-coupled-solution-using-events) where we present a way to support a service mesh solution using asynchronous event)
 
 ## Key concepts
@@ -88,12 +88,12 @@ Zookeeper is used to persist the component and platform states and it runs in cl
 
 ### Consumer group
 
-This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailing consumer group implementation in [this note](./consumers.md)
+This is the way to group consumers so the processing of event is parallelized. The number of consumers in a group is the same as the number of partition defined in a topic. We are detailing consumer group implementation in [this note](./consumers.mdx)
 
 
 ## Architecture
 
-See [this separate note](arch.md) addresses high availability and kubernetes deployment.
+See [this separate note](arch.mdx) addresses high availability and kubernetes deployment.
 
 
 ## Solution considerations
@@ -130,7 +130,7 @@ When developing a record producer you need to assess the following:
 * Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size
 * Assess *once to exactly once* delivery requirement. Look at idempotent producer.
 
-See [implementation considerations discussion](./producers.md)
+See [implementation considerations discussion](./producers.mdx)
 
 ### Consumers
 
@@ -143,6 +143,6 @@ From the consumer point of view a set of items need to be addressed during desig
 * Does record time sensitive, and it is possible that consumers fall behind, so when a consumer restarts he can bypass missed records?
 * Do the consumer needs to perform joins, aggregations between multiple partitions?
 
-See [implementation considerations discussion](./consumers.md)
+See [implementation considerations discussion](./consumers.mdx)
 
-See [also the compendium note](../compendium.md) for more readings.
+See [also the compendium note](../compendium.mdx) for more readings.
