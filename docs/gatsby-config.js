@@ -5,7 +5,7 @@ module.exports = {
     keywords: 'gatsby,theme,carbon',
     repository: {
       baseUrl: 'https://github.com/ibm-cloud-architecture/refarch-eda',
-      subDirectory: '/docs-gatsby',
+      subDirectory: '/docs',
       branch: 'master'
     }
   },
