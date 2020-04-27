@@ -13,7 +13,7 @@ A developer who wants to consume this content does not need to know everything a
     We expect you have some good understanding of the following technologies:
 
     * Nodejs / Javascript / Typescripts
-    * Java 1.8 .mdx microprofile architecture
+    * Java 1.8 / microprofile architecture
     * Python 3.6
     * Angular 7, HTML, CSS  - This is for the user interface but this is more optional.
     * Maven, npm, bash
@@ -24,7 +24,7 @@ A developer who wants to consume this content does not need to know everything a
     * Kubernetes
     * Apache Kafka, Kafka API
 
-    We have build a getting started and tutorial list for you to study [here](core-techno-getstarted.mdx).
+    We have build a getting started and tutorial list for you to study [here](core-techno-getstarted/).
 
 ## Event Driven Concepts
 
@@ -37,15 +37,19 @@ Now the development of event driven solution involves specific technologies and 
 The following content is for architects, and developers who want to understand the technologies and capabilities of an event driven architecture.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 * Understand the [Key EDA concepts](../concepts/README.md) like events, event streams, events and messages differences...
 =======
 * Understand the [Key EDA concepts](../concepts/README.mdx) like events, event streams, events and messages differences... 
 >>>>>>> fix broken links
+=======
+* Understand the [Key EDA concepts](../concepts/README/) like events, event streams, events and messages differences... 
+>>>>>>> fixed broken links
 * Be confortable with the [EDA reference architecture with event backbone, microservices and real time analytics](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/reference-architecture).
 * Which is extended [with machine learning and AI integrated with real time analytics reference architecture](https://www.ibm.com/cloud/garage/architectures/eventDrivenExtendedArchitecture), integrating machine learning workbench and event sourcing as data source, and real time analytics for deployment.
 * Review [Event sources - as event producers article](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-sources).
 * Read the concept of [Event backbone where Kafka is the main implementation](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-event-backbone).
-* As kafka is the event backbone, review its [key concepts and building blocks](../kafka/readme.mdx) and then review how to support [high availability (HA) and disaster recovery (DR) with IBM Event Streams or Kafka Architecture Considerations](../kafka/arch.mdx).
+* As kafka is the event backbone, review its [key concepts and building blocks](../kafka/readme/) and then review how to support [high availability (HA) and disaster recovery (DR) with IBM Event Streams or Kafka Architecture Considerations](../kafka/arch/).
 * Review one of the common industry use case using Kafka, to perform [data replication using kafka and Change Data Capture](https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/preparation/data-replication/).
 
 
@@ -58,7 +62,7 @@ The following content is for architects, and developers who want to understand t
 
 ![](../deployments/eventstreams/images/IES-service.png)
 
-See [this note](../deployments/eventstreams//es-ibm-cloud.mdx) for creating Event Stream with Enterprise plan.
+See [this note](../deployments/eventstreams//es-ibm-cloud/) for creating Event Stream with Enterprise plan.
 
 * Review another getting started from [Apache Kafka quickstart](https://kafka.apache.org/quickstart)
 * Finally review the Confluent point of view on [getting started](https://www.confluent.io/blog/apache-kafka-getting-started/) as it covers some of the persona involved in a kafka based solution.
@@ -68,6 +72,7 @@ See [this note](../deployments/eventstreams//es-ibm-cloud.mdx) for creating Even
 It is important to understand how to start a project using event. This lab persents how to start an event driven solution implementation using the event storming and domain driven design:
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 * We are proposing a [set of activities](../methodology/readme.md) to develop and release an event-driven solution based on the agile development approach described in the IBM Garage method.
 * The adopted approach for event identification is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with the event insight practice used to identify potential real time analytics use cases.
 * Once the event storming deliver events, commands, aggregates we can start doing some [Domain Design Driven](../methodology/ddd/) exercises and apply it to the business application.
@@ -76,6 +81,11 @@ It is important to understand how to start a project using event. This lab perse
 * The adopted approach for event identification is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with the event insight practice used to identify potential real time analytics use cases.
 * Once the event storming deliver events, commands, aggregates we can start doing some [Domain Design Driven](../methodology/ddd.mdx) exercises and apply it to the business application.
 >>>>>>> fix broken links
+=======
+* We are proposing a [set of activities](../methodology/readme/) to develop and release an event-driven solution based on the agile development approach described in the IBM Garage method. 
+* The adopted approach for event identification is the [Event storming methodology](https://ibm-cloud-architecture.github.io/refarch-eda/methodology/readme/) introduced by Alberto Brandolini in "Introducing event storming book". We have extended it with the event insight practice used to identify potential real time analytics use cases.
+* Once the event storming deliver events, commands, aggregates we can start doing some [Domain Design Driven](../methodology/ddd/) exercises and apply it to the business application.
+>>>>>>> fixed broken links
 
 For those of you, who are interested to know how to apply the event storming and domain driven design methodology to the Reefer shipment process,  you can review the following articles:
 
@@ -102,7 +112,7 @@ You can run the solution locally, on IBM Cloud Private, on IBM Kubernetes Servic
 !!! goals
     Install Kafka - zookeeper and postgresql docker images and start them in docker-compose or minikube environment
 
-First be sure to complete the pre-requisites by following [those steps](ttps://ibm-cloud-architecture.github.io/refarch-kc/pre-requisites.mdx).
+First be sure to complete the pre-requisites by following [those steps](ttps://ibm-cloud-architecture.github.io/refarch-kc/pre-requisites/).
 
 Then do one of the following choice:
 
@@ -234,7 +244,7 @@ When those producers and consumers are deployed to kubernetes, the way to share 
     kubectl describe secrets -n reefer-shipment-solution
     ```
 
-This secret is used by all the solution microservices which are using Kafka / Event Streams. The detail of how we use it with environment variables, is described in one of the project [here.](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/fleet-ms/README.mdx#run-on-ibm-cloud-with-kubernetes-service)
+This secret is used by all the solution microservices which are using Kafka / Event Streams. The detail of how we use it with environment variables, is described in one of the project [here.](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/fleet-ms/README/#run-on-ibm-cloud-with-kubernetes-service)
 
 * Finally in the *Manage* panel add the topics needed for the solution. We need at least the following:
 
@@ -306,6 +316,7 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 ### 10 - Reading: Review the CQRS patterns implementation
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 * Read [Event driven design patterns for microservice](../design-patterns/ED-patterns.md) with the Command Query Responsability Segregation, event sourcing and saga patterns.
 
 * Review the [Event sourcing design pattern explanations](../design-patterns/event-sourcing.md) and how it is tested with some integration tests:
@@ -314,8 +325,13 @@ You should see an Order created for the "GoodManuf" customer. Then the order is 
 
 * Review the [Event sourcing design pattern explanations](../design-patterns/event-sourcing.mdx) and how it is tested with some integration tests: 
 >>>>>>> fix broken links
+=======
+* Read [Event driven design patterns for microservice](../design-patterns/ED-patterns/) with the Command Query Responsability Segregation, event sourcing and saga patterns. 
 
-* Review the [CQRS pattern](../design-patterns/cqrs.mdx).
+* Review the [Event sourcing design pattern explanations](../design-patterns/event-sourcing/) and how it is tested with some integration tests: 
+>>>>>>> fixed broken links
+
+* Review the [CQRS pattern](../design-patterns/cqrs/).
 
 * Review the CQRS code in the [order management microservice implementation](https://ibm-cloud-architecture.github.io/refarch-kc-order-ms)
 
@@ -349,9 +365,9 @@ We are detailing an approach in [this article](https://ibm-cloud-architecture.gi
 ### Other subjects
 
 * [Develop a toolchain for one of the container manager service](https://ibm-cloud-architecture.github.io/refarch-kc-container-ms/cicd/)
-* [Our Kubernetes troubleshooting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.mdx)
+* [Our Kubernetes troubleshooting notes](https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting/)
 
-* [Kafka monitoring](../kafka/monitoring.mdx)
+* [Kafka monitoring](../kafka/monitoring/)
 
 
 * [IBM Event Streams - stream analytics app](https://developer.ibm.com/streamsdev/docs/detect-events-with-streams/) Event detection on continuous feed using Streaming Analytics in IBM Cloud.
@@ -360,7 +376,7 @@ We are detailing an approach in [this article](https://ibm-cloud-architecture.gi
 * [Event-driven cloud-native applications](https://www.ibm.com/cloud/garage/architectures/eventDrivenArchitecture/event-driven-cloud-native-apps)
 
 * The Cloud Private [IBM Event Streams](https://www.ibm.com/cloud/event-streams) product running on  private cloud
-* Read introduction to [act on events with IBM Cloud Functions](../evt-action/README.mdx)
+* Read introduction to [act on events with IBM Cloud Functions](../evt-action/README/)
 
 ## Slack channel
 

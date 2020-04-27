@@ -3,7 +3,7 @@ title: IBM Event Streams / Kafka Architecture Considerations
 description: IBM Event Streams / Kafka Architecture Considerations
 ---
 
-If you need to understand the Kafka key concepts review [this summary article](./readme.mdx). In this section we are covering some architecture concerns like high availability and performance considerations.
+If you need to understand the Kafka key concepts review [this summary article](./readme/). In this section we are covering some architecture concerns like high availability and performance considerations.
 
 ## High Availability
 
@@ -56,7 +56,7 @@ For any Kubernetes deployment real high availability is constrained by the appli
 * At least three worker nodes, but with zookeeper and Kafka clusters, we may need to have at least three more nodes as we do not want to have zookeeper and Kafka brokers sharing the same host as other pods if the Kakfa traffic is supposed to grow.
 * Externalize the management stack to three manager nodes
 * Shared storage outside of the cluster to support private image registry, audit logs, and statefulset data persistence (like the kakfa broker file systems).
-* Use `etcd` cluster: See recommendations [from this article](https://github.com/coreos/etcd/blob/master/Documentation/op-guide/clustering.mdx). The virtual IP manager assigns virtual IP addresses to master and proxy nodes and monitors the health of the cluster. It leverages `etcd` for storing information, so it is important that `etcd` is high available too and connected to low latency network below 10ms.
+* Use `etcd` cluster: See recommendations [from this article](https://github.com/coreos/etcd/blob/master/Documentation/op-guide/clustering/). The virtual IP manager assigns virtual IP addresses to master and proxy nodes and monitors the health of the cluster. It leverages `etcd` for storing information, so it is important that `etcd` is high available too and connected to low latency network below 10ms.
 
 Traditionally disaster recovery and high availability were always consider separated subjects. Now active/active deployment where workloads are deployed in different data centers, is becoming a common request.
 
@@ -118,7 +118,7 @@ Zookeeper is not CPU intensive and each server should have a least 2 GB of heap 
 
 ## Kubernetes Operator
 
-It is important to note that the deployment and management of stateful application in Kubernetes should, now, use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strimzi Kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplifies the deployment of Kafka within k8s by adding a set of operators to deploy and manage Kafka clusters, topics, users and more. Here is [our study](../deployments/strimzi/deploy.mdx) about Strimzi deployment on Openshift cluster.
+It is important to note that the deployment and management of stateful application in Kubernetes should, now, use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strimzi Kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplifies the deployment of Kafka within k8s by adding a set of operators to deploy and manage Kafka clusters, topics, users and more. Here is [our study](../deployments/strimzi/deploy/) about Strimzi deployment on Openshift cluster.
 
 ## Performance considerations
 

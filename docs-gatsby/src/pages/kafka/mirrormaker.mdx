@@ -219,7 +219,7 @@ What needs to be done:
 
 * Get a OpenShift cluster in the same data center as Event Streams service: See this [product introduction](https://cloud.ibm.com/kubernetes/catalog/about?platformType=openshift).
 * Create a project in OpenShift, for example: `mirror-maker-2-to-es`. Remember it is mapped to a namespace in Kubernetes.
-* At the minimum, to run Mirror Maker 2, we need to deploy the Strimzi Custom Resource Definitions, and the Mirror Maker 2.0 operator. See the detail in sections from the [deployment note](strimzi-deploy.mdx). The 0.17.0 source is in [this repository](https://github.com/strimzi/strimzi-kafka-operator/releases), unzip and use the `install` folder with Strimzi installation instructions.
+* At the minimum, to run Mirror Maker 2, we need to deploy the Strimzi Custom Resource Definitions, and the Mirror Maker 2.0 operator. See the detail in sections from the [deployment note](strimzi-deploy/). The 0.17.0 source is in [this repository](https://github.com/strimzi/strimzi-kafka-operator/releases), unzip and use the `install` folder with Strimzi installation instructions.
 
    *The service account and role binding do not need to be re-installed if you did it previously.*
 
@@ -242,7 +242,7 @@ oc describe secret kafka-truststore
 ```
 
 !!! Attention
-    At this step, we have two options, one using the Mirror Maker Operator and get the configuration of it via a yaml file, or use properties file and a special docker image. As of 3/20/2020 we have found an issue on Strimzi 0.17-rc2 MM operator, so we are proposing to use the properties approach as [documented in this separated note](sc2-mm2.mdx).
+    At this step, we have two options, one using the Mirror Maker Operator and get the configuration of it via a yaml file, or use properties file and a special docker image. As of 3/20/2020 we have found an issue on Strimzi 0.17-rc2 MM operator, so we are proposing to use the properties approach as [documented in this separated note](sc2-mm2/).
 
 * Define source and target cluster properties in mirror maker 2.0 `kafka-to-es-mm2.yml` descriptor file. We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). The [yaml file we used is here](https://github.com/jbcodeforce/kafka-studies/blob/master/mirror-maker-2/local-cluster/kafka-to-es-mm2.yml).
 
