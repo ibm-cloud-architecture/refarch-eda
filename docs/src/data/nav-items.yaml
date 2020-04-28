@@ -46,8 +46,10 @@
       path: technology/kafka-overview
     - title: Kafka Producers & Consumers
       path: technology/kafka-producers-consumers
-    - title: Kafka Connect & Mirror Maker
-      path: technology/kafka-connect-mirrormaker
+    - title: Kafka Connect
+      path: technology/kafka-connect
+    - title: Kafka Mirror Maker
+      path: technology/kafka-mirrormaker
     - title: Kafka Streams
       path: technology/kafka-streams
     - title: Serverless Event-driven

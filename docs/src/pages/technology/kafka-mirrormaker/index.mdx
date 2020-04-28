@@ -1,7 +1,9 @@
 ---
-title: Mirror Maker 2.0 Studies
-description: Mirror Maker 2.0 Studies
+title: Kafka Mirror Maker 2
+description: Kafka Mirror Maker 2
 ---
+
+# Kafka Mirror Maker 2
 
 Mirror Maker 2.0 is the new replication feature of Kafka 2.4. In this note we are presenting different test scenarios for topic replication.
 
@@ -38,7 +40,7 @@ For other CLI commands see [this summary](https://cloud.ibm.com/docs/services/Ev
 
 ## General concepts
 
-As [Mirror maker 2.0](https://strimzi.io/docs/master/#con-configuring-mirror-maker-deployment-configuration-kafka-mirror-maker) is using kafka Connect framework, we recommend to review our summary [in this note](https://ibm-cloud-architecture.github.io/refarch-eda/kafka/connect/). 
+As [Mirror maker 2.0](https://strimzi.io/docs/master/#con-configuring-mirror-maker-deployment-configuration-kafka-mirror-maker) is using kafka Connect framework, we recommend to review our summary [in this note](https://ibm-cloud-architecture.github.io/refarch-eda/kafka/connect/).
 
 The figure below illustrates the mirror maker internal components running within Kafka Connect.
 
@@ -119,7 +121,7 @@ export KAFKA_TARGET_APIKEY="<password attribut in event streams credentials>"
 * Send some products data to this topic. For that we use a docker python image. The docker file to build this image is `python-kafka/Dockerfile-python` so the command to build this image (if you change the image name be sure to use the new name in future command) is: `docker build -f Dockerfile-python -t jbcodeforce/python37 .`
 
   Once the image is built, start the python environment with the following commands:
-  
+
   ```shell
   source ./setenv.sh
   docker run -ti -v $(pwd):/home --rm -e KAFKA_BROKERS=$KAFKA_SOURCE_BROKERS --network kafkanet jbcodeforce/python37   bash
@@ -146,7 +148,7 @@ export KAFKA_TARGET_APIKEY="<password attribut in event streams credentials>"
   ```
 
 * To validate the data are in the source topic we can use the kafka console consumer. Here are the basic commands:
-  
+
   ```shell
   docker run -ti -v $(pwd):/home --network kafkanet strimzi/kafka:latest-kafka-2.4.0 bash
   $ cd bin
@@ -161,7 +163,7 @@ security.protocol=SASL_SSL
 ssl.protocol=TLSv1.2
 sasl.mechanism=PLAIN
 sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password=....;
-```  
+```
 
 * Restart the `kafka-console-consumer` with the bootstrap URL to access to Event Streams and with the replicated topic: `source.products`. Use the previously created properties file to get authentication properties so the command looks like:
 
@@ -185,7 +187,7 @@ The trace includes a ton of messages, which displays different Kafka connect con
 | --- | --- |
 | Worker clientId=connect-2, groupId=target-mm2 | Herder for target cluster topics but reading source topic|
 | Producer clientId=producer-1 | Producer to taget cluster |
-| Consumer clientId=consumer-target-mm2-1, groupId=target-mm2] | Subscribed to 25 partition(s): mm2-offsets.target.internal-0 to 24 | 
+| Consumer clientId=consumer-target-mm2-1, groupId=target-mm2] | Subscribed to 25 partition(s): mm2-offsets.target.internal-0 to 24 |
 | Consumer clientId=consumer-target-mm2-2, groupId=target-mm2] | Subscribed to 5 partition(s): mm2-status.target.internal-0 to 4 |
 | Consumer clientId=consumer-target-mm2-3, groupId=target-mm2] | Subscribed to partition(s): mm2-configs.target.internal-0 |
 | Worker clientId=connect-2, groupId=target-mm2 . Starting connectors and tasks using config offset 6.|  This trace shows mirror maker will start to consume message from the offset 6. A previous run has already committed the offset for this client id. This illustrate a Mirror Maker restarts |
@@ -226,10 +228,10 @@ What needs to be done:
 * If not done yet, create a secret for the API KEY of the Event Streams cluster:
 `oc create secret generic es-api-secret --from-literal=password=<replace-with-event-streams-apikey>`
 
-* As the vanilla kafka source cluster is using TLS to communicate between client and brokers, we need to create a k8s secret for a Java truststore created from the `ca.cert` of the source cluster. This certificate is also in another secret: `my-cluster-clients-ca-cert`. 
+* As the vanilla kafka source cluster is using TLS to communicate between client and brokers, we need to create a k8s secret for a Java truststore created from the `ca.cert` of the source cluster. This certificate is also in another secret: `my-cluster-clients-ca-cert`.
 
-```shell 
-# build a local crt file from the secret: 
+```shell
+# build a local crt file from the secret:
 oc extract secret/my-cluster-clients-ca-cert --keys=ca.crt --to=- > ca.crt
 # Verify the certificate:
 openssl x509 -in ca.crt -text
@@ -257,16 +259,16 @@ oc describe secret kafka-truststore
     tls: {}
     authentication:
       passwordSecret:
-          secretName: es-api-secret  
-          password: password 
+          secretName: es-api-secret
+          password: password
       username: token
       type: plain
 ```
 
-* Deploy Mirror maker 2.0 within this project. 
+* Deploy Mirror maker 2.0 within this project.
 
 ```
-oc apply -f kafka-to-es-mm2.yaml 
+oc apply -f kafka-to-es-mm2.yaml
 ```
 
 This commmand create a kubernetes deployment as illustrated below, with one pod as the replicas is set to 1. If we need to add parallel processing because of the topic to replicate has multiple partitions, or there are a lot of topics to replicate, then adding pods will help to scale horizontally. The pods are in the same consumer group, so Kafka Brokers will do the partition rebalancing among those new added consumers.
@@ -348,7 +350,7 @@ source->target.topics=orders
     docker-compose up
     ```
 
-* Start [mirror maker2.0](https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0): 
+* Start [mirror maker2.0](https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0):
 
     By using a new container, start another kakfa 2.4+ docker container, connected to the  brokers via the `kafkanet` network, and mounting the configuration in the `/home`:
 
@@ -376,7 +378,7 @@ source->target.topics=orders
     source->target.topics=orders
     ```
 
-    As the source cluster is deployed on Openshift, the exposed route to access the brokers is using TLS connection. So we need the certificate and create a truststore to be used by those Java programs. All kafka tools are done in java or scala so running in a JVM, which needs truststore for keep trusted TLS certificates. 
+    As the source cluster is deployed on Openshift, the exposed route to access the brokers is using TLS connection. So we need the certificate and create a truststore to be used by those Java programs. All kafka tools are done in java or scala so running in a JVM, which needs truststore for keep trusted TLS certificates.
     When running from a remote system to get the certificate do the following steps:
 
     1. Get the host ip address from the Route resource
@@ -437,7 +439,7 @@ TO BE CONTINUED
 
 ## Typical errors in Mirror Maker 2 traces
 
-* Plugin class loader for connector: 'org.apache.kafka.connect.mirror.MirrorCheckpointConnector' was not found. 
+* Plugin class loader for connector: 'org.apache.kafka.connect.mirror.MirrorCheckpointConnector' was not found.
     * This error message is a light issue in kafka 2.4 and does not impact the replication. In Kafka 2.5 this message is for DEBUG logs.
 * Error while fetching metadata with correlation id 2314 : {source.heartbeats=UNKNOWN_TOPIC_OR_PARTITION}:
     * Those messages may come from multiple reasons. One is the name topic is not created. In Event Streams topics needs to be created via CLI or User Interface. It can also being related to the fact the consumer polls on a topic that has just been created and the leader for this topic-partition is not yet available, you are in the middle of a leadership election.
@@ -445,4 +447,3 @@ TO BE CONTINUED
 * Exception on not being able to create Log directory: do the following: `export LOG_DIR=/tmp/logs`
 * ERROR WorkerSourceTask{id=MirrorSourceConnector-0} Failed to flush, timed out while waiting for producer to flush outstanding 1 messages
 * ERROR WorkerSourceTask{id=MirrorSourceConnector-0} Failed to commit offsets (org.apache.kafka.connect.runtime.SourceTaskOffsetCommitter:114)
-
