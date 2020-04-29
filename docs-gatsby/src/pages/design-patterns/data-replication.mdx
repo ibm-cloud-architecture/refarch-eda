@@ -41,7 +41,7 @@ Mirror maker 2.0 is a new feature as part of Kafka 2.4 to support data replicati
 
 Mirror maker uses the cluster name or identifier as prefix for topic, and uses the concept of source topic and target topic. The specification is described in detail in [this KIP 382](https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0#KIP-382:MirrorMaker2.0-RemoteTopics,Partitions).
 
-To test the tool, we can use the Strimzi Kafka latest docker image deployed on Openshift cluster (We address Strimzi deployment in [this note](../deployments/strimzi/deploy.md)). For mirror maker 2.0, the deployment descriptor are in the [Strimzi project](https://strimzi.io/downloads/) under the `examples/kafka-mirror-maker-2` folder (we have a copy of this yaml file, prepared for our replication, in the deployments/strimzi folder of this project).
+To test the tool, we can use the Strimzi Kafka latest docker image deployed on Openshift cluster (We address Strimzi deployment in [this note](../deployments/strimzi/deploy/)). For mirror maker 2.0, the deployment descriptor are in the [Strimzi project](https://strimzi.io/downloads/) under the `examples/kafka-mirror-maker-2` folder (we have a copy of this yaml file, prepared for our replication, in the deployments/strimzi folder of this project).
 
 To define the clusters and topic configuration we use a properties file. One simple example to replicate from IBM Cloud Event streams to Kafka on premise is in the folder [deployments/strimzi/es-mirror-maker.properties](https://github.com/ibm-cloud-architecture/refarch-eda/blob/master/deployments/strimzi/es-mirror-maker.properties)
 
