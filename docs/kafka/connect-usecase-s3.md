@@ -14,7 +14,7 @@
 
 This scenario walkthrough will cover the usage of [IBM Event Streams](https://ibm.github.io/event-streams/about/overview/) as a Kafka provider and [Amazon S3](https://aws.amazon.com/s3/) as an object storage service as systems to integrate with the [Kafka Connect framework](https://ibm-cloud-architecture.github.io/refarch-eda/kafka/connect/). Through the use of the [Apache Camel opensource project](https://camel.apache.org/), we are able to use the [Apache Camel Kafka Connector](https://camel.apache.org/camel-kafka-connector/latest/index.html) in both a source and a sink capacity to provide bidirectional communication between [IBM Event Streams](https://ibm.github.io/event-streams/about/overview/) and [AWS S3](https://aws.amazon.com/s3/).
 
-![IBM Event Streams to S3 integration via Kafka Connect](images/eventstreams-to-s3-connector-flow.png)
+![IBM Event Streams to S3 integration via Kafka Connect](https://github.com/ibm-cloud-architecture/refarch-eda/raw/master/docs-archive/kafka/images/eventstreams-to-s3-connector-flow.png)
 
 As different use cases will require different configuration details to accommodate different situational requirements, the Kafka to S3 Source and Sink capabilities described here can be used to move data between S3 buckets with a Kafka topic being the middle-man or move data between Kafka topics with an S3 Bucket being the middle-man. However, take care to ensure that you do not create an infinite processing loop by writing to the same Kafka topics and the same S3 buckets with both a Source and Sink connector deployed at the same time.
 
@@ -28,6 +28,7 @@ As different use cases will require different configuration details to accommoda
 - This deployment scenario will make use of the [Strimzi Operator](https://strimzi.io/docs/0.17.0/) for Kafka deployments and the custom resources it manages.
 - A minimum version of `0.17.0` is required for this scenario. This scenario has been explicitly validated with version `0.17.0`.
 - The simplest scenario is to deploy the Strimzi Operator to [watch all namespaces](https://strimzi.io/docs/0.17.0/#deploying-cluster-operator-to-watch-whole-cluster-deploying-co) for relevant custom resource creation and management.
+- This can be done in the OpenShift console via the **Operators > Operator Hub** page.
 
 **Amazon Web Services account**
 - As this scenario will make use of [AWS S3](https://aws.amazon.com/s3/), an active Amazon Web Services account is required.
@@ -234,6 +235,7 @@ spec:
 
 Once you have updated the YAML and saved it in a file named `kafka-sink-connector.yaml`, this resource can be created via `kubectl apply -f kafka-sink-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
+**NOTE:** If you require objects in S3 to reside in a sub-folder of the bucket root, you can place a folder name prefix in the `keyName` query parameter of the `camel.sink.url` configuration option above. For example, `camel.sink.url: aws-s3://my-s3-bucket?keyName=myfoldername/${exchangeId}_${date:now:yyyyMMdd-HHmmss}`.
 
 ## S3 to Kafka Source Connector
 
@@ -268,6 +270,8 @@ spec:
 ```
 
 Once you have updated the YAML and saved it in a file named `kafka-source-connector.yaml`, this resource can be created via `kubectl apply -f kafka-source-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
+
+**NOTE:** If you require the connector to only read objects from a subdirecotry of the S3 bucket root, you can set the `camel.component.aws-s3.configuration.prefix` configuration option with the value of the subdirectory name. For example, `camel.component.aws-s3.configuration.prefix: myfoldername` .
 
 ## Next steps
 
