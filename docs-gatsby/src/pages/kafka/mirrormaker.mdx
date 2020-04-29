@@ -219,7 +219,7 @@ What needs to be done:
 
 * Get a OpenShift cluster in the same data center as Event Streams service: See this [product introduction](https://cloud.ibm.com/kubernetes/catalog/about?platformType=openshift).
 * Create a project in OpenShift, for example: `mirror-maker-2-to-es`. Remember it is mapped to a namespace in Kubernetes.
-* At the minimum, to run Mirror Maker 2, we need to deploy the Strimzi Custom Resource Definitions, and the Mirror Maker 2.0 operator. See the detail in sections from the [deployment note](strimzi-deploy/). The 0.17.0 source is in [this repository](https://github.com/strimzi/strimzi-kafka-operator/releases), unzip and use the `install` folder with Strimzi installation instructions.
+* At the minimum, to run Mirror Maker 2, we need to deploy the Strimzi Custom Resource Definitions, and the Mirror Maker 2.0 operator. See the detail in sections from the [deployment note](deployments/strimzi/deploy/). The 0.17.0 source is in [this repository](https://github.com/strimzi/strimzi-kafka-operator/releases), unzip and use the `install` folder with Strimzi installation instructions.
 
    *The service account and role binding do not need to be re-installed if you did it previously.*
 
