@@ -1,11 +1,11 @@
 module.exports = {
   siteMetadata: {
-    title: 'Event Driven Architecture',
+    title: 'IBM Garage Event-Driven Reference Architecture',
     description: 'This project represents the body of knowledge around event-driven architecture and can be considered as a live book, we are writing from our consulting engagements',
     keywords: 'gatsby,theme,carbon',
     repository: {
       baseUrl: 'https://github.com/ibm-cloud-architecture/refarch-eda',
-      subDirectory: '/docs-gatsby',
+      subDirectory: '/docs',
       branch: 'master'
     }
   },
