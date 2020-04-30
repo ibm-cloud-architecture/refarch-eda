@@ -3,4 +3,28 @@ title: Events versus Messages
 description: Comparing and contrasting events and messages as communication artifacts in distributed systems.
 ---
 
-# TBD
+<InlineNotification kind="error">TODO pull from learn-cloudnative-101 work</InlineNotification>
+
+## Events and Messages
+
+There is a long history of *messaging* in IT systems.  You can easily see an event driven solution and events in the context of messaging systems and messages. However, there are different characteristics that are worth considering:
+
+* **Messaging:** Messages transport a payload and messages are persisted until consumed. Message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
+* **Events:** Events are persisted as a replayable stream history. Event consumers are not tied to the producer. An event is a record of something that has happened and so can't be changed. (You can't change history.)
+
+![](images/evt-msg.png)
+
+## Messaging versus event streaming
+
+We recommend reading [this article](https://developer.ibm.com/messaging/2018/05/18/comparing-messaging-event-streaming-use-cases/) and [this one](https://developer.ibm.com/messaging/2019/02/05/comparing-messaging-pub-sub-and-event-streams/), to get insight between messaging (focusing on operations / actions to be performed by a system or service) versus event (focusing on the state / facts of a system with no knowledge of the downstream processing. To summarize messaging (like MQ) are to support:
+
+* Transient Data – data is only stored until a consumer has processed the message, or it expires
+* Request / reply most of the time
+* Targeted reliable delivery: targeted to the entity that will process the request or receive the response. Reliable with transaction support.
+
+For events:
+
+* Stream history: consumers are interested by history and not just the most recent event
+* Scalable Consumption: A single event is consumed by many consumers with limited impact as the number of consumers grow.
+* Immutable Data.
+* Decoupling of Producers and consumers
