@@ -1,6 +1,6 @@
 ---
-title: Kafka Streaming
-description: Kafka Streaming
+title: Kafka Streams
+description: Kafka Streams
 ---
 
 Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. We recommend reading this excellent introduction from Jay Kreps @confluent: [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) to get a good understanding of why Kafka stream was created.
@@ -26,13 +26,13 @@ To summarize, **Kafka Stream** has the following capabilities:
 In general the code for processing event does the following:
 
 * Set a properties object to specify which brokers to connect to and what kind of serialization to use.
-* Define a stream client: if you want to get the stream of records use **KStream**, if you want a changelog with the last value of a given, key use **KTable** (Example of using KTable is to keep a user profile with userid as key).  
+* Define a stream client: if you want to get the stream of records use **KStream**, if you want a changelog with the last value of a given, key use **KTable** (Example of using KTable is to keep a user profile with userid as key).
 * Create a topology of input source and sink target and the set of actions to perform in between.
 * Start the stream client to consume records.
 
-Programming with KStream and Ktable is not easy at first, as there are a lot of concepts for data manipulations, serialization and operations chaining. 
+Programming with KStream and Ktable is not easy at first, as there are a lot of concepts for data manipulations, serialization and operations chaining.
 
-A stateful operator uses the streaming Domain Specific Language, with constructs for aggregation, join and time window operations. Stateful transformations require a state store associated with the stream processor. 
+A stateful operator uses the streaming Domain Specific Language, with constructs for aggregation, join and time window operations. Stateful transformations require a state store associated with the stream processor.
 
 ## Simple example
 

@@ -1,6 +1,6 @@
 ---
 title: Reference Architecture
-description: Reference Architecture
+description: What is the purpose of the event-driven reference architecture?
 ---
 
 We defined the starting point for a Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
@@ -17,7 +17,7 @@ With an event backbone providing the connectivity between the capabilities, we c
 
 Where:
 
-1. [Event sources](evt-src/README.md): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices… 
+1. [Event sources](evt-src/README.md): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices…
 2. [IBM Event Streams](https://www.ibm.com/cloud/event-streams): Provides an Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
 3. [IBM Cloud Functions](https://cloud.ibm.com/openwhisk): Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
 4. [Streaming Analytics](https://cloud.ibm.com/catalog/services/streaming-analytics): Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
@@ -73,13 +73,13 @@ These are scalable easily extensible, and adaptable applications responding in n
 
 ### Data scientist workbench
 
-To complete the extended architecture for integration with analytics and machine learning, consider the toolset and frameworks that the data scientist can use to derive the models.  [Watson Studio](https://www.ibm.com/marketplace/watson-studio)  provides tools for data scientists, application developers, and subject matter experts to collaboratively and easily work with data to build and train models at scale.  
+To complete the extended architecture for integration with analytics and machine learning, consider the toolset and frameworks that the data scientist can use to derive the models.  [Watson Studio](https://www.ibm.com/marketplace/watson-studio)  provides tools for data scientists, application developers, and subject matter experts to collaboratively and easily work with data to build and train models at scale.
 
 For more information see [Getting started](https://dataplatform.cloud.ibm.com/docs/content/getting-started/overview-ws.html) with Watson Studio.
 
 ## Legacy integration
 
-While you create new digital business applications as self-contained systems, you likely need to integrate legacy apps and databases into the event-driven system. Two ways of coming directly into the event-driven architecture are as follows: 
+While you create new digital business applications as self-contained systems, you likely need to integrate legacy apps and databases into the event-driven system. Two ways of coming directly into the event-driven architecture are as follows:
 
 1. Where legacy applications are connected with MQ. You can connect directly from MQ to the Kafka in the event backbone.  See [IBM Event Streams getting started with MQ article](https://ibm.github.io/event-streams/connecting/mq/).
 

@@ -1,92 +1,59 @@
+- title: Introduction
+  pages:
+    - title: Reference Architecture
+      path: introduction/reference-architecture
+    - title: What will you learn?
+      path: introduction/what-will-you-learn
+    - title: Target audiences
+      path: introduction/target-audiences
 - title: Concepts
   pages:
-    - path: concepts/README
-- title: Architecture
+    - title: Terms & Definitions
+      path: concepts/terms-and-definitions
+    - title: Events versus Messages
+      path: concepts/events-versus-messages
+- title: Advantages of EDA
   pages:
-    - title: Reference diagrams
-      path: architecture
-    - title: Event sources
-      path: evt-src/README
-    - title: Event backbone
-      path: evt-backbone/README
-    - title: Event actions
-      path: evt-action/README
-    - title: Event managed states
-      path: evt-state/README
-    - title: Event Stream & Kafka architecture
-      path: kafka/arch
+    - title: Push
+      path: advantages/push
+    - title: Resiliency
+      path: advantages/resiliency
+    - title: Scalability
+      path: advantages/scalability
+- title: Patterns in EDA
+  pages:
+    - title: CQRS
+      path: patterns/cqrs
+    - title: Event Sourcing
+      path: patterns/event-sourcing
+    - title: Sagas
+      path: patterns/saga
+    - title: Dead Letter Queue
+      path: patterns/dlq
+    - title: Data Replication
+      path: patterns/data-replication
+    - title: Realtime Analytics
+      path: patterns/realtime-analytics
 - title: Methodology
   pages:
-    - title: Event driven methodology
-      path: methodology/readme
     - title: Event Storming
-      path: methodology/eventstorming
-    # - title: Event Storming applied to container shipment analysis
-    #   path: https://ibm-cloud-architecture.github.io/refarch-kc/analysis/readme/
-    - title: Domain driven design for event based solution
-      path: methodology/ddd
-- title: Event driven design patterns
+      path: methodology/event-storming
+    - title: Domain-Driven Design
+      path: methodology/domain-driven-design
+- title: Technology
   pages:
-    - title: Microservices
-      path: evt-microservices/README
-    - title: Event-driven patterns
-      path: design-patterns/ED-patterns
-    - title: Event Sourcing
-      path: design-patterns/event-sourcing
-    - title: CQRS
-      path: design-patterns/cqrs
-    - title: Saga
-      path: design-patterns/saga
-    - title: Data replication pattern
-      path: design-patterns/data-replication
-# - title: Reference implementations
-    # - title: Container Shipment implementation solution
-    #   path: https://ibm-cloud-architecture.github.io/refarch-kc
-- title: Product guidances
-  pages:
-    - title: Kafka concepts summary
-      path: kafka/readme
-    - title: Architecture considerations
-      path: kafka/arch
-    - title: Kafka producer development practices
-      path: kafka/producers
-    - title: Kafka consumer development practices
-      path: kafka/consumers
-    - title: Kafka streaming processing
-      path: kafka/kafka-stream
+    - title: Kafka Overview
+      path: technology/kafka-overview
+    - title: Kafka Producers & Consumers
+      path: technology/kafka-producers-consumers
     - title: Kafka Connect
-      path: kafka/connect
-    - title: Kafka FAQ
-      path: kafka/FAQ
-    # - title: Adopting Avro with Kafka
-    #   path: https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro
-    - title: Kafka monitoring
-      path: kafka/monitoring
-    - title: Serverless
-      path: serverless/README
-- title: Deployment
+      path: technology/kafka-connect
+    - title: Kafka Mirror Maker
+      path: technology/kafka-mirrormaker
+    - title: Kafka Streams
+      path: technology/kafka-streams
+    - title: Serverless Event-driven
+      path: technology/serverless-eda
+- title: Additional reading
   pages:
-    - title: Event Streams IBM CLOUD deployment
-      path: deployments/eventstreams/es-ibm-cloud
-    - title: Event Streams Cloud Pak Integration deployment
-      path: deployments/eventstreams/README
-    #- title: Kafka deployment
-    #  path: deployments/kafka/README
-    #- title: Zookeeper deployment
-    #  path: deployments/zookeper/README
-    - title: Postgresql
-      path: deployments/postgresql/README
-    - title: Ceph deployment on ICP
-      path: deployments/eventstreams/Install_Ceph_on_ICP
-    - title: Kafka deployment with Strimzi
-      path: deployments/strimzi/deploy
-    # - title: Troubleshooting
-    #   path: https://github.com/ibm-cloud-architecture/refarch-integration/blob/master/docs/icp/troubleshooting.md
-- title: Real time analytics
-  pages:
-    - title: Concepts
-      path: rt-analytics/README
-    # - title: Reefer Container Predictive Maintenance
-    #   path: https://ibm-cloud-architecture.github.io/refarch-reefer-ml
-    - title: Compendium
-      path: compendium
+    - path: additional-reading

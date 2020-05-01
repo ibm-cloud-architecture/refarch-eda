@@ -1,7 +1,8 @@
 ---
-title: Function as a Service
-description: Function as a Service
+title: Serverless Event-Driven Architecture
+description: Serverless Event-Driven Architecture
 ---
+
 
 ## Kubeless
 To install kubeless on ICP we first connect to the cluster and then use the command below:
@@ -34,8 +35,8 @@ def hello(event, context):
 To deploy we can use the command:
 ```
 $ kubeless function deploy hellojb --runtime python3.6  --trigger-http --from-file functionHello.py --handler functionHello.hello
-INFO[0000] Deploying function...                        
-INFO[0001] Function hellojb submitted for deployment    
+INFO[0000] Deploying function...
+INFO[0001] Function hellojb submitted for deployment
 INFO[0001] Check the deployment status executing 'kubeless function ls hellojb'
 ```
 
@@ -46,7 +47,7 @@ $ kubectl get functions
 or
 ```
 $ kubeless function ls
-NAME   	NAMESPACE   	HANDLER   	RUNTIME  	DEPENDENCIES	STATUS       
+NAME   	NAMESPACE   	HANDLER   	RUNTIME  	DEPENDENCIES	STATUS
 hellojb	greencompute	test.hello	python3.6	            	1/1 READY
 ```
 

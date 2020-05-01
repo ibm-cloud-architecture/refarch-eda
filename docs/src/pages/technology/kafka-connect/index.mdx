@@ -3,6 +3,8 @@ title: Kafka Connect
 description: Kafka Connect
 ---
 
+# Kafka Connect
+
 [Kafka connect](https://kafka.apache.org/documentation/#connect) is an open source component for easily integrate external systems with Kafka. It works with any Kafka producer like IBM Event Streams and Red Hat AMQ Streams.   It uses the concepts of source and sink connectors to ingest or deliver data to / from  Kafka topics.
 
 ![Kafka component](images/kafka-components.png)
@@ -46,7 +48,7 @@ We will use this image to run the kafka connect in standalone mode or in [the di
 
 ## Getting started with kafka connect standalone mode
 
-For development and test purposes, we can use Kafka connect in standalone mode, but still connected to IBM Event Streams running on-premise or on-cloud.  
+For development and test purposes, we can use Kafka connect in standalone mode, but still connected to IBM Event Streams running on-premise or on-cloud.
 
 * From the [downloaded dockerfile](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docker/kafka-connect/Dockerfile) (in the refarch-kc repository) we can build a new kafka connect environment image using the command:
 
@@ -99,7 +101,7 @@ The execution trace shows the producer id, and the consumer id, and the task for
 ```log
 INFO Creating task local-file-source-0 (org.apache.kafka.connect.runtime.Worker:414)
 ...
-INFO TaskConfig values: 
+INFO TaskConfig values:
 	task.class = class org.apache.kafka.connect.file.FileStreamSourceTask
 ...
  INFO Creating connector local-file-sink of type FileStreamSink (org.apache.kafka.connect.runtime.Worker:246)
@@ -142,7 +144,7 @@ The console-consumer.properties specifies the SASL properties to connect to the 
 
 ## Distributed mode
 
-When running in distributed mode, the connectors need three topics as presented in the `create topics` table [here](https://ibm.github.io/event-streams/connecting/setting-up-connectors/). 
+When running in distributed mode, the connectors need three topics as presented in the `create topics` table [here](https://ibm.github.io/event-streams/connecting/setting-up-connectors/).
 
 * **connect-configs**: This topic will store the connector and task configurations.
 * **connect-offsets**: This topic is used to store offsets for Kafka Connect.
@@ -210,7 +212,7 @@ When you use IBM Event Streams on Openshift, you can deploy the IBM kafka connec
 
 Another approach is to use [Strimzi](https://strimzi.io/) operator.
 
-To Be done! 
+To Be done!
 
 ## Running with local kafka cluster
 

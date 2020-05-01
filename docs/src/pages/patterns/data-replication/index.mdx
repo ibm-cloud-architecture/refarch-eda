@@ -1,7 +1,9 @@
 ---
-title: Data replication in context of EDA
+title: Patterns in Event-Driven Architectures
 description: Data replication in context of EDA
 ---
+
+# Data Replication
 
 As an introduction to the scope of the data replication in the context of distributed system, we encourage to read our summary in [this article](https://ibm-cloud-architecture.github.io/refarch-data-ai-analytics/data/data-replication/).
 
@@ -60,7 +62,7 @@ source->target.topics = test
 ```
 
 ```bash
-./connect-mirror-maker.sh /home/strimzi.properties 
+./connect-mirror-maker.sh /home/strimzi.properties
 ```
 When Mirror maker starts it will create some topics on source cluster to manage the offsets and topic metadata:
 
