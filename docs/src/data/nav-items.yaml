@@ -22,6 +22,8 @@
       path: advantages/scalability
 - title: Patterns in EDA
   pages:
+    - title: Introduction
+      path: patterns/intro
     - title: CQRS
       path: patterns/cqrs
     - title: Event Sourcing
