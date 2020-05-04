@@ -132,6 +132,7 @@ Review the YAML description for our `KafkaConnectS2I` custom resource below, nam
 - `spec.tls.trustedCertificates[0].secretName` should match the Kubernetes Secret containing the IBM Event Streams certificate
 - `spec.authentication.passwordSecret.secretName` should match the Kubernetes Secret containing the IBM Event Streams API key
 - `spec.externalConfiguration.volumes[0].secret.secretName` should match the Kubernetes Secret containing your AWS credentials
+- `spec.config['group.id']` should be a unique name for this Kafka Connect cluster across all Kafka Connect instances that will be communicating with the same set of Kafka brokers.
 - `spec.config['*.storage.topic']` should be updated to provide unique topics for this Kafka Connect cluster inside your Kafka deployment. Distinct Kafka Connect clusters should not share metadata topics.
 
 ```yaml
@@ -163,6 +164,7 @@ spec:
         secret:
           secretName: aws-credentials
   config:
+    group.id: connect-cluster-101
     config.providers: file
     config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider
     key.converter: org.apache.kafka.connect.json.JsonConverter
