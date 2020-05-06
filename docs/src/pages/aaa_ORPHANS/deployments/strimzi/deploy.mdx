@@ -13,7 +13,7 @@ kubectl create namespace kafka-strimzi
 oc create project kafka-strimzi
 ```
 
-## Download the strimzi artefacts
+## Download the Strimzi artefacts
 
 For the last [release github](https://github.com/strimzi/strimzi-kafka-operator/releases). Then modify the Role binding yaml files with the namespace set in previous step.
 
@@ -21,10 +21,10 @@ For the last [release github](https://github.com/strimzi/strimzi-kafka-operator/
 sed -i '' 's/namespace: .*/namespace: kafka-strimzi/' install/cluster-operator/*RoleBinding*.yaml
 ```
 
-## Define Custom Resource Definition for kafka
+## Define Custom Resource Definition for Kafka
 
 ```shell
-oc apply -f install/cluster-operator/ -n jb-kafka-strimzi
+oc apply -f install/cluster-operator/ -n kafka-strimzi
 ```
 
 This should create the following resources:
@@ -35,21 +35,21 @@ This should create the following resources:
 | strimzi-cluster-operator-entity-operator-delegation, strimzi-cluster-operator, strimzi-cluster-operator-topic-operator-delegation | Role binding | oc get rolebinding |
 | strimzi-cluster-operator-global, strimzi-cluster-operator-namespaced, strimzi-entity-operator, strimzi-kafka-broker, strimzi-topic-operator | Cluster Role | oc get clusterrole |
 | strimzi-cluster-operator, strimzi-cluster-operator-kafka-broker-delegation | Cluster Role Binding | oc get clusterrolebinding |
-| kafkabridges, kafkaconnectors, kafkaconnects, kafkamirrormaker2s kafka, kafkatopics, kafkausers | Custom Resource Definition | oc get customresourcedefinition |
+| kafkabridges, kafkaconnectors, kafkaconnects, kafkamirrormaker2s kafka, kafkatopics, kafkausers, kafkaconnectors | Custom Resource Definition | oc get customresourcedefinition |
 
 ## Deploy Kafka cluster
 
 Change the name of the cluster in one the yaml in the `examples/kafka` folder.
 
-Using non presistence:
+Using non persistence:
 
 ```shell
-oc apply -f examples/kafka/kafka-ephemeral.yaml -n jb-kafka-strimzi
+oc apply -f examples/kafka/kafka-ephemeral.yaml -n kafka-strimzi
 oc get kafka
 # NAME         DESIRED KAFKA REPLICAS   DESIRED ZK REPLICAS
 # my-cluster   3                        3
 # Or
-kubectl  apply -f examples/kafka/kafka-ephemeral.yaml -n jb-kafka-strimzi
+kubectl  apply -f examples/kafka/kafka-ephemeral.yaml -n kafka-strimzi
 ```
 
 When looking at the pods running we can see the three kafka and zookeeper nodes, but also an entity operator pod.
@@ -57,26 +57,24 @@ When looking at the pods running we can see the three kafka and zookeeper nodes,
 Using persistence:
 
 ```shell
-oc apply -f examples/kafka/kafka-persistent.yaml -n jb-kafka-strimzi
+oc apply -f examples/kafka/kafka-persistent.yaml -n kafka-strimzi
 ```
 
 ## Topic Operator
 
-The role of the `Topic Operator` is to keep a set of KafkaTopic OpenShift or Kubernetes resources describing Kafka topics in-sync with corresponding Kafka topics.
+The role of the `Topic Operator` is to keep a set of KafkaTopic OpenShift or Kubernetes resources describing Kafka topics in-sync with corresponding Kafka topics. The Topic Operator is by default deployed automatically with the Kafka cluster. This is controlled in the `entityOperator` section of the Kafka custom resource:
 
-### Deploy the operator
-
-```shell
-oc apply -f install/topic-operator/ -n jb-kafka-strimzi
+```yaml
+apiVersion: kafka.strimzi.io/v1beta1
+kind: Kafka
+metadata:
+  name: my-cluster
+spec:
+  # ...
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
 ```
-
-This will add the following:
-
-| Names | Resource | Command |
-| :---: | :---: | :---: |
-| strimzi-topic-operator | Service account | oc get sa |
-| strimzi-topic-operator| Role binding | oc get rolebinding |
-| kafkatopics | Custom Resource Definition | oc get customresourcedefinition |
 
 ### Create a topic
 
@@ -98,16 +96,16 @@ spec:
 ```
 
 ```shell
-oc apply -f test.yaml -n jb-kafka-strimzi
+oc apply -f test.yaml -n kafka-strimzi
 
 oc get kafkatopics
 ```
 
-This creates a topic `test` in your kafka cluster.
+This creates a topic `test` in your Kafka cluster.
 
 ## Test with producer and consumer pods
 
-Use kafka-consumer and producer tools from Kafka distribution. Verify within Dockerhub under the Strimzi account to get the lastest image tag (below we use -2.4.0 tag).
+Use kafka-consumer and producer tools from Kafka distribution. Verify within Dockerhub under the Strimzi account to get the latest image tag (below we use -2.4.0 tag).
 
 ```shell
 # Start a consumer on test topic
@@ -118,9 +116,9 @@ oc run kafka-producer -ti --image=strimzi/kafka:latest-kafka-2.4.0  --rm=true --
 # enter text
 ```
 
-If you want to use the strimzi kafka docker image to run the above scripts locally but remotely connect to a kafka cluster you need multiple things to happen:
+If you want to use the strimzi Kafka docker image to run the above scripts locally but remotely connect to a Kafka cluster you need multiple things to happen:
 
-* Be sure the kafka yaml file include the external route stamza:
+* Be sure the Kafka yaml file include the external route stamza:
 
 ```yaml
 spec:
