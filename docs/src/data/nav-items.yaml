@@ -1,59 +1,61 @@
 - title: Introduction
   pages:
     - title: Reference Architecture
-      path: introduction/reference-architecture
+      path: /introduction/reference-architecture/
     - title: What will you learn?
-      path: introduction/what-will-you-learn
+      path: /introduction/what-will-you-learn/
     - title: Target audiences
-      path: introduction/target-audiences
+      path: /introduction/target-audiences/
 - title: Concepts
   pages:
     - title: Terms & Definitions
-      path: concepts/terms-and-definitions
+      path: /concepts/terms-and-definitions/
     - title: Events versus Messages
-      path: concepts/events-versus-messages
+      path: /concepts/events-versus-messages/
 - title: Advantages of EDA
   pages:
     - title: Push
-      path: advantages/push
+      path: /advantages/push/
     - title: Resiliency
-      path: advantages/resiliency
+      path: /advantages/resiliency/
     - title: Scalability
-      path: advantages/scalability
+      path: /advantages/scalability/
 - title: Patterns in EDA
   pages:
+    - title: Introduction
+      path: patterns/intro
     - title: CQRS
-      path: patterns/cqrs
+      path: /patterns/cqrs/
     - title: Event Sourcing
-      path: patterns/event-sourcing
+      path: /patterns/event-sourcing/
     - title: Sagas
-      path: patterns/saga
+      path: /patterns/saga/
     - title: Dead Letter Queue
-      path: patterns/dlq
+      path: /patterns/dlq/
     - title: Data Replication
-      path: patterns/data-replication
+      path: /patterns/data-replication/
     - title: Realtime Analytics
-      path: patterns/realtime-analytics
+      path: /patterns/realtime-analytics/
 - title: Methodology
   pages:
     - title: Event Storming
-      path: methodology/event-storming
+      path: /methodology/event-storming/
     - title: Domain-Driven Design
-      path: methodology/domain-driven-design
+      path: /methodology/domain-driven-design/
 - title: Technology
   pages:
     - title: Kafka Overview
-      path: technology/kafka-overview
+      path: /technology/kafka-overview/
     - title: Kafka Producers & Consumers
-      path: technology/kafka-producers-consumers
+      path: /technology/kafka-producers-consumers/
     - title: Kafka Connect
-      path: technology/kafka-connect
+      path: /technology/kafka-connect/
     - title: Kafka Mirror Maker
-      path: technology/kafka-mirrormaker
+      path: /technology/kafka-mirrormaker/
     - title: Kafka Streams
-      path: technology/kafka-streams
+      path: /technology/kafka-streams/
     - title: Serverless Event-driven
-      path: technology/serverless-eda
+      path: /technology/serverless-eda/
 - title: Additional reading
   pages:
-    - path: additional-reading
+    - path: /additional-reading/

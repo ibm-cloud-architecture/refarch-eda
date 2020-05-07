@@ -45,7 +45,7 @@ The adoption of the pattern can be applied in phases, incrementally from existin
 
 Before even beginning to apply the pattern, let’s consider the typical app design for accessing data. This diagram shows an app with a domain model for accessing data persisted in a database of record, i.e. a single source of truth for that data. The domain model has an API that at a minimum enables clients to perform CRUD tasks on domain objects within the model.
 
-![](images/fig-1.png)
+![](./images/fig-1.png)
 
 The [domain model](https://www.martinfowler.com/eaaCatalog/domainModel.html) is an object representation of the database documents or records. It is comprised of domain objects that represent individual documents or records and the business logic for managing and using them. [Domain-Driven Design](https://dddcommunity.org/learning-ddd/what_is_ddd/) (DDD) models these domain objects as [entities](https://martinfowler.com/bliki/EvansClassification.html)—“objects that have a distinct identity that runs through time and different representations”—and [aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html)—“a cluster of domain objects that can be treated as a single unit”; the aggregate root maintains the integrity of the aggregate as a whole.
 
@@ -55,7 +55,7 @@ Ideally, the domain model’s API should be more domain-specific than simply CRU
 
 The first and most visible step in applying the CQRS pattern is splitting the CRUD API into separate read and write APIs. This diagram shows the same domain model as before, but its single CRUD API is split into retrieve and modify APIs.
 
-![](images/fig-2.png)
+![](./images/fig-2.png)
 
 The two APIs share the existing domain model but split the behavior:
 
@@ -77,7 +77,7 @@ This stage depends on the domain model being able to implement both the retrieve
 
 The second step in applying the CQRS pattern is to split the domain model into separate read and write models. This doesn’t just change the API for accessing domain functionality, it also changes the design of how that functionality is structured and implemented. This diagram shows that the domain model becomes the basis for a write model that handles changes to the domain objects, along with a separate read model used to access the state of the app.
 
-![](images/fig-3.png)
+![](./images/fig-3.png)
 
 Naturally, the read model implements the retrieve API and the write model implements the modify API. Now, the application consists not only of separate APIs for querying and updating the domain objects, there’s also separate business functionality for doing so. Both the read business functionality and the write business functionality share the same database.
 
@@ -93,7 +93,7 @@ This phase assumes that the read and write models can both be implemented using 
 
 The third step in applying the CQRS pattern—-which implements the complete CQRS pattern solution—-is splitting the database of record into separate read and write databases. This diagram shows the write model and read model, each supported by its own database. The overall solution consists of two main parts: the write solution that supports updating the data and the read solution that supports querying the data. The two parts are connected by the event bus.
 
-![](images/fig-4.png)
+![](./images/fig-4.png)
 
 The write model has its own read/write database and the read model has its own read-only database. The read/write database still serves as the database of record (the single source of truth for the data) but is mostly used write-only: mostly written to and rarely read. Reading is offloaded onto a separate read database that contains the same data but is used read-only.
 
@@ -231,12 +231,15 @@ public Response create(OrderCreate dto) {
 
 What to do when we need to add attribute to event?. So we need to create a versioninig schema for event structure. You need to use flexible schema like json schema, [Apache Avro](https://avro.apache.org/docs/current/) or [protocol buffer](https://developers.google.com/protocol-buffers/) and may be, add an event adapter (as a function?) to translate between the different event structures.
 
+### Next
+
+As a next level we want to address how to [develop a service using CQRS](./details/).
 
 ### Code reference
 
  * The following project includes two sub modules, each deployable as a microservice to illustrate the command and query part: [https://github.com/ibm-cloud-architecture/refarch-kc-order-ms](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms)
 
-### Compendium
+### Further readings
 
 * [https://www.codeproject.com/Articles/555855/Introduction-to-CQRS](https://www.codeproject.com/Articles/555855/Introduction-to-CQRS)
 * [http://udidahan.com/2009/12/09/clarified-cqrs](http://udidahan.com/2009/12/09/clarified-cqrs/)

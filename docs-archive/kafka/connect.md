@@ -162,9 +162,17 @@ cloudctl es topics
 * When using a kafka cluster managed with Strimzi topic operator you can use the topic definitions in [the folder](https://github.com/ibm-cloud-architecture/refarch-kc/blob/master/docker/kafka-connect):
 
 ```shell
-oc apply -f strimzi-connect-config-topic.yaml
+oc apply -f strimzi-connect-configs-topic.yaml
 oc apply -f strimzi-connect-offsets-topic.yaml
 oc apply -f strimzi-connect-status-topic.yaml
+```
+
+Another way to create the topic is to use a kafka image and the `/kafka-topics.sh` tool:
+
+```shell
+./kafka-topics.sh --bootstrap-server localhost:9092 --create --topic connect-offsets
+./kafka-topics.sh --bootstrap-server localhost:9092 --create --topic connect-status 
+./kafka-topics.sh --bootstrap-server localhost:9092 --create --topic connect-configs
 ```
 
 The connector configuration needs to specify some other properties as explained in the [kafka documentation](https://kafka.apache.org/documentation/#connectconfigs)):
