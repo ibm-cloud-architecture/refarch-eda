@@ -183,8 +183,9 @@ Save the YAML above into a file named `kafka-connect.yaml`. If you created the C
 The next step is to build the Camel Kafka Connector binaries so that they can be loaded into the just-deployed Kafka Connect cluster's container images.
 
 1. Clone the repository https://github.com/osowski/camel-kafka-connector to your local machine.
-2. From the root directory of the repository, build the components using the `mvn clean package` command.
-3. Go get a coffee and take a walk... as this build will take around 30 minutes on a normal developer workstation.
+2. Check out the `camel-kafka-connector-0.1.0-branch` via `git checkout camel-kafka-connector-0.1.0-branch`.
+3. From the root directory of the repository, build the components using the `mvn clean package` command.
+4. Go get a coffee and take a walk... as this build will take around 30 minutes on a normal developer workstation.
 
 Some items to note:
 - The repository used here (https://github.com/osowski/camel-kafka-connector) is a fork of the official repository (https://github.com/apache/camel-kafka-connector) with a minor update applied to allow for dynamic endpoints to be specified via configuration, which is critical for our [Kafka to S3 Sink Connector](#kafka-to-s3-sink-connector) scenario.
