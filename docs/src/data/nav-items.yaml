@@ -54,6 +54,8 @@
       path: /technology/kafka-mirrormaker/
     - title: Kafka Streams
       path: /technology/kafka-streams/
+    - title: Event Streams
+      path: /technology/event-streams/
     - title: Serverless Event-driven
       path: /technology/serverless-eda/
 - title: Additional reading
