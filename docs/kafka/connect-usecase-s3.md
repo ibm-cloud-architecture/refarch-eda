@@ -228,7 +228,7 @@ spec:
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.storage.StringConverter
     topics: my-source-topic
-    camel.sink.url: aws-s3://my-s3-bucket?keyName=${exchangeId}_${date:now:yyyyMMdd-HHmmss}
+    camel.sink.url: aws-s3://my-s3-bucket?keyName=${date:now:yyyyMMdd-HHmmssSSS}-${exchangeId}
     camel.sink.maxPollDuration: 10000
     camel.component.aws-s3.configuration.autocloseBody: false
     camel.component.aws-s3.accessKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_access_key_id}
@@ -238,7 +238,7 @@ spec:
 
 Once you have updated the YAML and saved it in a file named `kafka-sink-connector.yaml`, this resource can be created via `kubectl apply -f kafka-sink-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
-**NOTE:** If you require objects in S3 to reside in a sub-folder of the bucket root, you can place a folder name prefix in the `keyName` query parameter of the `camel.sink.url` configuration option above. For example, `camel.sink.url: aws-s3://my-s3-bucket?keyName=myfoldername/${exchangeId}_${date:now:yyyyMMdd-HHmmss}`.
+**NOTE:** If you require objects in S3 to reside in a sub-folder of the bucket root, you can place a folder name prefix in the `keyName` query parameter of the `camel.sink.url` configuration option above. For example, `camel.sink.url: aws-s3://my-s3-bucket?keyName=myfoldername/${date:now:yyyyMMdd-HHmmssSSS}-${exchangeId}`.
 
 ## S3 to Kafka Source Connector
 
