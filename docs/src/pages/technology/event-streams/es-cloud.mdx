@@ -72,15 +72,51 @@ the number of byte consumed. The cost is per month.
 
 ## Getting started
 
-Once created you reach the getting started panel:
+Once created you reach the getting started panel. We can skip this first panel, as we will use a starter application later in this lab.
 
 ![](./images/es-top-page.png)
 
+The second option is to go to the manage console, where we can get access to the Topics management, and the sample app.
 
 ![](./images/es-manage.png)
 
+### Create topic 
 
-![](./images/es-credential.png)
+Let create a `telemetries` topic we will use to send and receive messages. If you need to revisit the topic concepts, you can read [this note](http://localhost:8000/technology/kafka-overview/#topics). When you go to the topics view you get the list of existing topics.
 
+![](./images/es-topics.png)
+
+From this list an administrator can delete an existing topic or create new one. 
+The 'create topic' button leads to a step by step process. The first panel is here to define the core configuration
+
+![](./images/es-create-topic-1.png)
+
+Some parameters to understand:
+
+* **Number of partitition**: the default value should be 1, and then considering increasing partitions 
+if the data can be partitioned without loosing semantic, and it is really aiming to increase the throughput. 
+* **Retention time**: This is how long messages are retained before they are deleted to free up space. If your messages are not read 
+by a consumer within this time, they will be missed. It is mapped to the [retention.ms](https://kafka.apache.org/documentation/#retention.ms) kafka topic configuration.
+
+The bottom part includes logs, cleanup and indexing.
+
+![](./images/es-create-topic-2.png)
+
+* The partition's log parameter section includes a [cleanup policy](https://kafka.apache.org/documentation/#cleanup.policy) that could be:
+    * delete: discard old segments when their retention time or size limit has been reached
+    * compact: retain at least the last known value for each message key within the log of data for a single topic partition. The topic looks like a table in DB.
+    * compact, delete: compact the log and then remove old records
+    * delete, compact: remove old records and then compact
+* [retention bytes](https://kafka.apache.org/documentation/#retention.bytes):  maximum size a partition (which consists of log segments) can grow to before old log segments will be discard to free up space.
+* [log segment size](https://kafka.apache.org/documentation/#segment.bytes) the maximum size in bytes of a single log file. 
+* [Cleanup segment time - segment.ms](https://kafka.apache.org/documentation/#segment.ms) controls the period of time after which Kafka will force the log to roll even
+ if the segment file isn't full to ensure that retention can delete or compact old data.
+* [Index - segment.index.bytes](https://kafka.apache.org/documentation.html#segment.index.bytes)controls the size of the index that maps offsets to file positions.
+
+The log cleaner policy is supported by a log cleaner, which are threads that recopy log segment files, removing records whose key appears in the head of the log.
+
+The number of replication is set to three per default with a min-in-synch replicas of two.
 
 ### ACL
+
+![](./images/es-credential.png)

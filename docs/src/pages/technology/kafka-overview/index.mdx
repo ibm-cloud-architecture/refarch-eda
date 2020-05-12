@@ -21,9 +21,9 @@ In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.
 [Kafka](https://Kafka.apache.org) is a distributed real time event streaming platform with the following key capabilities:
 
 * Publish and subscribe streams of records. Data are stored so consuming applications can pull the information they need, and keep track of what they have seen so far.
-* It can handle hundreds of read and write operations per second from many producers and consumers
+* It can handle hundreds of read and write operations per second from many producers and consumers.
 * Atomic broadcast, send a record once, every subscriber gets it once.
-* Store streams of data records on disk and replicate within the distributed cluster for fault-tolerance. Persist data for a given time period before delete.
+* Store streams of data records on disk and replicate them within the distributed cluster for fault-tolerance. Persist data for a given time period before delete.
 * Can grow elastically and transparently with no downtime.
 * Built on top of the ZooKeeper synchronization service to keep topic, partitions and metadata highly available.
 
@@ -32,7 +32,8 @@ In this article we are summarizing what Apache [**Kafka**](https://Kafka.apache.
 The typical use cases where **Kafka** helps are:
 
 * Centralize online data pipeline to decouple applications and microservices.
-* Pub/sub messaging for cloud native application inter microservices.
+* Expose data to any application to consume.
+* Pub/sub messaging for cloud native applications to improve communication inter microservices.
 * Aggregation of event coming from multiple producers.
 * Monitor distributed applications to produce centralized feed of operational data.
 * Logs collector from multiple services.
@@ -47,16 +48,17 @@ The diagram below presents Kafka's key components:
 
 ## Brokers
 
-* **Kafka** runs as a cluster of one or more **broker** servers that can, in theory, span multiple data centers. It is really possible if the network latency between data centers is very low, at the 10ms or better, as there are a lot of communication between kafka brokers and between kafka and zookeepers. So the advice is to avoid cross data centers deployment.  
+* **Kafka** runs as a cluster of **broker** servers that can, in theory, span multiple data centers. Each brokers manages data replication, topic/partition management, offset management and all the interesting delivery semantic.
+To cover multiple data centers within the same cluster, the network latency between data centers needs to be very low, at the 15ms or less, as there is a lot of communication between kafka brokers and between kafka brokers and zookeeper servers.
 * The **Kafka** cluster stores streams of records in **topics**. Topic is referenced by producer to send data to, and subscribed by consumers to get data. Data in topic is persisted to file systems for a retention time period (Defined at the topic level). The file system can be network based.
 
-In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated two times. In production, it is recommended to use at least five nodes to authorize planned failure and un-planned failure, and when doing replicas, use a replica factor equals to the number of brokers.
+In the figure above, the **Kafka** brokers are allocated on three servers, with data within the topic are replicated two times. In production, it is recommended to use at least five nodes to authorize planned failure and un-planned failure, and when doing replicas, use a replica factor at least equals to three.
 
 ## Topics
 
-Topics represent end points to put or get records to.
+Topics represent end points to publish and consume records.
 
-* Each record consists of a key, a value (the data payload as byte array), and a timestamp.
+* Each record consists of a key, a value (the data payload as byte array), a timestamp and some metadata.
 * Producers publish data records to topic and consumers subscribe to topics. When a record is produced without specifying a partition, a partition will be chosen using a hash of the key. If the record did not provide a timestamp, the producer will stamp the record with its current time (creation time or log append time). Producers hold a pool of buffers to keep records not yet transmitted to the server.
 * Kafka store log data in its `log.dir` and topic maps to subdirectories in this log directory.
 * **Kafka** uses topics with a pub/sub combined with queue model: it uses the concept of consumer group to divide the processing over a collection of consumer processes, running in parallel, and messages can be broadcasted to multiple groups.
@@ -73,7 +75,7 @@ Partitions are basically used to parallelize the event processing when a single 
 ![partitions](../images/topic-part-offset.png)
 
 * Each broker may have zero or more partitions per topic. When creating topic we specify the number of partition to use.
-* Kafka tolerates up to N-1 server failure without losing any messages. N is the replication factor for a given partition.
+* Kafka tolerates up to N-1 server failures without losing any messages. N is the replication factor for a given partition.
 * Each partition is a time ordered immutable sequence of records, that are persisted for a long time period. It is a log. Topic is a labelled log.
 * Consumers see messages in the order they are stored in the log.
 * Each partition is replicated across a configurable number of servers for fault tolerance. The number of partition will depend on characteristics like the number of consumers, the traffic pattern, etc... You can have 2000 partitions per broker.
@@ -81,12 +83,17 @@ Partitions are basically used to parallelize the event processing when a single 
 * When a consumer reads a topic, it actually reads data from all the partitions. As a consumer reads data from a partition, it advances its offset. To read an event the consumer needs to use the topic name, the partition number and the last offset to read from.
 * Brokers keep offset information in an hidden topic.
 * Partitions guarantee that data with the same keys will be sent to the same consumer and in order.
+* Partitions are saved to disk as append log. The older records are deleted after a given time period or if the size of log goes over a limit. 
+It is possible to compact the log. The log compaction means, the last known value for each message key is kept. Compacted Topics
+are used in Streams processing for stateful operator to keep aggregate or grouping by key. You can read more about [log compaction from the kafka doc](https://kafka.apache.org/documentation/#design_compactionbasics).
 
 ## Replication
 
-Each partition can be replicated across a number of server. The replication factor is captured by the number of brokers. Partitions have one leader and zero or more followers. The leader manages all the read and write requests for the partition. Leader is also responsible to track the "in sync" replicas. The followers replicate the leader content.
+Each partition can be replicated across a number of servers. The replication factor is captured by the number of brokers to be used for replication. To ensure high availability it should be set to at least a value of three.
+Partitions have one leader and zero or more followers. 
 
-If a leader fails, followers elect a new one. When a producer sends message, it can control how to get the response from the committed message: wait for all replicas to succeed, wait for one acknowledge, fire and forget. Consumers receive only committed messages.
+![](../images/topic-replication.png)
+The leader manages all the read and write requests for the partition. The followers replicate the leader content. We are addressing data replication in the high availability section below.
 
 ## Zookeeper
 
@@ -102,11 +109,10 @@ This is the way to group consumers so the processing of event is parallelized. T
 
 # High Availability
 
-As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication factor set to 3 for each topic, so no data should be lost. In production it is recommended to use 5 brokers cluster to ensure the quorum is always set.
+As a distributed cluster, kafka brokers ensure high availability to process new events. Topic has replication factor to support not loosing data in case of broker failure. You need at least 3 brokers to ensure availability and a replication factor set to 3 for each topic, so no data should be lost. 
+In production it is recommended to use 5 brokers cluster to ensure the quorum is always set, but replica factor can still be set to 3.
 
-The brokers need to run on separate physical machines.
-
-Usually replicas is done in-sync, and the configuration settings specify the number of replicas in-sync needed: for example, a replicas 3 can have a minimum in-sync of 2, to tolerate 1 out of sync replica (1 broker outage).
+The brokers need to run on separate physical machines, and when cluster extends over multiple availability zone, a rack awareness configuration can be defined.
 
 Partition enables data locality, elasticity, scalability, high performance, parallelism, and fault tolerance. Each partition is replicated at least 3 times and allocated in different brokers. One replicas is the **leader**. In the case of broker failure (broker 1 in figure below), one of the existing partition in the remaining running brokers will take the leader role (e.g. red partition in broker 3):
 
@@ -116,25 +122,65 @@ Partition enables data locality, elasticity, scalability, high performance, para
 
 The keys in the data record determine the partitioning of data in **Kafka**. The records with the same key will be in the same partition.
 
-As kafka is keeping its cluster states in [Apache Zookeeper](http://zookeeper.apache.org/), you also need to have at least a three node cluster for zookeeper. Writes to Zookeeper are only be performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds (< 15ms) anyway. Zookeepers and Brokers should have high availability communication via dual network, and each broker and node allocated on different racks and blades.
+As kafka is keeping its cluster states in [Apache Zookeeper](http://zookeeper.apache.org/), you also need to have at least a three node cluster for zookeeper. 
+Writes to Zookeeper are only be performed on changes to the membership of consumer groups or on changes to the Kafka cluster itself. 
+Assuming you are using the most recent kafka version (after 0.9), it is possible to have a unique zookeeper cluster for multiple 
+kafka clusters. But the latency between Kafka and zookeeper needs to be under few milliseconds (< 15ms) anyway. 
+Zookeepers and Brokers should have high availability communication via dual network, and each broker and node allocated on different racks and blades.
 
 ![Dual network](../images/ha-comp.png)
 
-Consumers and producers are using a list of bootstrap server names (also named advertiser.listeners) to contact the cluster. The list is used for cluster discovery, it does not need to keep the full set of server names or ip addresses. A Kafka cluster has exactly one broker that acts as the controller.
+Consumers and producers are using a list of bootstrap server names (also named advertiser.listeners) to contact the cluster. 
+The list is used for cluster discovery, it does not need to keep the full set of server names or ip addresses. 
+A Kafka cluster has exactly one broker that acts as the controller.
 
-Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low latency dual networks. With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property to assign kafka broker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from the product documentation).
+Per design Kafka aims to run within a single data center. But it is still recommended to use multiple racks connected with low latency dual networks. 
+With multiple racks you will have better fault tolerance, as one rack failure will impact only one broker. There is a configuration property
+ to assign kafka broker using rack awareness. (See [this configuration](https://kafka.apache.org/documentation/#brokerconfigs) from the product documentation).
 
-Always assess the latency requirements and consumers needs. Throughput is linked to the number of partitions within a topic and having more consumers running in parallel. Consumers and producers should better run on separate servers than the brokers nodes. Running in parallel, also means the order of event arrivals will be lost. Most of the time, consumers are processing events from a unique partition and Kafka record to partition assignment will guarantee that records with the same key hashcode will be in the same partition. So orders are preserved within a partition. But if consumer needs to read from multiple partitions then if ordered records is needed, the consumer needs to rebuild the order with some complex logic.
+As introduced on the topic section above, data are replicated between brokers. The following diagram illustrates the best case scenario where followers fetch data from 
+the partition leader, acknowledge the replications:
 
-For high availability assess any potential single point of failure, such as server, rack, network, power supply...
+![](../images/topic-replica-seq.png)
 
-The figure below illustrates a Kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes, with some event driven microservices deployed in separate worker nodes. Those microservices are consumers and producers of events from one to many topics.
+Usually replicas is done in-sync, and the configuration settings specify the number of replicas in-sync needed: for example, a replicas 3 can have a minimum in-sync of 2, 
+to tolerate 1 out of sync replica (1 broker outage).
 
-![kubernetes deployment](../images/k8s-deploy.png)
+The leader maintains a set of in-sync-replicas (ISR) brokers: all the nodes which are up-to-date with the leader’s log, and actively acknowledging new writes. 
+Every write goes through the leader and is propagated to every node in the In Sync Replica set, or ISR. 
 
-We recommend reading [this event stream article](https://ibm.github.io/event-streams/installing/planning/) for planning your kafka on Kubernetes installation.
+Followers consume messages from the leader just as a normal Kafka consumer would and apply them to their own log. 
+Having the followers pull from the leader has the nice property of allowing the follower to naturally batch together
+log entries they are applying to their log.
 
-The advantages of deploying Kafka on Kubernetes cluster is to facilitate the management of stateful sets, by scheduling both the persistence volume and broker pods in a clean rolling rehydration. Services add a logical name to access brokers for any deployed workload within the cluster. The virtual network also enables transparent TLS communication between components.
+Once all nodes in the ISR have acknowledged the request, the leader considers it committed, and can acknowledge to the client.
+
+A message is considered committed when all in-sync replicas for that partition have applied it to their log.
+
+If a leader fails, followers elect a new one. The leadership of partitions is dynamic and changes as servers come and go.
+Applications do not need to take specific actions to handle the change in the leadership of a partition. The Kafka client library automatically reconnects to the new leader, although you will see increased latency while the cluster settles.
+Any replica in the ISR is eligible to be elected leader.
+
+![](../images/topic-replica-fail.png)
+
+When a leader waits to get acknowledge before committing a message there will be more potential leaders. With (#failure + 1) replicas there is no data lost. 
+But there is a risk of having the single broker separated from the zookeeper cluster when network partition occurs. To tolerate f failures, both the majority
+ vote and the ISR approach will wait for the same number of replicas to acknowledge before committing a message.
+
+Having higher replicas number like 5, will duplicate 5 times the data (more disk used) and impact throughput as data is sent 1+4 times over the network.
+
+Another important design distinction is that Kafka does not require that crashed nodes recover with all their data intact. 
+Kafka protocol for allowing a replica to rejoin the ISR ensures that before rejoining, it must fully re-sync again even if 
+it lost unflushed data in its crash.
+
+When a producer sends message, it can control how to get the response from the committed message: wait for all replicas to succeed, wait for one acknowledge, fire and forget. 
+Consumers receive only committed messages.
+
+Always assess the latency requirements and consumers needs. Throughput is linked to the number of partitions within a topic and having more consumers running in parallel. 
+Consumers and producers should better run on separate servers than the brokers nodes. Running in parallel, also means the order of event arrivals will be lost. 
+Most of the time, consumers are processing events from a unique partition and Kafka record to partition assignment will guarantee that records with the same key hashcode will be in the same partition. So orders are preserved within a partition. But if consumer needs to read from multiple partitions then if ordered records is needed, the consumer needs to rebuild the order with some complex logic.
+
+For high availability assess any potential single point of failure, such as server, rack, network, power supply... We recommend reading [this event stream article](https://ibm.github.io/event-streams/installing/planning/) for planning your kafka on Kubernetes installation.
 
 For the consumers code update, the recreation of the consumer instance within the consumer group will trigger the partition rebalancing. This includes all the state of the aggregated data calculations that were persisted on disk. Until this process is finished real-time events are not processed. It is possible to limit this impact by setting the `group.initial.rebalance.delay.ms` to delay the rebalancing process one one instance of the consumer dies. Nevertheless the rebalancing will still occur when the updated consumer will rejoin the consumer group. When consumers are stream processing using Kafka streams, it is important to note that during the rollover the downstream processing will see a lag in event arrival: the time for the consumer to reread from the last committed offset. So if end to end timing is becoming important, we need to setup a standby consumer cluster (cluster B). This consumer group has different name, but does the same processing logic, and is consuming the same events from the same topic as the active consumer group cluster (cluster A). The difference is that they do not send events to the downstream topic until they are set up active. So to process the release cluster B is set active while cluster A is set inactive. The downstream will not be that much impacted.
 Finally to be exhaustive, the control of the segment size for the change log topic, may be considered to avoid having the stream processing doing a lot of computation to reload its state when it restarts.  
@@ -143,7 +189,17 @@ To add new broker, you can deploy the runtime to a new server / rack / blade, an
 
 ## High Availability in the context of Kubernetes deployment
 
-The combination of kafka with Kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, Kafka is a stateful platform and manages its own brokers, and replications across known servers. It knows the underlying infrastructure. In Kubernetes, nodes and pods may change dynamically. Clients need to be able to access each of the broker directly once they get the connection metadata. Having a service which will round robin across all brokers in the cluster will not work with Kafka.
+The combination of kafka with Kubernetes seems to be a sound approach, but it is not that easy to achieve. Kubernetes workloads prefer to be stateless, 
+Kafka is a stateful platform and manages its own brokers, and replications across known servers. It knows the underlying infrastructure. 
+In Kubernetes, nodes and pods may change dynamically. Clients need to be able to access each of the broker directly once they get the connection metadata. 
+Having a service which will round robin across all brokers in the cluster will not work with Kafka.
+
+The figure below illustrates a Kubernetes deployment, where zookeeper and kafka brokers are allocated to 3 worker nodes, with some event driven microservices deployed 
+in separate worker nodes. Those microservices are consumers and producers of events from one to many topics.
+
+![kubernetes deployment](../images/k8s-deploy.png)
+
+The advantages of deploying Kafka on Kubernetes cluster is to facilitate the management of stateful sets, by scheduling both the persistence volume and broker pods in a clean rolling rehydration. Services add a logical name to access brokers for any deployed workload within the cluster. The virtual network also enables transparent TLS communication between components.
 
 For any Kubernetes deployment real high availability is constrained by the application / workload deployed on it. The Kubernetes platform supports high availability by having at least the following configuration:
 
@@ -156,12 +212,15 @@ For any Kubernetes deployment real high availability is constrained by the appli
 
 Traditionally disaster recovery and high availability were always consider separated subjects. Now active/active deployment where workloads are deployed in different data centers, is becoming a common request.
 
-For **Kafka** context, the *Confluent* website presents an interesting article for [Kafka production deployment](https://docs.confluent.io/current/kafka/deployment.html). One of their recommendations is to avoid cluster that spans multiple data centers and specially long distance ones, because of the latency, and the chatty interface between zookeeper and kafka brokers.
+For sure, you need multiple Kafka Brokers, which will connect to the same ZooKeeper Ensemble running at least five nodes (you can tolerate the loss of one server during the planned maintenance of another server). 
+One Zookeeper server acts as a lead and the two others as stand-by.
 
-For sure, you need multiple Kafka Brokers, which will connect to the same ZooKeeper ensemble running at least five nodes (you can tolerate the loss of one server during the planned maintenance of another server). One Zookeeper server acts as a lead and the two others as stand-by.
-
-The diagram above illustrates a simple deployment where zookeeper servers and kafka brokers are running in pods, in different worker nodes. It is a viable solution to start deploying solution on top of kafka. When you have bigger cluster, it may be interesting to separate Zookeeper from **Kafka** nodes to limit the risk of failover, as zookeeper keeps state of the **Kafka** cluster topology and metadata. You will limit to have both the zookeeper leader and one kafka broker dying at the same time. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like:
-> **Kafka** pod should not run on same node as zookeeper pods.  
+The diagram above illustrates a simple deployment where zookeeper servers and kafka brokers are running in pods, in different worker nodes. 
+It is a viable solution to start deploying solution on top of kafka. When you have bigger cluster, it may be interesting to separate Zookeeper from **Kafka** nodes 
+to limit the risk of failover, as zookeeper keeps state of the **Kafka** cluster topology and metadata. You will limit to have both the zookeeper leader and 
+one kafka broker dying at the same time. We use Kubernetes [anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) 
+to ensure they are scheduled onto separate worker nodes that the ones used by zookeeper. It uses the labels on pods with a rule like:
+`**Kafka** pod should not run on same node as zookeeper pods`.  
 
 Here is an example of such spec:
 
@@ -185,7 +244,7 @@ spec:
 
 We recommend reading the ["running zookeeper in k8s tutorial"](https://kubernetes.io/docs/tutorials/stateful-application/zookeeper) for understanding such configuration.
 
-For optimum performance provision a **fast storage class** for persistence volume.
+For optimum performance, provision a **fast storage class** for persistence volume.
 
 **Kafka** uses the `log.dirs` property to configure the driver to persist logs. So you need to define multiple volumes/ drives to support `log.dirs`.
 

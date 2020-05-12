@@ -50,6 +50,8 @@
       path: /technology/kafka-producers-consumers/
     - title: Kafka Streams
       path: /technology/kafka-streams/
+    - title: Event Streams
+      path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
     - title: Kafka Mirror Maker
