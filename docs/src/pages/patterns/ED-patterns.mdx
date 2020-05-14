@@ -24,6 +24,11 @@ Adopting messaging (Pub/Sub) as a microservice communication backbone involves u
 
 How to migrate a monolytics application to microservice without doing a big bang, redeveloping the application from white page. Replacing and rewritting an existing application can be a huge investment. Rewritting a subset of business functions while running current application in parallel may be relevant and reduce risk and velocity of changes.
 
+The figure below illustrates a typical mainframe application, with external Java based user interface connected to the mainframe via iop/corba and with three
+ different applications to manage product, order and customer.
+
+![](../images/stangler.png)
+
 ### Solution
 
 The approach is to use a "strangler" interface to dispatch request to new or old features. Existing features to migrate are selected by trying to isolate sub components.
@@ -31,3 +36,16 @@ The approach is to use a "strangler" interface to dispatch request to new or old
 One of main challenge is to isolate data store and how the new microservices and the legacy application are accessing the shared data. Continuous data replication can be a solution to propagate write model to read model. Write model will most likely stays on the monolitic application, change data capture can be used, with event backbone to propagate change to read model.
 
 The facade needs to be scalable and not a single point of failure. It needs to support new APIs (RESTful) and old API (most likely SOAP).
+
+The following figure illustrates an implementation using event driven implementation with 
+data replication from the write model to the read model being on the mainframe.
+
+![](../images/strangler-2.png)
+
+## Transaction outbox
+
+See the documentation of the pattern in Chris Richardson's site / book: [Transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
+
+A service command typically needs to update the database and send messages/events. The approach is to use a outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone.
+
+![2](./images/outbox.png)

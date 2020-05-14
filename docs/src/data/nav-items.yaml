@@ -48,14 +48,16 @@
       path: /technology/kafka-overview/
     - title: Kafka Producers & Consumers
       path: /technology/kafka-producers-consumers/
+    - title: Kafka Streams
+      path: /technology/kafka-streams/
+    - title: IBM Event Streams
+      path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
     - title: Kafka Mirror Maker
       path: /technology/kafka-mirrormaker/
-    - title: Kafka Streams
-      path: /technology/kafka-streams/
-    - title: Serverless Event-driven
-      path: /technology/serverless-eda/
+    - title: Kafka Monitoring
+      path: /technology/kafka-monitoring/
 - title: Additional reading
   pages:
     - path: /additional-reading/
