@@ -22,13 +22,13 @@ We are proposing two environments:
 
 * One running a local, on-premise cluster using Kafka 2.4 open source packaging, like Strimzi vanilla Kafka or Red Hat AMQ Streams, and IBM Event Streams on Cloud.
 
-![Replication with mirror maker](images/replication-2.png)
+![Replication with mirror maker](./images/replication-2.png)
 
 In the figure above, Mirror Maker 2.0 is used to do bi-directional replication between topics defined in both cluster. The grey topic is replicated from right to left, and the Mirror Maker 2.0 source connector runs close to the target cluster, the left cluster. The light blue topic is replicated from left to right by the second Mirror Maker 2.0. Microservices on both data centers can consume messages from both topics.
 
 * One running Event streams on Openshift on-premise, and using Geo-replication to Event Streams on IBM cloud.
 
-![Replication with geo replication](images/replication-1.png)
+![Replication with geo replication](./images/replication-1.png)
 
 Then we want to address two main scenarios:
 
@@ -88,7 +88,7 @@ source.test
 
 The `source.test` topic is the replicated `test` topic from the source cluster.
 
-![](images/mm-k-connect.png)
+![Mirror Maker2 Configuration](./images/mm-k-connect.png)
 
 ## Active - Passive
 

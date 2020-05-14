@@ -51,7 +51,7 @@ When viewed across these wider event driven capabilities, an event log style tec
 
 ### Selecting the Event Backbone for the reference architecture
 
-![](images/evt-backbone.png)
+![](./images/evt-backbone.png)
 
 For the event-driven architecture, we defined the following characteristics to be essential for the *event backbone:*
 
@@ -128,7 +128,7 @@ However, as you look at the wider opportunities that being event driven offers, 
 With IOT devices and sensors you typically have a gateway providing the connectivity for the device, and a level of event enrichment and filtering. In terms of domain driven design you would see the device and gateway as being the technical domain and the event-driven reference architecture as providing the infrastructure for the applications in a business domain.
 In practice, the IOT gateway or platform provides the connectivity and is the point of filtering and consolidation of events so that only business-relevant events are passed up to the business domain. The gateway can also be the point where the technical event is enhanced to relate to something recognizable at the business level.  One example of this is to relate a device number or identifier in the event to something that the business recognizes.
 
-![hl-arch-iot](images/hl-arch-iot.png)
+![hl-arch-iot](./images/hl-arch-iot.png)
 
 ### Clickstream data
 
@@ -140,7 +140,7 @@ There are various "collectors" that enable collection of standard clickstream ev
 
 Within the Apache Open Source communities the [Divolte](https://divolte.io/) collector is an example of one of these collectors that directly publishes events to Kafka topics.
 
-![hl-arch-clickstream](images/hl-arch-clickstream.png)
+![hl-arch-clickstream](./images/hl-arch-clickstream.png)
 
 ### Event standards and schemas
 
@@ -149,7 +149,7 @@ With a lack of formal standards, a working group under the Cloud Native Computin
 
 ## Microservices
 
-![](images/evt-micro.png)
+![](./images/evt-micro.png)
 
 The event-driven reference architecture provides support for event-driven microservices - microservices which are connected through and communicate via the pub/sub communication protocol within an event backbone.
 
@@ -170,7 +170,7 @@ As before, the event backbone is the Pub/Sub communication provider and event lo
 
 ## Commands
 
-<InlineNotification kind="error">TODO elaborate</InlineNotification>
+<InlineNotification kind="warning">Content currently under review - Elaborate</InlineNotification>
 
 A command, is an instruction to do something. Typically, commands are directed to a particular consumer. The consumer runs the required command or process, and passes back a confirmation to the issuer stating that the command has been processed.
 

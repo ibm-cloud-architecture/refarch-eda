@@ -10,7 +10,7 @@ description: Event sourcing
 Most business applications are state based persistent where any update changes the previous state of business entities. The database keeps the last committed update. But some business application needs to **explain how it reaches its current state**. For that the application needs to keep history of business facts.
 Traditional domain oriented implementation builds a domain data model and map it to a RDBMS. As an example, in the simple `Order model` below, the database record will keep the last state of the order, the different addresses and the last ordered items in separate tables.
 
-![](images/evt-src-ex1.png)
+![](./images/evt-src-ex1.png)
 
 If you need to implement a query that looks at what happened to the order over a time period, you need to change the model and add historical records, basically building a log table.
 
@@ -20,7 +20,7 @@ Designing a service to manage the life cycle of this order will, most of the tim
 
 **Event sourcing** persists the state of a business entity, such an Order, as a sequence of state-changing events or "facts" ordered over time.
 
-![](images/evt-src.png)
+![](./images/evt-src.png)
 
 When the state of a system changes, an application issues a notification event of the state change. Any interested parties can become consumers of the event and take required actions.  The state-change event is immutable stored in an event log or event store in time order.  The event log becomes the principal source of truth. The system state can be recreated from a point in time by reprocessing the events. The history of state changes becomes an audit record for the business and is often a useful source of data for business analysts to gain insights into the business.
 
