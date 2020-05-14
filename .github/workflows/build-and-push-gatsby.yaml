@@ -7,12 +7,12 @@ on:
     #branches-ignore:
     #  - '**'
     paths:
-      #- 'docs/**'
-      - 'docs-gatsby/**'
+      - 'docs/**'
+      #- 'docs-gatsby/**'
       - '.github/workflows/build-and-push-gatsby.yaml'
 
 env:
-  WORKDIR: docs-gatsby
+  WORKDIR: docs
 
 jobs:
   build-docs:
