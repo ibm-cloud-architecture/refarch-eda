@@ -50,7 +50,7 @@
       path: /technology/kafka-producers-consumers/
     - title: Kafka Streams
       path: /technology/kafka-streams/
-    - title: Event Streams
+    - title: IBM Event Streams
       path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
@@ -58,6 +58,13 @@
       path: /technology/kafka-mirrormaker/
     - title: Kafka Monitoring
       path: /technology/kafka-monitoring/
+- title: Scenarios & Use Cases
+  pages:
+    - title: Overview
+      path: /scenarios/overview/
+    - title: Kafka Connect - S3
+      path: /scenarios/connect-s3/
+
 - title: Additional reading
   pages:
     - path: /additional-reading/
