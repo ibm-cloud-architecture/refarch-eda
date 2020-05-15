@@ -12,6 +12,8 @@ const links = {
   firstCol: [
     { linkText: 'Contributors:' },
     { href: 'https://www.linkedin.com/in/jeromeboyer/', linkText: 'Jerome Boyer' },
+    { href: 'https://www.linkedin.com/in/rosowski/', linkText: 'Rick Osowski' },
+    { href: 'https://www.linkedin.com/in/jesus-almaraz-hernandez/', linkText: 'Jesus Almaraz' },
     { href: 'https://www.linkedin.com/in/hemankita-perabathini/', linkText: 'Hemankita Perabathini' },
     { href: 'https://www.linkedin.com/in/darneleadhemar/', linkText: 'Darnèle Adhemar' },
   ],
