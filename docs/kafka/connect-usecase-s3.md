@@ -246,7 +246,7 @@ Similar to the [Kafka to S3 Sink Connector](#kafka-to-s3-sink-connector) scenari
 
 Review the YAML description for our `KafkaConnector` custom resource below, named `s3-source-connector`. Pay close attention to:
 - The `strimzi.io/cluster` label must match the deployed Kafka Connect cluster you previously deployed _(or else Strimzi will not connect the `KafkaConnector` to your `KafkaConnect` cluster)_
-- The `topics` parameter _(named `my-target-topic` here)_
+- The `topics` and `camel.source.kafka.topic` parameters _(named `my-target-topic` here)_
 - The S3 Bucket parameter of the `camel.sink.url` configuration option _(named `my-s3-bucket` here)_
 
 **Please note** that it is an explicit intention that the topics used in the [Kafka to S3 Sink Connector](#kafka-to-s3-sink-connector) configuration and the [S3 to Kafka Source Connector](#s3-to-kafka-source-connector) configuration are different. If these configurations were to use the **same Kafka topic** and the **same S3 Bucket**, we would create an infinite processing loop of the same information being endlessly recycled through the system. In our example deployments here, we are deploying to different topics but the same S3 Bucket.
@@ -265,6 +265,7 @@ spec:
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.camel.kafkaconnector.converters.S3ObjectConverter
     topics: my-target-topic
+    camel.source.kafka.topic: my-target-topic
     camel.source.url: aws-s3://my-s3-bucket?autocloseBody=false
     camel.source.maxPollDuration: 10000
     camel.component.aws-s3.accessKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials-secret.properties:aws_access_key_id}
