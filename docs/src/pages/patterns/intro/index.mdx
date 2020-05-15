@@ -9,21 +9,21 @@ In this set of articles, we are detailing some of the most import event-driven p
 
 Adopting messaging (Pub/Sub) as a microservice communication approach involves using at least the following patterns:
 
-* [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html), event driven 
-microservices are still microservices, so we need to find them, and the domain-driven subdomains is a good approach to identify and classify business 
+* [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html), event driven
+microservices are still microservices, so we need to find them, and the domain-driven subdomains is a good approach to identify and classify business
 function and therefore microservices. With the event storming method, aggregates help to find those subdomain of responsibility. (Source Chris Richardson - Microservices Patterns)
-* [Database per service](https://microservices.io/patterns/data/database-per-service.html) to enforce each service persists data privately and is accessible only via its API. 
+* [Database per service](https://microservices.io/patterns/data/database-per-service.html) to enforce each service persists data privately and is accessible only via its API.
 Services are loosely coupled limiting impact to other service when database schema changes. The database technology is selected from business requirements. (Source Chris Richardson - Microservices Patterns)
 The implementation of transactions that span multiple services is complex and enforce using the Saga pattern. Queries that goes over multiple entities is a challenge and CQRS represents an interesting solution.
-* [Strangler pattern](#strangler-pattern) is used to incrementally migrate an existing, monolytic application by replacing a set of features to a microservice but keep both running in parallel. 
-Applying a domain driven design approach, you may strangle the application using bounded context. But then as soon as this pattern is applied, you need to assess the co-existence between 
-existing bounded contexts and the new microservices. One of the challenges will be to define where the write and read operations occurs, and how data should be replicated between the contexts. 
+* [Strangler pattern](#strangler-pattern) is used to incrementally migrate an existing, monolytic application by replacing a set of features to a microservice but keep both running in parallel.
+Applying a domain driven design approach, you may strangle the application using bounded context. But then as soon as this pattern is applied, you need to assess the co-existence between
+existing bounded contexts and the new microservices. One of the challenges will be to define where the write and read operations occurs, and how data should be replicated between the contexts.
 This is where event driven architecture helps.
 * [Event sourcing](./event-sourcing/) persists, to an append log, the states of a business entity, such an Order, as a sequence of immutable state-changing events.
 * [Command Query Responsibility Segregation](./cqrs/) helps to separate queries from commands and help to address queries with cross-microservice boundary.
 * [Saga pattern:](./saga/) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
 * [Event reprocessing with dead letter](./dlq/): event driven microservice may have to call external service via synchronous call, we need to process failure to get response from those service, using event backbone.
-* [Transactional outbox](#transactional-outbox): A service command typically needs to update the database and send messages/events. 
+* [Transactional outbox](#transactional-outbox): A service command typically needs to update the database and send messages/events.
 The approach is to use a outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone. (Source Chris Richardson - Microservices Patterns)
 
 
@@ -35,7 +35,7 @@ How to migrate a monolytics application to microservice without doing a big bang
 
 The figure below illustrates a typical mainframe application, with external Java based user interface connected to the mainframe via iop/corba and with three different applications to manage product, order and customer.
 
-![1](../images/strangler.png)
+![1](./images/strangler.png)
 
 ### Solution
 
@@ -45,14 +45,14 @@ One of main challenge is to isolate data store and how the new microservices and
 
 The facade needs to be scalable and not a single point of failure. It needs to support new APIs (RESTful) and old API (most likely SOAP).
 
-The following figure illustrates an implementation using an event driven solution with data replication to synchronize back the write model to the read model being on the mainframe. 
+The following figure illustrates an implementation using an event driven solution with data replication to synchronize back the write model to the read model being on the mainframe.
 
-![2](../images/strangler-2.png)
+![2](./images/strangler-2.png)
 
 ## Transactional outbox
 
-See the documentation of the pattern in Chris Richardson's site / book: [Transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
+See the documentation of the pattern in Chris Richardson's site: [Transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
 
 A service command typically needs to update the database and send messages/events. The approach is to use a outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone.
 
-![3](../images/outbox.png)
+![3](./images/outbox.png)
