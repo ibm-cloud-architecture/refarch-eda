@@ -15,7 +15,7 @@ Introduced in 1987 [by Hector Garcaa-Molrna Kenneth Salem paper](https://www.cs.
 
 With microservice each transaction updates data within a single service, each subsequent steps may be triggered by previous completion. The following figure, based on [our solution implementation](https://ibm-cloud-architecture.github.io/refarch-kc), illustrates those concepts for an order transaction:
 
-![](images/saga-ctx.png)
+![1](../images/saga-ctx.png)
 
 When the order is created, the business process says, we need to allocate a "voyage", assign containers and update the list of containers to load on the ship. Those actions / commands are chained. The final state (in this schema, not in the reality, as the process has more steps) is the Order assigned state in the order microservice.
 
@@ -27,18 +27,18 @@ SAGA pattern supports two types of implementation: Choreography and Orchestratio
 
 With Choreography each service produces and listens to other service’s events and decides if an action should be taken or not.
 
-![](images/saga-choreo.png)
+![2](../images/saga-choreo.png)
 
 The first service executes a transaction to its own data store and then publishes an event ( OrderCreated event (1)) as fact about its business entity update. It maintains the business entity status, (order.status) to the `Pending` state until the saga is completed. This event is listened by one or more services which execute local transactions and publish new events (VoyageAllocated (3), ReeferAssigned (4), PaymentProcessed (5)).
 The distributed transaction ends when the last service executes its local transaction or when a service does not publish any events or the event published is not polled by any of the saga’s participants. For example, the Order microservice gets all the events from the other service and changed the Order state to be `Accepted`.
 
 In case of failure, the source microservice is keeping state and timer to monitor for the expected completion events.
 
-![](images/saga-choreo-fail.png)
+![3](../images/saga-choreo-fail.png)
 
 When a message from any service is missing, the source service, needs to trigger a compensation process:
 
-![](images/saga-compensation.png)
+![4](../images/saga-compensation.png)
 
 Rolling back a distributed transaction does not come for free. Normally you have to implement another operation/transaction to compensate for what has been done before. This will be a new event sent by the service responsible of the transaction integrity. In the order example, in the rare case where one of the service is not able to provide a positive response, no voyage found, or no Reefer container found, then the order needs to change to 'Uncompleted' status, and an event to the orders topic will claim the orderID is now uncompleted (OrderUncompleted event Step 1 above) . Any service that has something allocated for this orderId will 'unroll' their changes in their own data source  (Steps 2,3,4 below).
 
@@ -48,7 +48,7 @@ Also it is important to note, that if one of the service is taking time to answe
 
 With orchestration, one service is responsible to drive each participant on what to do and when.
 
-![](images/saga-ochestration.png)
+![5](../images/saga-ochestration.png)
 
 It uses the different topics to control the saga by issuing event commands to the different service. It uses the event backbone as a queue processing to support the asynchronous invocations. In this case the event should be exactly once delivered and idempotent. Each participant produces response in their context and to the order topic. The orchestration layer needs to keep a state machine and acts once all the expected responses are received.
 
