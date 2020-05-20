@@ -3,13 +3,17 @@ title: Event Streams on Cloud hands on lab
 description: Hands on lab to configure Event Streams on Cloud
 ---
 
-This documentation aims to be a introductory hands-on lab on IBM Event Streams with topic creation.
+This documentation aims to be a introductory hands-on lab on IBM Event Streams on Cloud with topic creation.
 
 ## Index
 
-* [Introduction](#pre-requisites)
-* [Create a Event Streams service instance](#create-a-event-streams-service-instance)
-* [Topics](#create-topic)
+<AnchorLinks>
+  <AnchorLink>Pre-requisites</AnchorLink>
+  <AnchorLink>Create a Event Streams service instance</AnchorLink>
+  <AnchorLink>Creating Event Streams instance with IBM Cloud CLI</AnchorLink>
+  <AnchorLink>Create topic</AnchorLink>
+  <AnchorLink>Create topic with CLI</AnchorLink>
+</AnchorLinks>
 
 ## Pre-requisites
 
@@ -23,10 +27,15 @@ Create a new account is free of charge.
 On your development workstation you will need:
 
 1. IBM Cloud CLI (<https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started>)
-1. IBM CLoud CLI Event Streams plugin (`$ ibmcloud plugin install event-streams`)
-1. Docker (<https://docs.docker.com/get-docker/>)
+1. IBM CLoud CLI Event Streams plugin (`ibmcloud plugin install event-streams`)
 
-### Account and resource groups
+### Login CLI
+
+```
+ibmcoud login
+```
+
+### Account and resource group concepts
 
 As any other IBM Cloud services, Event Streams can be part of a resources group, is controlled by user roles, and is accessible via API keys. 
 To get familiar with those concepts, it is recommended to study [the concepts of IBM account](https://cloud.ibm.com/docs/account?topic=account-overview) 
@@ -77,17 +86,14 @@ We will address fine-grained access control in [the security lab](security).
 As described in the [Kafka concept introduction](https://cloud.ibm.com/docs/EventStreams?topic=eventstreams-apache_kafka), topic may have partitions.
 Partitions are used to improve throughput as consumer can run in parallel, and producer can publish to multiple partitions.
 
-The plan set a limit on the total number of partitions. With enterprise plan it is possible to go over this limit by contacting IBM.
+The plan set a limit on the total number of partitions. 
 
-Each partition records, are persisted in the file system and so the maximum time records are kept on disks 
-is controlled by the maximum retention period and total size. Those Kafka configurations are described in the
+Each partition records, are persisted in the file system and so the maximum time records are kept on disks is controlled by the maximum retention period and total size. Those Kafka configurations are described in the
 [topic and broker documentation](https://kafka.apache.org/documentation/#topicconfigs). 
 
-This first page has also a price estimator. The two important concepts used for pricing are the number of 
-partition instances and the number of GB consumed: each consumer reading from a topic/partition will increase
-the number of byte consumed. The cost is per month.
+Fro the Standard plan, the first page has also a price estimator. The two important concepts used for pricing are the number of  partition instances and the number of GB consumed: each consumer reading from a topic/partition will increase the number of byte consumed. The cost is per month.
 
-### Using IBM Cloud CLI
+### Creating Event Streams instance with IBM Cloud CLI
 
 1. Go to IBM Cloud and click on the user avatar on the top right corner. Then, click on _Log in to CLI and API_ option:
 
@@ -105,9 +111,7 @@ the number of byte consumed. The cost is per month.
 	Authenticating...
 	OK
 
-	Targeted account bill's Account (b63...) <-> 195...
-
-
+	Targeted account bill s Account (b63...) <-> 195...
 	Select a region (or press enter to skip):
 	1. au-syd
 	2. in-che
@@ -122,18 +126,17 @@ the number of byte consumed. The cost is per month.
 	Enter a number> 6
 	Targeted region eu-de
 
-
 	API endpoint:      https://cloud.ibm.com
 	Region:            eu-de
 	User:              A<>
-	Account:           Bill's Account (b63...) <-> 195...
-	Resource group:    No resource group targeted, use 'ibmcloud target -g RESOURCE_GROUP'
+	Account:           Bill s Account (b63...) <-> 195...
+	Resource group:    No resource group targeted, use ibmcloud target -g RESOURCE_GROUP
 	CF API endpoint:
 	Org:
 	Space:
 	```
 
-1. List your services with `$ ibmcloud resource service-instances` and make sure your IBM Event Streams instance is listed:
+1. List your services with `ibmcloud resource service-instances` and make sure your IBM Event Streams instance is listed:
 
 	```shell
 	$ ibmcloud resource service-instances
@@ -180,7 +183,7 @@ the number of byte consumed. The cost is per month.
 	```
 	Mind the `\` character in your IBM Event Streams instance.
 
-1. Initialize your IBM Event Streams plugin for the IBM Cloud CLI with `$ ibmcloud es init`:
+1. Initialize your IBM Event Streams plugin for the IBM Cloud CLI with `ibmcloud es init`:
 
 	```shell
 	$ ibmcloud es init
@@ -241,6 +244,26 @@ the number of byte consumed. The cost is per month.
 	2    kafka-2.mh-tcqsppdpzlrkdmkbgmgl-4c201a12d......22e361c6f175-0000.eu-de.containers.appdomain.cloud   9093   fra04
 	No cluster-wide dynamic configurations found.
 	```
+1. Looking at broker details: `ibmcloud es broker  0`:
+
+	```shell
+	ibmcloud es broker  0
+		Details for broker
+		ID   Host                                                                        Port   Rack   
+		0    broker-0-t19zgvnykgdqy1zl.kafka.svc02.us-south.eventstreams.cloud.ibm.com   9093   dal10   
+
+		Details for broker configuration
+		Name                   Value                                                                                            Sensitive?   
+		broker.id              0                                                                                                false   
+		broker.rack            dal10                                                                                            false   
+		advertised.listeners   SASL_EXTERNAL://broker-0-t19zgvnykgdqy1zl.kafka.svc02.us-south.eventstreams.cloud.ibm.com:9093   false   
+		OK
+
+	```
+
+1. Get detail view of a broker configuration: `ibmcloud es broker-config  0`
+
+We will see other CLI commands in future labs.
 
 ### Coming back another time
 
@@ -288,28 +311,32 @@ From this list an administrator can delete an existing topic or create new one.
 
 Some parameters to understand:
 
-* **Number of partititions**: the default value should be 1. If the data can be partitioned without loosing semantic, you can increase the number of partitions.
+* **Number of partitions**: the default value should be 1. If the data can be partitioned without loosing semantic, you can increase the number of partitions.
 * **Retention time**: This is how long messages are retained before they are deleted to free up space. If your messages are not read 
 by a consumer within this time, they will be missed. It is mapped to the [retention.ms](https://kafka.apache.org/documentation/#retention.ms) kafka topic configuration.
 
 The bottom part of the configuration page, includes _logs, cleanup_ and _indexing_.
 
-![](./images/es-create-topic-2.png)
+![](./images/es-create-topic-2.png =200x)
 
 * The partition's log parameter section includes a [cleanup policy](https://kafka.apache.org/documentation/#cleanup.policy) that could be:
     * delete: discard old segments when their retention time or size limit has been reached
     * compact: retain at least the last known value for each message key within the log of data for a single topic partition. The topic looks like a table in DB.
-    * compact, delete: compact the log and then remove old records
-    * delete, compact: remove old records and then compact
-* [retention bytes](https://kafka.apache.org/documentation/#retention.bytes):  maximum size a partition (which consists of log segments) can grow to before old log segments will be discard to free up space.
-* [log segment size](https://kafka.apache.org/documentation/#segment.bytes) the maximum size in bytes of a single log file. 
-* [Cleanup segment time - segment.ms](https://kafka.apache.org/documentation/#segment.ms) controls the period of time after which Kafka will force the log to roll even
- if the segment file isn't full to ensure that retention can delete or compact old data.
+    * compact, delete: compact the log and remove old records
+
+* [retention bytes](https://kafka.apache.org/documentation/#retention.bytes): represents the maximum size a partition (which consists of log segments) can grow to, before old log segments will be discarded to free up space.
+* [log segment size](https://kafka.apache.org/documentation/#segment.bytes) is the maximum size in bytes of a single log file. 
+* [Cleanup segment time - segment.ms](https://kafka.apache.org/documentation/#segment.ms) controls the period of time after which Kafka will force the log to roll, even if the segment file isn't full, this is to ensure that retention can delete or compact old data.
 * [Index - segment.index.bytes](https://kafka.apache.org/documentation.html#segment.index.bytes)controls the size of the index that maps offsets to file positions.
 
 The log cleaner policy is supported by a log cleaner, which are threads that recopy log segment files, removing records whose key appears in the head of the log.
 
-The number of replication is set to three per default with a min-in-synch replicas of two.
+The number of replications is set to three with a `min-in-sync` replicas of two.
+
+<InlineNotification kind="info">A message is considered committed when all in sync replicas for that partition have applied it to their log. The leader maintains a set of in-sync-replicas: all the nodes which are up-to-date with the leader’s log, and actively acknowledging new writes. Every write goes through the leader and is propagated to every node in the In Sync Replica set, or ISR. 
+</InlineNotification>
+
+![142](./images/isr.png)
 
 1. We can now see our new topic:
 
@@ -323,7 +350,7 @@ The number of replication is set to three per default with a min-in-synch replic
 
 	![16-1](./images/7.png)
 
-### Topic management with CLI
+### Create topic with CLI 
 
 1. List your topics with `$ ibmcloud es topics`:
 
@@ -332,7 +359,7 @@ The number of replication is set to three per default with a min-in-synch replic
 	OK
 	No topics found.
 	```
-1. Create a topic:
+1. Create a topic: (Default 1 partition - 3 replicas)
 
 	```shell
 	$ ibmcloud es topic-create --name demo-topic
@@ -379,9 +406,7 @@ In the command below, we want to delete record on a partition 0 offset 5 and par
 	$ ibmcloud es topic-delete-records --name demo-topic --partition-offset 1:0;0:5 --force
 	```
 
-1. Add partitions to an existing topic
-
-By setting the new target number of partition: 
+1. Add partitions to an existing topic, by setting the new target number of partition: 
 
 	```shell
 	$ ibmcloud es topic-partition-set --name demo-topic --partitions 30
