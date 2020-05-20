@@ -50,11 +50,7 @@
       path: /technology/kafka-producers-consumers/
     - title: Kafka Streams
       path: /technology/kafka-streams/
-<<<<<<< HEAD
-    - title: Event Streams Specifics
-=======
     - title: IBM Event Streams
->>>>>>> 78ea85ece6ceccabfc98960c0ed08ffce77c2911
       path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
