@@ -12,6 +12,7 @@ Traditional domain oriented implementation builds a domain data model and map it
 
 ![1](./images/evt-src-ex1.png)
 
+
 If you need to implement a query that looks at what happened to the order over a time period, you need to change the model and add historical records, basically building a log table.
 
 Designing a service to manage the life cycle of this order will, most of the time, add a "delete operation" to remove data.  For legal reason, most businesses do not remove data. As an example, a business ledger has to include new record(s) to compensate a previous transaction. There is no erasing of previously logged transactions. It is always possible to understand what was done in the past. Most business application needs to keep this capability.
@@ -38,7 +39,7 @@ More data can be added to help with diagnosis and audit, but the core functional
 
 With a central event logs, as provides by Kafka, producers append events to the log, and consumers read them from an **offset** (a sequence number).
 
-![3](./images/evt-sourcing.png)
+![4](./images/evt-sourcing.png)
 
 To get the final state of an entity, the consumer needs to replay all the events, which means replaying the changes to the state from the last committed offset or from the last snapshot or the origin of "time".
 
