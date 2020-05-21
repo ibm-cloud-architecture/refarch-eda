@@ -9,6 +9,7 @@ description: Apache Kafka to AWS S3 object storage Source & Sink Connector useca
   <AnchorLink>Kafka Connect Cluster</AnchorLink>
   <AnchorLink>Kafka to S3 Sink Connector</AnchorLink>
   <AnchorLink>S3 to Kafka Source Connector</AnchorLink>
+  <AnchorLink>Troubleshooting</AnchorLink>
   <AnchorLink>Next steps</AnchorLink>
   <AnchorLink>References</AnchorLink>
 </AnchorLinks>
@@ -279,6 +280,21 @@ spec:
 Once you have updated the YAML and saved it in a file named `kafka-source-connector.yaml`, this resource can be created via `kubectl apply -f kafka-source-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
 **NOTE:** If you require the connector to only read objects from a subdirecotry of the S3 bucket root, you can set the `camel.component.aws-s3.configuration.prefix` configuration option with the value of the subdirectory name. For example, `camel.component.aws-s3.configuration.prefix: myfoldername` .
+
+## Troubleshooting
+
+* The log output from the Kafka Connector instances will be available in the KafkaConnectS2I pods, named in the pattern of `{connect-cluster-name}-connect-{latest-build-id}-{random-suffix}`. This pattern will be referred to as `{connect-pod}` throughout the rest of the **Troubleshooting** section.
+
+
+* To increase the logging output of the deployed connector instances:
+  - Follow the steps for **"Create ConfigMap for log4j configuration"** in [Kafka Connect Cluster](#kafka-connect-cluster) above
+  - Update the `log4j.properties` ConfigMap to include the line `log4j.logger.org.apache.camel.kafkaconnector=DEBUG`
+  - Reapply the YAML configuration of the KafkaConnectS2I cluster
+
+
+* To check the deployment status of applied Kafka Connect configuration via Kafka Connect's REST API, run the following commands:
+  - `oc exec {connect-pod} bash -- -c "curl --silent http://localhost:8083/connectors/"`
+  - `oc exec {connect-pod} bash -- -c "curl --silent http://localhost:8083/connectors/{deployed-connector-name}/status"`
 
 ## Next steps
 
