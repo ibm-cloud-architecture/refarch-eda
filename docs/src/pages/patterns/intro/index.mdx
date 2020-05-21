@@ -9,9 +9,8 @@ In this set of articles, we will detail some of the most import event-driven pat
 
 Adopting messaging (Pub/Sub) as a microservice communication approach involves using, at least, the following patterns:
 
-* [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html): event driven
-microservices are still microservices, so we need to find them, and the domain-driven subdomains is a good approach to identify and classify business
-function and therefore microservices. With the event storming method, aggregates help to find those subdomains of responsibility. (Source Chris Richardson - Microservices Patterns)
+* [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html): The domain-driven design approach is a useful approach to identify and classify business
+functions and the corresponding microservices that would be associated with them. With the event storming method, aggregates help to find those subdomains of responsibility. (Source Chris Richardson - Microservices Patterns)
 * [Database per service](https://microservices.io/patterns/data/database-per-service.html): to enforce each service persists data privately and is accessible only via its API.
 Services are loosely coupled limiting impact to other service when database schema changes. The database technology is selected from business requirements. (Source Chris Richardson - Microservices Patterns)
 The implementation of transactions that span multiple services is complex and enforce using the Saga pattern. Queries that goes over multiple entities is a challenge and CQRS represents an interesting solution.
