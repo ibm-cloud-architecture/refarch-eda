@@ -288,15 +288,13 @@ From the Dashboard we can access the _Topics_ and _Consumer groups_ panels.
 
 ![](./images/es-manage.png)
 
-## Create topic 
+## Create topic
 
 In this section we are going to see how to create, list and delete topics both using the User Interface and then the IBM Event Streams CLI.
-
 
 1. Open the IBM Event Streams user interface (go into your IBM Event Streams service within your IBM Cloud portal and click on the launch dashboard button). Once there, click on the _Topics_ tab from the top menu:
 
 	![12-0](images/7.png)
-
 
 Let create a `demo-topic-ui` topic. If you need to revisit the topic concepts, you can read [this note](http://localhost:8000/technology/kafka-overview/#topics). When you go to the topics view you get the list of existing topics.
 
@@ -317,7 +315,7 @@ by a consumer within this time, they will be missed. It is mapped to the [retent
 
 The bottom part of the configuration page, includes _logs, cleanup_ and _indexing_.
 
-![](./images/es-create-topic-2.png =200x)
+![](./images/es-create-topic-2.png)
 
 * The partition's log parameter section includes a [cleanup policy](https://kafka.apache.org/documentation/#cleanup.policy) that could be:
     * delete: discard old segments when their retention time or size limit has been reached
@@ -350,7 +348,7 @@ The number of replications is set to three with a `min-in-sync` replicas of two.
 
 	![16-1](./images/7.png)
 
-### Create topic with CLI 
+### Create topic with CLI
 
 1. List your topics with `$ ibmcloud es topics`:
 
@@ -399,8 +397,7 @@ The number of replications is set to three with a `min-in-sync` replicas of two.
 	OK
 	```
 
-1. Delete records in a topic
-In the command below, we want to delete record on a partition 0 offset 5 and partition 1 from offset 0: 
+1. Delete records in a topic (in the command below, we want to delete record on a partition 0 offset 5 and partition 1 from offset 0):
 
 	```shell
 	$ ibmcloud es topic-delete-records --name demo-topic --partition-offset 1:0;0:5 --force
