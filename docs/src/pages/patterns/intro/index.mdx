@@ -5,13 +5,13 @@ description: Understanding event driven microservice patterns
 
 # Introduction
 
-In this set of articles, we are detailing some of the most import event-driven patterns to be used during your event-driven microservice implementation.
+In this set of articles, we will detail some of the most import event-driven patterns that can be utilised during your event-driven microservice implementation.
 
-Adopting messaging (Pub/Sub) as a microservice communication approach involves using at least the following patterns:
+Adopting messaging (Pub/Sub) as a microservice communication approach involves using, at least, the following patterns:
 
 * [Decompose by subdomain](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html), event driven
 microservices are still microservices, so we need to find them, and the domain-driven subdomains is a good approach to identify and classify business
-function and therefore microservices. With the event storming method, aggregates help to find those subdomain of responsibility. (Source Chris Richardson - Microservices Patterns)
+function and therefore microservices. With the event storming method, aggregates help to find those subdomains of responsibility. (Source Chris Richardson - Microservices Patterns)
 * [Database per service](https://microservices.io/patterns/data/database-per-service.html) to enforce each service persists data privately and is accessible only via its API.
 Services are loosely coupled limiting impact to other service when database schema changes. The database technology is selected from business requirements. (Source Chris Richardson - Microservices Patterns)
 The implementation of transactions that span multiple services is complex and enforce using the Saga pattern. Queries that goes over multiple entities is a challenge and CQRS represents an interesting solution.
@@ -21,8 +21,8 @@ existing bounded contexts and the new microservices. One of the challenges will 
 This is where event driven architecture helps.
 * [Event sourcing](./event-sourcing/) persists, to an append log, the states of a business entity, such an Order, as a sequence of immutable state-changing events.
 * [Command Query Responsibility Segregation](./cqrs/) helps to separate queries from commands and help to address queries with cross-microservice boundary.
-* [Saga pattern:](./saga/) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice interested in other business entities, subscribe to those events and it can update its own states and business entities when receiving such events. Business entity keys needs to be unique, immutable.
-* [Event reprocessing with dead letter](./dlq/): event driven microservice may have to call external service via synchronous call, we need to process failure to get response from those service, using event backbone.
+* [Saga pattern:](./saga/) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice, interested in other business entities, subscribes to those events and it can update its own state and business entities on receipt of these events. Business entity keys need to be unique and immutable.
+* [Event reprocessing with dead letter](./dlq/): event driven microservices may have to call external services via a synchronous call. We need to process failure in order to get response from those services using event backbone.
 * [Transactional outbox](#transactional-outbox): A service command typically needs to update the database and send messages/events. 
 The approach is to use an outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone. (Source Chris Richardson - Microservices Patterns)
 
