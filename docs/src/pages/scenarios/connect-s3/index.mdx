@@ -9,6 +9,7 @@ description: Apache Kafka to AWS S3 object storage Source & Sink Connector useca
   <AnchorLink>Kafka Connect Cluster</AnchorLink>
   <AnchorLink>Kafka to S3 Sink Connector</AnchorLink>
   <AnchorLink>S3 to Kafka Source Connector</AnchorLink>
+  <AnchorLink>Troubleshooting</AnchorLink>
   <AnchorLink>Next steps</AnchorLink>
   <AnchorLink>References</AnchorLink>
 </AnchorLinks>
@@ -185,10 +186,16 @@ Save the YAML above into a file named `kafka-connect.yaml`. If you created the C
 
 The next step is to build the Camel Kafka Connector binaries so that they can be loaded into the just-deployed Kafka Connect cluster's container images.
 
-1. Clone the repository https://github.com/osowski/camel-kafka-connector to your local machine.
-2. Check out the `camel-kafka-connector-0.1.0-branch` via `git checkout camel-kafka-connector-0.1.0-branch`.
-3. From the root directory of the repository, build the components using the `mvn clean package` command.
+1. Clone the repository https://github.com/osowski/camel-kafka-connector to your local machine:
+   - `git clone https://github.com/osowski/camel-kafka-connector.git`
+2. Check out the `camel-kafka-connector-0.1.0-branch`:
+   - `git checkout camel-kafka-connector-0.1.0-branch`
+3. From the root directory of the repository, build the project components:
+   - `mvn clean package`
 4. Go get a coffee and take a walk... as this build will take around 30 minutes on a normal developer workstation.
+   - To reduce the overall build scope of the project, you can comment out the undesired modules from the `<modules>` element of the `connectors/pom.xml` using `<!-- -->` notation.
+5. Copy the generated S3 artifacts to the core package build artifacts:
+   - `cp connectors/camel-aws-s3-kafka-connector/target/camel-aws-s3-kafka-connector-0.1.0.jar core/target/camel-kafka-connector-0.1.0-package/share/java/camel-kafka-connector/`
 
 Some items to note:
 - The repository used here (https://github.com/osowski/camel-kafka-connector) is a fork of the official repository (https://github.com/apache/camel-kafka-connector) with a minor update applied to allow for dynamic endpoints to be specified via configuration, which is critical for our [Kafka to S3 Sink Connector](#kafka-to-s3-sink-connector) scenario.
@@ -279,6 +286,21 @@ spec:
 Once you have updated the YAML and saved it in a file named `kafka-source-connector.yaml`, this resource can be created via `kubectl apply -f kafka-source-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
 **NOTE:** If you require the connector to only read objects from a subdirecotry of the S3 bucket root, you can set the `camel.component.aws-s3.configuration.prefix` configuration option with the value of the subdirectory name. For example, `camel.component.aws-s3.configuration.prefix: myfoldername` .
+
+## Troubleshooting
+
+* The log output from the Kafka Connector instances will be available in the KafkaConnectS2I pods, named in the pattern of `{connect-cluster-name}-connect-{latest-build-id}-{random-suffix}`. This pattern will be referred to as `{connect-pod}` throughout the rest of the **Troubleshooting** section.
+
+
+* To increase the logging output of the deployed connector instances:
+  - Follow the steps for **"Create ConfigMap for log4j configuration"** in [Kafka Connect Cluster](#kafka-connect-cluster) above
+  - Update the `log4j.properties` ConfigMap to include the line `log4j.logger.org.apache.camel.kafkaconnector=DEBUG`
+  - Reapply the YAML configuration of the KafkaConnectS2I cluster
+
+
+* To check the deployment status of applied Kafka Connect configuration via Kafka Connect's REST API, run the following commands:
+  - `oc exec {connect-pod} bash -- -c "curl --silent http://localhost:8083/connectors/"`
+  - `oc exec {connect-pod} bash -- -c "curl --silent http://localhost:8083/connectors/{deployed-connector-name}/status"`
 
 ## Next steps
 
