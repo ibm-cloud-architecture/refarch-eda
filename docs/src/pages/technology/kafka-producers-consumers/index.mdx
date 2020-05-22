@@ -157,21 +157,21 @@ Consumers belong to **consumer groups**. You specify the group name as part of t
   properties.put(ConsumerConfig.GROUP_ID_CONFIG,  groupid);
 ```
 
-Consumer groups are grouping consumers to cooperate to consume messages from one or more topic and topic partition. Consumers can run in separate hosts and separate processes. The figure below represents 2 consumer processes belonging to one consumer group. Consumer 1 is getting data from 2 partitions, while consumer 2 is getting from one partition.
+Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Consumers can run in separate hosts and separate processes. The figure below represents 2 consumer processes belonging to one consumer group. Consumer 1 is getting data from 2 partitions, while consumer 2 is getting from one partition.
 
 ![consumer group](../images/consumer-group.png)
 
 Organized in cluster the coordinator servers are responsible for assigning partitions to the consumers in the group. There is always at least one consumer per partition. If a topic has multiple partitions and there is only one consumer in the consumer group, it will get all the messages from all the partitions.
 
-Membership in a consumer group is maintained dynamically. When a consumer fails, the partitions assigned to it will be reassigned to other consumers in the same group. When a new consumer joins the group, partitions will be moved from existing consumers to the new one. Group rebalancing is also used when new partitions are added to one of the subscribed topics. The group will automatically detect the new partitions through periodic metadata refreshes and assign them to members of the group.
+Membership in a consumer group is maintained dynamically. When a consumer fails, the partitions assigned to it will be reassigned to another consumer in the same group. When a new consumer joins the group, partitions will be moved from existing consumers to the new one. Group rebalancing is also used when new partitions are added to one of the subscribed topics. The group will automatically detect the new partitions through periodic metadata refreshes and assign them to members of the group.
 
 ![](../images/consumer-groups.png)
 
 Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/24/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) which the API documentation is a must read.
 
-In it interesting to note that:
+It is interesting to note that:
 
-* To support a queue processing like other integration messaging systems are doing, you need to have all the consumers assigned to a single consumer group, so that each record delivery would be balanced over the group like with a queue.
+* To support the same semantic of a queue processing like other integration messaging systems, you need to have all the consumers assigned to a single consumer group, so that each record delivery would be balanced over the group like with a queue.
 * To support pub/sub like other messaging systems, each consumer would have its own consumer group, and subscribes to all the records published to the topic.
 
 The implementation is simple for a single thread consumer, and the code structure looks like:
@@ -201,7 +201,14 @@ Also, a consumer can subscribe to multiple topics. The brokers are doing rebalan
 
 ## Offset management
 
-Recall that offset is just a numeric identifier of a consumer position of the last record read within a partition. Consumers periodically need to commit the offsets of messages they have received to show they have processed the messages and in case of failure from where they should reconnect. It is possible to commit by calling API or by setting some properties at the consumer creation level to enable autocommit offset.
+Recall that offset is just a numeric identifier of a consumer position of the last record read within a partition. Consumers periodically need to commit the offsets they have received, to present a recovery point in case of failure. 
+Consumers do a read commit for the last processed record: 
+
+![of-1](../event-streams/images/offsets.png)
+
+When a consumer starts and is assigned a partition to consume, it will start at its group's committed offset or latest or ealiest as [auto.offset.reset](https://kafka.apache.org/documentation/#auto.offset.reset) (When there is a committed offset, the auto.offset.reset property is not used).
+
+It is possible to commit by calling API or by setting some properties at the consumer creation level to enable autocommit offset.
 
 When doing manual offset commit, there are two types of approaches:
 
@@ -210,7 +217,11 @@ When doing manual offset commit, there are two types of approaches:
 
 As soon as you are coding manual commit, it is strongly recommended to implement the ConsumerRebalanceListener interface to be able to do the state modifications when the topic is rebalanced.
 
-When dealing with heavy load storing offset in zookeeper is non advisable. It is even, now recognized as a bad practice. To manage offset use the new consumer API, and for example commits offset synchronously when a specified number of events are read from the topic and the persistence to the back end succeed.
+If a consumer fails after processing a message but before committing its offset, the committed offset information will not reflect the processing of the message. 
+
+![of-2](../event-streams/images/offsets-2.png)
+
+This means that the message will be processed again by the next consumer in that group to be assigned the partition.
 
 Assess if it is acceptable to loose messages from topic.  If so, when a consumer restarts it will start consuming the topic from the end of the queue.
 
@@ -218,11 +229,30 @@ As storing a message to an external system and storing the offsets are two separ
 
 As presented in the producer coding practice, using transaction to support "exactly-once", also means the consumers should read committed data only. This can be achieved by setting the `isolation.level=read_committed` in the consumer's configuration. The last offset will be the first message in the partition belonging to an open not yet committed transaction. This offset is known as the 'Last Stable Offset'(LSO).
 
+Finally in the case where consumers are set to auto commit, it means the offset if committed at the poll() level and if the service crashed while processing of this record as: 
+
+![of-3](../event-streams/images/offsets-3.png)
+
+then the record (partition 0 - offset 4) will never be processed.
+
+## Consumer lag
+
+The consumer lag for a partition is the difference between the offset of the most recently published message and the consumer's committed offset.
+
+If the lag starts to grow, it means the consumer is not able to keep up with the producer's pace.
+
+The risk, is that slow consumer may fall behind, and when partition management may remove old log segments, leading the consumer to jump forward to continnue on the next log segment. Consumer may have lost messages.
+
+![](../event-streams/images/offsets-4.png)
+
+You can use the kafka-consumer-groups tool to see the consumer lag, or the UI:
+
+
 ## Repositories with consumer code
 
 * Within the Reefer ontainer shipment solution we have a order events consumer: [order event agent](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/master/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderEventAgent.java)
 * [Nodejs kafka consumers and producers](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/voyages-ms/server/utils/kafka.js)
-* [A lot of python consumer in the integration tests, with or without Avro schema](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/itg-tests/kafka)
+* [A lot of python consumer codes in the integration tests, with or without Avro schema](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/itg-tests/kafka)
 
 ## Kafka useful Consumer APIs
 

@@ -11,6 +11,8 @@ This documentation aims to be a introductory hands-on lab for the security featu
   <AnchorLink>Pre-requisites</AnchorLink>
   <AnchorLink>Add access group to the account using IAM</AnchorLink>
   <AnchorLink>Limiting topic access to group of users</AnchorLink>
+  <AnchorLink>Authentication with API Keys</AnchorLink>
+  <AnchorLink>Control application access</AnchorLink>
 </AnchorLinks>
 
 ## IAM Concept Summary
@@ -138,7 +140,7 @@ To do so you need to:
 	![T4](./images/iam-es-top-4.png)
 
 
-## API Keys
+## Authentication with API Keys
 
 To let an application to remotely authenticate itself, Event Streams uses API keys. 
 The goal of this section, is to create API keys so applications, tools, scripts can connect to the newly created IBM Event Streams instance. You will create three keys for the different roles: creation of topics, read access only and read/write access.
@@ -160,6 +162,17 @@ The goal of this section, is to create API keys so applications, tools, scripts 
 	![11](images/11.png)
 
 Using the same process you can add a credential for Writer Role. For the Reader role you will use the CLI in the next section. 
+
+API Key is used for the `sasl.jaas.config` conncection properties in Kafka consumer or producer: 
+
+```properties
+security.protocol=SASL_SSL
+ssl.protocol=TLSv1.2
+ssl.enabled.protocols=TLSv1.2
+ssl.endpoint.identification.algorithm=HTTPS
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="am....5";
+```
 
 ### Adding Keys with CLI
 
@@ -218,19 +231,19 @@ You could create the service credentials using the CLI, so you will add _Reader_
 				user:                     token      
 	```
 
-## Control applications access
+## Control application access
 
 The last step of this lab is to add a specific IAM group for applications so you can link any future applications to a group so that producer and consumer codes using the Writer role API key as defined previously
-can read and write to specific topic as defined by a access policy.
+can read and write to specific topic as defined by an access policy.
 
-We want to give this Writer role API key to the `bn-lob1-app` gruop, so applications within this group can create topics and R/W on those topics with the name `bn-lob1-*`. 
+We want to give this Writer role API key to the `bn-lob1-app` group, so applications within this group can create topics and R/W on those topics with the name `bn-lob1-*`. 
 To do so, we have to add to the Access Group `bn-lob1-app`, the service ID that maps the Key created above:
 
 1. In IAM Access groups select the service IDs tab and click on add service id button:
 
 	![SI1](./images/iam-ag-serv-1.png)
 
-1. Search for the key name: `bn-lob1-writer` and  
+1. Search for the service ID name: `bn-lob1-writer` and  
 
 	![SI2](./images/iam-ag-serv-2.png)
 
@@ -238,12 +251,12 @@ To do so, we have to add to the Access Group `bn-lob1-app`, the service ID that 
 
 	![SI3](./images/iam-ag-serv-3.png)
 
-## Kafka Streams specifics
+### Kafka Streams specifics
 
 A lot of Kafka implementations use Kafka Streams API, in this case the applications need to have `Manager` role on topic resource,
 and Reader role for cluster and group with a Manager API Key. 
 
-## Connecting application using API Key
+### Connecting application using API Key
 
 To connect to Event Streams on cloud, we need to define consumer and producer common configuration as presented in the [product documentation](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-kafka_using#kafka_api_client)
 
@@ -256,4 +269,68 @@ mp.messaging.connector.liberty-kafka.sasl.mechanism=PLAIN
 mp.messaging.connector.liberty-kafka.sasl.jaas.config="org.apache.kafka.common.security.plain.PlainLoginModule required username=token password=longapikeycomingfromservicecredential;"
 ```
 
-This could in fact being part of the secret 
+These properties could in fact be part of a secret in Kubernetes and used by the pod. 
+
+## Encryption at rest 
+
+Event Streams stores message data at rest and message logs on encrypted disks. Event Streams supports customer-managed encryption with provided key: bring you own key. This feature is available on the Enterprise plan only. The [product documentation](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-managing_encryption
+) addresses in detail this capability. 
+
+In this section, we just want to present some step by step to play with Key Protect, defining root key, and get Wrapped Keys to be used for encryption. 
+
+### Create a Key Protect instance
+
+In the Create resource from the IBM Cloud dashboard page, select a `Key Protect` service, add a name, and select a resource pool:
+
+![kp1](./images/key-protect-1.png)
+
+### Create a root key or upload yours
+
+Using the `Manage` menu of Key Protect, and `Add key` button:
+
+![kp2](./images/key-protect-2.png)
+
+Specify to import your own key or create a new one. Give a name
+
+![kp3](./images/key-protect-3.png)
+
+Keys are symmetric 256-bit keys, supported by the AES-CBC-PAD algorithm. For added security, keys are generated by FIPS 140-2 Level 3 certified hardware security modules (HSMs) that are located in secure IBM Cloud data centers
+
+![kp4](./images/key-protect-4.png)
+
+Get the cloud resource name from the newly create key:
+
+![kp5](./images/key-protect-5.png)
+
+### Get a Wrapped Key with API:
+
+```shell
+export GUID=$(ibmcloud resource service-instance eda-KeyProtect --id | grep crn | awk '{print $2}’)
+export TOKEN=$(ibmcloud iam oauth-tokens | awk '{print $4 }'
+) 
+curl -X POST https://us-south.kms.cloud.ibm.com/api/v2/keys/34f2598f-e6e9-4822-8f51-cd9036e537e8?action=wrap -H 'accept: application/vnd.ibm.kms.key_action+json'    -H 'authorization: Bearer $TOKEN' -H 'bluemix-instance: $GUID'  -H 'content-type: application/vnd.ibm.kms.key_action+json'
+```
+
+### Authorize Event Streams to access Key Protect
+
+In IAM application, go to the `Authorizations` menu:
+
+![kp6](./images/key-protect-6.png)
+
+And define event streams as the source service, you can specify a specific instance id or any event streams service. The target is the Key Protect instance. The service access is Reader.
+
+![kp7](./images/key-protect-7.png)
+
+You should get something like:
+
+![kp8](./images/key-protect-8.png)
+
+Now Event Streams could use your wrapped key to encrypte data at rest.
+
+
+<InlineNotification kind="warning">
+Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance. 
+Loosing any keys, will mean loosing the data. 
+Restoring access by recreating the authorization between ES and Key Protect, will reopen traffic.
+When rotating the root key a new rewrapping of DEK is performed and the new key need to be communicated to Event Streams. 
+</InlineNotification>
