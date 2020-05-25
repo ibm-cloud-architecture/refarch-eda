@@ -1291,6 +1291,14 @@ In this section, we are going to review the different compatibility modes for ou
 
 ### None
 
+First of all, set the compatibility mode to backwards at the global level (for simplicity):
+
+```shell
+$ curl -u token:$KAFKA_APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"NONE"}'
+
+{"type":"COMPATIBILITY","config":"NONE"}
+```
+
 This compatibility rule does not perform any compatibility check at all when a new schema version is created.
 
 That is, if we use the `test-value` schema we've used through this tutorial, and try to register a completely different schema like:
