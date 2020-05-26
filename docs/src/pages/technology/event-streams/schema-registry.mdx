@@ -848,7 +848,7 @@ Once again, we are going to run these scripts in the python demo environment we 
 1. Make sure you dont have any schema registered (preferably for clarity):
 
 	```shell
-	$ curl -u token:$APIKEY $URL/artifacts
+	$ curl -u token:$KAFKA_APIKEY $URL/artifacts
 	[]
 	```
 
@@ -901,7 +901,7 @@ We should now have a new message in our `test` kafka topic. We can check that ou
 If we look know at the schemas our schema registry has:
 
 ```shell
-$ curl -u token:$APIKEY $URL/artifacts
+$ curl -u token:$KAFKA_APIKEY $URL/artifacts
 
 ["test-key","test-value"]
 ```
@@ -911,13 +911,13 @@ we see two schemas, `test-key` and `test-value`, which in fact correspond to the
 To make sure of what we are saying, we can inspect those schemas:
 
 ```shell
-$ curl -u token:$APIKEY $URL/artifacts/test-key
+$ curl -u token:$KAFKA_APIKEY $URL/artifacts/test-key
 
 "string"
 ```
 
 ```shell
-$ curl -s -u token:$APIKEY $URL/artifacts/test-value | jq .
+$ curl -s -u token:$KAFKA_APIKEY $URL/artifacts/test-value | jq .
 {
   "type": "record",
   "name": "defaultValue",
@@ -962,12 +962,12 @@ I can see that an event with a new attribute has been sent:
 And I can also see that the new shcema has got registered as well as a **new version** for the already exisiting schema:
 
 ```shell
-$ curl -s -u token:$APIKEY $URL/artifacts/test-value/versions
+$ curl -s -u token:$KAFKA_APIKEY $URL/artifacts/test-value/versions
 
 [1,2]
 ```
 ```shell
-$ curl -s -u token:$APIKEY $URL/artifacts/test-value | jq .
+$ curl -s -u token:$KAFKA_APIKEY $URL/artifacts/test-value | jq .
 {
   "type": "record",
   "name": "defaultValue",
@@ -1146,10 +1146,10 @@ Getting global rule configuration requires at least:
 
 1. Get the current value for the `COMPATIBILITY` global rule with
 
-	`curl -u token:$APIKEY $URL/rules/COMPATIBILITY`
+	`curl -u token:$KAFKA_APIKEY $URL/rules/COMPATIBILITY`
 
 	```shell
-	$ curl -u token:$APIKEY $URL/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY $URL/rules/COMPATIBILITY
 
 	{"type":"COMPATIBILITY","config":"NONE"}
 	```
@@ -1166,17 +1166,17 @@ Updating a global rule configuration requires at least:
 
 1. Update the compatibility globar rule from NONE to FORWARD with:
 
-	` curl -u token:$APIKEY –X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"<COMPATIBILITY_MODE>"}'`
+	` curl -u token:$KAFKA_APIKEY –X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"<COMPATIBILITY_MODE>"}'`
 
 	```shell
-	$  curl -u token:$APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"FORWARD"}'
+	$  curl -u token:$KAFKA_APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"FORWARD"}'
 
 	{"type":"COMPATIBILITY","config":"FORWARD"}
 	```
 1. Verify it has been changed:
 
 	```shell
-	$ curl -u token:$APIKEY $URL/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY $URL/rules/COMPATIBILITY
 
 	{"type":"COMPATIBILITY","config":"FORWARD"}
 	```
@@ -1192,10 +1192,10 @@ Getting per-schema rules requires at least:
 
 1. Get the compatibility rule for our `test-value` schema with:
 
-	`curl -u token:$APIKEY $URL/artifacts/<YOUR_SCHEMA_ID>/rules/COMPATIBILITY`
+	`curl -u token:$KAFKA_APIKEY $URL/artifacts/<YOUR_SCHEMA_ID>/rules/COMPATIBILITY`
 
 	```shell
-	$ curl -u token:$APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
 
 	{"error_code":404,"message":"no compatibility rule exists for artifact 'test-value'"}
 	```
@@ -1212,10 +1212,10 @@ Creating per-schema rules requires at least:
 
 1.  Create a compatibility rule for our `test-value` schema with:
 
-	`curl -u token:$APIKEY $URL/artifacts/<YOUR_SCHEMA_ID>/rules -d '{"type":"COMPATIBILITY","config":"<COMPATIBILITY_MODE>"}'`
+	`curl -u token:$KAFKA_APIKEY $URL/artifacts/<YOUR_SCHEMA_ID>/rules -d '{"type":"COMPATIBILITY","config":"<COMPATIBILITY_MODE>"}'`
 
 	```shell
-	$ curl -u token:$APIKEY $URL/artifacts/test-value/rules -d '{"type":"COMPATIBILITY","config":"FULL"}'
+	$ curl -u token:$KAFKA_APIKEY $URL/artifacts/test-value/rules -d '{"type":"COMPATIBILITY","config":"FULL"}'
 
 	{"type":"COMPATIBILITY","config":"FULL"}
 	```
@@ -1223,7 +1223,7 @@ Creating per-schema rules requires at least:
 1. Make sure this compatibility rules has been created:
 
 	```shell
-	$ curl -u token:$APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
 
 	{"type":"COMPATIBILITY","config":"FULL"}
 	```
@@ -1239,10 +1239,10 @@ Updating a per-schema rule requires at least:
 
 1. Update the compatibility rule we have for our schema `test-value` with:
 
-	` curl -u token:$APIKEY –X PUT $URL/artifacts/<YOUR_SCHEMA_ID>/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"<COMPATIBILITY_MODE>"}'`
+	` curl -u token:$KAFKA_APIKEY –X PUT $URL/artifacts/<YOUR_SCHEMA_ID>/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"<COMPATIBILITY_MODE>"}'`
 
 	```shell
-	$  curl -u token:$APIKEY -X PUT $URL/artifacts/test-value/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"BACKWARD"}'
+	$  curl -u token:$KAFKA_APIKEY -X PUT $URL/artifacts/test-value/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"BACKWARD"}'
 
 	{"type":"COMPATIBILITY","config":"BACKWARD"}
 	```
@@ -1250,7 +1250,7 @@ Updating a per-schema rule requires at least:
 1. Make sure the compatibility mode for our `test-value` schema is as expected:
 
 	```shell
-	$ curl -u token:$APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
 
 	{"type":"COMPATIBILITY","config":"BACKWARD"}
 	```
@@ -1266,16 +1266,16 @@ Deleting a per-schema rule requires at least:
 
 1. Delete the compatibility rule we have for our `test-value` schema with:
 
-	`curl -u token:$APIKEY –X DELETE $URL/artifacts/<YOUR_SCHEMA_ID>/rules/COMPATIBILITY`
+	`curl -u token:$KAFKA_APIKEY –X DELETE $URL/artifacts/<YOUR_SCHEMA_ID>/rules/COMPATIBILITY`
 
 	```shell
-	$ curl -u token:$APIKEY -X DELETE $URL/artifacts/test-value/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY -X DELETE $URL/artifacts/test-value/rules/COMPATIBILITY
 	```
 
 1. Make sure there is no compatibility rule for our `test-value` schema now:
 
 	```shell
-	$ curl -u token:$APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
+	$ curl -u token:$KAFKA_APIKEY $URL/artifacts/test-value/rules/COMPATIBILITY
 
 	{"error_code":404,"message":"no compatibility rule exists for artifact 'test-value'"}
 	```
@@ -1290,6 +1290,14 @@ In this section, we are going to review the different compatibility modes for ou
 1. Full
 
 ### None
+
+First of all, set the compatibility mode to backwards at the global level (for simplicity):
+
+```shell
+$ curl -u token:$KAFKA_APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"NONE"}'
+
+{"type":"COMPATIBILITY","config":"NONE"}
+```
 
 This compatibility rule does not perform any compatibility check at all when a new schema version is created.
 
@@ -1387,7 +1395,7 @@ For the following compatibility modes, we are going to use a new schema to descr
 First of all, set the compatibility mode to backwards at the global level (for simplicity):
 
 ```shell
-$ curl -u token:$APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"BACKWARD"}'
+$ curl -u token:$KAFKA_APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"BACKWARD"}'
 
 {"type":"COMPATIBILITY","config":"BACKWARD"}
 ```
@@ -1525,7 +1533,7 @@ It worked. The resaon for this is that the consumer reading messages with the ne
 First of all, set the compatibility mode to forward at the global level (for simplicity):
 
 ```shell
-$ curl -u token:$APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"FORWARD"}'
+$ curl -u token:$KAFKA_APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"FORWARD"}'
 
 {"type":"COMPATIBILITY","config":"FORWARD"}
 ```
@@ -1645,7 +1653,7 @@ Contrary to what happened when addign a new attribute to an Avro data schema whe
 First of all, set the compatibility mode to full at the global level (for simplicity):
 
 ```shell
-$ curl -u token:$APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"FULL"}'
+$ curl -u token:$KAFKA_APIKEY -X PUT $URL/rules/COMPATIBILITY -d '{"type":"COMPATIBILITY","config":"FULL"}'
 
 {"type":"COMPATIBILITY","config":"FULL"}
 ```
