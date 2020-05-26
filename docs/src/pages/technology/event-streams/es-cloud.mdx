@@ -427,3 +427,49 @@ The number of replications is set to three with a `min-in-sync` replicas of two.
 	```
 
 For the last list of commands see the [CLI Reference manual](https://cloud.ibm.com/docs/EventStreams?topic=eventstreams-cli_reference#cli_reference).
+
+## Getting started applications
+
+From the manage dashboard we can download a getting started application that has two processes: one consumer and one producer, or we can use a second application that we have in [this repository](https://github.com/ibm-cloud-architecture/refarch-eda-tools)
+
+### Using the Event Streams on cloud getting started app
+
+To be able to build the code you need to get [gradle](https://gradle.org/install) installed or use the docker image:
+
+```
+docker run --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle gradle <gradle-task>
+```
+
+The instructions are in [this documentation](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-getting_started#eventstreams) and can be summarized as:
+
+* Clone the github repository:
+
+```shell
+git clone https://github.com/ibm-messaging/event-streams-samples.git
+```
+
+* Build the code:
+
+Using the gradle CLI
+```shell
+cd kafka-java-console-sample
+gradle clean && gradle build
+```
+
+or the gradle docker image
+
+```shell
+docker run --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle gradle build
+```
+
+* Start consumer
+
+```shell
+java -jar ./build/libs/kafka-java-console-sample-2.0.jar broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093 am_rbb9e794mMwhE-KGPYo0hhW3h91e28OhT8IlruFe5 -consumer
+```
+
+* Start producer
+
+```shell
+java -jar ./build/libs/kafka-java-console-sample-2.0.jar broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093 am_rbb9e794mMwhE-KGPYo0hhW3h91e28OhT8IlruFe5 -producer
+```

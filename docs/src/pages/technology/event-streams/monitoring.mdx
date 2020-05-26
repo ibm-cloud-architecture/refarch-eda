@@ -3,6 +3,29 @@ title: monitoring
 description: Event Streams on Cloud monitoring
 ---
 
+## General monitoring practices
+
+We have documented in [this note](../../kafka-monitoring/) the major tools for monitoring a Kafka cluster. like prometheus and Grafana. 
+
 ## Monitoring with SYSDIG
 
+With Event Streams on cloud the monitoring capability is supported by Sysdig. The approach is the following:
 
+* Create a IBM Cloud monitoring with Sysdig service.
+
+![](./images/sysdig-1.png)
+
+Enter name, resource group and enable platform monitoring if you want to combine event streams with cluster monitoring
+![](./images/sysdig-2.png)
+
+The following [Sysdig getting started tutorial](https://cloud.ibm.com/docs/Monitoring-with-Sysdig?topic=Monitoring-with-Sysdig-getting-started#getting-started) should be done to understand the different features of this product.
+
+* Enable Event Streams to be monitored and select the monitoring service.
+
+![](./images/sysdig-3.png)
+
+![](./images/sysdig-4.png)
+
+
+
+![](./images/es-sysdig.png)

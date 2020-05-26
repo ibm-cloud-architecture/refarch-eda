@@ -47,12 +47,18 @@ The risk, is that slow consumer may fall behind, and when partition management m
 
 ![](./images/offsets-4.png)
 
-You can use the kafka-consumer-groups tool to see the consumer lag, or the UI:
+You can use the kafka-consumer-groups tool to see the consumer lag, or use the Event Streams User Interface:
+
+![](./images/es-cg-1.png)
+
+The group can be extended to see how each consumer, within the group, performs on a multi partitions topic:
+
+![](./images/es-cg-2.png)
 
 
 ## Consumer group APIs
 
-### List the consumer groups
+### List the consumer groups using CLI
 
 ```shell
 ibmcloud es groups
@@ -74,7 +80,7 @@ voyage-consumer-group
 
 ```
 
-### Get the details of a consumer group:
+### Get the details of a consumer group
 
 ```shell
 ibmcloud es group ordercmd-command-consumer-grp 
@@ -93,14 +99,14 @@ eda-integration-order-commands   0           11               11           0    
 
 ### Reset a group
 
-Sometime it is need to reprocess the message. The easiest way is to change the groupid of the consumers to get an implicit offsets reset.
+Sometime it is need to reprocess the messages. The easiest way is to change the groupid of the consumers to get an implicit offsets reset, but it is also possible to reset for some topic to the earliest offset:
 
 
 ```shell
  ibmcloud es group-reset --group ordercmd-command-consumer-grp --all-topics --mode earliest --execute
 ```
 
-the previous command is the same as using the kafka tool:
+The previous command is the same as using the kafka tool:
 
 ```shell
 kafka-consumer-groups \
@@ -110,6 +116,12 @@ kafka-consumer-groups \
                     --all-topics \
                     --to-earliest \
                     --execute
+```
+
+To get the processing for a specific topic:
+
+```
+ ibmcloud es group-reset --group ordercmd-command-consumer-grp --topic orders
 ```
 
 ### Delete a group
