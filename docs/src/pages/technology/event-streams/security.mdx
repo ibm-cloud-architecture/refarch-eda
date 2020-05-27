@@ -13,6 +13,7 @@ This documentation aims to be a introductory hands-on lab for the security featu
   <AnchorLink>Limiting topic access to group of users</AnchorLink>
   <AnchorLink>Authentication with API Keys</AnchorLink>
   <AnchorLink>Control application access</AnchorLink>
+  <AnchorLink>Encryption at rest</AnchorLink>
 </AnchorLinks>
 
 ## IAM Concept Summary
@@ -262,7 +263,7 @@ To connect to Event Streams on cloud, we need to define consumer and producer co
 
 Here is an exemple of using reactive messaging in microprofile with the liberty kafka connector:
 
-```
+```properties
 mp.messaging.connector.liberty-kafka.security.protocol=SASL_SSL
 mp.messaging.connector.liberty-kafka.ssl.protocol=TLSv1.2
 mp.messaging.connector.liberty-kafka.sasl.mechanism=PLAIN
@@ -280,7 +281,7 @@ In this section, we just want to present some step by step to play with Key Prot
 
 ### Create a Key Protect instance
 
-In the Create resource from the IBM Cloud dashboard page, select a `Key Protect` service, add a name, and select a resource pool:
+In the `Create resource` from the IBM Cloud dashboard page, select a `Key Protect` service, add a name, and select a resource pool:
 
 ![kp1](./images/key-protect-1.png)
 
@@ -332,5 +333,5 @@ Now Event Streams could use your wrapped key to encrypte data at rest.
 Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance. 
 Loosing any keys, will mean loosing the data. 
 Restoring access by recreating the authorization between ES and Key Protect, will reopen traffic.
-When rotating the root key a new rewrapping of DEK is performed and the new key need to be communicated to Event Streams. 
+When rotating the root key a new rewrapping of DEK is performed and the new key needs to be communicated to Event Streams. 
 </InlineNotification>
