@@ -207,7 +207,7 @@ Now that the Camel Kafka Connector binaries have been built, we need to include 
 
 1. From the root directory of the repository, start a new OpenShift Build, using the generated build artifacts:
    ```shell
-   oc start-build connect-cluster-101-connect --from-dir=./core/target/camel-kafka-connector-0.0.1-SNAPSHOT-package/share/java --follow
+   oc start-build connect-cluster-101-connect --from-dir=./core/target/camel-kafka-connector-0.1.0-package/share/java --follow
    ```
 2. Watch the Kubernetes pods as they are updated with the new build and rollout of the Kafka Connect Cluster using the updated container image _(which now includes the Camel Kafka Connector binaries)_:
    ```shell
