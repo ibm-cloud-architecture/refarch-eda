@@ -3,6 +3,13 @@ title: Reference Architecture
 description: What is the purpose of the event-driven reference architecture?
 ---
 
+<AnchorLinks>
+  <AnchorLink>Event Driven Architecture</AnchorLink>
+  <AnchorLink>Extended Architecture</AnchorLink>
+  <AnchorLink>Integration with analytics and machine learning</AnchorLink>
+  <AnchorLink>Legacy Integration</AnchorLink>
+</AnchorLinks>
+
 We defined the starting point for a Cloud Native Event Driven Architecture to be that it supports at least the following important capabilities:
 
 * Being able to communicate and persist events.
@@ -10,19 +17,23 @@ We defined the starting point for a Cloud Native Event Driven Architecture to be
 * Processing streams of events to derive real time insight/intelligence.
 * Providing communication mechanism between event driven microservices and functions.
 
+## Event Driven Architecture
+
 With an event backbone providing the connectivity between the capabilities, we can visualize a reference Event Driven Architecture as below:
 
 
-![hl-arch-ra](images/hl-arch-ra.png)
+![hl-arch-ra](../../images/hl-arch-ra.png)
 
 Where:
 
-1. [Event sources](evt-src/README.md): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices…
+1. [Event sources](../../concepts/terms-and-definitions/#event-sources): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices…
 2. [IBM Event Streams](https://www.ibm.com/cloud/event-streams): Provides an Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
-3. [IBM Cloud Functions](https://cloud.ibm.com/openwhisk): Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
+3. [IBM Cloud Functions](https://cloud.ibm.com/functions): Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
 4. [Streaming Analytics](https://cloud.ibm.com/catalog/services/streaming-analytics): Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
 5. Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
-6. [Event Driven Microservices](./evt-microservices/README.md): Applications that run as serverless functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+6. [Event Driven Microservices](../../concepts/terms-and-definitions/#microservices): Applications that run as serverless functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+
+The reference architecture is illustrated in the [EDA reference implementation solution](https://ibm-cloud-architecture.github.io/refarch-kc/).
 
 ## Extended Architecture
 
@@ -33,7 +44,7 @@ The event-driven reference architecture provides the framework to support event-
 
 The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
 
-![hl-arch-ra-adv](images/hl-arch-ra-adv.png)
+![hl-arch-ra-adv](../../images/hl-arch-ra-adv.png)
 
  In 7. the AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular Event Store, and develop models. Models are pushed to streaming analytics component.
 
@@ -83,4 +94,4 @@ While you create new digital business applications as self-contained systems, yo
 
 1. Where legacy applications are connected with MQ. You can connect directly from MQ to the Kafka in the event backbone.  See [IBM Event Streams getting started with MQ article](https://ibm.github.io/event-streams/connecting/mq/).
 
-2. Where databases support the capture of changes to data, you can publish changes as events to Kafka and hence into the event infrastructure. [See the confluent blog for more details](https://www.confluent.io/blog/no-more-silos-how-to-integrate-your-databases-with-apache-kafka-and-cdc)
+2. Where databases support the capture of changes to data, you can publish changes as events to Kafka and hence into the event infrastructure.
