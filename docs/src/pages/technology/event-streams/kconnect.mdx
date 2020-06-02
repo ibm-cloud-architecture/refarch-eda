@@ -1,0 +1,72 @@
+---
+title: Kafka Connect with Event Streams on Cloud
+description: A set of labs and reference for working with Kafka Connect with Event streams on cloud
+---
+<AnchorLinks>
+  <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Pre-requisites</AnchorLink>
+  <AnchorLink>Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
+  <AnchorLink>Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
+  <AnchorLink>Scenario 3: Event Streams on Cloud to Postgresql on premise via JDBC Sink</AnchorLink>
+</AnchorLinks>
+
+## Overview
+
+This lab will address multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Cloud:
+
+![1](./images/kconnect-overview.png)
+
+The end to end scenario is address a classical business use case where stores are sending their transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservice, real time analytics and complex event processing, Kafka is added to the legacy environment. Adopting Kafka connect let integrate with existing applications without any changes. For example the scenario illustrate JDBC Sink connector to save to existing data base.
+
+This lab is about Kafka Connect running on Kubernetes and accessing public cloud Event Streams instance.
+
+For this lab the input messaging is RabbitMQ, the output messaging is MQ, the DB is DB2 on Cloud.
+
+## Pre-requisites
+
+We need the following IBM Cloud services created and tools to run the lab. We try to use docker images as much as possible to do not impact your local laptop.
+
+* [Docker](https://docs.docker.com/) and docker compose to run solution locally
+* [Event Streams](./es-cloud/)
+* [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started)
+* [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial)
+* [IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started)
+
+For the on-premise environment, we will mock it simply by running some component on IBM Kubernetes Service platform. The point is that the workload is packaged as container images and can run anywhere.
+
+## Setup
+
+1. Login to the cloud via CLI: `ibmcloud login`
+2. 
+
+## Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
+
+### Deploy RabbitMQ on IKS
+
+## Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink
+
+## Scenario 3: Event Streams on Cloud to Postgresql on premise via JDBC Sink
+
+This scenario is using the [IBM Kafka Connect sink connector for JDBC](https://github.com/ibm-messaging/kafka-connect-jdbc-sink).
+
+As a pre-requisite you need to have a DB2 instance on cloud up and running with defined credentials. From the crednetials you need the username, password and the `ssljdbcurl` parameter. Something like "jdbc:db2://dashdb-tx....net:50001/BLUDB:sslConnection=true;".
+
+1. Load current inventory data
+
+  * Load the items using the Load Data menu
+
+  ![DB1](./images/db2-1.png)
+
+  Select the database schema matching the username of used as credential, as only him can create tables. Create the Items table
+
+  ![DB2](./images/db2-2.png)
+
+  Drag and drop the `items.csv` file from the `inventory-app/data` folder.  
+
+  ![DB3](./images/db2-3.png)
+
+  Once loaded you should have 10 records.
+
+  ![DB4](./images/db2-4.png)
+
+  * Do the same for the `inventory-app/data/stores.csv` in the STORES table. 
