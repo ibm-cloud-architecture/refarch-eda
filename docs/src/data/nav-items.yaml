@@ -24,10 +24,10 @@
   pages:
     - title: Introduction
       path: patterns/intro
-    - title: CQRS
-      path: /patterns/cqrs/
     - title: Event Sourcing
       path: /patterns/event-sourcing/
+    - title: CQRS
+      path: /patterns/cqrs/
     - title: Sagas
       path: /patterns/saga/
     - title: Dead Letter Queue

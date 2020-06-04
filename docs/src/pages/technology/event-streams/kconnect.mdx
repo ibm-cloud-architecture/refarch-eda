@@ -4,10 +4,12 @@ description: A set of labs and reference for working with Kafka Connect with Eve
 ---
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Pre-requisites</AnchorLink>
+  <AnchorLink>General pre-requisites</AnchorLink>
+  <AnchorLink>Scenario Setup</AnchorLink>
   <AnchorLink>Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
   <AnchorLink>Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
-  <AnchorLink>Scenario 3: Event Streams on Cloud to Postgresql on premise via JDBC Sink</AnchorLink>
+  <AnchorLink>Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector</AnchorLink>
+  <AnchorLink>Scenario 4: Run the solution component on Kubernetes as a Service</AnchorLink> 
 </AnchorLinks>
 
 ## Overview
@@ -20,53 +22,152 @@ The end to end scenario is address a classical business use case where stores ar
 
 This lab is about Kafka Connect running on Kubernetes and accessing public cloud Event Streams instance.
 
-For this lab the input messaging is RabbitMQ, the output messaging is MQ, the DB is DB2 on Cloud.
+For this lab the input messaging is RabbitMQ, the output messaging is MQ, the database is DB2 on Cloud.
 
-## Pre-requisites
+<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a Kubernetes cluster. We propose to run the components with docker compose for the scenario 1,2,3 and do a deployment of the components on Kubernetes as a service on scenario 4. If you do not want to build all the components, we have each of them available in dockerhub and the docker compose file should run automatically.
+</InlineNotification>
+
+## General pre-requisites
 
 We need the following IBM Cloud services created and tools to run the lab. We try to use docker images as much as possible to do not impact your local laptop.
 
-* [Docker](https://docs.docker.com/) and docker compose to run solution locally
-* [Event Streams](./es-cloud/)
-* [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started)
-* [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial)
-* [IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started)
+* [Docker](https://docs.docker.com/) and docker compose to run the solution locally.
+* Event Streams instance, may be reuse the one created in [this lab](./es-cloud/).
+* [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started).
+* [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial).
+* [IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started).
+* If you want to run locally you need to get [docker compose](https://docs.docker.com/compose/).
+* [git CLI](https://git-scm.com/downloads).
+* [maven](https://maven.apache.org/install.html).
 
-For the on-premise environment, we will mock it simply by running some component on IBM Kubernetes Service platform. The point is that the workload is packaged as container images and can run anywhere.
+For the on-premise environment, we will not use VMs, but simply run some of the components on IBM Kubernetes Service platform or Openshift. The point is that the workload is packaged as container images and can run anywhere.
 
-## Setup
+## Scenario setup
 
 1. Login to the cloud via CLI: `ibmcloud login`
-2. 
+1. Initialize the Event Streams CLI and select the target Event Streams cluster: `ibmcloud es init`
+1. If not done before using UI or from previous work add the following topics:
+    * `ibmcloud es topic-create connect-configs`
+    * `ibmcloud es topic-create connect-offsets`
+    * `ibmcloud es topic-create connect-status`
+    * `ibmcloud es topic-create inventory`
+    * `ibmcloud es topic-create items`
+1. Clone the lab repository: `git clone https://github.com/jbcodeforce/eda-kconnect-lab && cd eda-kconnect-lab`.
+1. Prepare the script to set the environment variables used by all the components of the solution, like the Kafka broker, by first renaming the `scripts/setenv-TMP.sh` in [this repository](https://github.com/jbcodeforce/eda-kconnect-lab) to `scripts/setenv.sh` and then modify the KAFKA_BROKERS and KAFKA_APIKEY with the respecting value of the Event Streams credentials.
+1. Prepare the Kafka Connect environment, as we need to use three connectors. Therefore we need to clone the source, build and get the jars file in the connectors. In fact we have developed scripts to automate those tedious steps:
+
+  * Under the `kconnect` folder run `./setupConnectors.sh` script and get the three connectors downloaded and built.
+  * Build a docker image for the connector: this is also done by running the script: `./createOrStartKconnect.sh build`.
+
+<InlineNotification kind="info">You need to decide what 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a Kubernetes cluster. We propose to run the components with docker compose for the scenario 1,2,3 and do a deployment of the components on Kubernetes as a service on scenario 4.
+</InlineNotification>
 
 ## Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
 
 ### Deploy RabbitMQ on IKS
 
+### Configure the kafka connector for Rabbitmq source 
+
 ## Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink
 
-## Scenario 3: Event Streams on Cloud to Postgresql on premise via JDBC Sink
+## Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector
 
-This scenario is using the [IBM Kafka Connect sink connector for JDBC](https://github.com/ibm-messaging/kafka-connect-jdbc-sink).
+This scenario is using the [IBM Kafka Connect sink connector for JDBC](https://github.com/ibm-messaging/kafka-connect-jdbc-sink) to get data from the `inventory topic` and write records to the `inventory` table in DB2. This lab explain the definition of the connector and how to run an integration test that sends data to the inventory topic.
 
-As a pre-requisite you need to have a DB2 instance on cloud up and running with defined credentials. From the crednetials you need the username, password and the `ssljdbcurl` parameter. Something like "jdbc:db2://dashdb-tx....net:50001/BLUDB:sslConnection=true;".
+### Pre-requisites
 
-1. Load current inventory data
+As a pre-requisite you need to have a [DB2 instance on cloud](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started) up and running with defined credentials. From the credentials you need the username, password and the `ssljdbcurl` parameter. Something like "jdbc:db2://dashdb-tx....net:50001/BLUDB:sslConnection=true;".
 
-  * Load the items using the Load Data menu
+1. Build and deploy the `inventory-app`. This application is a simple Java microprofile 3.3 app exposing a set of end points for cRUD operations on stores, items and inventory. It is based on [Quarkus](https:quarkus.io). The instructions to build, and deploy this app is in the [README](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/inventory-app) under the `inventory-app` folder of [this repository](https://github.com/jbcodeforce/eda-kconnect-lab). At the application starts stores and items records are uploaded to the database.
+
+1. Verify the stores and items records are loaded
+
+  * If you deploy the `inventory-app` from previous step, then you will have the database created and populated with some stores and items automatically. If you want to drop the data use [the drop sql script](https://raw.githubusercontent.com/jbcodeforce/eda-kconnect-lab/master/inventory-app/src/main/resources/drop.sql) and then reload them the [insert sql script](https://raw.githubusercontent.com/jbcodeforce/eda-kconnect-lab/master/inventory-app/src/main/resources/import.sql) from `inventory-app/src/main/resources` folder. For that you can use the `Run sql` menu in the DB2 console:
 
   ![DB1](./images/db2-1.png)
 
-  Select the database schema matching the username of used as credential, as only him can create tables. Create the Items table
+  Select the database schema matching the username used as credential, and then open the SQL editor:
 
   ![DB2](./images/db2-2.png)
 
-  Drag and drop the `items.csv` file from the `inventory-app/data` folder.  
+  Verify the items with `select * from items;`
+  
+   ![DB2](./images/db2-3.png)
 
-  ![DB3](./images/db2-3.png)
+  Verify the stores with `select * from stores;`
 
-  Once loaded you should have 10 records.
+  ![DB2](./images/db2-4.png)
 
-  ![DB4](./images/db2-4.png)
+  The inventory has one record to illustrate the relationship between store, item and inventory.
 
-  * Do the same for the `inventory-app/data/stores.csv` in the STORES table. 
+### Run the Kafka Connector in distributed mode
+
+The docker image built in the [setup](#scenario-setup) has the configuration for kafka connect distributed cluster, we need in this scenario to start connect and upload the DB2 Sink connector definition. To start it, run the script `./createOrStartKconnect.sh start` under `kconnect` folder.
+
+### Upload the DB2 sink definition
+
+Rename the file `db2-sink-config-TMPL.json` as `db2-sink-config.json` and modify the DB2 server URL, DB2 username and password. The DB schema matches the user name, so update this setting for the `table.name.format`.
+
+```json
+  "name": "jdbc-sink-connector",
+  "config": {
+    "connector.class": "com.ibm.eventstreams.connect.jdbcsink.JDBCSinkConnector",
+    "tasks.max": "1",
+    "topics": "inventory",
+    "connection.url": "jdbc:db2://....services.dal.bluemix.net:50001/BLUDB:sslConnection=true;",
+    "connection.user": "<username>",
+    "connection.password": "<password>",
+    "connection.ds.pool.size": "1",
+    "insert.mode.databaselevel": "true",
+    "table.name.format": "<username>.INVENTORY"
+  }
+```
+
+Once done, you can run the `./sendJdbcSinkConfig.sh url-kafka-connect` to upload the above definition to the Kafka connect controller. When running locally the command is `./sendJdbcSinkConfig.sh localhodt:8083`. This script delete previously define connector with the same name, and then perform a POST operation on the `/connectors` end point.
+
+The connector trace should have something like:
+
+```logs
+connector.class = com.ibm.eventstreams.connect.jdbcsink.JDBCSinkConnector
+ 	errors.log.enable = false
+ 	errors.log.include.messages = false
+ 	errors.retry.delay.max.ms = 60000
+ 	errors.retry.timeout = 0
+ 	errors.tolerance = none
+ 	header.converter = null
+ 	key.converter = null
+ 	name = jdbc-sink-connector
+ 	tasks.max = 1
+ 	transforms = []
+ 	value.converter = null
+
+```
+
+### Generate some records
+
+The `integration-tests` folder includes a set of python code to load some records to the expected topic.
+
+1. Start a python environment with `./startPython.sh`
+1. Within the bash, start python to execute the  `ProduceInventoryEvent.py` script, and specify the number of records to send via the --size argument.
+
+```
+python ProduceInventoryEvent.py --size 2
+```
+1. The trace should have something like
+
+```
+Produce to the topic inventory
+[KafkaProducer] - This is the configuration for the producer:
+[KafkaProducer] - {'bootstrap.servers': 'broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093', 'group.id': 'ProducerInventory', 'acks': 0, 'request.timeout.ms': 10000, 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'PLAIN', 'sasl.username': 'token', 'sasl.password': 'am_rbb9e794mMwhE-KGPYo0hhW3h91e28OhT8IlruFe5'}
+sending -> {'storeName': 'LA02', 'itemCode': 'IT09', 'id': 0, 'timestamp': 1591211295.617515}
+[KafkaProducer] - Message delivered to inventory [0]
+sending -> {'storeName': 'PT02', 'itemCode': 'IT00', 'id': 1, 'timestamp': 1591211296.7727954}
+[KafkaProducer] - Message delivered to inventory [0]
+
+```
+
+### Verify records are uploaded into the Inventory database
+
+Using the DB2 console, use the `select * from inventory;` SQL query to get the last records.
+
+## Scenario 4: Run the solution component on Kubernetes as a Service
