@@ -278,8 +278,8 @@ spec:
     camel.source.kafka.topic: my-target-topic
     camel.source.url: aws-s3://my-s3-bucket?autocloseBody=false
     camel.source.maxPollDuration: 10000
-    camel.component.aws-s3.accessKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials-secret.properties:aws_access_key_id}
-    camel.component.aws-s3.secretKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials-secret.properties:aws_secret_access_key}
+    camel.component.aws-s3.accessKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_access_key_id}
+    camel.component.aws-s3.secretKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_secret_access_key}
     camel.component.aws-s3.region: US_EAST_1
 ```
 
