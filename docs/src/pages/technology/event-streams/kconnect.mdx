@@ -70,6 +70,237 @@ For the on-premise environment, we will not use VMs, but simply run some of the 
 
 ## Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink
 
+This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data into a local MQ queue.  In this example we are using IBM Event Streams on IBM Cloud as the Kafka data source and a dockerized instance of MQ as the destination.
+
+### Pre-requisites
+
+We assume that you have an instance of Event Streams already running on IBM Cloud with a set of manager-level credentials created.  The credentials will come in the form of a JSON document similar to below:
+
+```
+{
+  "api_key": "bA ... Qp",
+  "apikey": "bA ... Qp",
+  "iam_apikey_description": "Auto-generated for key 4d ... c6",
+  "iam_apikey_name": "es-mgr-creds",
+  "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+  "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/db ... f2::serviceid:ServiceId-7a ... 6d",
+  "instance_id": "29 ... 15",
+  "kafka_admin_url": "https://70 ... 1g.svc01.us-east.eventstreams.cloud.ibm.com",
+  "kafka_brokers_sasl": [
+    "broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+    "broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+    "broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+    "broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+    "broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+    "broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093"
+  ],
+  "kafka_http_url": "https://70 ... 1g.svc01.us-east.eventstreams.cloud.ibm.com",
+  "password": "bA ... Qp",
+  "user": "token"
+}
+```
+Take note of the `kafka_brokers_sasl` and `password` fields for use while configuring the sink connector.
+
+We will use the `items` topic created in the Scenario Setup above.
+
+### Create Local IBM MQ Instance
+
+Here we will use Docker to create a local MQ instance.  First create a data directory to mount in the container.
+
+`mkdir qm1data`
+
+Then create the container.
+
+```
+docker run                     \
+  --name mq                    \
+  --detach                     \
+  --publish 1414:1414          \
+  --publish 9443:9443          \
+  --publish 9157:9157          \
+  --volume qm1data:/mnt/mqm    \
+  --env LICENSE=accept         \
+  --env MQ_QMGR_NAME=QM1       \
+  --env MQ_APP_PASSWORD=admin  \
+  --env MQ_ENABLE_METRICS=true \
+  ibmcom/mq
+```
+
+You should be able to log into the MQ server on port 9443 with default user `admin` and password `passw0rd`.
+
+Connect to the running MQ instance to create a Channel and Queue as described on the [Using IBM MQ with Kafka Connect](https://github.com/ibm-messaging/kafka-connect-mq-sink/blob/master/UsingMQwithKafkaConnect.md) page.
+
+```
+docker exec -ti mq bash
+strmqm QM1
+runmqsc QM1
+DEFINE CHANNEL(KAFKA.CHANNEL) CHLTYPE(SVRCONN)
+SET CHLAUTH(KAFKA.CHANNEL) TYPE(BLOCKUSER) USERLIST('nobody')
+SET CHLAUTH('*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS)
+SET CHLAUTH(KAFKA.CHANNEL) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
+ALTER AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS) AUTHTYPE(IDPWOS) ADOPTCTX(YES)
+REFRESH SECURITY TYPE(CONNAUTH)
+DEFINE QLOCAL(ITEMS)
+SET AUTHREC OBJTYPE(QMGR) PRINCIPAL('admin') AUTHADD(CONNECT,INQ)
+SET AUTHREC PROFILE(ITEMS) OBJTYPE(QUEUE) PRINCIPAL('admin') AUTHADD(ALLMQI)
+END
+```
+Exit the session and continue on to create the MQ Connector Sink.
+
+### Create MQ Kafka Connector Sink
+
+The MQ Connector Sink can be downloaded from [Github](https://github.com/ibm-messaging/kafka-connect-mq-sink).  The Github site includes exhaustive instructions and an abridged version follows.
+
+Clone the repository with the following command:
+
+`git clone https://github.com/ibm-messaging/kafka-connect-mq-sink.git`
+
+Change directory into the kafka-connect-mq-sink directory:
+
+`cd kafka-connect-mq-sink`
+
+Build the connector using Maven:
+
+`mvn clean package`
+
+Next, create a directory to contain the Kafka Connector configuration.
+
+`mkdir config && cd config`
+
+Create a configuration file called `connect-distributed.properties` for Kafka Connect based on the template below.
+
+```
+# A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
+ssl.enabled.protocols=TLSv1.2
+ssl.protocol=TLS
+security.protocol=SASL_SSL
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="bA ... Qp";
+
+# Consumer side configuration
+consumer.bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
+consumer.security.protocol=SASL_SSL
+consumer.ssl.protocol=TLSv1.2
+consumer.sasl.mechanism=PLAIN
+consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="bA ... Qp";
+
+# Producer Side
+producer.security.protocol=SASL_SSL
+producer.ssl.protocol=TLSv1.2
+producer.sasl.mechanism=PLAIN
+producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="bA ... Qp";
+producer.bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
+
+
+plugin.path=/opt/kafka/libs
+
+# unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
+group.id=mq-sink-cluster
+
+# The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
+# need to configure these based on the format they want their data in when loaded from or stored into Kafka
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+# Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply
+# it to
+key.converter.schemas.enable=true
+value.converter.schemas.enable=true
+
+# Topic to use for storing offsets. This topic should have many partitions and be replicated and compacted.
+# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+offset.storage.topic=connect-offsets
+offset.storage.replication.factor=3
+#offset.storage.partitions=25
+
+# Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated,
+# and compacted topic. Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+config.storage.topic=connect-configs
+config.storage.replication.factor=3
+
+# Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
+# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+status.storage.topic=connect-status
+status.storage.replication.factor=3
+
+#status.storage.partitions=5
+
+# Flush much faster than normal, which is useful for testing/debugging
+offset.flush.interval.ms=10000
+```
+
+Save this file in the `config` directory.
+
+Next, create a log4j configuration file named `connect-log4j.properties` based on the template below.
+
+```
+log4j.rootLogger=DEBUG, stdout
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c:%L)%n
+
+log4j.logger.org.apache.kafka=INFO
+```
+
+Save this file to the `config` directory as well.
+
+Finally, create a JSON configuraiton file for the MQ sink.  This can be stored anywhere but it can be conveniently created in the `config` directory.  We name this file `mq-sink.json`.
+
+```
+{
+    "name": "mq-sink",
+    "config":
+    {
+        "connector.class": "com.ibm.eventstreams.connect.mqsink.MQSinkConnector",
+        "tasks.max": "1",
+        "topics": "items",
+
+        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+        "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+
+        "mq.queue.manager": "QM1",
+        "mq.connection.name.list": "mq(1414)",
+        "mq.user.name": "admin",
+        "mq.password": "passw0rd",
+        "mq.user.authentication.mqcsp": true,
+        "mq.channel.name": "KAFKA.CHANNEL",
+        "mq.queue": "ITEMS",
+        "mq.message.builder": "com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder"
+    }
+}
+```
+
+Back out one directory to the `kafka-connect-mq-sink` directory.
+
+`cd ..`
+
+Finally, run the Kafka Connect MQ Sink container.
+
+```
+docker run                                 \
+  --name mq-sink                           \
+  --detach                                 \
+  --volume $(pwd)/config:/opt/kafka/config \
+  --publish 8083:8083                      \
+  --link mq:mq                             \
+  kafkaconnect-with-mq-sink:1.3.0
+```
+
+You should now have a working MQ sink.
+
 ## Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector
 
 This scenario is using the [IBM Kafka Connect sink connector for JDBC](https://github.com/ibm-messaging/kafka-connect-jdbc-sink) to get data from the `inventory topic` and write records to the `inventory` table in DB2. This lab explain the definition of the connector and how to run an integration test that sends data to the inventory topic.
