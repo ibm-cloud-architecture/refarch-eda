@@ -38,7 +38,7 @@ We need the following IBM Cloud services created and tools to run the lab. We tr
 * [IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started).
 * If you want to run locally you need to get [docker compose](https://docs.docker.com/compose/).
 * [git CLI](https://git-scm.com/downloads).
-* [maven](https://maven.apache.org/install.html).
+* [Maven](https://maven.apache.org/install.html).
 
 For the on-premise environment, we will not use VMs, but simply run some of the components on IBM Kubernetes Service platform or Openshift. The point is that the workload is packaged as container images and can run anywhere.
 
@@ -52,8 +52,9 @@ For the on-premise environment, we will not use VMs, but simply run some of the 
     * `ibmcloud es topic-create connect-status`
     * `ibmcloud es topic-create inventory`
     * `ibmcloud es topic-create items`
+1. Create API KEY with a manager-level access.
 1. Clone the lab repository: `git clone https://github.com/jbcodeforce/eda-kconnect-lab && cd eda-kconnect-lab`.
-1. Prepare the script to set the environment variables used by all the components of the solution, like the Kafka broker, by first renaming the `scripts/setenv-TMP.sh` in [this repository](https://github.com/jbcodeforce/eda-kconnect-lab) to `scripts/setenv.sh` and then modify the KAFKA_BROKERS and KAFKA_APIKEY with the respecting value of the Event Streams credentials.
+1. Prepare the script to set the environment variables used by all the components of the solution, like the Kafka broker URLs, by first renaming the `scripts/setenv-TMP.sh` to `scripts/setenv.sh` and then modify the KAFKA_BROKERS and KAFKA_APIKEY with the respecting values from the Event Streams credentials.
 1. Prepare the Kafka Connect environment, as we need to use three connectors. Therefore we need to clone the source, build and get the jars file in the connectors. In fact we have developed scripts to automate those tedious steps:
 
   * Under the `kconnect` folder run `./setupConnectors.sh` script and get the three connectors downloaded and built.
@@ -62,13 +63,7 @@ For the on-premise environment, we will not use VMs, but simply run some of the 
 <InlineNotification kind="info">You need to decide what 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a Kubernetes cluster. We propose to run the components with docker compose for the scenario 1,2,3 and do a deployment of the components on Kubernetes as a service on scenario 4.
 </InlineNotification>
 
-## Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
-
-### Deploy RabbitMQ on IKS
-
-### Configure the kafka connector for Rabbitmq source 
-
-## Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink
+## Scenario 1: Event Streams on Cloud to MQ on premise via MQ connector sink
 
 This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data into a local MQ queue.  In this example we are using IBM Event Streams on IBM Cloud as the Kafka data source and a dockerized instance of MQ as the destination.
 
@@ -101,7 +96,7 @@ We assume that you have an instance of Event Streams already running on IBM Clou
 ```
 Take note of the `kafka_brokers_sasl` and `password` fields for use while configuring the sink connector.
 
-We will use the `items` topic created in the Scenario Setup above.
+We will use the `inventory` topic created in the Scenario Setup above.
 
 ### Create Local IBM MQ Instance
 
@@ -145,6 +140,7 @@ SET AUTHREC OBJTYPE(QMGR) PRINCIPAL('admin') AUTHADD(CONNECT,INQ)
 SET AUTHREC PROFILE(ITEMS) OBJTYPE(QUEUE) PRINCIPAL('admin') AUTHADD(ALLMQI)
 END
 ```
+
 Exit the session and continue on to create the MQ Connector Sink.
 
 ### Create MQ Kafka Connector Sink
@@ -169,7 +165,7 @@ Next, create a directory to contain the Kafka Connector configuration.
 
 Create a configuration file called `connect-distributed.properties` for Kafka Connect based on the template below.
 
-```
+```properties
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
 ssl.enabled.protocols=TLSv1.2
@@ -245,7 +241,7 @@ Save this file in the `config` directory.
 
 Next, create a log4j configuration file named `connect-log4j.properties` based on the template below.
 
-```
+```properties
 log4j.rootLogger=DEBUG, stdout
 
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender
@@ -266,7 +262,7 @@ Finally, create a JSON configuraiton file for the MQ sink.  This can be stored a
     {
         "connector.class": "com.ibm.eventstreams.connect.mqsink.MQSinkConnector",
         "tasks.max": "1",
-        "topics": "items",
+        "topics": "inventory",
 
         "key.converter": "org.apache.kafka.connect.storage.StringConverter",
         "value.converter": "org.apache.kafka.connect.storage.StringConverter",
@@ -277,7 +273,7 @@ Finally, create a JSON configuraiton file for the MQ sink.  This can be stored a
         "mq.password": "passw0rd",
         "mq.user.authentication.mqcsp": true,
         "mq.channel.name": "KAFKA.CHANNEL",
-        "mq.queue": "ITEMS",
+        "mq.queue": "INVENTORY",
         "mq.message.builder": "com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder"
     }
 }
@@ -300,6 +296,12 @@ docker run                                 \
 ```
 
 You should now have a working MQ sink.
+
+## Scenario 2: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
+
+In this scenario we are using another connector from [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). 
+
+### Configure the kafka connector for Rabbitmq source 
 
 ## Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector
 
