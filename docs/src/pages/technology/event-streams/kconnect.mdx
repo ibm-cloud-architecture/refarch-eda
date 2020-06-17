@@ -9,22 +9,43 @@ description: A set of labs and reference for working with Kafka Connect with Eve
   <AnchorLink>Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
   <AnchorLink>Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
   <AnchorLink>Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector</AnchorLink>
-  <AnchorLink>Scenario 4: Run the solution component on Kubernetes as a Service</AnchorLink> 
+  <AnchorLink>Scenario 4: Run the solution component on premise as a Service</AnchorLink> 
 </AnchorLinks>
 
 ## Overview
 
-This lab will address multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Cloud:
+This lab will address multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Cloud. At the high level Kafka connect is use to integrate external systems into the Kafka ecosystem. For example external system can inject message to queue manager, from which a first Kafka source connector will get the message to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, that will be use by Sink connectors.
 
 ![1](./images/kconnect-overview.png)
 
-The end to end scenario is address a classical business use case where stores are sending their transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservice, real time analytics and complex event processing, Kafka is added to the legacy environment. Adopting Kafka connect let integrate with existing applications without any changes. For example the scenario illustrate JDBC Sink connector to save to existing data base.
+To support this lab we are reusing a classical business use case where stores are sending their transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservice, real time analytics and complex event processing, Kafka is added to the legacy environment. Adopting Kafka connect lets integrate with existing applications without any changes. 
 
-This lab is about Kafka Connect running on Kubernetes and accessing public cloud Event Streams instance.
+## Solution anatomy
 
-For this lab the input messaging is RabbitMQ, the output messaging is MQ, the database is DB2 on Cloud.
+The lab is divided into scenarios that can be combined to support the real time inventory data pipeline as illustrated in the figure below:
 
-<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a Kubernetes cluster. We propose to run the components with docker compose for the scenario 1,2,3 and do a deployment of the components on Kubernetes as a service on scenario 4. If you do not want to build all the components, we have each of them available in dockerhub and the docker compose file should run automatically.
+![2](./images/kconnect-scenario-components.png) 
+
+1. The store application, is a Quarkus based app, generating item sales to RabbitMQ `items` queue. The code of this application is under the `store-sale-producer` folder, in the [lab repository](https://github.com/jbcodeforce/eda-kconnect-lab/). We will address how to get this code in the pre-requisite section.
+
+    * RabbitMQ runs in docker image started locally via docker compose. The messages are in the `items` queue.
+    * The lab, focusing on the injection to Kafka, is documented in the [scenario 2](#scenario-2:-rabbitmq-on-premise-to-event-streams-on-cloud-via-rabbitmq-connector-source).
+    * [A] The Sink connector description is in the [kconnect](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/kconnect) folder.
+    * Kafka backbone is Event Streams on Cloud.
+1. The inventory MS is a Kafka Stream application, done with Reactive Messaging and Kafka Stream API. The folder is  
+For example the scenario illustrate JDBC Sink connector to save to existing data base.
+1. The mock up Inventory mainframe application is not implemented and we will use the MQ tools to view the message in the `inventory` queue 
+
+    * The MQ Sink connector [B] configuration is defined in the [kconnect](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/kconnect) folder.
+    * MQ broker runs in docker container started with docker-compose
+    * The lab scenario is [the number 1](#scenario-1:-event-streams-on-cloud-to-mq-on-premise-via-mq-connector-sink)
+1. The Inventory Application, using DB2 as datasource is a quarkus app using hibernate with panache, defined in the [nventory-app](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/inventory-app) folder
+
+    * The JDBC Sink connector [C] configuration is defined in the [kconnect](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/kconnect) folder.
+    * The [scenario 3](#scenario-3:-event-streams-on-cloud-to-db2-on-premise-via-jdbc-sink-connector) lab goes over how the Kafka Connect JDBC sink works.
+1. The [scenario 4](#scenario-4:-run-the-solution-components-end-to-end-on-kubernetes) addresses the end to end solution, which is basically an end to end demonstration of a simple data pipeline for a real time view of an inventory solution. 
+
+<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a premise cluster. We propose to run the components with docker compose for the scenario 1,2,3 and scenario 4 is for a deployment of the components on a kubernetes cluster that could run on premise or on any cloud provider using Openshift. If you do not want to build all the components, we have each of them available in docker hub and the docker compose file should run them automatically.
 </InlineNotification>
 
 ## General pre-requisites
@@ -33,14 +54,12 @@ We need the following IBM Cloud services created and tools to run the lab. We tr
 
 * [Docker](https://docs.docker.com/) and docker compose to run the solution locally.
 * Event Streams instance, may be reuse the one created in [this lab](./es-cloud/).
-* [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started).
-* [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial).
 * [IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started).
 * If you want to run locally you need to get [docker compose](https://docs.docker.com/compose/).
 * [git CLI](https://git-scm.com/downloads).
 * [Maven](https://maven.apache.org/install.html).
 
-For the on-premise environment, we will not use VMs, but simply run some of the components on IBM Kubernetes Service platform or Openshift. The point is that the workload is packaged as container images and can run anywhere.
+For the on-premise environment, we will not use VMs, but simply run some of the components on IBM premise Service platform or Openshift. The point is that the workload is packaged as container images and can run anywhere.
 
 ## Scenario setup
 
@@ -54,13 +73,41 @@ For the on-premise environment, we will not use VMs, but simply run some of the 
     * `ibmcloud es topic-create items`
 1. Create API KEY with a manager-level access.
 1. Clone the lab repository: `git clone https://github.com/jbcodeforce/eda-kconnect-lab && cd eda-kconnect-lab`.
-1. Prepare the script to set the environment variables used by all the components of the solution, like the Kafka broker URLs, by first renaming the `scripts/setenv-TMP.sh` to `scripts/setenv.sh` and then modify the KAFKA_BROKERS and KAFKA_APIKEY with the respecting values from the Event Streams credentials.
+1. Prepare the script to set the environment variables used by all the components of the solution, like the Kafka broker URLs and APIKEy. 
+
+    * First rename the `scripts/setenv-TMP.sh` to `scripts/setenv.sh` 
+    * Then modify the KAFKA_BROKERS and KAFKA_APIKEY with the respecting values as defined in the Event Streams credentials.
+
+  ```json
+  {
+    "api_key": "bA ... Qp",
+    "apikey": "bA ... Qp",
+    "iam_apikey_description": "Auto-generated for key 4d ... c6",
+    "iam_apikey_name": "es-mgr-creds",
+    "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+    "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/db ... f2::serviceid:ServiceId-7a ... 6d",
+    "instance_id": "29 ... 15",
+    "kafka_admin_url": "https://70 ... 1g.svc01.us-east.eventstreams.cloud.ibm.com",
+    "kafka_brokers_sasl": [
+      "broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+      "broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+      "broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+      "broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+      "broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
+      "broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093"
+    ],
+    "kafka_http_url": "https://70 ... 1g.svc01.us-east.eventstreams.cloud.ibm.com",
+    "password": "bA ... Qp",
+    "user": "token"
+  }
+  ```
+
 1. Prepare the Kafka Connect environment, as we need to use three connectors. Therefore we need to clone the source, build and get the jars file in the connectors. In fact we have developed scripts to automate those tedious steps:
 
   * Under the `kconnect` folder run `./setupConnectors.sh` script and get the three connectors downloaded and built.
-  * Build a docker image for the connector: this is also done by running the script: `./createOrStartKconnect.sh build`.
+  * Build a docker image for the connector: this is also done by running a second script: `./createOrStartKconnect.sh build`.
 
-<InlineNotification kind="info">You need to decide what 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a Kubernetes cluster. We propose to run the components with docker compose for the scenario 1,2,3 and do a deployment of the components on Kubernetes as a service on scenario 4.
+<InlineNotification kind="info">You need to decide what 'on-premise' environment is for this lab. You can run with docker compose, or deploy on a premise cluster. We propose to run the components with docker compose for the scenario 1,2,3 and do a deployment of the components on premise as a service on scenario 4.
 </InlineNotification>
 
 ## Scenario 1: Event Streams on Cloud to MQ on premise via MQ connector sink
@@ -69,31 +116,7 @@ This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://git
 
 ### Pre-requisites
 
-We assume that you have an instance of Event Streams already running on IBM Cloud with a set of manager-level credentials created.  The credentials will come in the form of a JSON document similar to below:
-
-```
-{
-  "api_key": "bA ... Qp",
-  "apikey": "bA ... Qp",
-  "iam_apikey_description": "Auto-generated for key 4d ... c6",
-  "iam_apikey_name": "es-mgr-creds",
-  "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
-  "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/db ... f2::serviceid:ServiceId-7a ... 6d",
-  "instance_id": "29 ... 15",
-  "kafka_admin_url": "https://70 ... 1g.svc01.us-east.eventstreams.cloud.ibm.com",
-  "kafka_brokers_sasl": [
-    "broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
-    "broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
-    "broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
-    "broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
-    "broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093",
-    "broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093"
-  ],
-  "kafka_http_url": "https://70 ... 1g.svc01.us-east.eventstreams.cloud.ibm.com",
-  "password": "bA ... Qp",
-  "user": "token"
-}
-```
+We assume that you have an instance of Event Streams already running on IBM Cloud with a set of manager-level credentials created.  The credentials will come in the form of a JSON document as seen in the previous section.
 Take note of the `kafka_brokers_sasl` and `password` fields for use while configuring the sink connector.
 
 We will use the `inventory` topic created in the Scenario Setup above.
@@ -106,7 +129,7 @@ Here we will use Docker to create a local MQ instance.  First create a data dire
 
 Then create the container.
 
-```
+```shell
 docker run                     \
   --name mq                    \
   --detach                     \
@@ -125,7 +148,7 @@ You should be able to log into the MQ server on port 9443 with default user `adm
 
 Connect to the running MQ instance to create a Channel and Queue as described on the [Using IBM MQ with Kafka Connect](https://github.com/ibm-messaging/kafka-connect-mq-sink/blob/master/UsingMQwithKafkaConnect.md) page.
 
-```
+```shell
 docker exec -ti mq bash
 strmqm QM1
 runmqsc QM1
@@ -299,9 +322,100 @@ You should now have a working MQ sink.
 
 ## Scenario 2: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
 
-In this scenario we are using another connector from [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). 
+In this scenario we are using another connector from [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). The configuration for the connector is also done in json, with a POST to the Kafka connectors URL.
+
+The [lab repository](https://github.com/jbcodeforce/eda-kconnect-lab) includes a docker compose file (`RabbitMQ-Kconnect-compose.yaml`) under the `infrastructure` folder. 
+
+In scenario 1, the we were using the official IBM MQ Connector docker image, but in this scenario we have to define a Kafka connect image that includes also the RabbitMQ and JDBC connector. Which means we needs to get the different connector jar files, and build a docker image. Those steps were described in [previous section](#scenario-setup).
+
+### Start the backend environment
+
+In this section we start RabbitMQ, Kafka Connect and the Store Sale generator app.
+
+Under the infrastructure folder use the command: `docker-compose -f RabbitMQ-Kconnect-compose.yaml up`
+
+The trace includes RabbitMQ logs, storeSaleGenerator_1 and Kafka connect. Here is a small extract of important messages:
+
+```shell
+rabbitmq_1            | 2020-06-17 06:12:58.293 [info] <0.9.0> Server startup complete; 4 plugins started.
+rabbitmq_1            |  * rabbitmq_management
+rabbitmq_1            |  * rabbitmq_web_dispatch
+rabbitmq_1            |  * rabbitmq_management_agent
+rabbitmq_1            |  * rabbitmq_amqp1_0
+rabbitmq_1            |  completed with 4 plugins.
+.... 
+storeSaleGenerator_1  | 2020-06-17 06:12:44,056 INFO  [io.quarkus] (main) Profile prod activated. 
+storeSaleGenerator_1  | 2020-06-17 06:12:44,057 INFO  [io.quarkus] (main) Installed features: [cdi, mutiny, resteasy, resteasy-jsonb, smallrye-openapi, smallrye-reactive-messaging, smallrye-reactive-messaging-amqp, vertx]
+```
+
+### Verify the RabbitMQ settings
+
+In a Web Browser go to [http://localhost:1567/](http://localhost:1567/) using the rabbit-user/rabbit-pass login. 
+
+You should reach this console:
+
+![7](./images/rabbitmq-overview.png)
+
+Go to the Queue tab and add `items` queue:
+
+![8](./images/rabbitmq-item-queue.png)
+
+With the following result
+
+![9](./images/rabbitmq-item-queue-2.png)
 
 ### Configure the kafka connector for Rabbitmq source 
+
+The `rabbitmq-source.json` define the connector and the RabbitMQ connection parameters:
+
+```json
+{
+    "name": "RabbitMQSourceConnector",
+    "config": {
+        "connector.class": "com.ibm.eventstreams.connect.rabbitmqsource.RabbitMQSourceConnector",
+        "tasks.max": "1",
+        "kafka.topic" : "items",
+        "rabbitmq.host": "rabbitmq",
+        "rabbitmq.queue" : "items",
+        "rabbitmq.prefetch.count" : "500",
+        "rabbitmq.automatic.recovery.enabled" : "true",
+        "rabbitmq.network.recovery.interval.ms" : "10000",
+        "rabbitmq.topology.recovery.enabled" : "true"
+    }
+}
+```
+
+This file is uploaded to Kafka Connect via a PORT operation:
+
+```shell
+curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors   --data "@./rabbitmq-source.json"
+```
+
+To verify use: `curl -X GET http://localhost:8083/connectors`
+
+### Generate sale messages
+
+The Store application has an OpenAPI definition so using the following URL we can access the `/stores/start/2` api:
+
+![5](./images/store-app-1.png)
+
+Or use `curl -X POST http://localhost:8080/stores/start/2`
+
+### Verify messages arrived in Kafka items topic
+
+We can use the Kafdrop tool to go to the `items` topic as illustrated below. The tool can be started via the `./startKafdrop.sh` command under the `infrastructure` folder after setting a `kakfa.properties` file as:
+
+```properties
+security.protocol=SASL_SSL
+ssl.protocol=TLSv1.2
+ssl.enabled.protocols=TLSv1.2
+ssl.endpoint.identification.algorithm=HTTPS
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="APIKEY";
+```
+
+![](./images/kafdrop.png)
+
 
 ## Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector
 
@@ -403,4 +517,9 @@ sending -> {'storeName': 'PT02', 'itemCode': 'IT00', 'id': 1, 'timestamp': 15912
 
 Using the DB2 console, use the `select * from inventory;` SQL query to get the last records.
 
-## Scenario 4: Run the solution component on Kubernetes as a Service
+## Scenario 4: Run the solution components end to end on Kubernetes
+
+* [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started).
+* [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial).
+
+To be terminated ! 
