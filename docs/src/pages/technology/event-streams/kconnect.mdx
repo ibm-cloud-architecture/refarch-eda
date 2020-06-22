@@ -4,17 +4,18 @@ description: A set of labs and reference for working with Kafka Connect with Eve
 ---
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Solution anatomy</AnchorLink>
   <AnchorLink>General pre-requisites</AnchorLink>
-  <AnchorLink>Scenario Setup</AnchorLink>
-  <AnchorLink>Scenario 1: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
-  <AnchorLink>Scenario 2: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
+  <AnchorLink>Scenario setup</AnchorLink>
+  <AnchorLink>Scenario 1: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
+  <AnchorLink>Scenario 2: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
   <AnchorLink>Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector</AnchorLink>
-  <AnchorLink>Scenario 4: Run the solution component on premise as a Service</AnchorLink> 
+  <AnchorLink>Scenario 4: Run the solution components end to end on Kubernetes</AnchorLink> 
 </AnchorLinks>
 
 ## Overview
 
-This lab will address multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Cloud. At the high level Kafka connect is use to integrate external systems into the Kafka ecosystem. For example external system can inject message to queue manager, from which a first Kafka source connector will get the message to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, that will be use by Sink connectors.
+This lab will address multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Cloud. At the high level Kafka connect is used to integrate external systems into the Kafka ecosystem. For example external system can inject message to queue manager, from which a first Kafka source connector will get the message to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, that will be use by Sink connectors.
 
 ![1](./images/kconnect-overview.png)
 
@@ -112,14 +113,14 @@ For the on-premise environment, we will not use VMs, but simply run some of the 
 
 ## Scenario 1: Event Streams on Cloud to MQ on premise via MQ connector sink
 
-This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data into a local MQ queue.  In this example we are using IBM Event Streams on IBM Cloud as the Kafka data source and a dockerized instance of MQ as the destination.
+This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data into a local MQ queue.  In this example we are using IBM Event Streams on IBM Cloud as the Kafka data source and a dockerized instance of MQ as the destination. We could have used MQ broker as part of Cloud Pak for integration or [as a service in IBM Cloud](https://cloud.ibm.com/docs/mqcloud/index.html).
 
 ### Pre-requisites
 
-We assume that you have an instance of Event Streams already running on IBM Cloud with a set of manager-level credentials created.  The credentials will come in the form of a JSON document as seen in the previous section.
-Take note of the `kafka_brokers_sasl` and `password` fields for use while configuring the sink connector.
+We assume that you have an instance of Event Streams already running on IBM Cloud with at least on manager-level credentials created.  The credentials will come in the form of a JSON document as seen in the previous section.
+You will need the `kafka_brokers_sasl` and `password` atribute to configure the sink connector.
 
-We will use the `inventory` topic created in the Scenario Setup above.
+This scenario uses the `inventory` topic created in the Scenario Setup in previous section.
 
 ### Create Local IBM MQ Instance
 
@@ -226,35 +227,19 @@ value.converter=org.apache.kafka.connect.json.JsonConverter
 key.converter.schemas.enable=true
 value.converter.schemas.enable=true
 
-# Topic to use for storing offsets. This topic should have many partitions and be replicated and compacted.
-# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
-# the topic before starting Kafka Connect if a specific topic configuration is needed.
-# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
-# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
-# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+# Topic to use for storing offsets. T
 offset.storage.topic=connect-offsets
 offset.storage.replication.factor=3
 #offset.storage.partitions=25
 
-# Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated,
-# and compacted topic. Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
-# the topic before starting Kafka Connect if a specific topic configuration is needed.
-# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
-# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
-# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+# Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated, and compacted topic.
 config.storage.topic=connect-configs
 config.storage.replication.factor=3
 
 # Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
-# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
-# the topic before starting Kafka Connect if a specific topic configuration is needed.
-# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
-# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
-# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
 status.storage.topic=connect-status
 status.storage.replication.factor=3
-
-#status.storage.partitions=5
+status.storage.partitions=5
 
 # Flush much faster than normal, which is useful for testing/debugging
 offset.flush.interval.ms=10000
@@ -364,6 +349,7 @@ With the following result
 
 ![9](./images/rabbitmq-item-queue-2.png)
 
+
 ### Configure the kafka connector for Rabbitmq source 
 
 The `rabbitmq-source.json` define the connector and the RabbitMQ connection parameters:
@@ -449,7 +435,7 @@ As a pre-requisite you need to have a [DB2 instance on cloud](https://cloud.ibm.
 
 ### Run the Kafka Connector in distributed mode
 
-The docker image built in the [setup](#scenario-setup) has the configuration for kafka connect distributed cluster, we need in this scenario to start connect and upload the DB2 Sink connector definition. To start it, run the script `./createOrStartKconnect.sh start` under `kconnect` folder.
+The docker image built in the [setup](#scenario-setup) has the configuration for kafka connect distributed cluster, we need in this scenario to start the connector and upload the DB2 Sink connector definition. To start it, run the script `./createOrStartKconnect.sh start` under `kconnect` folder.
 
 ### Upload the DB2 sink definition
 
@@ -522,4 +508,6 @@ Using the DB2 console, use the `select * from inventory;` SQL query to get the l
 * [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started).
 * [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial).
 
+1. Verify the Store Sale Simulator runs
+1. Verify the connectors `http://localhost:8083/connectors`
 To be terminated ! 
