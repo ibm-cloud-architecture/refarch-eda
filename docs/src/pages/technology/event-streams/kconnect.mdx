@@ -307,15 +307,15 @@ You should now have a working MQ sink.
 
 ## Scenario 2: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
 
-In this scenario we are using another connector from [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). The configuration for the connector is also done in json, with a POST to the Kafka connectors URL.
+In this scenario we are using the [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
 
-The [lab repository](https://github.com/jbcodeforce/eda-kconnect-lab) includes a docker compose file (`RabbitMQ-Kconnect-compose.yaml`) under the `infrastructure` folder. 
+The [lab repository](https://github.com/jbcodeforce/eda-kconnect-lab) includes a docker compose file (`RabbitMQ-Kconnect-compose.yaml`) under the `infrastructure` folder to run Rabbit MQ and Kconnect together on your local computer. 
 
-In scenario 1, the we were using the official IBM MQ Connector docker image, but in this scenario we have to define a Kafka connect image that includes also the RabbitMQ and JDBC connector. Which means we needs to get the different connector jar files, and build a docker image. Those steps were described in [previous section](#scenario-setup).
+In scenario 1, we were using the official IBM MQ Connector docker image, but in this scenario we have to define a Kafka connect image that includes the RabbitMQ and JDBC connectors. Which means we needs to get the different connector jar files, and build a docker image. Those steps were described in [previous section](#scenario-setup).
 
 ### Start the backend environment
 
-In this section we start RabbitMQ, Kafka Connect and the Store Sale generator app.
+In this section we start RabbitMQ, Kafka Connect and the Store Item Sale generator app. This app exposes a REST api to generate items sale operations that happen in a predefined set of stores.
 
 Under the infrastructure folder use the command: `docker-compose -f RabbitMQ-Kconnect-compose.yaml up`
 
@@ -335,15 +335,20 @@ storeSaleGenerator_1  | 2020-06-17 06:12:44,057 INFO  [io.quarkus] (main) Instal
 
 ### Verify the RabbitMQ settings
 
-In a Web Browser go to [http://localhost:1567/](http://localhost:1567/) using the rabbit-user/rabbit-pass login. 
+In a Web Browser go to [http://localhost:1567/](http://localhost:1567/) using the guest/guest login. 
 
 You should reach this console:
 
 ![7](./images/rabbitmq-overview.png)
 
-Go to the Queue tab and add `items` queue:
+Add a bew admin user: **rabbit-user/rabbit-pass** using the Admin tab. Enable the virtual host to be '/'.
+
+![](./images/rabbitmq-user.png)
+
+Go to the Queue tab and add `items` queue with default parameters:
 
 ![8](./images/rabbitmq-item-queue.png)
+
 
 With the following result
 
