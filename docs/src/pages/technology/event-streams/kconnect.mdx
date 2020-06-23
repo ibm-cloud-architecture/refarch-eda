@@ -377,7 +377,7 @@ Strictly speaking you don't need to move the instance of MQ previously used onto
 
 Create a ConfigMap on OpenShift with the following definition:
 
-```
+```yaml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -394,7 +394,7 @@ This will make it easier to update the MQ configuration if needed without editin
 
 Next, create the MQ Pod with the following definition:
 
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -420,7 +420,7 @@ spec:
 
 Next, define a Service to point to the MQ Pod.
 
-```
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -446,7 +446,7 @@ spec:
 
 Finally, define a Route to be able to access the admin UI.
 
-```
+```yaml
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
@@ -470,7 +470,7 @@ You will want to connect to the container and run the setup commands as describe
 
 To run the Kafka Connect MQ Sink on OpenShift or any container platform, you will need to build a container that has Kafka installed as well as the MQ Sink and proper configuration.  Typically we would use the Strimzi containerized Kafka solution to run on OpenShift, but in this case to illustrate all the components we are building a container from scratch.  The following is the Dockerfile:
 
-```
+```Dockerfile
 FROM ubuntu:20.04
 
 ADD https://mirrors.koehn.com/apache/kafka/2.5.0/kafka_2.12-2.5.0.tgz /tmp/
@@ -497,7 +497,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 We start with a vanilla Linux container, install the binary distribution of Kafka for Linux, clone the MQ Sink repository from Github, build the MQ Sink, and finally copy in some template files.  Finally the container runs a custom entrypoint script as shown below:
 
-```
+```shell
 #!/bin/sh
 
 set -x
@@ -530,7 +530,7 @@ The two template configuration files that are copied into the container are show
 
 ### connect-distributed.properties:
 
-```
+```shell
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 bootstrap.servers=KAFKA_BOOTSTRAP_SERVERS
 ssl.enabled.protocols=TLSv1.2
@@ -603,7 +603,7 @@ offset.flush.interval.ms=10000
 
 ### mq-sink-connector-config.json:
 
-```
+```json
 {
   "name": "mq-sink-connector",
   "config":
@@ -631,7 +631,7 @@ Notice in these two files there are several capitalized variables which are repl
 
 To deploy the container on OpenShift, we create a `ConfigMap` with information about the IBM EventStreams on IBM Cloud instance as well as the local instance of MQ on OpenShift.
 
-```
+```yaml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -653,7 +653,7 @@ data:
 
 Finally to deploy the MQ Sink container, we create a Pod definition on OpenShift:
 
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -672,7 +672,7 @@ spec:
 
 With the correct credentials for IBM EventStreams and IBM MQ, Kafka Connect should connect to both services and pull data from the EventStreams topic configured to the MQ Queue configured.  You will see signs of success in the container output (via oc logs, or in the UI):
 
-```
+```shell
 + curl -X POST -H Content-Type: application/json http://localhost:8083/connectors --data @/opt/kafka-connect-mq-sink/config/mq-sink.json
 ...
 {"name":"mq-sink-connector","config":{"connector.class":"com.ibm.eventstreams.connect.mqsink.MQSinkConnector","tasks.max":"1","topics":"inventory","key.converter":"org.apache.kafka.connect.storage.StringConverter","value.converter":"org.apache.kafka.connect.storage.StringConverter","mq.queue.manager":"QM1","mq.connection.name.list":"mq-service(1414)","mq.user.name":"admin","mq.password":"passw0rd","mq.user.authentication.mqcsp":"true","mq.channel.name":"KAFKA.CHANNEL","mq.queue":"INVENTORY","mq.message.builder":"com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder","name":"mq-sink-connector"},"tasks":[{"connector":"mq-sink-connector","task":0}],"type":"sink"}
@@ -786,7 +786,8 @@ Starting connector RabbitMQSourceConnector
 ```
 
 And Rabbitmq that get the connection from Kafka Connect.
-```
+
+```shell
 rabbitmq_1  [info] <0.1766.0> accepting AMQP connection <0.1766.0> (172.19.0.3:33040 -> 172.19.0.2:5672)
 kconnect_1  INFO Creating Channel (com.ibm.eventstreams.connect.rabbitmqsource.RabbitMQSourceTask:61)
 rabbitmq_1  connection <0.1766.0> (172.19.0.3:33040 -> 172.19.0.2:5672): user 'rabbit-user' authenticated and granted access to vhost '/'
@@ -923,12 +924,6 @@ sending -> {'storeName': 'PT02', 'itemCode': 'IT00', 'id': 1, 'timestamp': 15912
 Using the DB2 console, use the `select * from inventory;` SQL query to get the last records.
 
 ## Scenario 5: Run the solution components end to end on Kubernetes
-
-This solution covers all the components of the data pipeline. It still uses DB2 and Event Streams on Cloud but deploy all the other component in OpenShift as part of IBM Kubernetes Service.
-
-### Pre-requisites
-
-Create the following services in IBM Cloud:
 
 This solution covers all the components of the data pipeline. It still uses DB2 and Event Streams on Cloud but deploy all the other component in OpenShift as part of IBM Kubernetes Service.
 
