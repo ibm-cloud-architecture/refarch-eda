@@ -8,9 +8,10 @@ description: A set of labs and reference for working with Kafka Connect with Eve
   <AnchorLink>General pre-requisites</AnchorLink>
   <AnchorLink>Scenario setup</AnchorLink>
   <AnchorLink>Scenario 1: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
-  <AnchorLink>Scenario 2: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
-  <AnchorLink>Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector</AnchorLink>
-  <AnchorLink>Scenario 4: Run the solution components end to end on Kubernetes</AnchorLink> 
+  <AnchorLink>Scenario 2: Deploying Kafka Connector MQ Sink to OpenShift</AnchorLink>
+  <AnchorLink>Scenario 3: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
+  <AnchorLink>Scenario 4: Event Streams on Cloud to DB2 on premise via JDBC Sink connector</AnchorLink>
+  <AnchorLink>Scenario 5: Run the solution components end to end on Kubernetes</AnchorLink> 
 </AnchorLinks>
 
 ## Overview
@@ -279,7 +280,7 @@ Save this file to the `config` directory as well.
 
 Finally, create a JSON configuraiton file for the MQ sink.  This can be stored anywhere but it can be conveniently created in the `config` directory.  We name this file `mq-sink.json`.
 
-```
+```json
 {
     "name": "mq-sink",
     "config":
@@ -364,7 +365,326 @@ To remove the connector do the following command. Do this specially if you go to
 curl -X DELETE http://localhost:8083/connectors/mq-sink
 ```
 
-## Scenario 2: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
+## Scenario 2: Deploying Kafka Connector MQ Sink to OpenShift
+
+### Prerequisites
+
+We are assuming you already have an instance of IBM EventStreams running on IBM Cloud from previous scenarios.  Also, we assume you have a running instance of OpenShift with a project created to run the MQ Sink.  Finally, we assume you're familia with OpenShift and Kubernetes and will know how to work with the configuration files provided below.
+
+### MQ on OpenShift
+
+Strictly speaking you don't need to move the instance of MQ previously used onto OpenShift for the MQ Sink to work however the configuration to do so is provided.  Note that this is not a production configuration and is intended for POC purposes only.
+
+Create a ConfigMap on OpenShift with the following definition:
+
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mq-config
+  namespace: mq-demo
+data:
+    LICENSE: accept
+    MQ_QMGR_NAME: QM1
+    MQ_APP_PASSWORD: admin
+    MQ_ENABLE_METRICS: "true"
+```
+
+This will make it easier to update the MQ configuration if needed without editing everything in the Pod definition.
+
+Next, create the MQ Pod with the following definition:
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ibm-mq
+  labels:
+    app: mq-kafka-sink-demo-app
+  namespace: mq-demo
+spec:
+  containers:
+    - name: ibm-mq
+      image: ibmcom/mq
+      ports:
+        - containerPort: 1414
+          protocol: TCP
+        - containerPort: 9443
+          protocol: TCP
+        - containerPort: 9157
+          protocol: TCP
+      envFrom:
+        - configMapRef:
+            name: mq-config
+```
+
+Next, define a Service to point to the MQ Pod.
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mq-service
+  namespace: mq-demo
+spec:
+  selector:
+    app: mq-kafka-sink-demo-app
+  ports:
+    - name: mq-port
+      protocol: TCP
+      port: 1414
+      targetPort: 1414
+    - name: mq-portal
+      protocol: TCP
+      port: 9443
+      targetPort: 9443
+    - name: mq-dunno
+      protocol: TCP
+      port: 9157
+      targetPort: 9157
+```
+
+Finally, define a Route to be able to access the admin UI.
+
+```
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: mq-route
+  namespace: mq-demo
+spec:
+  host: ibmmq.bnpp.apps.openshift.proxmox.lab
+  to:
+    kind: Service
+    name: mq-service
+    weight: 100
+  port:
+    targetPort: mq-portal
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+```
+
+You will want to connect to the container and run the setup commands as described in a previous scenario.  At this point, IBM MQ should be running and available on OpenShift.
+
+To run the Kafka Connect MQ Sink on OpenShift or any container platform, you will need to build a container that has Kafka installed as well as the MQ Sink and proper configuration.  Typically we would use the Strimzi containerized Kafka solution to run on OpenShift, but in this case to illustrate all the components we are building a container from scratch.  The following is the Dockerfile:
+
+```
+FROM ubuntu:20.04
+
+ADD https://mirrors.koehn.com/apache/kafka/2.5.0/kafka_2.12-2.5.0.tgz /tmp/
+
+RUN apt update                                                                                                     && \
+    apt install -y curl git maven                                                                                  && \
+    tar -C /opt -xvf /tmp/kafka_2.12-2.5.0.tgz                                                                     && \
+    rm -f /tmp/kafka_2.12-2.5.0.tgz                                                                                && \
+    ln -s /opt/kafka_2.12-2.5.0 /opt/kafka                                                                         && \
+    mv -f /opt/kafka/config/connect-distributed.properties /opt/kafka/config/connect-distributed.properties.bak    && \
+    cd /opt                                                                                                        && \
+    git clone https://github.com/ibm-messaging/kafka-connect-mq-sink.git                                           && \
+    cd /opt/kafka-connect-mq-sink                                                                                  && \
+    mvn clean package                                                                                              && \
+    ln -s /opt/kafka-connect-mq-sink/target/kafka-connect-mq-sink-1.3.0-jar-with-dependencies.jar /opt/kafka/libs/ && \
+    mv -f /opt/kafka-connect-mq-sink/config/mq-sink.json /opt/kafka-connect-mq-sink/config/mq-sink.json.bak
+
+COPY connect-distributed.properties /opt/kafka/config/connect-distributed.properties
+COPY mq-sink-connector-config.json /opt/kafka-connect-mq-sink/config/mq-sink.json
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+```
+
+We start with a vanilla Linux container, install the binary distribution of Kafka for Linux, clone the MQ Sink repository from Github, build the MQ Sink, and finally copy in some template files.  Finally the container runs a custom entrypoint script as shown below:
+
+```
+#!/bin/sh
+
+set -x
+
+sed -i "s/KAFKA_BOOTSTRAP_SERVERS/${KAFKA_BOOTSTRAP_SERVERS}/g" /opt/kafka/config/connect-distributed.properties
+sed -i "s/KAFKA_API_KEY/${KAFKA_API_KEY}/g"                     /opt/kafka/config/connect-distributed.properties
+
+
+sed -i "s/KAFKA_TOPICS/${KAFKA_TOPICS}/g"         /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_QUEUE_MANAGER/${MQ_QUEUE_MANAGER}/g" /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_HOST/${MQ_HOST}/g"                   /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_PORT/${MQ_PORT}/g"                   /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_USER/${MQ_USER}/g"                   /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_PASSWORD/${MQ_PASSWORD}/g"           /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_CHANNEL/${MQ_CHANNEL}/g"             /opt/kafka-connect-mq-sink/config/mq-sink.json
+sed -i "s/MQ_QUEUE/${MQ_QUEUE}/g"                 /opt/kafka-connect-mq-sink/config/mq-sink.json
+
+/opt/kafka/bin/connect-distributed.sh /opt/kafka/config/connect-distributed.properties &
+
+sleep 60
+curl -X DELETE -H "Content-Type: application/json" http://localhost:8083/connectors/mq-sink-connector
+curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors --data "@/opt/kafka-connect-mq-sink/config/mq-sink.json"
+
+tail -f /dev/null
+```
+
+Again this is not a production-ready entrypoint container script; it's intended for POC purposes.  The script updates the template files copied into the container with values from the environment (either `--env` using Docker, or from a `ConfigMap` in OpenShift) and then starts Kafka Connect in distributed mode.  It pauses the script for 1 minute to let Kafka Connect start, then finally activates the MQ Sink by POSTing the MQ Sink configuration using `cURL`.
+
+The two template configuration files that are copied into the container are shown below.
+
+### connect-distributed.properties:
+
+```
+# A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+bootstrap.servers=KAFKA_BOOTSTRAP_SERVERS
+ssl.enabled.protocols=TLSv1.2
+ssl.protocol=TLS
+security.protocol=SASL_SSL
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="KAFKA_API_KEY";
+
+# Consumer side configuration
+consumer.bootstrap.servers=KAFKA_BOOTSTRAP_SERVERS
+consumer.security.protocol=SASL_SSL
+consumer.ssl.protocol=TLSv1.2
+consumer.sasl.mechanism=PLAIN
+consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="KAFKA_API_KEY";
+
+# Producer Side
+producer.bootstrap.servers=KAFKA_BOOTSTRAP_SERVERS
+producer.security.protocol=SASL_SSL
+producer.ssl.protocol=TLSv1.2
+producer.sasl.mechanism=PLAIN
+producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="KAFKA_API_KEY";
+
+plugin.path=/opt/kafka/libs
+
+# unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
+group.id=mq-sink-cluster
+
+# The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
+# need to configure these based on the format they want their data in when loaded from or stored into Kafka
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+# Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply
+# it to
+key.converter.schemas.enable=true
+value.converter.schemas.enable=true
+
+# Topic to use for storing offsets. This topic should have many partitions and be replicated and compacted.
+# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+offset.storage.topic=connect-offsets
+offset.storage.replication.factor=3
+#offset.storage.partitions=25
+
+# Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated,
+# and compacted topic. Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+config.storage.topic=connect-configs
+config.storage.replication.factor=3
+
+# Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
+# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+status.storage.topic=connect-status
+status.storage.replication.factor=3
+
+#status.storage.partitions=5
+
+# Flush much faster than normal, which is useful for testing/debugging
+offset.flush.interval.ms=10000
+```
+
+### mq-sink-connector-config.json:
+
+```
+{
+  "name": "mq-sink-connector",
+  "config":
+  {
+      "connector.class": "com.ibm.eventstreams.connect.mqsink.MQSinkConnector",
+      "tasks.max": "1",
+      "topics": "KAFKA_TOPICS",
+
+      "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+      "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+
+      "mq.queue.manager": "MQ_QUEUE_MANAGER",
+      "mq.connection.name.list": "MQ_HOST(MQ_PORT)",
+      "mq.user.name": "MQ_USER",
+      "mq.password": "MQ_PASSWORD",
+      "mq.user.authentication.mqcsp": true,
+      "mq.channel.name": "MQ_CHANNEL",
+      "mq.queue": "MQ_QUEUE",
+      "mq.message.builder": "com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder"
+  }
+}
+```
+
+Notice in these two files there are several capitalized variables which are replaced by the entrypoint.sh script at container startup.
+
+To deploy the container on OpenShift, we create a `ConfigMap` with information about the IBM EventStreams on IBM Cloud instance as well as the local instance of MQ on OpenShift.
+
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mq-kafka-sink-demo-config
+  namespace: mq-demo
+data:
+  KAFKA_API_KEY: bA ... Qp
+  KAFKA_BOOTSTRAP_SERVERS: >-
+    broker-1- ... eventstreams.cloud.ibm.com:9093,broker-0- ... eventstreams.cloud.ibm.com:9093,broker-4- ... eventstreams.cloud.ibm.com:9093,broker-2- ... eventstreams.cloud.ibm.com:9093,broker-5- ... eventstreams.cloud.ibm.com:9093,broker-3- ... eventstreams.cloud.ibm.com:9093
+  KAFKA_TOPICS: inventory
+  MQ_HOST: mq-service
+  MQ_PORT: "1414"
+  MQ_USER: admin
+  MQ_QUEUE_MANAGER: QM1
+  MQ_PASSWORD: passw0rd
+  MQ_CHANNEL: KAFKA.CHANNEL
+  MQ_QUEUE: INVENTORY
+```
+
+Finally to deploy the MQ Sink container, we create a Pod definition on OpenShift:
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mq-kafka-sink-demo
+  labels:
+    app: mq-kafka-sink-demo-app
+  namespace: mq-demo
+spec:
+  containers:
+    - name: mq-kafka-sink-demo
+      image: registry/mq-kafka-sink-demo:0.0.1
+      envFrom:
+        - configMapRef:
+            name: mq-kafka-sink-demo-config
+```
+
+With the correct credentials for IBM EventStreams and IBM MQ, Kafka Connect should connect to both services and pull data from the EventStreams topic configured to the MQ Queue configured.  You will see signs of success in the container output (via oc logs, or in the UI):
+
+```
++ curl -X POST -H Content-Type: application/json http://localhost:8083/connectors --data @/opt/kafka-connect-mq-sink/config/mq-sink.json
+...
+{"name":"mq-sink-connector","config":{"connector.class":"com.ibm.eventstreams.connect.mqsink.MQSinkConnector","tasks.max":"1","topics":"inventory","key.converter":"org.apache.kafka.connect.storage.StringConverter","value.converter":"org.apache.kafka.connect.storage.StringConverter","mq.queue.manager":"QM1","mq.connection.name.list":"mq-service(1414)","mq.user.name":"admin","mq.password":"passw0rd","mq.user.authentication.mqcsp":"true","mq.channel.name":"KAFKA.CHANNEL","mq.queue":"INVENTORY","mq.message.builder":"com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder","name":"mq-sink-connector"},"tasks":[{"connector":"mq-sink-connector","task":0}],"type":"sink"}
+...
+[2020-06-23 04:26:26,054] INFO Creating task mq-sink-connector-0 (org.apache.kafka.connect.runtime.Worker:419)
+...[2020-06-23 04:26:26,449] INFO Connection to MQ established (com.ibm.eventstreams.connect.mqsink.JMSWriter:229)
+[2020-06-23 04:26:26,449] INFO WorkerSinkTask{id=mq-sink-connector-0} Sink task finished initialization and start (org.apache.kafka.connect.runtime.WorkerSinkTask:306)
+```
+
+You should now have the Kafka Connector MQ Sink running on OpenShift.
+
+## Scenario 3: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source
 
 In this scenario we are using the [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
 
@@ -502,7 +822,7 @@ sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule require
 ![](./images/kafdrop.png)
 
 
-## Scenario 3: Event Streams on Cloud to DB2 on premise via JDBC Sink connector
+## Scenario 4: Event Streams on Cloud to DB2 on premise via JDBC Sink connector
 
 This scenario is using the [IBM Kafka Connect sink connector for JDBC](https://github.com/ibm-messaging/kafka-connect-jdbc-sink) to get data from the `inventory topic` and write records to the `inventory` table in DB2. This lab explain the definition of the connector and how to run an integration test that sends data to the inventory topic.
 
@@ -602,7 +922,7 @@ sending -> {'storeName': 'PT02', 'itemCode': 'IT00', 'id': 1, 'timestamp': 15912
 
 Using the DB2 console, use the `select * from inventory;` SQL query to get the last records.
 
-## Scenario 4: Run the solution components end to end on Kubernetes
+## Scenario 5: Run the solution components end to end on Kubernetes
 
 This solution covers all the components of the data pipeline. It still uses DB2 and Event Streams on Cloud but deploy all the other component in OpenShift as part of IBM Kubernetes Service.
 
@@ -615,7 +935,7 @@ Create the following services in IBM Cloud:
 
 ### Deployment
 
-To be terminated ! 
+To be finished ! 
 
 1. Verify the Store Sale Simulator runs
 1. Verify the connectors `http://localhost:8083/connectors`
