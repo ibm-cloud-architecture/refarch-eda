@@ -32,8 +32,10 @@
       path: /patterns/saga/
     - title: Dead Letter Queue
       path: /patterns/dlq/
-    - title: Data Replication
-      path: /patterns/data-replication/
+    - title: Topic Replication
+      path: /patterns/topic-replication/
+    - title: Data Pipeline
+      path: /patterns/data-pipeline/
     - title: Realtime Analytics
       path: /patterns/realtime-analytics/
 - title: Methodology
