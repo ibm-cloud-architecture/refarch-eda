@@ -5,4 +5,8 @@ description: Advantages of event-driven architectures, related to characteristic
 
 # Resiliency
 
-TBD
+The reduction in inter-dependency between applications that is enabled in an Event-Driven architecture enables increased resiliency. If services fail, they can restart autonomously and, subsequently, recover events and replay them if needed. Their ability to self-heal means that the functionality of the whole system is less reliant on certain services being immediately available. 
+
+Reduced coupling between services means they do not need to have any knowledge of the services to which they produce or from whom they consume. There are a number of advantages to this. For example, even if a service goes down, events will still be produced or consumed once it has recovered, known as 'Guaranteed Delivery'. 
+
+For instance, let's say we run a shipping company that operates a fleet of container ships. The containers themselves could be smart edge devices, in that they collect data about the health of the container (temperature, position etc). They then do some simple aggregation and then send this data back at regular intervals to a central onshore monitoring team. If the ship network goes offline and the containers can not send back the data, it can still be collected and will be sent once the service is available again. 
