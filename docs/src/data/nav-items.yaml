@@ -70,3 +70,6 @@
 - title: Additional reading
   pages:
     - path: /additional-reading/
+- title: Contribute to this Site
+  pages:
+    - path: /contribute/
