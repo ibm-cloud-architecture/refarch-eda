@@ -1,0 +1,1324 @@
+---
+title: IBM Event Streams from IBM CloudPak for Integration
+description: Hands on lab to understand IBM Event Streams from the IBM CloudPak for Integration Schema Registry feature
+---
+
+This documentation aims to be a introductory hands-on lab on IBM Event Streams on IBM Cloud Schema Registry where we will go through the different capabilities of the Schema Registry that is available for IBM Event Streams on IBM Cloud users.
+
+We strongly recommend to complete first the **IBM Event Streams on IBM Cloud lab** you can find [here](es-cloud/).
+
+## Index
+
+<AnchorLinks>
+  <AnchorLink>Requirements</AnchorLink>
+  <AnchorLink>IBM Event Streams Service Credentials</AnchorLink>
+  <AnchorLink>Python Demo Environment</AnchorLink>
+  <AnchorLink>Schema Registry</AnchorLink>
+  <AnchorLink>Schemas</AnchorLink>
+  <AnchorLink>Python Avro Producer</AnchorLink>
+  <AnchorLink>Python Avro Consumer</AnchorLink>
+  <AnchorLink>Schemas and Messages</AnchorLink>
+  <AnchorLink>Data Evolution</AnchorLink>
+  <AnchorLink>Security</AnchorLink>
+</AnchorLinks>
+
+## Requirements
+
+This lab requires the following components to work against:
+
+1. An IBM Event Streams instance installed through the IBM CloudPak for Integration.
+
+On your development workstation you will need:
+
+1. IBM Cloud Pak CLI - <https://www.ibm.com/support/knowledgecenter/SSGT7J_20.1/cloudctl/3.2.3/install_cli.html>
+1. IBM CLoud Pak CLI Event Streams plugin - <https://ibm.github.io/event-streams/installing/post-installation/#installing-the-command-line-interface-cli>
+1. Docker - <https://docs.docker.com/get-docker/>
+1. Our GitHub repository with the material for this lab (<https://github.com/ibm-cloud-architecture/refarch-eda-tools>) cloned on your laptop:
+	1. Clone the github repository on your workstation on the location of your choice and change directory into `refarch-eda-tools/labs/es-cp4i-schema-lab` where we will be running the rest of the command from throughout this lab:
+
+```shell
+$ git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools.git
+Cloning into 'refarch-eda-tools'...
+remote: Enumerating objects: 185, done.
+remote: Counting objects: 100% (185/185), done.
+remote: Compressing objects: 100% (148/148), done.
+remote: Total 185 (delta 23), reused 176 (delta 16), pack-reused 0
+Receiving objects: 100% (185/185), 6.17 MiB | 4.61 MiB/s, done.
+Resolving deltas: 100% (23/23), done.
+
+$ cd refarch-eda-tools/labs/es-cp4i-schema-lab
+
+$ ls -all
+total 240
+drwxr-xr-x   9 user  staff     288 20 May 19:33 .
+drwxr-xr-x   3 user  staff      96 20 May 19:33 ..
+-rw-r--r--   1 user  staff    1012 20 May 19:33 Dockerfile
+-rw-r--r--   1 user  staff  112578 20 May 19:33 README.md
+drwxr-xr-x   5 user  staff     160 20 May 19:33 avro_files
+drwxr-xr-x  27 user  staff     864 20 May 19:33 images
+drwxr-xr-x   6 user  staff     192 20 May 19:33 kafka
+-rw-r--r--   1 user  staff     286 20 May 19:33 kafka.properties
+drwxr-xr-x   6 user  staff     192 20 May 19:33 src
+```
+
+
+## IBM Event Streams Credentials
+
+First thing we need to know is how to access/connect with our IBM Event Streams instance. For doing so, we can either use the GUI or the CLI.
+
+### GUI
+
+1. Go to you IBM Event Streams instance console
+
+	![1](images/schema-registry-lab-cp4i/1.png)
+
+1. Click on _Connect to this cluster_
+
+	![2](images/schema-registry-lab-cp4i/2.png)
+
+In this panel, you will find
+
+1. The **Botstrap server** to connect your applications to in order to send and receive messages from your IBM Event Streams instance.
+1. The **API endpoint** which is also the **Schema Registry url** your applications will need to work with Apache Avro data schemas.
+1. A _Generate API key_ button to generate an **API key** and a _Certificates_ section to download either the **Java truststore** or the **PEM certificate** that your applications will need in order to authenticate and authorize against your IBM Event Streams instance.
+
+	![3](images/schema-registry-lab-cp4i/3.png)
+
+### CLI
+
+1. Log into your cluster with the IBM CloudPak CLI
+
+	```shell
+	$ cloudctl login -a https://icp-console.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud -u admin -p ****** -n eventstreams-cp4i --skip-ssl-validation
+	Authenticating...
+	OK
+
+	Targeted account mycluster Account
+
+	Targeted namespace eventstreams-cp4i
+
+	Configuring kubectl ...
+	Property "clusters.mycluster" unset.
+	Property "users.mycluster-user" unset.
+	Property "contexts.mycluster-context" unset.
+	Cluster "mycluster" set.
+	User "mycluster-user" set.
+	Context "mycluster-context" created.
+	Switched to context "mycluster-context".
+	OK
+
+	Configuring helm: /Users/user/.helm
+	OK
+	```
+
+1. Initialize the Event Streams CLI plugin
+
+	```shell
+	$ cloudctl es init
+
+	IBM Cloud Platform Common Services endpoint:   https://icp-console.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud
+	Namespace:                                     eventstreams-cp4i
+	Helm release:                                  es-cp4i
+	IBM Cloud Pak for Integration UI address:      https://ibm-icp4i-prod-integration.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud
+	Event Streams API endpoint:                    https://eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud
+	Event Streams API status:                      OK
+	Event Streams SSL client auth endpoint:        https://es-cp4i-ibm-es-clientauth-route-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud
+	Event Streams UI address:                      https://es-cp4i-ibm-es-ui-route-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud
+	Event Streams bootstrap address:               es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443
+	OK
+	```
+
+We can see above the Event Streams **bootstrap address** and **API endpoint** (and Schema Registry url) that our applications will need in order to connect to this Event Streams instance
+
+To be able to authenticate and authorize against your IBM Event Streams instance, you still need the Java truststore, the PEM certificate and an API Key:
+
+1. To download your **Java truststore** certificate, you can use the following command:
+
+	```shell
+	$ cloudctl es certificates
+	Certificate successfully written to /Users/user/Workspace/es-cert.jks.
+	OK
+	```
+
+1. To download your **PEM certificate**, you can use the following command:
+
+	```shell
+	$ cloudctl es certificates --format pem
+	Certificate successfully written to /Users/user/Workspace/es-cert.pem.
+	OK
+	```
+
+1. To generate your **API key**, you can use the following command:
+
+	```shell
+	$ cloudctl es iam-service-id-create --name eventstreams-lab-key --role administrator --all-topics --all-groups --all-txnids --all-schemas
+	Created service ID eventstreams-lab-key.
+	Created service policy for cluster.
+	Created service policy for all topics.
+	Created service policy for all consumer groups.
+	Created service policy for all Transactional IDs.
+	Created service policy for all schemas.
+
+	Please preserve the API key! It cannot be retrieved after it's created.
+
+	Service ID UUID   ServiceId-70288651-88df-436b-83f2-2ba7cbedcbeb
+	API key           *****
+	OK
+	```
+
+<InlineNotification kind="warning">
+
+We recommend to carefully set appropriate roles as well as access to topics, groups, transaction IDs and schemas for the API keys that you generate.
+
+</InlineNotification>
+
+### Environment variables
+
+Based on the IBM Event Streams credentials we gathered in the sections above, we are going to set some environment variables that will be used throughout the rest of the lab for easiness.
+
+1. **KAFKA_BROKERS** which should take the value of **bootstrap server**:
+
+	```shell
+	$ export KAFKA_BROKERS=es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443
+	```
+
+1. **KAFKA_APIKEY** which should take the value of the **API key** you have generated:
+
+	```shell
+	$ export KAFKA_APIKEY=*****
+	```
+
+1. **PEM_CERT** which should take the value of the location where the PEM certificate will be located within the docker container we will use for our development environment (explained in later section). For now, just set this to `/tmp/lab/es-cert.pem`:
+
+	```shell
+	$ export PEM_CERT=/tmp/lab/es-cert.pem
+	```
+
+	(\*) Don't forget to download both the PEM certificate and the Java truststore to your laptop (either using the GUI or the CLI) but you should have a `es-cert.jks` and `es-cert.pem` file in the same place you cloned this lab's github repository in the [requirements](#requirements) section.
+
+1. **SCHEMA_REGISTRY_URL** which should be a combination of the **API key** and the **API endpoint** (and Schema Registry url) in the form of:
+
+	`https://token:<API_key>@<API_endpointt>`
+
+	```shell
+	$ export SCHEMA_REGISTRY_URL=https://token:*****@eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud
+	```
+
+## Python Demo Environment
+
+Given that students' workstations may vary quite a lot, not only on their operating system but also on the tools installed on them and the tools we need for our lab might install differently, we have opted to provide a python demo environment in the form of a Docker container where all the libraries and tools needed are already pre-installed.
+
+### Clone
+
+<InlineNotification kind="warning">
+
+You should have cloned this lab's GitHub repository already on the [requirements](#requirements) section so you should be able to jump to the next build subsection
+
+</InlineNotification>
+
+In order to build our python demo environment we first need to clone the github repository where the assets live. This github repository is <https://github.com/ibm-cloud-architecture/refarch-eda-tools> and the specific assets we refer to can be found under the `labs/es-cp4i-schema-lab` folder:
+
+1. Clone the github repository on your workstation on the location of your choice:
+
+	```shell
+	$ git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools.git
+	Cloning into 'refarch-eda-tools'...
+	remote: Enumerating objects: 185, done.
+	remote: Counting objects: 100% (185/185), done.
+	remote: Compressing objects: 100% (148/148), done.
+	remote: Total 185 (delta 23), reused 176 (delta 16), pack-reused 0
+	Receiving objects: 100% (185/185), 6.17 MiB | 4.61 MiB/s, done.
+	Resolving deltas: 100% (23/23), done.
+	```
+
+1. Change directory into `refarch-eda-tools/labs/es-cp4i-schema-lab` to find the assets we will we working from now on for the python demo environment and few other scripts/applications:
+
+	```shell
+	$ cd refarch-eda-tools/labs/es-cp4i-schema-lab
+
+	$ ls -all
+	total 240
+	drwxr-xr-x   9 user  staff     288 20 May 19:33 .
+	drwxr-xr-x   3 user  staff      96 20 May 19:33 ..
+	-rw-r--r--   1 user  staff    1012 20 May 19:33 Dockerfile
+	-rw-r--r--   1 user  staff  112578 20 May 19:33 README.md
+	drwxr-xr-x   5 user  staff     160 20 May 19:33 avro_files
+	drwxr-xr-x  27 user  staff     864 20 May 19:33 images
+	drwxr-xr-x   6 user  staff     192 20 May 19:33 kafka
+	-rw-r--r--   1 user  staff     286 20 May 19:33 kafka.properties
+	drwxr-xr-x   6 user  staff     192 20 May 19:33 src
+	```
+
+### Build
+
+This Docker container can be built by using the [Dockerfile](Dockerfile) provided within this github repository.
+
+To build your python demo environment Docker container, execute the following on your workstation:
+
+```shell
+$ docker build -t "ibmcase/python-schema-registry-lab:latest" .
+```
+<InlineNotification kind="warning">
+
+**WARNING:**
+
+* Mind the **dot** at the end of the command.
+* Be consistent throughout the lab with the name you give to the Docker container.
+
+</InlineNotification>
+
+### Run
+
+In order to run the python demo environment Docker container, execute the following on your workstation:
+
+1. Make sure you have declared your `KAFKA_BROKERS`, `KAFKA_APIKEY` and `SCHEMA_REGISTRY_URL` environment variables as explain in the [IBM Event Streams Service Credentials](#ibm-event-streams-service-credentials) section.
+
+1. Run the python demo environment container
+
+	```shell
+	$ docker run -e KAFKA_BROKERS=$KAFKA_BROKERS \
+				 -e KAFKA_APIKEY=$KAFKA_APIKEY \
+				 -e PEM_CERT=$PEM_CERT \
+				 -e SCHEMA_REGISTRY_URL=$SCHEMA_REGISTRY_URL \
+				 -v ${PWD}:/tmp/lab \
+				 --rm \
+				 -ti ibmcase/python-schema-registry-lab:latest bash
+	```
+
+1. Go to `/tmp/lab` to find all the assets you will need to complete this lab.
+
+<InlineNotification kind="info">
+
+**INFO:** we have mounted this working directory into the container so any changes to any of the files apply within the container. This is good as we do not need to restart the python demo environment Docker container if we want to do any changes to the files.
+
+</InlineNotification>
+
+### Exit
+
+Once you are done with the python demo environment container, just execute `exit` and you will get out of the container and the container will automatically be removed from your system.
+
+## Schema Registry
+
+![diagram](images/schema-registry-lab-cp4i/schema-registry.png)
+
+One of the most common technologies used in the industry these days to define, serialize and deserialize messages flowing through your Kafka topics is Apache Avro (<https://avro.apache.org/docs/current/>). To learn more about Apache Avro, how to define Apache Avro data schemas and more, we strongly recommend to read through our documentation on Avro and data schemas [here](../../avro-schemas/)
+
+IBM Event Streams development team has developed a Schema Registry to work along your Kafka cluster to provide a place to store descriptions of the message formats used by your producers and consumers. The benefit of storing these descriptions is that you are able to validate that your producing and consuming applications will correctly inter-operate. The Schema Registry will also provide the ability for schemas to evolve in time.
+
+### Accessing the Schema Registry
+
+To access the schema registry, you simply need to click on the Schema Registry button on the main left hand vertical menu bar:
+
+  ![4](images/schema-registry-lab-cp4i/4.png)
+
+You can also interact with the Schema Registry through the IBM Event Streams CLI:
+
+```bash
+$ cloudctl es --help | grep schema
+   schema                       Display details of a schema.
+   schema-add                   Add a new schema or a new version of a schema to the registry.
+   schema-modify                Modify an entire schema or a specific schema version
+   schema-remove                Remove a schema or a version of a schema from the registry.
+   schema-verify                Verify a schema file.
+   schemas                      List the schemas in the registry.
+   schemas-export               Export the schemas in the registry to a zip file.
+   schemas-import               Import a set of schemas into the registry from a zip file.
+```
+
+## Schemas
+
+In this section we will finally get our hands dirty with the IBM Event Steams Schema Registry capability by working with Apache Avro schemas and the Schema Registry.
+
+### Create a schema
+
+Let's see how can we create a schema to start playing with.
+
+#### UI
+
+The IBM EVent Streams user interface allow us to create schemas only from _json_ or Avro schema _avsc_ files.
+
+1. Create an Avro schema file **avsc** with your schema:
+
+	```bash
+	$ echo '{              
+	"type":"record",
+	"name":"demoSchema_UI",
+	"namespace": "schemas.demo.ui",
+	"fields":[
+		{"name": "eventKey","type":"string"},
+		{"name": "message","type":"string"}]
+	}' > demoshema-ui.avsc
+	```
+
+1. On the IBM Event Streams Schema Registry User Interface, Click on _Add schema_ button on the top right corner.
+
+1. Click on _Upload definition_ button on the left hand side and select the `demoschema-ui.avsc` file we just created.
+
+1. You should now see you Avro schema loaded in the UI with two tabs, definition and preview to make sure your schema looks as desired:
+
+	![5](images/schema-registry-lab-cp4i/5.png)
+
+1. Click on _Add schema_ button at the top right corner and you should now see that schema listed among your other schemas.
+
+#### CLI
+
+1. Create another Avro schema **avsc** file with a different schema:
+
+	```bash
+	$ echo '{              
+	"type":"record",
+	"name":"demoSchema_CLI",
+	"namespace": "schemas.demo.cli",
+	"fields":[
+		{"name": "eventKey","type":"string"},
+		{"name": "message","type":"string"}]
+	}' > demoshema-cli.avsc
+	```
+
+1. Create a schema by executing the following command:
+
+	```bash
+	$ cloudctl es schema-add --file demoshema-cli.avsc 
+
+	Schema demoSchema_CLI is active.
+
+	Version   Version ID   Schema           State    Updated                         Comment   
+	1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:30:42 UTC      
+
+	Added version 1.0.0 of schema demoSchema_CLI to the registry.
+	OK
+	```
+
+### List schemas
+
+#### UI
+
+In order to list the schemas in the UI you just simply need to open up the Schema Registry User Interface and schemas will get listed in there automatically. You also have a search tool bar at the top. You can also see more details about your schema by clicking the drop down arrow on its left:
+
+  ![6](images/schema-registry-lab-cp4i/6.png)
+
+#### CLI
+
+1. Execute the following command to list the schemas in your Schema Registry:
+
+```bash
+$ cloudctl es schemas                   
+
+Schema                State    Latest version   Latest version ID   Updated   
+AircraftAssignment    active   1.0.0            1                   Tue, 09 Jun 2020 18:53:23 UTC   
+defaultValue          active   1.0.0            1                   Sat, 06 Jun 2020 18:14:41 UTC   
+demoSchema_CLI        active   1.0.0            1                   Thu, 25 Jun 2020 11:30:42 UTC   
+demoSchema_UI         active   1.0.0            1                   Thu, 25 Jun 2020 11:25:04 UTC   
+FlightTimes           active   1.0.0            1                   Tue, 09 Jun 2020 18:56:15 UTC   
+pacs008               active   1.0.0            1                   Sun, 07 Jun 2020 14:47:10 UTC   
+pacs008_cleansed      active   1.0.0            1                   Sun, 07 Jun 2020 14:46:40 UTC   
+pain013               active   1.0.0            1                   Mon, 08 Jun 2020 12:45:15 UTC   
+pain013_cleansed      active   1.0.0            1                   Mon, 08 Jun 2020 12:09:39 UTC   
+partner_sample_pain   active   1.0.0            1                   Sun, 07 Jun 2020 14:48:07 UTC   
+partner_sample2       active   1.0.0            1                   Sun, 07 Jun 2020 14:48:16 UTC   
+rtp_summation         active   1.0.0            1                   Sun, 07 Jun 2020 14:48:30 UTC   
+Schedules             active   1.0.0            1                   Tue, 09 Jun 2020 18:59:23 UTC   
+OK
+```
+
+### Delete schemas
+
+#### UI
+
+1. Click on the schema you want to delete.
+1. Click on the _Manage schema_ tab at the top.
+1. Click on _Remove schema_
+
+	![7](images/schema-registry-lab-cp4i/7.png)
+
+#### CLI
+
+To remove a schema using the CLI, simply execute the following command and confirm:
+
+```bash
+$ cloudctl es schema-remove demoSchema_CLI
+Remove schema demoSchema_CLI and all versions? [y/n]> y
+Schema demoSchema_CLI and all versions removed.
+OK
+```
+
+### Create new schema version
+
+To create a new version of a schema, 
+
+1. Let's first create again the previous two schemas:
+
+```bash
+$ cloudctl es schema-add --file demoshema-ui.avsc 
+
+Schema demoSchema_UI is active.
+
+Version   Version ID   Schema          State    Updated                         Comment   
+1.0.0     1            demoSchema_UI   active   Thu, 25 Jun 2020 11:47:36 UTC      
+
+Added version 1.0.0 of schema demoSchema_UI to the registry.
+OK
+```
+```bash
+$ cloudctl es schema-add --file demoshema-cli.avsc 
+
+Schema demoSchema_CLI is active.
+
+Version   Version ID   Schema           State    Updated                         Comment   
+1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
+
+Added version 1.0.0 of schema demoSchema_CLI to the registry.
+OK
+```
+
+1. Add a new attribute to the schemas by editing their Avro schema avsc files:
+
+```bash
+$ cat demoshema-ui.avsc 
+{
+  "type":"record",
+  "name":"demoSchema_UI",
+  "namespace": "schemas.demo.ui",
+  "fields":[
+    {"name": "eventKey","type":"string"},
+    {"name": "message","type":"string"},
+    {"name": "attribute1","type":"string"}]
+}
+```
+
+#### UI
+
+1. Click on the schema you want to create a new version for.
+1. Click on the _Add new version_ button on the left hand side.
+1. Click on _Upload definition_ button on the left hand side.
+1. Select the Avro schema avsc file and click ok.
+
+	![8](images/schema-registry-lab-cp4i/8.png)
+
+<InlineNotification kind="error">
+
+**ERROR:** The error we are seeing on the screen is because the IBM Event Streams Schema Registtry enforces full compatibility: <https://ibm.github.io/event-streams/schemas/creating/#adding-new-schema-versions>
+
+</InlineNotification>
+
+**Full compatibility** for data schemas means that messages that have been serialized with an earlier version of a schema can be deserialized with a later version. To be compatible, fields in later versions of a schema cannot be removed, and any new schema field must have a default value. More on data schema compatibility on the section [Data Evolution](#data-evolution) towards the end of this lab.
+
+As explained in the error notification above, we need to add a default value for our new attribute in our data schema so that messages serialized with an older version of the data schema which won't contain this new attribute can later be deserialized with the newer version of the data schema that expects such attribute. By providing a default value, we allow deserializers to consume messages that do not contain newer attributes.
+
+1. Add a default value for the new attribute:
+
+	```bash
+	$ cat demoshema-ui.avsc  
+	{
+	"type":"record",
+	"name":"demoSchema_UI",
+	"namespace": "schemas.demo.ui",
+	"fields":[
+		{"name": "eventKey","type":"string"},
+		{"name": "message","type":"string"},
+		{"name": "attribute1","type":"string","default": "whatever"}]
+	}
+	```
+
+1. Repeat the steps for adding a new version of a schema above.
+1. This time you should see that the schema is valid:
+
+	![9](images/schema-registry-lab-cp4i/9.png)
+
+1. However, it still does not let us add this new version to the data schema until we actually provide a version for it. Click on the _Add +_ link on the right of the version attribute of the schema and give it `2.0.0` for example (hit enter for the version to take the value you type in).
+1. Click on _Add schema_.
+1. You should now see the two versions for your data schema on the left hand side.
+
+	![10](images/schema-registry-lab-cp4i/10.png)
+
+1. If you go back to the Schema Registry page where all your schemas are listed, you should now see that the latest version for your data schema is `2.0.0` now.
+
+#### CLI
+
+1. If we try to add the new version of the schema from its `demoschema-cli.avsc` Avro schema file, we will get the same error as in the previous UI example:
+
+	```bash
+	$ cloudctl es schema-add --file demoshema-cli.avsc 
+	FAILED
+	Event Streams API request failed:
+	Error response from server. Status code: 400. Avro schema is not compatible with latest schema version: Compatibility type 'MUTUAL_READ' does not hold between 1 schema(s) in the chronology because: Schema[0] has incompatibilities: ['READER_FIELD_MISSING_DEFAULT_VALUE: attribute1' at '/fields/2'].
+
+	Unable to add version 1.0.0 of schema demoSchema_CLI to the registry.
+	```
+
+1. Add the default value for the new attribute in your Avro schema avsc file and try to add that new version of the schema:
+
+	```bash
+	$ cloudctl es schema-add --file demoshema-cli.avsc
+	FAILED
+	Event Streams API request failed:
+	Error response from server. Status code: 409. Schema version name already exists
+
+	Unable to add version 1.0.0 of schema demoSchema_CLI to the registry.
+	```
+
+1. We see that we still have an error because we have not specified a new version value. Specify a new version value when adding this new version of the schema:
+
+	```bash
+	$ cloudctl es schema-add --file demoshema-cli.avsc --version 2.0.0
+
+	Schema demoSchema_CLI is active.
+
+	Version   Version ID   Schema           State    Updated                         Comment   
+	1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
+	2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+
+	Added version 2.0.0 of schema demoSchema_CLI to the registry.
+	OK
+	```
+
+### Get latest version of a schema
+
+#### UI
+
+In order to see the latest version of a data schema using the UI, we just need to go to the Schema Registry web user interface and click on the expand arrow buttton that is on the left:
+
+ ![11](images/schema-registry-lab-cp4i/11.png)
+
+#### CLI
+
+In order to see the latest version of a data schema using the CLI, we simply need to run the following command:
+
+```bash
+$ cloudctl es schema demoSchema_CLI --version 2  
+
+{
+  "type": "record",
+  "name": "demoSchema_CLI",
+  "namespace": "schemas.demo.cli",
+  "fields": [
+    {
+      "name": "eventKey",
+      "type": "string"
+    },
+    {
+      "name": "message",
+      "type": "string"
+    },
+    {
+      "name": "attribute1",
+      "type": "string",
+      "default": "whatever"
+    }
+  ]
+}
+```
+
+(\*) The version you specify is actually the version ID (2) rather than the version name we gave to the newer schema version (2.0.0):
+
+```bash
+$ cloudctl es schema demoSchema_CLI
+
+Schema demoSchema_CLI is active.
+
+Version   Version ID   Schema           State    Updated                         Comment   
+1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
+2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+OK
+```
+
+### Get specific version of a schema
+
+#### UI
+
+To see a specific version of a schema, go to the Schema Registry web user interface and click on the schema you want to see the version for. You will now see how many version of the schema you have and you can click on any of these in order to see more details about it.
+
+  ![12](images/schema-registry-lab-cp4i/12.png)
+
+#### CLI
+
+To see a specific version of a schema using the CLI, simply run the following command with the version ID you would like to get retrieved:
+
+
+```bash
+$ cloudctl es schema demoSchema_CLI --version 1
+
+{
+  "type": "record",
+  "name": "demoSchema_CLI",
+  "namespace": "schemas.demo.cli",
+  "fields": [
+    {
+      "name": "eventKey",
+      "type": "string"
+    },
+    {
+      "name": "message",
+      "type": "string"
+    }
+  ]
+}
+```
+
+### Listing all versions of a schema
+
+#### UI
+
+To list all versions of schema in the Schema Registry user interface, you simply need to click on the data schema you want and a new page will display these:
+
+  ![12](images/schema-registry-lab-cp4i/12.png)
+
+#### CLI
+
+In order to display all versions of a schema, run the following command:
+
+```bash
+$ cloudctl es schema demoSchema_CLI            
+
+Schema demoSchema_CLI is active.
+
+Version   Version ID   Schema           State    Updated                         Comment   
+1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
+2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+OK
+```
+
+### Deleting a version of a schema
+
+#### UI
+
+In order to delete a version of a schema using the Schema Registry user interface,
+
+1. Click on the data schema you want a version of it deleted for.
+1. Select the version you want to delete on the left hand side.
+1. Click on _Manage version_ button that is on the top right corner within the main box in the center of the page.
+1. Click on _Remove version_.
+
+	![13](images/schema-registry-lab-cp4i/13.png)
+
+#### CLI
+
+In order to delete a version of a schema through the CLI, execute the following command:
+
+```bash
+$ cloudctl es schema-remove demoSchema_CLI --version 1
+
+Remove version with ID 1 of schema demoSchema_CLI? [y/n]> y
+Version with ID 1 of schema demoSchema_CLI removed.
+OK
+```
+
+We can see only version 2 now:
+
+```bash
+$ cloudctl es schema demoSchema_CLI
+
+Schema demoSchema_CLI is active.
+
+Version   Version ID   Schema           State    Updated                         Comment   
+2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+OK
+
+```
+
+## Python Avro Producer
+
+In this section we describe the python scripts we will be using in order to be able to produce **avro** messages to a Kafka topic.
+
+### Produce Message
+
+The python script that we will use to send an avro message to a Kafka topic is [ProduceAvroMessage.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/src/ProduceAvroMessage.py) where we have the following:
+
+1. A function to parse the arguments:
+
+	```python
+	def parseArguments():
+		global TOPIC_NAME
+		print("The arguments for this script are: " , str(sys.argv))
+		if len(sys.argv) == 2:
+			TOPIC_NAME = sys.argv[1]
+		else:
+			print("[ERROR] - The produceAvroMessage.py script expects one argument: The Kafka topic to publish the message to")
+			exit(1)
+	```
+
+1. A function to create the event to be sent:
+
+	```python
+	def createEvent():
+		print('Creating event...')
+		
+		key = {"key": 1}
+		value = {"message" : "This is a test message"}
+		
+		print("DONE")
+		
+		return json.dumps(value), json.dumps(key)
+	```
+
+1. The main where we will:
+	1. Parse the arguments
+	1. Get the Avro schemas for the key and value of the event
+	1. Create the Event to be sent
+	1. Print it out for reference
+	1. Create the Kafka Avro Producer and configure it
+	1. Send the event
+
+	```python
+	if __name__ == '__main__':
+		# Get the Kafka topic name
+		parseArguments()
+		# Get the avro schemas for the message's key and value
+		event_value_schema = getDefaultEventValueSchema(DATA_SCHEMAS)
+		event_key_schema = getDefaultEventKeySchema(DATA_SCHEMAS)
+		# Create the event
+		event_value, event_key = createEvent()
+		# Print out the event to be sent
+		print("--- Event to be published: ---")
+		print(event_key)
+		print(event_value)
+		print("----------------------------------------")
+		# Create the Kafka Avro Producer
+		kafka_producer = KafkaProducer(KAFKA_BROKERS,KAFKA_APIKEY,SCHEMA_REGISTRY_URL)
+		# Prepare the Kafka Avro Producer
+		kafka_producer.prepareProducer("ProduceAvroMessagePython",event_key_schema,event_value_schema)
+		# Publish the event
+		kafka_producer.publishEvent(TOPIC_NAME,event_value,event_key)
+	```
+
+As you can see, this python code depends on a Kafka Avro Producer and an Avro Utils for loading the Avro schemas which are explained next.
+
+### Avro Utils
+
+This script, called [avroEDAUtils.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/avro_files/utils/avroEDAUtils.py), contains some very simple utility functions to be able to load Avro schemas from their **avsc** files in order to be used by the Kafka Avro Producer.
+
+1. A function to get the key and value Avro schemas for the messages to be sent:
+
+	```python
+	def getDefaultEventValueSchema(schema_files_location):
+	# Get the default event value data schema
+	known_schemas = avro.schema.Names()
+	default_event_value_schema = LoadAvsc(schema_files_location + "/default_value.avsc", known_schemas)
+	return default_event_value_schema
+
+	def getDefaultEventKeySchema(schema_files_location):
+	# Get the default event key data schema
+	known_schemas = avro.schema.Names()
+	default_event_key_schema = LoadAvsc(schema_files_location + "/default_key.avsc", known_schemas)
+	return default_event_key_schema
+	```
+	(\*) Where `known_schemas` is an Avro schema dictionary where all Avro schemas read get stored in order to be able to read nested Avro schemas afterwards. See the python script in detail for examples of this.
+
+1. A function to open a file, read its content as an Avro schema and store it in the Avro schema dictionary:
+
+	```python
+	def LoadAvsc(file_path, names=None):
+	# Load avsc file
+	# file_path: path to schema file
+	# names(optional): avro.schema.Names object
+	file_text = open(file_path).read()
+	json_data = json.loads(file_text)
+	schema = avro.schema.SchemaFromJSONData(json_data, names)
+	return schema
+	```
+
+### Kafka Avro Producer
+
+This script, called [KcAvroProducer.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/kafka/KcAvroProducer.py), will actually be the responsible for creating the Kafka Avro Producer, initialize and configure it and provide the publish method:
+
+1. Initialize and prepare the Kafka Producer
+
+	```python
+	class KafkaProducer:
+
+		def __init__(self,kafka_brokers = "",kafka_apikey = "",schema_registry_url = ""):
+			self.kafka_brokers = kafka_brokers
+			self.kafka_apikey = kafka_apikey
+			self.schema_registry_url = schema_registry_url
+
+		def prepareProducer(self,groupID = "pythonproducers",key_schema = "", value_schema = ""):
+			options ={
+					'bootstrap.servers':  self.kafka_brokers,
+					'schema.registry.url': self.schema_registry_url,
+					'group.id': groupID,
+					'security.protocol': 'SASL_SSL',
+					'sasl.mechanisms': 'PLAIN',
+					'sasl.username': 'token',
+					'sasl.password': self.kafka_apikey,
+					'ssl.ca.location': os.environ['PEM_CERT'],
+					'schema.registry.ssl.ca.location': os.environ['PEM_CERT']
+			}
+			# Print out the configuration
+			print("--- This is the configuration for the avro producer: ---")
+			print(options)
+			print("---------------------------------------------------")
+			# Create the Avro Producer
+			self.producer = AvroProducer(options,default_key_schema=key_schema,default_value_schema=value_schema)
+	```
+
+1. Publish method
+
+	```python
+	def publishEvent(self, topicName, value, key):
+		# Produce the Avro message
+		# Important: value DOES NOT come in JSON format from ContainerAvroProducer.py. Therefore, we must convert it to JSON format first
+		self.producer.produce(topic=topicName,value=json.loads(value),key=json.loads(value)[key], callback=self.delivery_report)
+		# Flush
+		self.producer.flush()
+	```
+
+### Run
+
+We will see in the following section [Schemas and Messages](#schemas-and-messages) how to send Avro messages according with their schemas to IBM Event Streams.
+
+## Python Avro Consumer
+
+In this section we describe the python scripts we will be using in order to be able to consume Avro messages from a Kafka topic.
+
+### Consume Message
+
+The python script that we will use to consume an Avro message from a Kafka topic is [ConsumeAvroMessage.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/src/ConsumeAvroMessage.py) where we have the following:
+
+1. A function to parse arguments:
+
+	```python
+	# Parse arguments to get the container ID to poll for
+	def parseArguments():
+		global TOPIC_NAME
+		print("The arguments for the script are: " , str(sys.argv))
+		if len(sys.argv) != 2:
+			print("[ERROR] - The ConsumeAvroMessage.py script expects one arguments: The Kafka topic to events from.")
+			exit(1)
+		TOPIC_NAME = sys.argv[1]
+	```
+
+1. The main where we will:
+	1. Parse the arguments to get the topic to read from
+	1. Create the Kafka Consumer and configure it
+	1. Poll for next avro message
+	1. Close the Kafka consumer
+
+	```python
+	if __name__ == '__main__':
+		# Parse arguments
+		parseArguments()
+		# Create the Kafka Avro consumer
+		kafka_consumer = KafkaConsumer(KAFKA_BROKERS,KAFKA_APIKEY,TOPIC_NAME,SCHEMA_REGISTRY_URL)
+		# Prepare the consumer
+		kafka_consumer.prepareConsumer()
+		# Consume next Avro event
+		kafka_consumer.pollNextEvent()
+		# Close the Avro consumer
+		kafka_consumer.close()
+	```
+
+As you can see, this python code depends on a Kafka Consumer which is explained next.
+
+### Kafka Avro Consumer
+
+This script, called [KcAvroConsumer.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/kafka/KcAvroConsumer.py), will actually be the responsible for creating the Kafka Avro Consumer, initialize and configure it and provide the poll next event method:
+
+1. Initialize and prepare the new Kafka consumer:
+
+	```python
+	class KafkaConsumer:
+
+		def __init__(self, kafka_brokers = "", kafka_apikey = "", topic_name = "", schema_registry_url = "", autocommit = True):
+			self.kafka_brokers = kafka_brokers
+			self.kafka_apikey = kafka_apikey
+			self.topic_name = topic_name
+			self.schema_registry_url = schema_registry_url 
+			self.kafka_auto_commit = autocommit
+
+		# See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
+		def prepareConsumer(self, groupID = "pythonconsumers"):
+			options ={
+					'bootstrap.servers':  self.kafka_brokers,
+					'group.id': groupID,
+					'auto.offset.reset': 'earliest',
+					'schema.registry.url': self.schema_registry_url,
+					'enable.auto.commit': self.kafka_auto_commit,
+					'security.protocol': 'SASL_SSL',
+					'sasl.mechanisms': 'PLAIN',
+					'sasl.username': 'token',
+					'sasl.password': self.kafka_apikey,
+					'ssl.ca.location': os.environ['PEM_CERT'],
+					'schema.registry.ssl.ca.location': os.environ['PEM_CERT']
+			}
+			# Print the configuration
+			print("--- This is the configuration for the Avro consumer: ---")
+        	print(options)
+        	print("---------------------------------------------------")
+			# Create the Avro consumer
+			self.consumer = AvroConsumer(options)
+			# Subscribe to the topic
+			self.consumer.subscribe([self.topic_name])
+	```
+
+1. Poll next event method:
+
+	```python
+	# Prints out the message
+	def traceResponse(self, msg):
+        print('[Message] - Next message consumed from {} partition: [{}] at offset {} with key {} and value {}'
+                    .format(msg.topic(), msg.partition(), msg.offset(), msg.key(), msg.value() ))
+
+	# Polls for next event
+	def pollNextEvent(self):
+		# Poll for messages
+		msg = self.consumer.poll(timeout=10.0)
+		# Validate the returned message
+		if msg is None:
+			print("[INFO] - No new messages on the topic")
+		elif msg.error():
+			if ("PARTITION_EOF" in msg.error()):
+				print("[INFO] - End of partition")
+			else:
+				print("[ERROR] - Consumer error: {}".format(msg.error()))
+		else:
+			# Print the message
+			msgStr = self.traceResponse(msg)
+	```
+
+### Run
+
+We will see in the following section [Schemas and Messages](#schemas-and-messages) how to consume Avro messages.
+
+## Schemas and Messages
+
+In this section we are going to see how Schema Registry works when you have an application that produces and consumes messages based on Avro data schemas. The application we are going to use for this is the python scripts presented above in the [Python Avro Producer](#python-avro-producer) and [Python Avro Consumer](#python-avro-consumer).
+
+Once again, we are going to run these scripts in the python demo environment we presented earlier in this lab in [this section](#python-demo-environment). Please, review that section in order to understand how to run the environment in your local workstation.
+
+1. Make sure you have a newly created topic for this exercise that you can create either in the IBM Event Streams UI on the topics section or by using the following IBM Event Streams CLI command:
+
+	```shell
+	$ cloudctl es topic-create test-schema --partitions 1 --replication-factor 1
+	
+	Created topic test-schema
+	OK
+	```
+
+1. Start your python environment with:
+
+	```shell
+	$ docker run -e KAFKA_BROKERS=$KAFKA_BROKERS \
+				 -e KAFKA_APIKEY=$KAFKA_APIKEY \
+				 -e PEM_CERT=$PEM_CERT \
+				 -e SCHEMA_REGISTRY_URL=$SCHEMA_REGISTRY_URL \
+				 -v ${PWD}:/tmp/lab \
+				 --rm \
+				 -ti ibmcase/python-schema-registry-lab:latest bash
+	```
+
+### Create a message
+
+In order to create a message, we execute the `ProduceAvroMessage.py` within the `/tmp/lab/src` folder in our python demo environment. This script, as you could see in the [Python Avro Producer](#python-avro-producer) section, it is sending the event with key `{'key': '1'}` and value `{'message': 'This is a test message'}` according to the schemas defined in [default_key.avsc](avro_files/default_key.avsc) and [default_value.avsc](avro_files/default_value.avsc) for the key and value of the event respectively.
+
+```shell
+python ProduceAvroMessage.py test-schema
+ @@@ Executing script: ProduceAvroMessage.py
+The arguments for the script are:  ['ProduceAvroMessage.py', 'test-schema']
+Creating event...
+DONE
+--- Event to be published: ---
+{"key": 1}
+{"message": "This is a test message"}
+----------------------------------------
+--- This is the configuration for the avro producer: ---
+{'bootstrap.servers': 'es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443', 'schema.registry.url': 'https://token:*****@eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud', 'group.id': 'ProduceAvroMessagePython', 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'PLAIN', 'sasl.username': 'token', 'sasl.password': '*****', 'ssl.ca.location': '/tmp/lab/es-cert.pem', 'schema.registry.ssl.ca.location': '/tmp/lab/es-cert.pem'}
+---------------------------------------------------
+Message delivered to test-schema [0]
+```
+
+We can see our new message delivered in the `test-schema` topic by
+
+1. Go into the topics page in the IBM Event Streams UI
+
+	![14](images/schema-registry-lab-cp4i/14.png)
+
+1. Click on the topic and then on the _Messages_ tab at the top. Finally, click on a message to see it displayed in a hovering card on the right hand side of the screen
+
+	![15](images/schema-registry-lab-cp4i/15.png)
+
+<InlineNotification kind="info">
+
+**INFO:** Mind the message now is not in JSON format as Avro does not repeat every field name with every single record which makes Avro more efficient than JSON for high-volume usage. This is thanks to having Avro schemas.
+
+</InlineNotification>
+
+<InlineNotification kind="warning">
+
+**WARNING:** Most of the Avro producer clients, whether it is in Java, Python or many other languages, give users the ability to **auto-register** a schema automatically with the specified schema registry in its configuration.
+
+</InlineNotification>
+
+If we look know at the schemas our schema registry has:
+
+```shell
+$ cloudctl es schemas
+
+Schema                     State    Latest version   Latest version ID   Updated     
+demoSchema_CLI             active   2.0.0            2                   Thu, 25 Jun 2020 14:59:11 UTC   
+demoSchema_UI              active   2.0.0            2                   Thu, 25 Jun 2020 14:21:09 UTC      
+test-schema-key-7jffxi     active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC   
+test-schema-value-a7paxm   active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC   
+OK
+```
+
+we see two schemas, `test-schema-key-7jffxi` and `test-schema-value-a7paxm`, which in fact correspond to the Avro data schema used for the `key` ([default_key.avsc](avro_files/default_key.avsc)) and the `value` ([default_value.avsc](avro_files/default_value.avsc)) of events sent to the `test-schema` topic in the [ProduceAvroMessage.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/src/ProduceAvroMessage.py) as explained before sending the message.
+
+To make sure of what we are saying, we can inspect those schemas:
+
+```shell
+$ cloudctl es schema test-schema-key-7jffxi --version 1
+{
+  "type": "record",
+  "name": "defaultKey",
+  "namespace": "ibm.eda.default",
+  "fields": [
+    {
+      "type": "int",
+      "name": "key",
+      "doc": "We expect any int as the event key"
+    }
+  ],
+  "doc": "Default Message's key Avro data schema"
+}
+```
+
+```shell
+$ cloudctl es schema test-schema-value-a7paxm --version 1
+{
+  "type": "record",
+  "name": "defaultValue",
+  "namespace": "ibm.eda.default",
+  "fields": [
+    {
+      "type": "string",
+      "name": "message",
+      "doc": "Any string message"
+    }
+  ],
+  "doc": "Default Message's value Avro data schema"
+}
+```
+
+If I now decided that my events should contain another attribute, I would modify the event value schema ([default_value.avsc](avro_files/default_value.avsc)) to reflect that as well as `ProduceAvroMessage.py` to send that new attribute in the event it sends:
+
+```shell
+python ProduceAvroMessage.py test-schema
+ @@@ Executing script: ProduceAvroMessage.py
+The arguments for the script are:  ['ProduceAvroMessage.py', 'test-schema']
+Creating event...
+DONE
+--- Event to be published: ---
+{"key": 1}
+{"message": "This is a test message", "anotherAttribute": "Just another test string"}
+----------------------------------------
+--- This is the configuration for the avro producer: ---
+{'bootstrap.servers': 'es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443', 'schema.registry.url': 'https://token:*****@eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud', 'group.id': 'ProduceAvroMessagePython', 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'PLAIN', 'sasl.username': 'token', 'sasl.password': '*****', 'ssl.ca.location': '/tmp/lab/es-cert.pem', 'schema.registry.ssl.ca.location': '/tmp/lab/es-cert.pem'}
+---------------------------------------------------
+Message delivered to test-schema [0]
+```
+
+I can see that an event with a new attribute has been sent:
+
+ ![16](images/schema-registry-lab-cp4i/16.png)
+
+And I can also see that the new shcema has got registered as well:
+
+```shell
+$ cloudctl es schemas
+Schema                     State    Latest version   Latest version ID   Updated      
+demoSchema_CLI             active   2.0.0            2                   Thu, 25 Jun 2020 14:59:11 UTC   
+demoSchema_UI              active   2.0.0            2                   Thu, 25 Jun 2020 14:21:09 UTC     
+test-schema-key-7jffxi     active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC   
+test-schema-value-a7paxm   active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC  
+test-schema-value-nc2q7    active   1                1                   Mon, 29 Jun 2020 16:38:16 UTC   
+OK
+```
+
+If I inspect that new schema, I see my new attribute in it:
+
+```shell
+$ cloudctl es schema test-schema-value-nc2q7 --version 1
+
+{
+  "type": "record",
+  "name": "defaultValue",
+  "namespace": "ibm.eda.default",
+  "fields": [
+    {
+      "type": "string",
+      "name": "message",
+      "doc": "Any string message"
+    },
+    {
+      "type": "string",
+      "name": "anotherAttribute",
+      "doc": "Any string"
+    }
+  ],
+  "doc": "Default Message's value Avro data schema"
+}
+```
+
+<InlineNotification kind="info">
+
+The schema evolution above (test-schema-value-nc2q7) should have got registered as a new version of the already existing schema (test-schema-value-a7paxm). IBM Event Streams allows schemas to auto-register themselves when when these are sent along with a message from a producer application. However, the Schema Registry does not pick "new" schemas up as a new version of a previous schema and simply creates a new schema. Anyway, when reading messages off the topic, Schema Registry handles well what schema to return back to the receiver application so messages can get properly deserialized. Will see that in the next section. 
+
+</InlineNotification>
+
+<InlineNotification kind="error">
+
+**SECURITY:** As some of you may have already thought, having your clients (that is your applications), auto-register the Avro data schemas that are in the end kind of the contracts that your components of your overal solution agree on in order to understand each other and collaborate between them is **NOT** a good idea. Specially in microservices architectures where you might have hundreds of microservices talking and collaborating among themselsves. We will see in the [Security](#security) section how we can control schema registration and evolution based on roles at the schema level also.
+
+</InlineNotification>
+
+### Create a non-compliant message
+
+
+Let's see what happens if we send a message that does not comply with its Avro data schema. Let's say that I send the following message:
+
+```shell
+key = {"key": 1}
+value = {"message" : 12345}
+```
+
+and this is the output of that attempt:
+
+```shell
+python ProduceAvroMessage.py test-schema
+ @@@ Executing script: ProduceAvroMessage.py
+The arguments for the script are:  ['ProduceAvroMessage.py', 'test-schema']
+Creating event...
+DONE
+--- Event to be published: ---
+{"key": 1}
+{"message": 12345}
+----------------------------------------
+--- This is the configuration for the avro producer: ---
+{'bootstrap.servers': 'es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443', 'schema.registry.url': 'https://token:*****@eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud', 'group.id': 'ProduceAvroMessagePython', 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'PLAIN', 'sasl.username': 'token', 'sasl.password': '*****', 'ssl.ca.location': '/tmp/lab/es-cert.pem', 'schema.registry.ssl.ca.location': '/tmp/lab/es-cert.pem'}
+---------------------------------------------------
+Traceback (most recent call last):
+  File "ProduceAvroMessage.py", line 74, in <module>
+    kafka_producer.publishEvent(TOPIC_NAME,event_value,event_key)
+  File "/tmp/lab/kafka/KcAvroProducer.py", line 42, in publishEvent
+    self.producer.produce(topic=topicName,value=json.loads(value),key=json.loads(key), callback=self.delivery_report)
+  File "/root/.local/lib/python3.7/site-packages/confluent_kafka/avro/__init__.py", line 99, in produce
+    value = self._serializer.encode_record_with_schema(topic, value_schema, value)
+  File "/root/.local/lib/python3.7/site-packages/confluent_kafka/avro/serializer/message_serializer.py", line 118, in encode_record_with_schema
+    return self.encode_record_with_schema_id(schema_id, record, is_key=is_key)
+  File "/root/.local/lib/python3.7/site-packages/confluent_kafka/avro/serializer/message_serializer.py", line 152, in encode_record_with_schema_id
+    writer(record, outf)
+  File "/root/.local/lib/python3.7/site-packages/confluent_kafka/avro/serializer/message_serializer.py", line 86, in <lambda>
+    return lambda record, fp: writer.write(record, avro.io.BinaryEncoder(fp))
+  File "/root/.local/lib/python3.7/site-packages/avro/io.py", line 771, in write
+    raise AvroTypeException(self.writer_schema, datum)
+avro.io.AvroTypeException: The datum {'message': 12345} is not an example of the schema {
+  "type": "record",
+  "name": "defaultValue",
+  "namespace": "ibm.eda.default",
+  "fields": [
+    {
+      "type": "string",
+      "name": "message",
+      "doc": "Any string message"
+    }
+  ],
+  "doc": "Default Message's value Avro data schema"
+}
+```
+
+As we can see, the attempt failed as the Avro producer will check the message against the Avro data schema defined for the topic we want to send the message to and yield that this message does not comply (the message value attribute we are sending is an integer rather than a string).
+
+Therefore, using Avro schemas with IBM Event Streams give us the ability to build our system with **robustness** protecting downstream data consumers from malformed data, as only valid data will be permitted in the topic.
+
+### Consume a message
+
+In order to consume a message, we execute the `ConsumeAvroMessage.py` within the `/tmp/lab/src` folder in our python demo environment:
+
+```shell
+python ConsumeAvroMessage.py test-schema
+ @@@ Executing script: ConsumeAvroMessage.py
+The arguments for this script are:  ['ConsumeAvroMessage.py', 'test-schema']
+--- This is the configuration for the Avro consumer: ---
+{'bootstrap.servers': 'es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443', 'group.id': 'pythonconsumers', 'auto.offset.reset': 'earliest', 'schema.registry.url': 'https://token:*****@eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud', 'enable.auto.commit': True, 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'PLAIN', 'sasl.username': 'token', 'sasl.password': '*****', 'ssl.ca.location': '/tmp/lab/es-cert.pem', 'schema.registry.ssl.ca.location': '/tmp/lab/es-cert.pem'}
+---------------------------------------------------
+[Message] - Next message consumed from test-schema partition: [0] at offset 0 with key {'key': 1} and value {'message': 'This is a test message'}
+
+python ConsumeAvroMessage.py test-schema
+ @@@ Executing script: ConsumeAvroMessage.py
+The arguments for this script are:  ['ConsumeAvroMessage.py', 'test-schema']
+--- This is the configuration for the Avro consumer: ---
+{'bootstrap.servers': 'es-cp4i-ibm-es-proxy-route-bootstrap-eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud:443', 'group.id': 'pythonconsumers', 'auto.offset.reset': 'earliest', 'schema.registry.url': 'https://token:*****@eventstreams-cp4i.gse-eda-demo-202005-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud', 'enable.auto.commit': True, 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'PLAIN', 'sasl.username': 'token', 'sasl.password': '*****', 'ssl.ca.location': '/tmp/lab/es-cert.pem', 'schema.registry.ssl.ca.location': '/tmp/lab/es-cert.pem'}
+---------------------------------------------------
+[Message] - Next message consumed from test-schema partition: [0] at offset 1 with key {'key': 1} and value {'message': 'This is a test message', 'anotherAttribute': 'Just another test string'}
+```
+
+As you can see, our script was able to read the Avro messages from the `test-schema` topic and map that back to their original structure thanks to the Avro schemas:
+
+```shell
+[Message] - Next message consumed from test-schema partition: [0] at offset 0 with key {'key': 1} and value {'message': 'This is a test message'}
+
+[Message] - Next message consumed from test-schema partition: [0] at offset 1 with key {'key': 1} and value {'message': 'This is a test message', 'anotherAttribute': 'Just another test string'}
+```
+
+## Data Evolution
+
+So far we have more or less seen what Avro is, what an Avro data schema is, what a schema registry is and how this all works together. From creating an Avro data schema for your messages/events to comply with to how the schema registry and Avro data schemas work together. And we have also seen the code for doing all this, from the python code to send and receive Avro encoded messages based on their Avro data schemas to the rich CLI IBM Event Streams provides to interact with.
+
+However, we have said little about the need for data to evolve. When you design an Event Driven architecture for your application (by applying [Event Storming](../../methodology/event-storming/) or [Domain Driven Design](../../methodology/domain-driven-design/) for example), it is very hard to come up with data structures/schemas that will not need to evolve/change in time. That is, your data, like your use or business cases, may need to evolve. As a result, Avro data schemas must be somehow flexible to allow your data to evolve along with your application and use cases.
+
+But it is not as easy as adding or removing data that travels in your events/messages or modifying the type of such data. And one of the reasons for this is that Kafka (or any other type of event backbone) is many times used as the source of truth. That is, a place that you can trust as to what has happened. Hence, Kafka will serve as the source of truth where all the events (that is, data) that happened (which could be bank transactions, communications, etc) will get stored (sometimes up to [hundreds of years](https://www.confluent.io/blog/publishing-apache-kafka-new-york-times/)) and will be able to be replayed if needed. As a result, there must be a data schema management and data schema evolution put in place that allow the **compatibility** of old and new data schemas and, in fact, old and new data at the end of the day.
+
+**The IBM Event Streams Schema Registry enforces full compatibility when creating a new version of a schema**. Full compatibility means that **old data can be read with the new data schema, and new data can also be read with the last data schema**.
+
+In data formats like Avro, you can define fields with default values. In that case adding or removing a field with a default value is a fully compatible change. Let's see then how this affects when you want your data to evolve in a way that it needs to add a new attribute or delete an existing attribute.
+
+But let's see what that means in terms of adding and removing attributes from your data schema.
+
+### Adding a new attribute
+
+Although we have already seen this in the adding a new version of a schema section, let's try to add a new version of our `test-schema-value` schema where we have a new attribute. Remember, our `default_schema.avsc` already contains a new attribute than the original one but that it got registered as a new schema rather than as a new version of the original one. Let's reuse that Avro schema file to register it as a new version.
+
+When doing so from the UI, we see the following error:
+
+  ![17](images/schema-registry-lab-cp4i/17.png)
+
+The reason, as alread explained in the add a new version of a schema section, is because full compatibility dictates that you can only add new attributes to a schema if these have a default value. Reason being that a receiver should be able to deserialize messages produced with an older schema using the newer schema. Because old messages were written with an older schema that did not contain our new attribute, those messages won't have that attribute so we need to provide a default value for it in our never version of the schema so that the receiver is able to deserialize those older messages with the newer schema.
+
+If we add the default value for the new attribute, we see that our newer version is now compatible:
+
+  ![18](images/schema-registry-lab-cp4i/18.png)
+
+and that it gets registered fine:
+
+  ![19](images/schema-registry-lab-cp4i/19.png)
+
+### Removing an existing attribute
+
+What if we now wanted to remove the original `message` attribute from our schema. Let's remove it from the `default_value.avsc` file and try to register that new version:
+
+  ![20](images/schema-registry-lab-cp4i/20.png)
+
+We, again, get the same error. And the reason is because receivers must be able to read and deserialize messages produced with the newer schema (that is, without the `message` attribute) but with the older schema (that is, with the schema version that enforces the existence of the `message` attribute).
+
+In order to work this around, what we need to do is to register first an intermediate schema that defines a default value for the `message` attribute:
+
+  ![21](images/schema-registry-lab-cp4i/21.png)
+
+Once we have a default value for the `message` attribute, we can register a new version of the schema that finally removes that attribute:
+
+  ![22](images/schema-registry-lab-cp4i/22.png)
+
+## Security
+
+As we have already mentioned during the this tutorial, we need to pay attention to the permissions we give to users, groups, applications (and thefore the clients they used to interact with IBM Event Streams), etc since we dont want everyone and everything to be, for instance, creating or deleting topics, schemas, etc.
+
+You can secure your IBM Event Streams resources in a fine-grained manner by managing the access each user and application has to each resource. Within IBM Event Streams, you can secure access to the following resource types, where the names in parentheses are the resource type names used in policy definitions:
+
+- Cluster (cluster): you can control which users and applications can connect to the cluster.
+- Topics (topic): you can control the ability of users and applications to create, delete, read, and write to a topic.
+- Consumer groups (group): you can control an application’s ability to join a consumer group.
+- Transactional IDs (txnid): you can control the ability to use the transaction capability in Kafka.
+
+In the context of the Schema Registry, this is something you need to bear in mind when creating the API key that your applications will use to produce messages since they could pontetially be creating new topics, modifying data schemas, etc.
+
+You can find more information about how to secure your IBM Event Streams resources in the official documentation at: <https://ibm.github.io/event-streams/2019.4/security/managing-access/>

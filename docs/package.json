@@ -16,9 +16,9 @@
     "test:prefix": "yarn build:prefix && yarn serve:prefix"
   },
   "dependencies": {
-    "gatsby": "^2.22.3",
-    "gatsby-plugin-google-analytics": "^2.3.2",
-    "gatsby-theme-carbon": "^1.24.2",
+    "gatsby": "^2.23.11",
+    "gatsby-plugin-google-analytics": "^2.3.6",
+    "gatsby-theme-carbon": "^1.24.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   }
