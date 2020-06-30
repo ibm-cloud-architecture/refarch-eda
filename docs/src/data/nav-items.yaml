@@ -60,6 +60,8 @@
       path: /technology/kafka-mirrormaker/
     - title: Kafka Monitoring
       path: /technology/kafka-monitoring/
+    - title: Avro and Schemas
+      path: /technology/avro-schemas/
 - title: Scenarios & Use Cases
   pages:
     - title: Overview
