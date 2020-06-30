@@ -2,8 +2,6 @@
   pages:
     - title: Reference Architecture
       path: /introduction/reference-architecture/
-    - title: What will you learn?
-      path: /introduction/what-will-you-learn/
     - title: Target audiences
       path: /introduction/target-audiences/
 - title: Concepts
