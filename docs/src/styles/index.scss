@@ -6,5 +6,9 @@ html {
 body {
     position: relative;
     min-height: 100%;
-    font-family: "Open Sans", sans-serif;
+    /*font-family: "Open Sans", sans-serif;*/
+}
+
+h5.bx--article-card__subtitle {
+  margin-bottom: 5px;
 }

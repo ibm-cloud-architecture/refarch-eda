@@ -18,11 +18,11 @@ The implementation of transactions that span multiple services is complex and en
 Applying a domain driven design approach, you may strangle the application using bounded context. But then as soon as this pattern is applied, you need to assess the co-existence between
 existing bounded contexts and the new microservices. One of the challenges will be to define where the write and read operations occurs, and how data should be replicated between the contexts.
 This is where event driven architecture helps.
-* [Event sourcing](./event-sourcing/): persists, to an append log, the states of a business entity, such as an Order, as a sequence of immutable state-changing events.
-* [Command Query Responsibility Segregation](./cqrs/): helps to separate queries from commands and help to address queries with cross-microservice boundary.
-* [Saga pattern:](./saga/) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice, interested in other business entities, subscribes to those events and it can update its own state and business entities on receipt of these events. Business entity keys need to be unique and immutable.
-* [Event reprocessing with dead letter](./dlq/): event driven microservices may have to call external services via a synchronous call. We need to process failure in order to get response from those services using event backbone.
-* [Transactional outbox](#transactional-outbox): A service command typically needs to update the database and send messages/events. 
+* [Event sourcing](/patterns/event-sourcing/): persists, to an append log, the states of a business entity, such as an Order, as a sequence of immutable state-changing events.
+* [Command Query Responsibility Segregation](/patterns/cqrs/): helps to separate queries from commands and help to address queries with cross-microservice boundary.
+* [Saga pattern:](/patterns/saga/) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice, interested in other business entities, subscribes to those events and it can update its own state and business entities on receipt of these events. Business entity keys need to be unique and immutable.
+* [Event reprocessing with dead letter](/patterns/dlq/): event driven microservices may have to call external services via a synchronous call. We need to process failure in order to get response from those services using event backbone.
+* [Transactional outbox](#transactional-outbox): A service command typically needs to update the database and send messages/events.
 The approach is to use an outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone. (Source Chris Richardson - Microservices Patterns)
 
 
