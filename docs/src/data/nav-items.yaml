@@ -23,7 +23,7 @@
 - title: Patterns in EDA
   pages:
     - title: Introduction
-      path: patterns/intro
+      path: /patterns/intro/
     - title: Event Sourcing
       path: /patterns/event-sourcing/
     - title: CQRS
