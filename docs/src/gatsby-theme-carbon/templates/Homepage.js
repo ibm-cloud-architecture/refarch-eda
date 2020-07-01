@@ -2,8 +2,8 @@ import React from 'react';
 import { HomepageBanner, HomepageCallout } from 'gatsby-theme-carbon';
 import HomepageTemplate from 'gatsby-theme-carbon/src/templates/Homepage';
 import { calloutLink } from './Homepage.module.scss';
+import { withPrefix } from 'gatsby';
 
-//import Carbon from '../../images/developer-main.jpg';
 import Carbon from '../../images/event-driven-main.jpg';
 
 const FirstLeftText = () => <p>What are Event-Driven Architectures?</p>;
@@ -13,7 +13,7 @@ const FirstRightText = () => (
     Event-driven architectures provide a collection of loosely-coupled software components, cooperatively reacting to unending streams of events occurring throughout the world.
     <a
       className={calloutLink}
-      href="/introduction/overview/"
+      href={withPrefix(`/introduction/overview/`)}
     >
       Overview →
     </a>
