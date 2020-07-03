@@ -12,3 +12,50 @@ body {
 h5.bx--article-card__subtitle {
   margin-bottom: 5px;
 }
+
+h1[class*='Markdown-module--h1'], h2[class*='Markdown-module--h2'], h3[class*='Markdown-module--h3'] {
+  width: 100%;
+}
+
+[class*='Markdown-module--paragraph'] {
+  width: 100% !important;
+  max-width: 100%;
+  text-align: justify;
+}
+
+[class*='Markdown-module--blockquote'] {
+  width: 100%;
+  max-width: 90%;
+  font-size: 1.0rem;
+  text-align: justify;
+}
+
+blockquote p {
+  font-size: 1.25rem !important;
+}
+
+[class*='Markdown-module--list'] {
+  width: 100%;
+  max-width: 95%;
+  text-align: justify;
+}
+
+[class*='InlineNotification-module'] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+}
+
+[class*='page-table__container'] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+}
+
+[class*='Code-module--row'] {
+  width: 100%;
+  max-width: 100%;
+}
+
+div[class*='Main-module--main'] {
+  width: 100%;
+  max-width: 1600px !important;
+}
