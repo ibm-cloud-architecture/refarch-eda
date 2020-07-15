@@ -71,7 +71,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 - Depending on how long you want messages to persist you can change this.
 
-![Message Retention](./images/message-etention.png)
+![Message Retention](./images/message-retention.png)
 
 - You can leave Replication Factor at the default 3.
 
@@ -602,6 +602,8 @@ oc describe kafkaconnector cos-sink-connector
 
 - Your messages should be propagating the your created IBM COS Bucket automatically.
 
-![End to End Success](./images/ibm-cos-bucket-success.png)
+![Event Streams Topic Success](./images/event-streams-topic-success.png))
 
 - The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
+
+![End to End Success](./images/ibm-cos-bucket-success.png)
