@@ -20,8 +20,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 - With IBM Event Streams we have access to the powerful capabilities of Kafka in addition to all the monitoring and logging capabilities that IBM provides on top of that with Event Streams.
 - We will create a simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that utilizes MicroProfile Reactive Messaging in order for us to send a stream of data to our Event Streams/Kafka topic.
 - We will then create a Kafka Connect cluster using the Strimzi Operator.
-- Next we'll send messages to an Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and place into an IBM COS Bucket.
-- Finally our Sink connector will grab from the topic and place into a PostgreSQL database.
+- Lastly we'll send messages to an Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and place into an IBM COS Bucket.
 
 ![Architecture Diagram](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Quarkus%20to%20Event%20Streams%20to%20COS.png)
 
@@ -43,6 +42,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 **git**
 
 **An IBM Cloud Account (free)**
+
 
 ## Creating Event Streams Topics
 - Navigate to the Cloud Pak for Integration Platform Navigator. 
@@ -70,6 +70,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 - Click Create.
 
 - Create an OUTBOUND topic following the prior steps as well.
+
 
 
 ## Event Streams Security: API Key, Credentials and Certificates
@@ -261,6 +262,8 @@ mp.messaging.outgoing.INBOUND.ssl.truststore.password=<password>
 
 ![ES Topic Messages](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Event%20Streams%20topic%20messages.png)
 
+
+
 ## Creating an IBM COS Service and COS Bucket for your IBM Cloud Account
 
 This story assumes that you already have an IBM Cloud account already, and if not you can sign up for one here at [IBM Cloud](https://cloud.ibm.com).
@@ -285,6 +288,8 @@ This story assumes that you already have an IBM Cloud account already, and if no
 - When selecting options for the bucket, name your bucket something unique. For `Resiliency` let's select `Regional`. For location select an area from the drop-down that you want. (IMPORTANT) For `Storage Class` select `Standard`. The IBM COS Sink connector seems to not play well with buckets that are created with the `Smart Tier` Storage Class. Leave everything else as-is and hit `Create Bucket`.
 
 ![IBM COS Custom Bucket Settings](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Bucket%20Settings.png)
+
+
 
 
 ## Creating IBM Cloud Service Credentials
@@ -314,6 +319,7 @@ We've created the IBM COS Service, created a COS Bucket, and created our Service
 - IBM COS Resiliency (regional)
 - IBM COS Service CRN (resource_instance_id)
 - IBM COS API Key
+
 
 
 ## Setting up the Kafka Strimzi Operator 
@@ -353,6 +359,9 @@ oc get pods -n openshift-operators
 ![Operator Success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi%20Operator%20Success.png)
 
 ![Operator Console](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi%20Operator%20Console.png)
+
+
+
 
 ## Setting up the Kafka Connect Cluster
 
@@ -559,6 +568,7 @@ oc describe kafkaconnector cos-sink-connector
 - When the IBM COS Sink connector is successfully up and running you should see something similar to the below.
 
 ![IBM COS Sink Connector success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Sink%20Connector%20success.png)
+
 
 
 ## Test the Entire Flow
