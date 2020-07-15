@@ -27,14 +27,22 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 
 ## Scenario Prerequisites - 
-- OpenShift Container Platform Cluster - This story will assume you have a 4.x Cluster as we will make use of Operators.
-- Cloud Pak for Integration - This will assume you have probably at least a 2019.4.1 or 2020.x.x release of the Cloud Pak for Integration installed on OpenShift. This story will also assume you have followed the installation instructions for Event Streams outlined here from the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) and have a working Event Streams instance.
-- Java Development Kit (JDK) v1.8+ (Java 8+)
-- Gradle v4.0+ (Note - the gradle shadowJar command might not work on Java 13)
-- An IDE of your choice 
-- A free (Lite) IBM Cloud Object Storage trial Service account [IBM Cloud Object Storage](https://cloud.ibm.com/catalog/services/cloud-object-storage)
-- git
-- An IBM Cloud Account (free)
+**OpenShift Container Platform Cluster** 
+  - This scenario will assume you have a 4.x Cluster as we will make use of Operators, though this one is 4.3 specifically.
+  
+**Cloud Pak for Integration**
+  - This will assume you have probably at least a 2019.4.1 or 2020.x.x release of the Cloud Pak for Integration installed on OpenShift. This story will also assume you have followed the installation instructions for Event Streams outlined here from the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) and have a working Event Streams instance.
+  
+**Java Development Kit (JDK) v1.8+ (Java 8+)**
+
+**Gradle v4.0+ (Note - the gradle shadowJar command might not work on Java 13)**
+
+**An IDE of your choice**
+
+**A free (Lite) IBM Cloud Object Storage trial Service account [IBM Cloud Object Storage](https://cloud.ibm.com/catalog/services/cloud-object-storage)**
+**git**
+
+**An IBM Cloud Account (free)**
 
 ## Creating Event Streams Topics - 
 - Navigate to the Cloud Pak for Integration Platform Navigator. 
@@ -72,12 +80,12 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 ![Connect to this Cluster](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Connect%20to%20this%20Cluster.png)
 
-- Keep note of your Bootstrap Server Address. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
+- Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
 
 ![Bootstrap Address](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Bootstrap%20Server.png)
 
 
-- Generate your API Key. Click the Generate API Key button.
+- Generate your **API Key**. Click the Generate API Key button.
 
 ![Generate API Key 1](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Generate%20API%20Key%201.png)
 
