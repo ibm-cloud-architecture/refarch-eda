@@ -68,7 +68,8 @@
       path: /scenarios/overview/
     - title: Kafka Connect - S3
       path: /scenarios/connect-s3/
-
+    - title: Kafka Connect - COS
+      path: /scenarios/connect-cos/
 - title: Additional reading
   pages:
     - path: /additional-reading/
