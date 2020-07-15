@@ -1,0 +1,609 @@
+---
+title: Kafka Connect to IBM COS 
+description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
+---
+
+<AnchorLinks>
+  <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Scenario Prerequisites</AnchorLink>
+  <AnchorLink>Creating Event Streams Topics</AnchorLink>
+  <AnchorLink>Event Streams Security: API Key, Credentials and Certificates</AnchorLink>
+  <AnchorLink>Creating the Quarkus with MicroProfile Reactive Messaging Application</AnchorLink>
+  <AnchorLink>Setting up the Kafka Strimzi Operator</AnchorLink>
+  <AnchorLink>Setting up the Kafka Connect Cluster</AnchorLink>
+  <AnchorLink>Building and Applying IBM COS Sink Connector</AnchorLink>
+  <AnchorLink>Test the Entire Flow</AnchorLink>
+</AnchorLinks>
+
+## Overview
+- Now that you have an Event Streams instance installed on Cloud Pak for Integration on top of OpenShift Container Platform the goal of this story is to show a possible use case that we can use with this technology.
+- With IBM Event Streams we have access to the powerful capabilities of Kafka in addition to all the monitoring and logging capabilities that IBM provides on top of that with Event Streams.
+- We will create a simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that utilizes MicroProfile Reactive Messaging in order for us to send a stream of data to our Event Streams/Kafka topic.
+- We will then create a Kafka Connect cluster using the Strimzi Operator.
+- Lastly we'll send messages to an Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and place into an IBM COS Bucket.
+
+![Architecture Diagram](./images/quarkus-to-event-streams-to-cos.png)
+
+
+## Scenario Prerequisites
+**OpenShift Container Platform Cluster** 
+  - This scenario will assume you have a 4.x Cluster as we will make use of Operators, though this one is 4.3 specifically.
+  
+**Cloud Pak for Integration**
+  - This will assume you have probably at least a 2019.4.1 or 2020.x.x release of the Cloud Pak for Integration installed on OpenShift. This story will also assume you have followed the installation instructions for Event Streams outlined here from the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) and have a working Event Streams instance.
+  
+**Java**
+  - Java Development Kit (JDK) v1.8+ (Java 8+)
+
+**Maven**
+  - The scenario uses Maven v3.6.3
+
+**Gradle**
+  - Ideally v4.0+ (Note - the gradle shadowJar command might not work on Java 13)
+
+**An IDE of your choice**
+  - Visual Studio Code is used in this scenario.
+
+**Git**
+  - We will need to clone repositories.
+
+**An IBM Cloud Account (free)**
+  - A free (Lite) IBM Cloud Object Storage trial Service account [IBM Cloud Object Storage](https://cloud.ibm.com/catalog/services/cloud-object-storage)
+
+
+## Creating Event Streams Topics
+- Navigate to the Cloud Pak for Integration Platform Navigator. 
+
+- Click View Instances and click the Event Streams instance that you have created.
+
+- Click `Connect to this Cluster` in the top right.
+![Connect to this Cluster](./images/connect-to-this-cluster.png)
+
+- Click the Topics option on the left. Create the INBOUND topic.
+
+![Create Topic](./images/create-topic.png)
+
+![Topic Name](./images/inbound-topic-name.png)
+
+- Leave Partitions at 1.
+
+![Partition](./images/partitions.png)
+
+- Depending on how long you want messages to persist you can change this.
+
+![Message Retention](./images/message-retention.png)
+
+- You can leave Replication Factor at the default 3.
+
+![Replication](./images/replicas.png)
+
+- Click Create.
+
+
+
+
+## Event Streams Security: API Key, Credentials and Certificates
+
+- To connect to our Event Streams Instance we will need to follow a few steps to properly connect to it.
+
+- While viewing our Event Streams Instance, navigate to the Topics menu from the left. Click Connect to this Cluster - 
+
+![Connect to this Cluster](./images/connect-to-this-cluster.png)
+
+- Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
+
+![Bootstrap Address](./images/bootstrap-server.png)
+
+
+- Generate your **API Key**. Click the Generate API Key button.
+
+![Generate API Key 1](./images/generate-api-key-1.png)
+
+
+- Select a name for your application. It doesn't really matter too much what you name it. Also choose the Produce, Consume, Create Topics and Schema Option.
+
+![Generate API Key 2](./images/generate-api-key-2.png)
+
+- Select All Topics and then click Next.
+
+![Generate API Key 3](./images/generate-api-key-3.png)
+
+- Leave it All Consumer Groups on "ON" and click Next.
+
+![Generate API Key 4](./images/generate-api-key-4.png)
+
+- You can copy down your API Key by hitting the Copy API Key button, or you can select Download as JSON so you can have a .json file with your API Key for better organization. Afterwards hit Close.
+
+![Generate API Key 5](./images/generate-api-key-5.png)
+
+- Download the Java truststore .jks certificate.
+
+![JKS Truststore](./images/jks-cert.png)
+
+
+- Write/keep track of the truststore password.
+
+![Truststore password](./images/jks-truststore-password.png)
+
+- Make sure you have these files in the same folder.
+
+
+**Summary** 
+- We now have the bootstrap server address, API Key, .jks truststore certificate, and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
+
+
+
+## Creating the Quarkus with MicroProfile Reactive Messaging Application 
+- Create the Quarkus project. You can replace {} and the contents inside of {} with whatever you would like.
+
+```bash
+mvn io.quarkus:quarkus-maven-plugin:1.4.2.Final:create \
+    -DprojectGroupId={org.acme} \
+    -DprojectArtifactId={quarkus-kafka} \
+    -Dextensions="kafka"
+```
+
+- Open the project in your IDE of choice. 
+
+- Create the following folder structure and then create the Producer.java file.
+
+```bash
+src/main/java/org/acme/kafka/producer/Producer.java
+```
+
+![Quarkus Project Folder Structure](./images/quarkus-folder-structure.png)
+
+
+- Within your Producer.java file add the following code - 
+
+```java
+package org.acme.kafka.producer;
+
+import io.reactivex.Flowable;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+
+import org.eclipse.microprofile.reactive.messaging.Outgoing;
+
+import javax.enterprise.context.ApplicationScoped;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * This class produces a message every 5 seconds.
+ * The Kafka configuration is specified in the application.properties file.
+*/
+@ApplicationScoped
+public class Producer {
+
+    private Random random = new Random();
+
+    @Outgoing("{TOPIC-NAME}")      
+    public Flowable<KafkaRecord<Integer, String>> generate() {
+        return Flowable.interval(5, TimeUnit.SECONDS)    
+                .onBackpressureDrop()
+                .map(tick -> {      
+                    return KafkaRecord.of(random.nextInt(100), String.valueOf(random.nextInt(100)));
+                });
+    }                  
+}
+
+```
+
+Take note on the line that says @Outgoing("{TOPIC-NAME}"). For the purposes of this story we will use the INBOUND topic name that we created in the Event Streams Topic step earlier. Replace whatever is inside the quotation marks.
+
+```java
+@Outgoing("INBOUND")
+```
+
+The @Outgoing annotation is for specifying the name of the Channel, but it will default to that Channel's name if a topic name is not provided in the application.properties file. We will address that a little bit later.
+
+
+* What does this Producer.java code do? 
+   - The @Outgoing annotation indicates that we're sending to a Channel (or Topic) and we're not expecting any data.
+   - The generate() function returns an [RX Java 2 Flowable Object](https://www.baeldung.com/rxjava-2-flowable) emmitted every 5 seconds. 
+   - The Flowable object returns a KafkaRecord of type key type Integer and value type String.
+   
+   
+- We will now need to update our applications.properties file that was automatically generated when the Quarkus project was created located here - 
+
+```bash
+src/main/resources/application.properties
+```
+
+![application properties structure](./images/application-properties-structure.png)
+
+- Copy and paste the following into your application.properties file - 
+
+```properties
+# Event Streams instance connection details. The channel here (INBOUND) will by default be set as the topic.
+mp.messaging.connector.smallrye-kafka.bootstrap.servers={es-bootstrap-address}
+mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
+
+# Event Streams security credentials if necessary (in cases where SSL is enabled). Serializers used for outgoing
+# and deserializers are used for incoming messages.
+mp.messaging.outgoing.INBOUND.key.serializer=org.apache.kafka.common.serialization.IntegerSerializer
+mp.messaging.outgoing.INBOUND.value.serializer=org.apache.kafka.common.serialization.StringSerializer
+mp.messaging.outgoing.INBOUND.sasl.mechanism=PLAIN
+mp.messaging.outgoing.INBOUND.security.protocol=SASL_SSL
+mp.messaging.outgoing.INBOUND.ssl.protocol=TLSv1.2
+mp.messaging.outgoing.INBOUND.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+            username="token" \
+            password="{APIKey}";
+mp.messaging.outgoing.INBOUND.ssl.truststore.location={/filepath-to-es-truststorefile/}es-cert.jks
+mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
+```
+
+*Note* - These values that we are configuring can be used with environmental variables instead of hard-coding if you so choose.
+
+- Replace {es-bootstrap-address} with the address of your Event Streams bootstrap server address that we took note of earlier. 
+   
+```properties
+mp.messaging.connector.smallrye-kafka.bootstrap.servers={es-bootstrap-address}
+```
+
+- Replace {APIKey} with your API Key obtained earlier.
+   
+```properties
+mp.messaging.outgoing.INBOUND.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+            username="token" \
+            password="{APIKey}";
+```
+            
+- Provide the file path to your Event Streams .jks certificate file. Replace {/filepath-to-es-truststorefile/}
+
+```properties
+mp.messaging.outgoing.INBOUND.ssl.truststore.location={/filepath-to-es-truststorefile/}es-cert.jks
+```
+
+- Provide the truststore password. By default it should just be password.
+
+```properties
+mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
+```
+
+
+- Great! We now have our simple Quarkus Kafka Producer with our Event Streams credentials. We can now test the connection.
+
+- Run the producer code by running the following command 
+
+```bash
+./mvnw quarkus:dev
+```
+
+- Since the code sends a message every 5 seconds, you can leave it on for a bit or you can change it to send it more frequently. Check out the Event Streams instance in the browser UI topic for messages. You can click the message under "Indexed Timestamp" to see the contents and details of the message.
+
+![ES Topic Messages](./images/event-streams-topic-messages.png)
+
+
+
+## Creating an IBM COS Service and COS Bucket for your IBM Cloud Account
+
+This story assumes that you already have an IBM Cloud account already, and if not you can sign up for one here at [IBM Cloud](https://cloud.ibm.com).
+
+- Once inside your IBM Cloud account, traverse to the `Catalog` section.
+
+- In the search type in `IBM Cloud Object Storage`
+
+![IBM COS Catalog Search](./images/ibm-cloud-create-cos-service.png)
+
+- Name your IBM COS Service with something unique. Since this is a free account we can stick with the Lite Plan.
+
+![IBM COS Create COS Service](./images/ibm-cloud-create-cos-service-2.png)
+
+- Now that the IBM Cloud Object Storage Service is created, traverse to it and let's create a new bucket. 
+
+
+- On the `Create Bucket` screen pick `Custom Bucket`.
+
+![IBM COS Custom Bucket](./images/ibm-cos-create-bucket.png)
+
+- When selecting options for the bucket, name your bucket something unique. For `Resiliency` let's select `Regional`. For location select an area from the drop-down that you want. (IMPORTANT) For `Storage Class` select `Standard`. The IBM COS Sink connector seems to not play well with buckets that are created with the `Smart Tier` Storage Class. Leave everything else as-is and hit `Create Bucket`.
+
+![IBM COS Custom Bucket Settings](./images/ibm-cos-bucket-settings.png)
+
+
+
+
+## Creating IBM Cloud Service Credentials
+
+Now that we have created our IBM Cloud Object Storage Service and bucket we now need to create the Service Credential so that we can connect to it.
+
+- Inside your IBM COS Service, select `Service Credentials` and then click the `New Credential` button.
+
+![IBM COS Service Credential](./images/ibm-cos-create-service-cred.png)
+
+- Name your credential and select `Manager` from the `Role:` drop-down menu and click `Add`.
+
+![IBM COS SC Settings](./images/ibm-cos-service-credentials.png)
+
+- Expand your newly created Service Credential and write down the values for `"apikey"` and `"resource_instance_id"`.
+
+![Expanded Service Cred](./images/ibm-service-credential-keys.png)
+
+
+### Summary
+
+We've created the IBM COS Service, created a COS Bucket, and created our Service Credentials. Here are the following items we need to configure our IBM COS connector.
+
+
+- IBM COS Bucket name
+- IBM COS Bucket location
+- IBM COS Resiliency (regional)
+- IBM COS Service CRN (resource_instance_id)
+- IBM COS API Key
+
+
+
+## Setting up the Kafka Strimzi Operator 
+
+*Note* - This scenario uses an OCP 4.3 cluster, CP4I2020.1.1 and Event Streams v2019.4.2 so this Strimzi installation step
+may not be necessary if you are on OCP 4.4, CP4I2020.2.1 as well as Event Streams v10 (which is operator based and built on top of Strimzi)
+
+- As part of the pre-requisites this assumes that you have a 4.x OpenShift Container Platform cluster we will use the Strimzi Operator to deploy our Kafka cluster. 
+
+- In your OpenShift Web Console, in the "ADMINISTRATOR" view. This is in the top left most portion of the menu. Go to "Operators" > "OperatorHub".
+
+![OperatorHub](./images/operator-hub.png)
+
+- Type "Strimzi" into the Search Bar.
+
+![Strimzi](./images/strimzi.png)
+
+- Click on the Strimzi Operator and then click "Install".
+
+![Operator Install](./images/operator-install.png)
+
+- Make sure that the option to have "All namespaces on the cluster (default)" is checked.
+
+![Operator Subscription](./images/operator-subscription.png)
+
+- Tail the status of your Strimzi operator install either through the web console or doing while logged in through OpenShift through your terminal. 
+
+```bash
+oc get pods -n openshift-operators
+```
+
+![Operator Installing](./images/strimzi-operator-installing.png)
+
+
+
+7. When the Strimzi Operator finally says Succeeded in the "Installed Operators" section in the Web console or 1/1 Running in the Pod status we may proceed.
+
+
+
+![Operator Success](./images/strimzi-operator-success.png)
+
+![Operator Console](./images/strimzi-operator-console.png)
+
+
+
+
+## Setting up the Kafka Connect Cluster
+
+Note - As stated in the pre-requisites section we will be mirroring the steps followed here at [Kafka Connect to S3 Sink & Source](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/connect-s3/) for more granular information and reading.
+
+- Now that we have our Strimzi Kafka Operator installed we need the secrets and appropriate credentials set up.
+
+- You will need to be logged into your OpenShift Cluster through the terminal. You can do this by going to the OpenShift Web UI and going to the top right and hitting the User (likely kube:admin in this case) and then "Copy Login command" and then "Display Token". Copy and paste the "Log in with this token" command into your terminal.
+
+- I would advise you to create a new Project/Namespace to separate secrets and logic but that's up to you.
+
+```bash
+oc new-project es-s3-test
+```
+
+- We now need to create a secret for our Event Streams API Key that we gathered from the "Event Streams Security: API Key, Credentials and Certificates" Section earlier. This secret will be injected into the KafkaConnect cluster at run time as well. Replace {eventstreams_api_key} with your API key. This should also be in the `es-api-key.json` file earlier if you chose the "Download as JSON" option.
+
+```bash
+oc create secret generic eventstreams-apikey --from-literal=password={eventstreams_api_key}
+```
+
+- We will now create/generate the proper certificate for use with the Kafka Connect cluster. By default our Event Streams certificate is a .jks file but we need to convert this to a .crt file. Run the following commands. These commands convert the .jks file to a new es-cert.crt file and then creates a Kubernetes/OpenShift secret for use with the KafkaConnect cluster.
+
+```bash
+keytool -importkeystore -srckeystore es-cert.jks -destkeystore es-cert.p12 -deststoretype PKCS12
+openssl pkcs12 -in es-cert.p12 -nokeys -out es-cert.crt
+oc create secret generic eventstreams-truststore-cert --from-file=es-cert.crt
+```
+
+- (OPTIONAL) This is an Optional step. Apache Camel by default can log potentially sensitive access key information to the log files. To remedy that we will use a log4j ConfigMap to filter out that potentially sensitive information. Create a log4j.properties file and paste the following into it.
+
+```bash
+vi log4j.properties
+```
+
+```properties
+# Do not change this generated file. Logging can be configured in the corresponding kubernetes/openshift resource.
+log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
+log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
+log4j.appender.CONSOLE.layout.ConversionPattern=%d{ISO8601} %p %m (%c) [%t]%n
+connect.root.logger.level=INFO
+log4j.rootLogger=${connect.root.logger.level}, CONSOLE
+log4j.logger.org.apache.zookeeper=ERROR
+log4j.logger.org.I0Itec.zkclient=ERROR
+log4j.logger.org.reflections=ERROR
+
+```
+
+- (OPTIONAL) We can now create the ConfigMap from the newly created properties file.
+
+```bash
+oc create configmap custom-connect-log4j --from-file=log4j.properties
+```
+
+- We will now deploy the base KafkaConnect Cluster using KafkaConnectS2I (Source to Image) custom resource. Create a new `kafka-connect.yaml` file and paste the following. 
+
+```bash
+vi kafka-connect.yaml
+```
+
+```yaml
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: KafkaConnectS2I
+metadata:
+  name: connect-cluster-101
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  #logging:
+  #  type: external
+  #  name: custom-connect-log4j
+  replicas: 1
+  bootstrapServers: {your-bootstrap-server-address:443}
+  tls:
+    trustedCertificates:
+      - certificate: es-cert.crt
+        secretName: eventstreams-truststore-cert
+  authentication:
+    passwordSecret:
+      secretName: eventstreams-apikey
+      password: password
+    username: token
+    type: plain
+  config:
+    group.id: connect-cluster-101
+    config.providers: file
+    config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    offset.storage.topic: connect-cluster-101-offsets
+    config.storage.topic: connect-cluster-101-configs
+    status.storage.topic: connect-cluster-101-status
+ ```
+ 
+ NOTE - The following options are things we need to take note of/configure. 
+ 
+ - (OPTIONAL)`spec.logging.name`: The name of the previously configured log4j ConfigMap. You can uncomment those previous three lines if you opted to create the ConfigMap.
+ - `spec.bootstrapServers`: Replace `{your-bootstrap-server-address:443}` with your Event Streams instance bootstrap server address.
+ - `spec.tls.trustedCertificates[0].secretName`: The name of the OpenShift secret created for your Event Streams certificate
+ - `spec.authentication.passwordSecret.secretName`: The name of the OpenShift secret created from the Event Streams API Key
+ - `spec.config['group.id']`: This should be a unique ID for connecting to the same set of Kafka brokers. If we do not specify a name, multiple KafkaConnect instances will end up using the default id and end up in a race condition as they all try to vie for access.
+ - `spec.config['*.storage.topic']`: As noted in the .yaml file we have `offset.storage.topic`, `config.storage.topic`, and `status.storage.topic`. The name of these topics will need to be created in your Event Streams instance to store the metadata. See the "Creating Event Streams Topics" section for a refresher on creating Event Streams topics. 
+ 
+ 
+ - Make sure the `kafka-connect.yaml` files values are correctly configured and save it. From the terminal run the following
+
+```bash
+oc apply -f kafka-connect.yaml
+``` 
+ 
+- You can check the status of the pods by running `oc get pods`. When they're all Running we can proceed.
+ 
+ 
+
+## Building and Applying IBM COS Sink Connector
+
+The IBM COS Source Connector source code is availabe at this repository [here](https://github.com/ibm-messaging/kafka-connect-ibmcos-sink). 
+
+(IMPORTANT) The Strimzi Kafka Connect Cluster uses a Java 8 runtime so make sure you're actively using the Java 8 JRE.
+
+- Clone the Kafka Connect IBM COS Source Connector repository and then change your folder.
+```shell
+git clone https://github.com/ibm-messaging/kafka-connect-ibmcos-sink.git
+cd kafka-connect-ibmcos-sink/
+```
+
+- We now need to build the connector binaries for use with our Kafka Connect cluster. Like stated earlier, make sure that you're using Java 8 to build the connector.
+
+```shell
+gradle shadowJar
+```
+
+- The newly built connector binaries are in the `build/libs/` folder. Let's move it into another folder for ease of use.
+
+```shell
+cp build/libs/kafka-connect-ibmcos-sink-*-all.jar connectors/
+```
+
+- Now that we have the connector in the `connectors/` folder let's start a new `oc start-build` command. What this command does is build a new image with your provided connectors/plugins and triggers a new deployment for your Kafka Connect clusters. 
+
+```shell
+oc start-build connect-cluster-101-connect --from-dir ./connectors/ --follow
+```
+
+- Since this creates a new deployment this will kick off a new Kafka Connect pod. Previously we'd have a pod with a name similar to `connect-101-cluster-connect-1-{random-suffix}`. This will create something similar to `connect-101-cluster-connect-2-{random-suffix}. Trail the output and wait for the pod to be `Running 1/1`
+
+```shell
+oc get pods -w
+```
+
+- Once the new pod is up and running we can proceed. Create a new file named kafka-cos-sink-connector.yaml
+
+```shell
+vi kafka-cos-sink-connector.yaml
+```
+
+- Paste the following contents into the newly created yaml file.
+
+```yaml
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: KafkaConnector
+metadata:
+  name: cos-sink-connector
+  labels:
+    strimzi.io/cluster: connect-cluster-101
+spec:
+  class: com.ibm.eventstreams.connect.cossink.COSSinkConnector
+  tasksMax: 1
+  config:
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.storage.StringConverter
+    topics: {topic-name}
+    cos.api.key: {ibm-cos-api-key}
+    cos.bucket.location:{<ibm-cos-bucket-location}
+    cos.bucket.name: {your-ibm-cos-bucket-name}
+    cos.bucket.resiliency: {your-resiliency}
+    cos.service.crn: "{your-ibm-cos-service-crn}"
+    cos.object.records: 5
+    cos.object.deadline.seconds: 5
+    cos.object.interval.seconds: 5
+```
+
+In the yaml there are a few things we need to configure.
+
+- `spec.config.topics`: Replace `{topic-name}` with the name of your created Event Streams topic. For the purposes of this story we'll assume the `INBOUND` topic for instance.
+- `spec.config.cos.api.key`: Replace `{ibm-cos-api-key}` with your `apikey` that we received/took down when we created our `Service Credential` earlier. 
+- `spec.config.cos.bucket.location`: Replace `{ibm-cos-bucket-location}` with your created IBM COS bucket's location. It's usually in the form of something like `us-east` or `eu-gb` for example.
+- `spec.config.cos.bucket.resiliency`: Replace `{your-resiliency}` with your chosen Bucket resiliency selection. For the purposes of this scenario we assumed `regional`.
+- `spec.config.cos.service.crn`: Replace `{your-ibm-cos-service-crn}` with the CRN of your IBM COS Service. This usually ends with a double `::` at the end of it. *Note* - you might need to retain the double quotation marks here as the crn has colons in it. This ends up looking like something this - `cos.service.crn: "crn:v1:bluemix:public:cloud-object-storage:global:a/123151fhtr324fd13:h6a12345f-ba23-1ab1-ab1f-12345678::"`
+- The last three options can be configured to your liking. You can read more about configuring that [here](https://github.com/ibm-messaging/kafka-connect-ibmcos-sink#combining-multiple-kafka-records-into-an-object)
+
+- Save the yaml and apply this yaml to initiate the KafkaConnnector Custom Resource. 
+```shell
+oc apply -f kafka-cos-sink-connector.yaml
+```
+
+- The initialization of the connector can take a minute or two. You can check the logs of the connector to see if everything connected succesfully.
+```shell
+oc describe kafkaconnector cos-sink-connector
+```
+
+- When the IBM COS Sink connector is successfully up and running you should see something similar to the below.
+
+![IBM COS Sink Connector success](./images/ibm-cos-sink-connector-success.png)
+
+
+
+## Test the Entire Flow
+
+- Now that we have all the previous steps setup we can now test the entire flow.
+
+- Start our Quarkus Kafka Producer application to send messages to the Event Streams INBOUND topic.
+
+```bash
+./mvnw quarkus:dev
+```
+
+![Quarkus Run Success](./images/quarkus-run-success.png)
+
+- Go to your Event Streams instance on Cloud Pak for Integration. Traverse to the Topics menu and select your `INBOUND` topic and then go to "Messages". Choose the "Live" option to see an up-to-date stream of your incoming messages.
+
+- Your messages should be propagating the your created IBM COS Bucket automatically.
+
+![Event Streams Topic Success](./images/event-streams-topic-success.png)
+
+- The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
+
+![End to End Success](./images/ibm-cos-bucket-success.png)
