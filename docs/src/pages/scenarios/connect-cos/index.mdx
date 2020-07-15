@@ -15,7 +15,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
   <AnchorLink>Test the Entire Flow</AnchorLink>
 </AnchorLinks>
 
-## Overview - 
+## Overview
 - Now that you have an Event Streams instance installed on Cloud Pak for Integration on top of OpenShift Container Platform the goal of this story is to show a possible use case that we can use with this technology.
 - With IBM Event Streams we have access to the powerful capabilities of Kafka in addition to all the monitoring and logging capabilities that IBM provides on top of that with Event Streams.
 - We will create a simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that utilizes MicroProfile Reactive Messaging in order for us to send a stream of data to our Event Streams/Kafka topic.
@@ -26,7 +26,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 ![Architecture Diagram](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Quarkus%20to%20Event%20Streams%20Cloud%20Agnostic%20Arch%20Diagram.png)
 
 
-## Scenario Prerequisites - 
+## Scenario Prerequisites
 **OpenShift Container Platform Cluster** 
   - This scenario will assume you have a 4.x Cluster as we will make use of Operators, though this one is 4.3 specifically.
   
@@ -44,7 +44,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 **An IBM Cloud Account (free)**
 
-## Creating Event Streams Topics - 
+## Creating Event Streams Topics
 - Navigate to the Cloud Pak for Integration Platform Navigator. 
 
 - Click View Instances and click the Event Streams instance that you have created.
@@ -72,7 +72,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 - Create an OUTBOUND topic following the prior steps as well.
 
 
-## Event Streams Security: API Key, Credentials and Certificates - 
+## Event Streams Security: API Key, Credentials and Certificates
 
 - To connect to our Event Streams Instance we will need to follow a few steps to properly connect to it.
 
@@ -122,7 +122,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 
 
-## Creating the Quarkus with MicroProfile Reactive Messaging Application - 
+## Creating the Quarkus with MicroProfile Reactive Messaging Application 
 - Create the Quarkus project. You can replace <> and the contents inside of <> with whatever you would like.
 
 ```bash
@@ -316,7 +316,7 @@ We've created the IBM COS Service, created a COS Bucket, and created our Service
 - IBM COS API Key
 
 
-## Setting up the Kafka Strimzi Operator - 
+## Setting up the Kafka Strimzi Operator 
 
 - As part of the pre-requisites this assumes that you have a 4.x OpenShift Container Platform cluster we will use the Strimzi Operator to deploy our Kafka cluster. 
 
@@ -354,7 +354,7 @@ oc get pods -n openshift-operators
 
 ![Operator Console](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi%20Operator%20Console.png)
 
-## Setting up the Kafka Connect Cluster - 
+## Setting up the Kafka Connect Cluster
 
 Note - As stated in the pre-requisites section we will be mirroring the steps followed here at [Kafka Connect to S3 Sink & Source](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/connect-s3/) for more granular information and reading.
 
@@ -561,7 +561,7 @@ oc describe kafkaconnector cos-sink-connector
 ![IBM COS Sink Connector success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Sink%20Connector%20success.png)
 
 
-## Test the Entire Flow - 
+## Test the Entire Flow
 
 - Now that we have all the previous steps setup we can now test the entire flow.
 
@@ -579,4 +579,4 @@ oc describe kafkaconnector cos-sink-connector
 
 ![End to End Success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Bucket%20Success.png)
 
-- The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files and make sure that the value inside matches the value inside your `INBOUND` topic.
+- The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
