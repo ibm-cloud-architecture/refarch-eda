@@ -128,12 +128,12 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 
 ## Creating the Quarkus with MicroProfile Reactive Messaging Application 
-- Create the Quarkus project. You can replace <> and the contents inside of <> with whatever you would like.
+- Create the Quarkus project. You can replace {} and the contents inside of {} with whatever you would like.
 
 ```bash
 mvn io.quarkus:quarkus-maven-plugin:1.4.2.Final:create \
-    -DprojectGroupId=<org.acme> \
-    -DprojectArtifactId=<quarkus-kafka> \
+    -DprojectGroupId={org.acme} \
+    -DprojectArtifactId={quarkus-kafka} \
     -Dextensions="kafka"
 ```
 
@@ -171,7 +171,7 @@ public class Producer {
 
     private Random random = new Random();
 
-    @Outgoing("<TOPIC-NAME>")      
+    @Outgoing("{TOPIC-NAME}")      
     public Flowable<KafkaRecord<Integer, String>> generate() {
         return Flowable.interval(5, TimeUnit.SECONDS)    
                 .onBackpressureDrop()
@@ -183,19 +183,19 @@ public class Producer {
 
 ```
 
-Take note on the line that says @Outgoing("<TOPIC-NAME>"). For the purposes of this story we will use the INBOUND topic name that we created in the Event Streams Topic step earlier. Replace whatever is inside the quotation marks.
+Take note on the line that says @Outgoing("{TOPIC-NAME}"). For the purposes of this story we will use the INBOUND topic name that we created in the Event Streams Topic step earlier. Replace whatever is inside the quotation marks.
 
 ```java
 @Outgoing("INBOUND")
 ```
 
-Technically in @Outgoing("") is for specifying the name of the Channel, but it will default to a topic if a topic name is not provided in the application.properties file. We will address that a little bit later.
+The @Outgoing annotation is for specifying the name of the Channel, but it will default to that Channel's name if a topic name is not provided in the application.properties file. We will address that a little bit later.
 
 
 * What does this Producer.java code do? 
    - The @Outgoing annotation indicates that we're sending to a Channel (or Topic) and we're not expecting any data.
    - The generate() function returns an [RX Java 2 Flowable Object](https://www.baeldung.com/rxjava-2-flowable) emmitted every 5 seconds. 
-   - The Flowable object returns a KafkaRecord of type <Integer, String>.
+   - The Flowable object returns a KafkaRecord of type key type Integer and value type String.
    
    
 - We will now need to update our applications.properties file that was automatically generated when the Quarkus project was created located here - 
@@ -210,7 +210,7 @@ src/main/resources/application.properties
 
 ```properties
 # Event Streams instance connection details. The channel here (INBOUND) will by default be set as the topic.
-mp.messaging.connector.smallrye-kafka.bootstrap.servers=<es-bootstrap-address>
+mp.messaging.connector.smallrye-kafka.bootstrap.servers={es-bootstrap-address}
 mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
 
 # Event Streams security credentials if necessary (in cases where SSL is enabled). Serializers used for outgoing
@@ -222,35 +222,37 @@ mp.messaging.outgoing.INBOUND.security.protocol=SASL_SSL
 mp.messaging.outgoing.INBOUND.ssl.protocol=TLSv1.2
 mp.messaging.outgoing.INBOUND.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
             username="token" \
-            password="<APIKey>";
-mp.messaging.outgoing.INBOUND.ssl.truststore.location=</filepath-to-es-truststorefile/>es-cert.jks
-mp.messaging.outgoing.INBOUND.ssl.truststore.password=<password>
+            password="{APIKey}";
+mp.messaging.outgoing.INBOUND.ssl.truststore.location={/filepath-to-es-truststorefile/}es-cert.jks
+mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
 ```
 
-- Replace <es-bootstrap-address> with the address of your Event Streams bootstrap server address that we took note of earlier. 
+*Note* - These values that we are configuring can be used with environmental variables instead of hard-coding if you so choose.
+
+- Replace {es-bootstrap-address} with the address of your Event Streams bootstrap server address that we took note of earlier. 
    
 ```properties
-mp.messaging.connector.smallrye-kafka.bootstrap.servers=<es-bootstrap-address>
+mp.messaging.connector.smallrye-kafka.bootstrap.servers={es-bootstrap-address}
 ```
 
-- Replace <APIKey> with your API Key obtained earlier.
+- Replace {APIKey} with your API Key obtained earlier.
    
 ```properties
 mp.messaging.outgoing.INBOUND.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
             username="token" \
-            password="<APIKey>";
+            password="{APIKey}";
 ```
             
-- Provide the file path to your Event Streams .jks certificate file. Replace </filepath-to-es-truststorefile/>
+- Provide the file path to your Event Streams .jks certificate file. Replace {/filepath-to-es-truststorefile/}
 
 ```properties
-mp.messaging.outgoing.INBOUND.ssl.truststore.location=</filepath-to-es-truststorefile/>es-cert.jks
+mp.messaging.outgoing.INBOUND.ssl.truststore.location={/filepath-to-es-truststorefile/}es-cert.jks
 ```
 
 - Provide the truststore password. By default it should just be password.
 
 ```properties
-mp.messaging.outgoing.INBOUND.ssl.truststore.password=<password>
+mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
 ```
 
 
@@ -381,10 +383,10 @@ Note - As stated in the pre-requisites section we will be mirroring the steps fo
 oc new-project es-s3-test
 ```
 
-- We now need to create a secret for our Event Streams API Key that we gathered from the "Event Streams Security: API Key, Credentials and Certificates" Section earlier. This secret will be injected into the KafkaConnect cluster at run time as well. Replace <eventstreams_api_key> with your API key. This should also be in the `es-api-key.json` file earlier if you chose the "Download as JSON" option.
+- We now need to create a secret for our Event Streams API Key that we gathered from the "Event Streams Security: API Key, Credentials and Certificates" Section earlier. This secret will be injected into the KafkaConnect cluster at run time as well. Replace {eventstreams_api_key} with your API key. This should also be in the `es-api-key.json` file earlier if you chose the "Download as JSON" option.
 
 ```bash
-oc create secret generic eventstreams-apikey --from-literal=password=<eventstreams_api_key>\
+oc create secret generic eventstreams-apikey --from-literal=password={eventstreams_api_key}
 ```
 
 - We will now create/generate the proper certificate for use with the Kafka Connect cluster. By default our Event Streams certificate is a .jks file but we need to convert this to a .crt file. Run the following commands. These commands convert the .jks file to a new es-cert.crt file and then creates a Kubernetes/OpenShift secret for use with the KafkaConnect cluster.
@@ -438,7 +440,7 @@ spec:
   #  type: external
   #  name: custom-connect-log4j
   replicas: 1
-  bootstrapServers: <your-bootstrap-server-address:443>
+  bootstrapServers: {your-bootstrap-server-address:443}
   tls:
     trustedCertificates:
       - certificate: es-cert.crt
@@ -465,7 +467,7 @@ spec:
  NOTE - The following options are things we need to take note of/configure. 
  
  - (OPTIONAL)`spec.logging.name`: The name of the previously configured log4j ConfigMap. You can uncomment those previous three lines if you opted to create the ConfigMap.
- - `spec.bootstrapServers`: Replace with your Event Streams instance bootstrap server address.
+ - `spec.bootstrapServers`: Replace `{your-bootstrap-server-address:443}` with your Event Streams instance bootstrap server address.
  - `spec.tls.trustedCertificates[0].secretName`: The name of the OpenShift secret created for your Event Streams certificate
  - `spec.authentication.passwordSecret.secretName`: The name of the OpenShift secret created from the Event Streams API Key
  - `spec.config['group.id']`: This should be a unique ID for connecting to the same set of Kafka brokers. If we do not specify a name, multiple KafkaConnect instances will end up using the default id and end up in a race condition as they all try to vie for access.
@@ -512,7 +514,7 @@ cp build/libs/kafka-connect-ibmcos-sink-*-all.jar connectors/
 oc start-build connect-cluster-101-connect --from-dir ./connectors/ --follow
 ```
 
-- Since this creates a new deployment this will kick off a new Kafka Connect pod. Previously we'd have a pod with a name similar to `connect-101-cluster-connect-1-<random-suffix>`. This will create something similar to `connect-101-cluster-connect-2-<random-suffix>. Trail the output and wait for the pod to be `Running 1/1`
+- Since this creates a new deployment this will kick off a new Kafka Connect pod. Previously we'd have a pod with a name similar to `connect-101-cluster-connect-1-{random-suffix}`. This will create something similar to `connect-101-cluster-connect-2-{random-suffix}. Trail the output and wait for the pod to be `Running 1/1`
 
 ```shell
 oc get pods -w
@@ -539,12 +541,12 @@ spec:
   config:
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.storage.StringConverter
-    topics: <topic-name>
-    cos.api.key: <ibm-cos-api-key>
-    cos.bucket.location: <ibm-cos-bucket-location>
-    cos.bucket.name: <your-ibm-cos-bucket-name>
-    cos.bucket.resiliency: <your-resiliency>
-    cos.service.crn: "<your-ibm-cos-service-crn"
+    topics: {topic-name}
+    cos.api.key: {ibm-cos-api-key}
+    cos.bucket.location:{<ibm-cos-bucket-location}
+    cos.bucket.name: {your-ibm-cos-bucket-name}
+    cos.bucket.resiliency: {your-resiliency}
+    cos.service.crn: "{your-ibm-cos-service-crn}"
     cos.object.records: 5
     cos.object.deadline.seconds: 5
     cos.object.interval.seconds: 5
@@ -552,11 +554,11 @@ spec:
 
 In the yaml there are a few things we need to configure.
 
-- `spec.config.topics`: Replace `<topic-name>` with the name of your created Event Streams topic. For the purposes of this story we'll assume the `INBOUND` topic for instance.
-- `spec.config.cos.api.key`: Replace `<ibm-cos-api-key>` with your `apikey` that we received/took down when we created our `Service Credential` earlier. 
-- `spec.config.cos.bucket.location`: Replace `<ibm-cos-bucket-location>` with your created IBM COS bucket's location. It's usually in the form of something like `us-east` or `eu-gb` for example.
-- `spec.config.cos.bucket.resiliency`: Replace `<your-resiliency>` with your chosen Bucket resiliency selection. For the purposes of this story we assumed `regional`.
-- `spec.config.cos.service.crn`: Replace `<your-ibm-cos-service-crn>` with the CRN of your IBM COS Service. This usually ends with a double `::` at the end of it. Note - we'll likely need to retain the double quotation marks here as the crn has colons in it. This ends up looking like something this - `cos.service.crn: "crn:v1:bluemix:public:cloud-object-storage:global:a/123151fhtr324fd13:h6a12345f-ba23-1ab1-ab1f-12345678::"`
+- `spec.config.topics`: Replace `{topic-name}` with the name of your created Event Streams topic. For the purposes of this story we'll assume the `INBOUND` topic for instance.
+- `spec.config.cos.api.key`: Replace `{ibm-cos-api-key}` with your `apikey` that we received/took down when we created our `Service Credential` earlier. 
+- `spec.config.cos.bucket.location`: Replace `{ibm-cos-bucket-location}` with your created IBM COS bucket's location. It's usually in the form of something like `us-east` or `eu-gb` for example.
+- `spec.config.cos.bucket.resiliency`: Replace `{your-resiliency}` with your chosen Bucket resiliency selection. For the purposes of this scenario we assumed `regional`.
+- `spec.config.cos.service.crn`: Replace `{your-ibm-cos-service-crn}` with the CRN of your IBM COS Service. This usually ends with a double `::` at the end of it. *Note* - you might need to retain the double quotation marks here as the crn has colons in it. This ends up looking like something this - `cos.service.crn: "crn:v1:bluemix:public:cloud-object-storage:global:a/123151fhtr324fd13:h6a12345f-ba23-1ab1-ab1f-12345678::"`
 - The last three options can be configured to your liking. You can read more about configuring that [here](https://github.com/ibm-messaging/kafka-connect-ibmcos-sink#combining-multiple-kafka-records-into-an-object)
 
 - Save the yaml and apply this yaml to initiate the KafkaConnnector Custom Resource. 
