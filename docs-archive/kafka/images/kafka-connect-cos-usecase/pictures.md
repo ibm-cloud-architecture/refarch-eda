@@ -1,1 +1,0 @@
-## To store supporting pictures

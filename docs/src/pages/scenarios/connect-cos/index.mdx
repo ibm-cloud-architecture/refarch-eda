@@ -22,7 +22,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 - We will then create a Kafka Connect cluster using the Strimzi Operator.
 - Lastly we'll send messages to an Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and place into an IBM COS Bucket.
 
-![Architecture Diagram](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Quarkus%20to%20Event%20Streams%20to%20COS.png)
+![Architecture Diagram](./images/quarkus-to-event-streams-to-cos.png)
 
 
 ## Scenario Prerequisites
@@ -34,6 +34,9 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
   
 **Java**
   - Java Development Kit (JDK) v1.8+ (Java 8+)
+
+**Maven**
+  - The scenario uses Maven v3.6.3
 
 **Gradle**
   - Ideally v4.0+ (Note - the gradle shadowJar command might not work on Java 13)
@@ -53,27 +56,29 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 - Click View Instances and click the Event Streams instance that you have created.
 
+- Click `Connect to this Cluster` in the top right.
+![Connect to this Cluster](./images/connect-to-this-cluster.png)
+
 - Click the Topics option on the left. Create the INBOUND topic.
 
-![Create Topic](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/create%20topic.png)
+![Create Topic](.images/create-topic.png)
 
-![Topic Name](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/inbound%20topic%20name.png)
+![Topic Name](./images/inbound-topic-name.png)
 
 - Leave Partitions at 1.
 
-![Partition](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/partitions.png)
+![Partition](./images/partitions.png)
 
 - Depending on how long you want messages to persist you can change this.
 
-![Message Retention](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/message%20retention.png)
+![Message Retention](./images/message-etention.png)
 
 - You can leave Replication Factor at the default 3.
 
-![Replication](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/replicas.png)
+![Replication](./images/replicas.png)
 
 - Click Create.
 
-- Create an OUTBOUND topic following the prior steps as well.
 
 
 
@@ -83,47 +88,48 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 - While viewing our Event Streams Instance, navigate to the Topics menu from the left. Click Connect to this Cluster - 
 
-![Connect to this Cluster](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Connect%20to%20this%20Cluster.png)
+![Connect to this Cluster](./images/connect-to-this-cluster.png)
 
 - Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
 
-![Bootstrap Address](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Bootstrap%20Server.png)
+![Bootstrap Address](./images/bootstrap-server.png)
 
 
 - Generate your **API Key**. Click the Generate API Key button.
 
-![Generate API Key 1](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Generate%20API%20Key%201.png)
+![Generate API Key 1](./images/generate-api-key-1.png)
 
 
 - Select a name for your application. It doesn't really matter too much what you name it. Also choose the Produce, Consume, Create Topics and Schema Option.
 
-![Generate API Key 2](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Generate%20API%20Key%202.png)
+![Generate API Key 2](./images/generate-api-key-2.png)
 
 - Select All Topics and then click Next.
 
-![Generate API Key 3](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Generate%20API%20Key%203.png)
+![Generate API Key 3](./images/generate-api-key-3.png)
 
 - Leave it All Consumer Groups on "ON" and click Next.
 
-![Generate API Key 4](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Generate%20API%20Key%204.png)
+![Generate API Key 4](./images/generate-api-key-4.png)
 
 - You can copy down your API Key by hitting the Copy API Key button, or you can select Download as JSON so you can have a .json file with your API Key for better organization. Afterwards hit Close.
 
-![Generate API Key 5](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Generate%20API%20Key%205.png)
+![Generate API Key 5](./images/generate-api-key-5.png)
 
 - Download the Java truststore .jks certificate.
 
-![JKS Truststore](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/JKS%20Cert.png)
+![JKS Truststore](./images/jks-cert.png)
 
 
 - Write/keep track of the truststore password.
 
-![Truststore password](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/JKS%20Truststore%20password.png)
+![Truststore password](./images/jks-truststore-password.png)
 
 - Make sure you have these files in the same folder.
 
 
-<ins>Summary</ins> - We now have the bootstrap server address, API Key, .jks truststore certificate, and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
+**Summary** 
+- We now have the bootstrap server address, API Key, .jks truststore certificate, and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
 
 
 
@@ -145,7 +151,7 @@ mvn io.quarkus:quarkus-maven-plugin:1.4.2.Final:create \
 src/main/java/org/acme/kafka/producer/Producer.java
 ```
 
-![Quarkus Project Folder Structure](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Quarkus%20folder%20structure.png)
+![Quarkus Project Folder Structure](./images/quarkus-folder-structure.png)
 
 
 - Within your Producer.java file add the following code - 
@@ -204,7 +210,7 @@ The @Outgoing annotation is for specifying the name of the Channel, but it will 
 src/main/resources/application.properties
 ```
 
-![application properties structure](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/application%20properties%20structure.png)
+![application properties structure](./images/application-properties-structure.png)
 
 - Copy and paste the following into your application.properties file - 
 
@@ -266,7 +272,7 @@ mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
 
 - Since the code sends a message every 5 seconds, you can leave it on for a bit or you can change it to send it more frequently. Check out the Event Streams instance in the browser UI topic for messages. You can click the message under "Indexed Timestamp" to see the contents and details of the message.
 
-![ES Topic Messages](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Event%20Streams%20topic%20messages.png)
+![ES Topic Messages](./images/event-streams-topic-messages.png)
 
 
 
@@ -278,22 +284,22 @@ This story assumes that you already have an IBM Cloud account already, and if no
 
 - In the search type in `IBM Cloud Object Storage`
 
-![IBM COS Catalog Search](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20Cloud%20Create%20COS%20Service.png)
+![IBM COS Catalog Search](./images/ibm-cloud-create-cos-service.png)
 
 - Name your IBM COS Service with something unique. Since this is a free account we can stick with the Lite Plan.
 
-![IBM COS Create COS Service](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20Cloud%20Create%20COS%20Service%202.png)
+![IBM COS Create COS Service](./images/ibm-cloud-create-cos-service-2.png)
 
 - Now that the IBM Cloud Object Storage Service is created, traverse to it and let's create a new bucket. 
 
 
 - On the `Create Bucket` screen pick `Custom Bucket`.
 
-![IBM COS Custom Bucket](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Create%20Bucket.png)
+![IBM COS Custom Bucket](./images/ibm-cos-create-bucket.png)
 
 - When selecting options for the bucket, name your bucket something unique. For `Resiliency` let's select `Regional`. For location select an area from the drop-down that you want. (IMPORTANT) For `Storage Class` select `Standard`. The IBM COS Sink connector seems to not play well with buckets that are created with the `Smart Tier` Storage Class. Leave everything else as-is and hit `Create Bucket`.
 
-![IBM COS Custom Bucket Settings](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Bucket%20Settings.png)
+![IBM COS Custom Bucket Settings](./images/ibm-cos-bucket-settings.png)
 
 
 
@@ -304,15 +310,15 @@ Now that we have created our IBM Cloud Object Storage Service and bucket we now 
 
 - Inside your IBM COS Service, select `Service Credentials` and then click the `New Credential` button.
 
-![IBM COS Service Credential](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Create%20Service%20Cred.png)
+![IBM COS Service Credential](./images/ibm-cos-create-service-cred.png)
 
 - Name your credential and select `Manager` from the `Role:` drop-down menu and click `Add`.
 
-![IBM COS SC Settings](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Service%20Credential.png)
+![IBM COS SC Settings](./images/ibm-cos-service-credentials.png)
 
 - Expand your newly created Service Credential and write down the values for `"apikey"` and `"resource_instance_id"`.
 
-![Expanded Service Cred](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20Service%20Credential%20Keys.png)
+![Expanded Service Cred](./images/ibm-service-credential-keys.png)
 
 
 ### Summary
@@ -330,23 +336,26 @@ We've created the IBM COS Service, created a COS Bucket, and created our Service
 
 ## Setting up the Kafka Strimzi Operator 
 
+*Note* - This scenario uses an OCP 4.3 cluster, CP4I2020.1.1 and Event Streams v2019.4.2 so this Strimzi installation step
+may not be necessary if you are on OCP 4.4, CP4I2020.2.1 as well as Event Streams v10 (which is operator based and built on top of Strimzi)
+
 - As part of the pre-requisites this assumes that you have a 4.x OpenShift Container Platform cluster we will use the Strimzi Operator to deploy our Kafka cluster. 
 
 - In your OpenShift Web Console, in the "ADMINISTRATOR" view. This is in the top left most portion of the menu. Go to "Operators" > "OperatorHub".
 
-![OperatorHub](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Operator%20Hub.png)
+![OperatorHub](./images/operator-hub.png)
 
 - Type "Strimzi" into the Search Bar.
 
-![Strimzi](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi.png)
+![Strimzi](./images/strimzi.png)
 
 - Click on the Strimzi Operator and then click "Install".
 
-![Operator Install](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Operator%20Install.png)
+![Operator Install](./images/operator-install.png)
 
 - Make sure that the option to have "All namespaces on the cluster (default)" is checked.
 
-![Operator Subscription](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Operator%20Subscription.png)
+![Operator Subscription](./images/operator-subscription.png)
 
 - Tail the status of your Strimzi operator install either through the web console or doing while logged in through OpenShift through your terminal. 
 
@@ -354,7 +363,7 @@ We've created the IBM COS Service, created a COS Bucket, and created our Service
 oc get pods -n openshift-operators
 ```
 
-![Operator Installing](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi%20Operator%20Installing.png)
+![Operator Installing](./images/strimzi-operator-installing.png)
 
 
 
@@ -362,9 +371,9 @@ oc get pods -n openshift-operators
 
 
 
-![Operator Success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi%20Operator%20Success.png)
+![Operator Success](./images/strimzi-operator-success.png)
 
-![Operator Console](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Strimzi%20Operator%20Console.png)
+![Operator Console](./images/strimzi-operator-console.png)
 
 
 
@@ -573,7 +582,7 @@ oc describe kafkaconnector cos-sink-connector
 
 - When the IBM COS Sink connector is successfully up and running you should see something similar to the below.
 
-![IBM COS Sink Connector success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Sink%20Connector%20success.png)
+![IBM COS Sink Connector success](./images/ibm-cos-sink-connector-success.png)
 
 
 
@@ -587,12 +596,12 @@ oc describe kafkaconnector cos-sink-connector
 ./mvnw quarkus:dev
 ```
 
-![Quarkus Run Success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/Quarkus%20Run%20Success.png)
+![Quarkus Run Success](./images/quarkus-run-success.png)
 
 - Go to your Event Streams instance on Cloud Pak for Integration. Traverse to the Topics menu and select your `INBOUND` topic and then go to "Messages". Choose the "Live" option to see an up-to-date stream of your incoming messages.
 
 - Your messages should be propagating the your created IBM COS Bucket automatically.
 
-![End to End Success](https://github.com/jackyng88/refarch-eda/blob/master/docs-archive/kafka/images/kafka-connect-cos-usecase/IBM%20COS%20Bucket%20Success.png)
+![End to End Success](./images/ibm-cos-bucket-success.png)
 
 - The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
