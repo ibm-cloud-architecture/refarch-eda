@@ -1,0 +1,88 @@
+---
+title: Monitoring IBM Event Streams on OpenShift Cloud Platform
+description: Monitoring Kafka performance metrics and activity when deployed via the IBM Cloud Pak for Integration on Red Hat OpenShift Container Platform.
+---
+
+<AnchorLinks>
+  <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Scenario Prereqs</AnchorLink>
+  <AnchorLink>Generate Event Load</AnchorLink>
+  <AnchorLink>Explore the preconfigured Event Streams Dashboard</AnchorLink>
+  <AnchorLink>Import Grafana Dashboards</AnchorLink>
+  <AnchorLink>View Grafana Dashboards</AnchorLink>
+  <AnchorLink>Import Kibana Dashboards</AnchorLink>
+  <AnchorLink>View Kibana Dashboards</AnchorLink>
+  <AnchorLink>External Monitoring Tools</AnchorLink>
+  <AnchorLink>Additional Reading</AnchorLink>
+</AnchorLinks>
+
+## Overview
+
+TBD
+
+## Scenario Prereqs
+
+**OpenShift Container Platform**
+
+- This deployment scenario was developed for use on the OpenShift Container Platform, with a minimum version of `4.4`.
+
+**Cloud Pak for Integration**
+
+- This deployment scenario was developed for use with the 2020.2.x release of the Cloud Pak for Integration, installed on OpenShift 4.4.
+
+**IBM Event Streams**
+
+- This deployment scenario requires a working installation of [IBM Event Streams V10.0](https://ibm.github.io/event-streams/) or greater, deployed on the Cloud Pak for Integration environment mentioned above.
+- For Cloud Pak installation guidance, you can follow the Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) installation instructions.
+
+**Git**
+
+- We will need to clone repositories.
+
+**Java**
+
+- Java Development Kit (JDK) v1.8+ (Java 8+)
+
+**Maven**
+
+- The scenario uses Maven v3.6.x
+
+## Generate Event Load
+
+TBD
+
+- https://ibm.github.io/event-streams/getting-started/generating-starter-app/
+- https://ibm.github.io/event-streams/getting-started/testing-loads/
+
+## Explore the preconfigured Event Streams Dashboard
+
+TBD https://ibm.github.io/event-streams/administering/cluster-health/#viewing-the-preconfigured-dashboard
+
+## Import Grafana Dashboards
+
+TBD https://ibm.github.io/event-streams/administering/cluster-health/#grafana
+
+## View Grafana Dashboards
+
+TBD
+
+## Import Kibana Dashboards
+
+TBD https://ibm.github.io/event-streams/administering/cluster-health/#kibana
+
+## View Kibana Dashboards
+
+TBD
+
+## External Monitoring Tools
+
+TBD
+
+## Additional Reading
+
+- [Monitoring Kafka performance metrics](https://www.datadoghq.com/blog/monitoring-kafka-performance-metrics/) via **Datadog**
+- [How to Monitor Kafka](https://blog.serverdensity.com/how-to-monitor-kafka/) via **Server Density**
+- [OpenShift Day 2 Monitoring](https://cloudpak8s.io/day2/Monitoring/) via **IBM Cloud Paks Playbook**
+- [Monitoring Kafka cluster health](https://ibm.github.io/event-streams/administering/cluster-health/) via **IBM Event Streams documentation**
+- [Configuring the monitoring stack](https://docs.openshift.com/container-platform/4.3/monitoring/cluster_monitoring/configuring-the-monitoring-stack.html) via **Red Hat OpenShift** documentation
+- [Examining cluster metrics](https://docs.openshift.com/container-platform/4.3/monitoring/cluster_monitoring/examining-cluster-metrics.html) via **Red Hat OpenShift** documentation
