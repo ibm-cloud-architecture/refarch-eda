@@ -389,7 +389,7 @@ Note - As stated in the pre-requisites section we will be mirroring the steps fo
 - I would advise you to create a new Project/Namespace to separate secrets and logic but that's up to you.
 
 ```bash
-oc new-project es-s3-test
+oc new-project es-cos-test
 ```
 
 - We now need to create a secret for our Event Streams API Key that we gathered from the "Event Streams Security: API Key, Credentials and Certificates" Section earlier. This secret will be injected into the KafkaConnect cluster at run time as well. Replace {eventstreams_api_key} with your API key. This should also be in the `es-api-key.json` file earlier if you chose the "Download as JSON" option.
