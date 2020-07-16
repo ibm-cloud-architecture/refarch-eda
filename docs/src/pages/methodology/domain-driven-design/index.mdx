@@ -5,21 +5,29 @@ description: Domain Driven Design
 
 This section describes how to apply domain driven design with event based application and describe the high level steps which uses output from the event storming session and derives a set of micro services design specifications.
 
-[Event storming](./eventstorming/) is part of the domain-driven design methodology. And domain-driven design was deeply describe in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215/?tag=hyprod-20&linkCode=df0&hvadid=312118197030&hvpos=1o1&hvnetw=g&hvrand=3363692763187919455&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032152&hvtargid=pla-449269547899&psc=1) from 2004. At IBM we also summarized the concepts needed for implementing microservice in [Kyle Brown's article](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview).
+[Event storming](./eventstorming/) is part of the domain-driven design methodology. And domain-driven design was deeply describe in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215/?tag=hyprod-20&linkCode=df0&hvadid=312118197030&hvpos=1o1&hvnetw=g&hvrand=3363692763187919455&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032152&hvtargid=pla-449269547899&psc=1) from 2004. At IBM we also summarized the concepts needed for implementing microservice in [Kyle Brown's ddd article](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview).
+
+From this body of knowledge we can derive the following important elements:
+
+* Domain Driven Design is about understanding the business domain in which the solution has to be developed
+* Context is important to define as definitions within a context
+* For microservice we need to find the boundary of responsability
 
 The goals for the design step are:
 
 * To support highly modular cloud native microservices.
 * To adopt event coupled microservices - facilitating independent modification and evolution of each microservice separately.
-* To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of microservice implementation: data consitency, transaction cross domain, and complex queries between aggregates managed by different services.
+* To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of microservice implementation: data consitency, transaction cross domains, and complex queries between aggregates managed by different services.
 
 ## Starting materials generated during the Event Storming workshop
 
 We make use of the following materials generated during Event Storming and analysis workshop:
 
+* Domains - sub domains
 * Event Sequence flow.
-* Events – business description.
+* Events – business term definition.
 * Critical events.
+* Business entity
 * Aggregates and services:
     * Users – role based user stories.
     * Commands.
