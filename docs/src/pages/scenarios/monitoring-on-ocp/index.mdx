@@ -10,15 +10,36 @@ description: Monitoring Kafka performance metrics and activity when deployed via
   <AnchorLink>Explore the preconfigured Event Streams Dashboard</AnchorLink>
   <AnchorLink>Import Grafana Dashboards</AnchorLink>
   <AnchorLink>View Grafana Dashboards</AnchorLink>
-  <AnchorLink>Import Kibana Dashboards</AnchorLink>
-  <AnchorLink>View Kibana Dashboards</AnchorLink>
   <AnchorLink>External Monitoring Tools</AnchorLink>
   <AnchorLink>Additional Reading</AnchorLink>
 </AnchorLinks>
 
+<!--<AnchorLink>Import Kibana Dashboards</AnchorLink>
+<AnchorLink>View Kibana Dashboards</AnchorLink>-->
+
 ## Overview
 
-TBD
+TBD Reference
+- https://ibm.github.io/event-streams/administering/deployment-health/
+- https://ibm.github.io/event-streams/administering/cluster-health/
+- https://ibm.github.io/event-streams/administering/topic-health/
+- https://ibm.github.io/event-streams/administering/consumer-lag/
+
+
+<!--
+### Advanced Scenarios
+
+JMX Exporter
+- https://ibm.github.io/event-streams/installing/configuring#configuring-the-jmx-exporter
+- Kafka Streams and jmx_exporter use case
+
+Kafka Exporter
+- https://ibm.github.io/event-streams/administering/cluster-health/#kafka-exporter
+- https://ibm.github.io/event-streams/installing/configuring/#configuring-the-kafka-exporter
+
+JmxTrans
+- https://ibm.github.io/event-streams/security/secure-jmx-connections/#configuring-a-jmxtrans-deployment
+-->
 
 ## Scenario Prereqs
 
@@ -49,34 +70,91 @@ TBD
 
 ## Generate Event Load
 
-TBD
+This section details walking through the generation of a starter application for usage with IBM Event Streams, as documented in the [official product documentation](https://ibm.github.io/event-streams/getting-started/generating-starter-app/).
 
-- https://ibm.github.io/event-streams/getting-started/generating-starter-app/
-- https://ibm.github.io/event-streams/getting-started/testing-loads/
+- Access the Event Streams Dashboard via `https://es-1-ibm-es-ui-integration.apps.[cluster-name]` and login.
+- Click the **Try the starter application** button from the _Getting Started_ page
+- Click **Download JAR from GitHub**. This will open a new window to `https://github.com/ibm-messaging/kafka-java-vertx-starter/releases`
+  - Click the link for `demo-all.jar` from the latest release available. At the time of this writing, the latest version was `1.0.0`.
+
+- Return to the Event Streams console and click **Generate properties**.
+- In dialog that pops up from the right-hand side of the screen, enter the following information:
+  - **Starter application name:** `monitoring-lab-[your-initials]`
+  - Leave **New topic** selected and enter a **Topic name** of `monitoring-lab-topic-[your-initials]`.
+  - Click **Generate and download .zip**
+
+- In a Terminal window, unzip the generated ZIP file from the previous window to the same directory with the `demo-all.jar` file.
+- Review the extracted `kafka.properties` to understand how Event Streams has generated credentials and configuration information for this sample application to connect.
+- Run the command `java -Dproperties_path=./kafka.properties -jar demo-all.jar`.
+
+- Wait until you see the string `Application started in X ms` in the output and then visit the application's user interface via `http://localhost:8080`.
+- Once in the User Interface, enter a message to be contained for the Kafka record value then click **Start producing**.
+- Wait a few moments until the UI updates to show some of the confirmed produced messages and offsets, then click on **Start consuming** on the right side of the application.
+- You can let the application continue running while you continue with the rest of this lab.
+  - If you would like to stop the application from producing, you can click **Stop producing**.
+  - If you would like to stop the application from consuming, you can click **Stop consuming**.
+  - If you would like to stop the application entirely, you can input `Control+C` in the Terminal session where the application is running.
+
+An [alternative sample application](https://ibm.github.io/event-streams/getting-started/testing-loads/) can be leveraged from the official documentation to generate higher amounts of load.
 
 ## Explore the preconfigured Event Streams Dashboard
 
 TBD https://ibm.github.io/event-streams/administering/cluster-health/#viewing-the-preconfigured-dashboard
+- Go to es-console/topics and click on your topic
+- Producers tab
+- Messages tab
+- Consumer groups tab
+
+- Go to https://es-1-ibm-es-ui-integration.apps.eda-solutions.gse-ocp.net/monitor
+- View Messages, Partitions, and Replicas information
 
 ## Import Grafana Dashboards
 
-TBD https://ibm.github.io/event-streams/administering/cluster-health/#grafana
+This section will walk through the Grafana Dashboard capabilities documented in the [official IBM Event Streams documentation](https://ibm.github.io/event-streams/administering/cluster-health/#grafana).
+
+1. Apply the Grafana Dashboard for overall Kafka Health via a `MonitoringDashboard` custom resource:
+
+```bash
+oc apply -f https://raw.githubusercontent.com/ibm-messaging/event-streams-operator-resources/master/grafana-dashboards/ibm-eventstreams-kafka-health-dashboard.yaml
+```
 
 ## View Grafana Dashboards
 
-TBD
+To view the newly imported Event Streams Grafana dashboard for overall Kafka Health, follow these steps:
 
+- Navigate to the IBM Cloud Platform Common Services console homepage via `https://cp-console.apps.[cluster-name]`
+- Click the hamburger icon in the top left.
+- Expand **Monitor Health**.
+- Click the **Monitoring** in the expanded menu to open the Grafana homepage.
+- Click the user icon in the bottom left corner to open the user profile page.
+- In the **Organizations** table, find the namespace where you installed the Event Streams `monitoringdashboard` custom resource, and switch the user profile to that namespace.
+- Hover over the _Dashboards_ square on the left and click **Manage**.
+- Click on **IBM Event Streams Kafka** dashboard in the Dashboard table to view the newly imported resource.
+- Using the drop-down selectors at the top, select the following:
+  - **Namespace** which has the running instance of your Event Streams deployment,
+  - **Cluster Name** for the desired Event Streams cluster
+  - **Topic** that matches desired topics for viewing _(only topics that have been published to will appear in this list)_
+  - **Broker** to select individual or multiple brokers in the cluster.
+
+<InlineNotification kind="warning"><strong>TODO</strong> - Create Alert of some signifigance</InlineNotification>
+
+<!--
 ## Import Kibana Dashboards
+
+<InlineNotification kind="info"><strong>PREREQ</strong> - https://docs.openshift.com/container-platform/4.4/logging/cluster-logging-deploying.html</InlineNotification>
 
 TBD https://ibm.github.io/event-streams/administering/cluster-health/#kibana
 
 ## View Kibana Dashboards
 
 TBD
+-->
 
 ## External Monitoring Tools
 
 TBD
+- https://ibm.github.io/event-streams/tutorials/
+- https://ibm.github.io/event-streams/administering/external-monitoring/
 
 ## Additional Reading
 
