@@ -14,32 +14,22 @@ description: Monitoring Kafka performance metrics and activity when deployed via
   <AnchorLink>Additional Reading</AnchorLink>
 </AnchorLinks>
 
-<!--<AnchorLink>Import Kibana Dashboards</AnchorLink>
-<AnchorLink>View Kibana Dashboards</AnchorLink>-->
+<!--
+  <AnchorLink>Import Kibana Dashboards</AnchorLink>
+  <AnchorLink>View Kibana Dashboards</AnchorLink>
+-->
 
 ## Overview
 
-TBD Reference
-- https://ibm.github.io/event-streams/administering/deployment-health/
-- https://ibm.github.io/event-streams/administering/cluster-health/
-- https://ibm.github.io/event-streams/administering/topic-health/
-- https://ibm.github.io/event-streams/administering/consumer-lag/
+Deploying IBM Event Streams on OpenShift Cloud Platform (OCP) as the Apache Kafka-based event backbone is a great first step in your Event-Driven Architecture implementation. However, now you must maintain that Kafka cluster and understand the intricate details of what a _"healthy"_ cluster looks like. This tutorial will walk you through some of the initial monitoring scenarios that are available for IBM Event Streams deployed on OCP.
 
+The raw monitoring use cases and capabilities are available from the official IBM Event Streams documentation via the links below:
+- [Monitoring deployment health](https://ibm.github.io/event-streams/administering/deployment-health/)
+- [Monitoring Kafka cluster health](https://ibm.github.io/event-streams/administering/cluster-health/)
+- [Monitoring topic health](https://ibm.github.io/event-streams/administering/topic-health/)
+- [Monitoring Kafka consumer group lag](https://ibm.github.io/event-streams/administering/consumer-lag/)
 
-<!--
-### Advanced Scenarios
-
-JMX Exporter
-- https://ibm.github.io/event-streams/installing/configuring#configuring-the-jmx-exporter
-- Kafka Streams and jmx_exporter use case
-
-Kafka Exporter
-- https://ibm.github.io/event-streams/administering/cluster-health/#kafka-exporter
-- https://ibm.github.io/event-streams/installing/configuring/#configuring-the-kafka-exporter
-
-JmxTrans
-- https://ibm.github.io/event-streams/security/secure-jmx-connections/#configuring-a-jmxtrans-deployment
--->
+This tutorial will focus on a more guided approach to understanding the foundation of Apache Kafka monitoring capabilities provided by IBM Event Streams and the IBM Cloud Pak for Integration. Upon completion of this tutorial, you can extend your own experience through the [Advanced Scenarios](#advanced-scenarios) section to adapt Kafka monitoring capabilites to your project's needs.
 
 ## Scenario Prereqs
 
@@ -150,13 +140,27 @@ TBD https://ibm.github.io/event-streams/administering/cluster-health/#kibana
 TBD
 -->
 
-## External Monitoring Tools
+## Next Steps
 
-TBD
-- https://ibm.github.io/event-streams/tutorials/
-- https://ibm.github.io/event-streams/administering/external-monitoring/
+### External Monitoring Tools
 
-## Additional Reading
+IBM Event Streams supports additional monitoring capabilities with third-party monitoring tools via a connection to the clusters JMX port on the Kafka brokers.
+
+You must first [configure](https://ibm.github.io/event-streams/installing/configuring/#configuring-external-monitoring-through-jmx) your IBM Event Streams instance for specific access by these external monitoring tools.
+
+You can then follow along with the [tutorials](https://ibm.github.io/event-streams/tutorials/) defined in the official IBM Event Streams documentation to monitor Event Streams with tools such as Datadog and Splunk.
+
+### Advanced Scenarios
+
+As shown in this tutorial, IBM Event Streams provides a robust default set of monitoring metrics which are available to use right out of the box. However, you will most likely need to define custom metrics or extend existing metrics for use in custom dashboards or reporting processes. The following links discuss additional monitoring capabilities, technologies, and endpoints that are supported with IBM Event Streams to extend your custom monitoring solution as needed:
+
+- [JMX Exporter](https://ibm.github.io/event-streams/installing/configuring#configuring-the-jmx-exporter) - You can use Event Streams to collect JMX metrics from Kafka brokers, ZooKeeper nodes, and Kafka Connect nodes, and export them to Prometheus.
+
+- [Kafka Exporter](https://ibm.github.io/event-streams/installing/configuring/#configuring-the-kafka-exporter) - You can use Event Streams to export metrics to Prometheus. These metrics are otherwise only accessible through the Kafka command line tools. This allows topic metrics such as consumer group lag to be collected.
+
+- [JmxTrans](https://ibm.github.io/event-streams/security/secure-jmx-connections/#configuring-a-jmxtrans-deployment) - JmxTrans can be used to push JMX metrics from Kafka brokers to external applications or databases.
+
+### Additional Reading
 
 - [Monitoring Kafka performance metrics](https://www.datadoghq.com/blog/monitoring-kafka-performance-metrics/) via **Datadog**
 - [How to Monitor Kafka](https://blog.serverdensity.com/how-to-monitor-kafka/) via **Server Density**
