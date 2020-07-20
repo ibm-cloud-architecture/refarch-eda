@@ -1,0 +1,177 @@
+---
+title: Monitoring IBM Event Streams on OpenShift Cloud Platform
+description: Monitoring Kafka performance metrics and activity when deployed via the IBM Cloud Pak for Integration on Red Hat OpenShift Container Platform.
+---
+
+<AnchorLinks>
+  <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Scenario Prereqs</AnchorLink>
+  <AnchorLink>Generate Event Load</AnchorLink>
+  <AnchorLink>Explore the preconfigured Event Streams Dashboard</AnchorLink>
+  <AnchorLink>Import Grafana Dashboards</AnchorLink>
+  <AnchorLink>View Grafana Dashboards</AnchorLink>
+  <AnchorLink>External Monitoring Tools</AnchorLink>
+  <AnchorLink>Advanced Scenarios</AnchorLink>
+  <AnchorLink>Additional Reading</AnchorLink>
+</AnchorLinks>
+
+<!--
+  <AnchorLink>Import Kibana Dashboards</AnchorLink>
+  <AnchorLink>View Kibana Dashboards</AnchorLink>
+-->
+
+<InlineNotification kind="warning"><strong>TODO</strong> - needs screenshots</InlineNotification>
+
+## Overview
+
+Deploying IBM Event Streams on OpenShift Cloud Platform (OCP) as the Apache Kafka-based event backbone is a great first step in your Event-Driven Architecture implementation. However, now you must maintain that Kafka cluster and understand the intricate details of what a _"healthy"_ cluster looks like. This tutorial will walk you through some of the initial monitoring scenarios that are available for IBM Event Streams deployed on OCP.
+
+The raw monitoring use cases and capabilities are available from the official IBM Event Streams documentation via the links below:
+- [Monitoring deployment health](https://ibm.github.io/event-streams/administering/deployment-health/)
+- [Monitoring Kafka cluster health](https://ibm.github.io/event-streams/administering/cluster-health/)
+- [Monitoring topic health](https://ibm.github.io/event-streams/administering/topic-health/)
+- [Monitoring Kafka consumer group lag](https://ibm.github.io/event-streams/administering/consumer-lag/)
+
+This tutorial will focus on a more guided approach to understanding the foundation of Apache Kafka monitoring capabilities provided by IBM Event Streams and the IBM Cloud Pak for Integration. Upon completion of this tutorial, you can extend your own experience through the [Advanced Scenarios](#advanced-scenarios) section to adapt Kafka monitoring capabilites to your project's needs.
+
+## Scenario Prereqs
+
+**OpenShift Container Platform**
+
+- This deployment scenario was developed for use on the OpenShift Container Platform, with a minimum version of `4.4`.
+
+**Cloud Pak for Integration**
+
+- This deployment scenario was developed for use with the 2020.2.x release of the Cloud Pak for Integration, installed on OpenShift 4.4.
+
+**IBM Event Streams**
+
+- This deployment scenario requires a working installation of [IBM Event Streams V10.0](https://ibm.github.io/event-streams/) or greater, deployed on the Cloud Pak for Integration environment mentioned above.
+- For Cloud Pak installation guidance, you can follow the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) installation instructions.
+
+**Git**
+
+- We will need to clone repositories.
+
+**Java**
+
+- Java Development Kit (JDK) v1.8+ (Java 8+)
+
+**Maven**
+
+- The scenario uses Maven v3.6.x
+
+## Generate Event Load
+
+This section details walking through the generation of a starter application for usage with IBM Event Streams, as documented in the [official product documentation](https://ibm.github.io/event-streams/getting-started/generating-starter-app/).
+
+- Access the Event Streams Dashboard via `https://es-1-ibm-es-ui-integration.apps.[cluster-name]` and login.
+- Click the **Try the starter application** button from the _Getting Started_ page
+- Click **Download JAR from GitHub**. This will open a new window to `https://github.com/ibm-messaging/kafka-java-vertx-starter/releases`
+  - Click the link for `demo-all.jar` from the latest release available. At the time of this writing, the latest version was `1.0.0`.
+
+- Return to the Event Streams console and click **Generate properties**.
+- In dialog that pops up from the right-hand side of the screen, enter the following information:
+  - **Starter application name:** `monitoring-lab-[your-initials]`
+  - Leave **New topic** selected and enter a **Topic name** of `monitoring-lab-topic-[your-initials]`.
+  - Click **Generate and download .zip**
+
+- In a Terminal window, unzip the generated ZIP file from the previous window to the same directory with the `demo-all.jar` file.
+- Review the extracted `kafka.properties` to understand how Event Streams has generated credentials and configuration information for this sample application to connect.
+- Run the command `java -Dproperties_path=./kafka.properties -jar demo-all.jar`.
+
+- Wait until you see the string `Application started in X ms` in the output and then visit the application's user interface via `http://localhost:8080`.
+- Once in the User Interface, enter a message to be contained for the Kafka record value then click **Start producing**.
+- Wait a few moments until the UI updates to show some of the confirmed produced messages and offsets, then click on **Start consuming** on the right side of the application.
+- You can let the application continue running while you continue with the rest of this lab.
+  - If you would like to stop the application from producing, you can click **Stop producing**.
+  - If you would like to stop the application from consuming, you can click **Stop consuming**.
+  - If you would like to stop the application entirely, you can input `Control+C` in the Terminal session where the application is running.
+
+An [alternative sample application](https://ibm.github.io/event-streams/getting-started/testing-loads/) can be leveraged from the official documentation to generate higher amounts of load.
+
+## Explore the preconfigured Event Streams Dashboard
+
+This section will walk through the default dashboard and user interface available on every IBM Event Streams deployment.
+
+- Access the Event Streams Dashboard via `https://es-1-ibm-es-ui-integration.apps.[cluster-name]` and login.
+- Click the **Monitoring** tab from the primary navigation menu.
+- From here, you can view information on messages, partitions, and replicas for the past hour, day, week, or month.
+- Click the **Topics** tab from the primary navigation menu.
+- Click the name of your topic that you previously created in the [Generate Event Load](#generate-event-load) section. This should be in the format of `monitoring-lab-topic-[your-initials]`.
+- You are presented with a **Producers** page showing the number of active producers, as well as the average message size produced per second and average number of messages produced per second. You can modify the time window by changing the values in the _View producers by time_ box.
+- Click the **Messages** tab to view all the data and metadata for events stored in the topic.
+- You can view messages across partitions or on specific partitions, as well as jump to specific offsets or timestamps.
+- Click **Consumer Groups** to be shown the number of consumer groups that have previously registered or are currently registered as consuming from the topic.
+- You are able to see how many active members a consumer group has, as well as have many unconsumed partitions a topic has inside of a consumer group (also known as _consumer group lag_)- a key metric for driving parallelism in event-driven microservices!
+
+## Import Grafana Dashboards
+
+This section will walk through the Grafana Dashboard capabilities documented in the [official IBM Event Streams documentation](https://ibm.github.io/event-streams/administering/cluster-health/#grafana).
+
+1. Apply the Grafana Dashboard for overall Kafka Health via a `MonitoringDashboard` custom resource:
+
+```bash
+oc apply -f https://raw.githubusercontent.com/ibm-messaging/event-streams-operator-resources/master/grafana-dashboards/ibm-eventstreams-kafka-health-dashboard.yaml
+```
+
+## View Grafana Dashboards
+
+To view the newly imported Event Streams Grafana dashboard for overall Kafka Health, follow these steps:
+
+- Navigate to the IBM Cloud Platform Common Services console homepage via `https://cp-console.apps.[cluster-name]`
+- Click the hamburger icon in the top left.
+- Expand **Monitor Health**.
+- Click the **Monitoring** in the expanded menu to open the Grafana homepage.
+- Click the user icon in the bottom left corner to open the user profile page.
+- In the **Organizations** table, find the namespace where you installed the Event Streams `monitoringdashboard` custom resource, and switch the user profile to that namespace.
+- Hover over the _Dashboards_ square on the left and click **Manage**.
+- Click on **IBM Event Streams Kafka** dashboard in the Dashboard table to view the newly imported resource.
+- Using the drop-down selectors at the top, select the following:
+  - **Namespace** which has the running instance of your Event Streams deployment,
+  - **Cluster Name** for the desired Event Streams cluster
+  - **Topic** that matches desired topics for viewing _(only topics that have been published to will appear in this list)_
+  - **Broker** to select individual or multiple brokers in the cluster.
+
+<InlineNotification kind="warning"><strong>TODO</strong> - Create Alert of some signifigance</InlineNotification>
+
+<!--
+## Import Kibana Dashboards
+
+<InlineNotification kind="info"><strong>TODO PREREQ</strong> - https://docs.openshift.com/container-platform/4.4/logging/cluster-logging-deploying.html</InlineNotification>
+
+- https://ibm.github.io/event-streams/administering/cluster-health/#kibana
+
+## View Kibana Dashboards
+
+TBD
+-->
+
+## Next Steps
+
+### External Monitoring Tools
+
+IBM Event Streams supports additional monitoring capabilities with third-party monitoring tools via a connection to the clusters JMX port on the Kafka brokers.
+
+You must first [configure](https://ibm.github.io/event-streams/installing/configuring/#configuring-external-monitoring-through-jmx) your IBM Event Streams instance for specific access by these external monitoring tools.
+
+You can then follow along with the [tutorials](https://ibm.github.io/event-streams/tutorials/) defined in the official IBM Event Streams documentation to monitor Event Streams with tools such as Datadog and Splunk.
+
+### Advanced Scenarios
+
+As shown in this tutorial, IBM Event Streams provides a robust default set of monitoring metrics which are available to use right out of the box. However, you will most likely need to define custom metrics or extend existing metrics for use in custom dashboards or reporting processes. The following links _(in order of recommended usage)_ discuss additional monitoring capabilities, technologies, and endpoints that are supported with IBM Event Streams to extend your custom monitoring solution as needed:
+
+- [**Kafka Exporter**](https://ibm.github.io/event-streams/installing/configuring/#configuring-the-kafka-exporter) - You can use Event Streams to export metrics to Prometheus. These metrics are otherwise only accessible through the Kafka command line tools and allow per-topic metrics, such as consumer group lag, to be colleced.
+
+- [**JMX Exporter**](https://ibm.github.io/event-streams/installing/configuring#configuring-the-jmx-exporter) - You can use Event Streams to collect JMX metrics from Kafka brokers, ZooKeeper nodes, and Kafka Connect nodes, and export them to Prometheus via the [Prometheus JMX Exporter](https://github.com/prometheus/jmx_exporter).
+
+- [**JmxTrans**](https://ibm.github.io/event-streams/security/secure-jmx-connections/#configuring-a-jmxtrans-deployment) - JmxTrans can be used to push JMX metrics from Kafka brokers to external applications or databases.
+
+### Additional Reading
+
+- [Monitoring Kafka performance metrics](https://www.datadoghq.com/blog/monitoring-kafka-performance-metrics/) via **Datadog**
+- [How to Monitor Kafka](https://blog.serverdensity.com/how-to-monitor-kafka/) via **Server Density**
+- [OpenShift Day 2 Monitoring](https://cloudpak8s.io/day2/Monitoring/) via **IBM Cloud Paks Playbook**
+- [Monitoring Kafka cluster health](https://ibm.github.io/event-streams/administering/cluster-health/) via **IBM Event Streams documentation**
+- [Configuring the monitoring stack](https://docs.openshift.com/container-platform/4.3/monitoring/cluster_monitoring/configuring-the-monitoring-stack.html) via **Red Hat OpenShift** documentation
+- [Examining cluster metrics](https://docs.openshift.com/container-platform/4.3/monitoring/cluster_monitoring/examining-cluster-metrics.html) via **Red Hat OpenShift** documentation
