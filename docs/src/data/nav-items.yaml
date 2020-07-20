@@ -1,9 +1,9 @@
 - title: Introduction
   pages:
+    - title: Overview
+      path: /introduction/overview/
     - title: Reference Architecture
       path: /introduction/reference-architecture/
-    - title: What will you learn?
-      path: /introduction/what-will-you-learn/
     - title: Target audiences
       path: /introduction/target-audiences/
 - title: Concepts
@@ -23,7 +23,7 @@
 - title: Patterns in EDA
   pages:
     - title: Introduction
-      path: patterns/intro
+      path: /patterns/intro/
     - title: Event Sourcing
       path: /patterns/event-sourcing/
     - title: CQRS
@@ -32,8 +32,10 @@
       path: /patterns/saga/
     - title: Dead Letter Queue
       path: /patterns/dlq/
-    - title: Data Replication
-      path: /patterns/data-replication/
+    - title: Topic Replication
+      path: /patterns/topic-replication/
+    - title: Data Pipeline
+      path: /patterns/data-pipeline/
     - title: Realtime Analytics
       path: /patterns/realtime-analytics/
 - title: Methodology
@@ -50,7 +52,7 @@
       path: /technology/kafka-producers-consumers/
     - title: Kafka Streams
       path: /technology/kafka-streams/
-    - title: Event Streams Specifics
+    - title: IBM Event Streams
       path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
@@ -58,13 +60,19 @@
       path: /technology/kafka-mirrormaker/
     - title: Kafka Monitoring
       path: /technology/kafka-monitoring/
+    - title: Avro and Schemas
+      path: /technology/avro-schemas/
 - title: Scenarios & Use Cases
   pages:
     - title: Overview
       path: /scenarios/overview/
     - title: Kafka Connect - S3
       path: /scenarios/connect-s3/
-
+    - title: Kafka Connect - COS
+      path: /scenarios/connect-cos/
 - title: Additional reading
   pages:
     - path: /additional-reading/
+- title: Contribute to this Site
+  pages:
+    - path: /contribute/

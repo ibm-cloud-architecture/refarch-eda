@@ -1,10 +1,11 @@
 import React from 'react';
 import Footer from 'gatsby-theme-carbon/src/components/Footer';
+import { Link } from 'gatsby';
 
 const Content = ({ buildTime }) => (
     <span>
     <h4>Contribute:</h4>
-    <p>As this implementation solution is part of the Event Driven architeture reference architecture, the contribution policies apply the same way <a href="https://github.com/ibm-cloud-architecture/refarch-kc-ui/blob/master/CONTRIBUTING.md">here</a>.</p>
+    <p>As this solution is part of the Event-Driven Reference Architecture, the contribution policies apply the same way <Link to="/contribute/">here</Link>.</p>
     </span>
 );
 
@@ -14,8 +15,10 @@ const links = {
     { href: 'https://www.linkedin.com/in/jeromeboyer/', linkText: 'Jerome Boyer' },
     { href: 'https://www.linkedin.com/in/rosowski/', linkText: 'Rick Osowski' },
     { href: 'https://www.linkedin.com/in/jesus-almaraz-hernandez/', linkText: 'Jesus Almaraz' },
-    { href: 'https://www.linkedin.com/in/hemankita-perabathini/', linkText: 'Hemankita Perabathini' },
+    { href: 'https://www.linkedin.com/in/another-dave-jones/', linkText: 'David R Jones' },
+    { href: 'https://www.linkedin.com/in/johannasaladas/', linkText: 'Johanna Saladas' },
     { href: 'https://www.linkedin.com/in/darneleadhemar/', linkText: 'Darnèle Adhemar' },
+    { href: 'https://www.linkedin.com/in/hemankita-perabathini/', linkText: 'Hemankita Perabathini' }
   ],
 };
 
