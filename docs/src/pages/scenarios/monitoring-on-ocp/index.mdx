@@ -11,6 +11,7 @@ description: Monitoring Kafka performance metrics and activity when deployed via
   <AnchorLink>Import Grafana Dashboards</AnchorLink>
   <AnchorLink>View Grafana Dashboards</AnchorLink>
   <AnchorLink>External Monitoring Tools</AnchorLink>
+  <AnchorLink>Advanced Scenarios</AnchorLink>
   <AnchorLink>Additional Reading</AnchorLink>
 </AnchorLinks>
 
@@ -18,6 +19,8 @@ description: Monitoring Kafka performance metrics and activity when deployed via
   <AnchorLink>Import Kibana Dashboards</AnchorLink>
   <AnchorLink>View Kibana Dashboards</AnchorLink>
 -->
+
+<InlineNotification kind="warning"><strong>TODO</strong> - needs screenshots</InlineNotification>
 
 ## Overview
 
@@ -89,14 +92,18 @@ An [alternative sample application](https://ibm.github.io/event-streams/getting-
 
 ## Explore the preconfigured Event Streams Dashboard
 
-TBD https://ibm.github.io/event-streams/administering/cluster-health/#viewing-the-preconfigured-dashboard
-- Go to es-console/topics and click on your topic
-- Producers tab
-- Messages tab
-- Consumer groups tab
+This section will walk through the default dashboard and user interface available on every IBM Event Streams deployment.
 
-- Go to https://es-1-ibm-es-ui-integration.apps.eda-solutions.gse-ocp.net/monitor
-- View Messages, Partitions, and Replicas information
+- Access the Event Streams Dashboard via `https://es-1-ibm-es-ui-integration.apps.[cluster-name]` and login.
+- Click the **Monitoring** tab from the primary navigation menu.
+- From here, you can view information on messages, partitions, and replicas for the past hour, day, week, or month.
+- Click the **Topics** tab from the primary navigation menu.
+- Click the name of your topic that you previously created in the [Generate Event Load](#generate-event-load) section. This should be in the format of `monitoring-lab-topic-[your-initials]`.
+- You are presented with a **Producers** page showing the number of active producers, as well as the average message size produced per second and average number of messages produced per second. You can modify the time window by changing the values in the _View producers by time_ box.
+- Click the **Messages** tab to view all the data and metadata for events stored in the topic.
+- You can view messages across partitions or on specific partitions, as well as jump to specific offsets or timestamps.
+- Click **Consumer Groups** to be shown the number of consumer groups that have previously registered or are currently registered as consuming from the topic.
+- You are able to see how many active members a consumer group has, as well as have many unconsumed partitions a topic has inside of a consumer group (also known as _consumer group lag_)- a key metric for driving parallelism in event-driven microservices!
 
 ## Import Grafana Dashboards
 
@@ -152,13 +159,13 @@ You can then follow along with the [tutorials](https://ibm.github.io/event-strea
 
 ### Advanced Scenarios
 
-As shown in this tutorial, IBM Event Streams provides a robust default set of monitoring metrics which are available to use right out of the box. However, you will most likely need to define custom metrics or extend existing metrics for use in custom dashboards or reporting processes. The following links discuss additional monitoring capabilities, technologies, and endpoints that are supported with IBM Event Streams to extend your custom monitoring solution as needed:
+As shown in this tutorial, IBM Event Streams provides a robust default set of monitoring metrics which are available to use right out of the box. However, you will most likely need to define custom metrics or extend existing metrics for use in custom dashboards or reporting processes. The following links _(in order of recommended usage)_ discuss additional monitoring capabilities, technologies, and endpoints that are supported with IBM Event Streams to extend your custom monitoring solution as needed:
 
-- [JMX Exporter](https://ibm.github.io/event-streams/installing/configuring#configuring-the-jmx-exporter) - You can use Event Streams to collect JMX metrics from Kafka brokers, ZooKeeper nodes, and Kafka Connect nodes, and export them to Prometheus.
+- [**Kafka Exporter**](https://ibm.github.io/event-streams/installing/configuring/#configuring-the-kafka-exporter) - You can use Event Streams to export metrics to Prometheus. These metrics are otherwise only accessible through the Kafka command line tools and allow per-topic metrics, such as consumer group lag, to be colleced.
 
-- [Kafka Exporter](https://ibm.github.io/event-streams/installing/configuring/#configuring-the-kafka-exporter) - You can use Event Streams to export metrics to Prometheus. These metrics are otherwise only accessible through the Kafka command line tools. This allows topic metrics such as consumer group lag to be collected.
+- [**JMX Exporter**](https://ibm.github.io/event-streams/installing/configuring#configuring-the-jmx-exporter) - You can use Event Streams to collect JMX metrics from Kafka brokers, ZooKeeper nodes, and Kafka Connect nodes, and export them to Prometheus via the [Prometheus JMX Exporter](https://github.com/prometheus/jmx_exporter).
 
-- [JmxTrans](https://ibm.github.io/event-streams/security/secure-jmx-connections/#configuring-a-jmxtrans-deployment) - JmxTrans can be used to push JMX metrics from Kafka brokers to external applications or databases.
+- [**JmxTrans**](https://ibm.github.io/event-streams/security/secure-jmx-connections/#configuring-a-jmxtrans-deployment) - JmxTrans can be used to push JMX metrics from Kafka brokers to external applications or databases.
 
 ### Additional Reading
 
