@@ -10,6 +10,7 @@ description: Monitoring Kafka performance metrics and activity when deployed via
   <AnchorLink>Explore the preconfigured Event Streams Dashboard</AnchorLink>
   <AnchorLink>Import Grafana Dashboards</AnchorLink>
   <AnchorLink>View Grafana Dashboards</AnchorLink>
+  <AnchorLink>Create an Alert</AnchorLink>
   <AnchorLink>External Monitoring Tools</AnchorLink>
   <AnchorLink>Advanced Scenarios</AnchorLink>
   <AnchorLink>Additional Reading</AnchorLink>
@@ -21,6 +22,8 @@ description: Monitoring Kafka performance metrics and activity when deployed via
 -->
 
 <InlineNotification kind="warning"><strong>TODO</strong> - needs screenshots</InlineNotification>
+
+<InlineNotification kind="info">This tutorial was developed with and validated against IBM Cloud Pak for Integration Version 2020.2.1 and IBM Event Streams Version 10.0.0. Any deviation from those versions while performing the tasks in this tutorial may produced unexpected results.</InlineNotification>
 
 ## Overview
 
@@ -42,7 +45,7 @@ This tutorial will focus on a more guided approach to understanding the foundati
 
 **Cloud Pak for Integration**
 
-- This deployment scenario was developed for use with the 2020.2.x release of the Cloud Pak for Integration, installed on OpenShift 4.4.
+- This deployment scenario was developed for use with the 2020.2.x release of the [IBM Cloud Pak for Integration](https://www.ibm.com/support/knowledgecenter/en/SSGT7J_20.2/welcome.html), installed on OpenShift 4.4.
 
 **IBM Event Streams**
 
@@ -133,7 +136,7 @@ To view the newly imported Event Streams Grafana dashboard for overall Kafka Hea
   - **Topic** that matches desired topics for viewing _(only topics that have been published to will appear in this list)_
   - **Broker** to select individual or multiple brokers in the cluster.
 
-<InlineNotification kind="warning"><strong>TODO</strong> - Create Alert of some signifigance</InlineNotification>
+**Note:** Not all of the metrics that Kafka uses are published to Prometheus by default. The metrics that are published are controlled by a ConfigMap. You can publish metrics by adding them to the ConfigMap.
 
 <!--
 ## Import Kibana Dashboards
@@ -146,6 +149,70 @@ To view the newly imported Event Streams Grafana dashboard for overall Kafka Hea
 
 TBD
 -->
+
+## Create an Alert
+
+A monitoring system is only as good as the alerts it can send out, since you're not going to be watching that Grafana dashboard all day and night! This section will walk through the creation of a quick alert rule which will automatically trigger, as well as how to view and silence that alert in the provided Alertmanager interface.
+
+The official [Event Streams documentation](https://ibm.github.io/event-streams/tutorials/monitoring-alerts/#selecting-the-metric-to-monitor) provides a walkthrough of selecting the desired metrics to monitor, but for our example, we will leverage the `kafka_server_replicamanager_partitioncount_value` metric as an indicator of topic creation _(as the overall partition count will increase when a topic is first created)_.
+
+- On the command line, create this sample rule which will fire whenever the partition count is over 50 _(which is the baseline number of partitions the Event Streams system uses for its internal topic partitions)_.
+- Save the file below as `prom-rule-partitions.yaml`:
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+    labels:
+        component: icp-prometheus
+    name: demo-partition-count
+spec:
+    groups:
+      - name: PartitionCount
+        rules:
+          - alert: PartitionCount
+            expr: kafka_server_replicamanager_partitioncount_value > 50
+            for: 10s
+            labels:
+              severity: critical
+            annotations:
+              identifier: 'Partition count'
+              description: 'There are {{ $value }} partition(s) reported by broker {{ $labels.kafka }}'
+```
+- Create the alert rule via the OpenShift CLI:
+```bash
+oc apply -f prom-rule-partitions.yaml
+```
+- You can view the creation and status of your alert via the OpenShift CLI:
+```bash
+oc get PrometheusRule demo-partition-count
+oc describe PrometheusRule demo-partition-count
+```
+- Access the Prometheus monitoring backend that is provided in the IBM Cloud Pak Common Services via `https://cp-console.apps.[cluster-name]/prometheus`.
+- Click the **Alerts** button in the header.
+- You should see your new **PartitionCount** rule firing and highlighted in red.
+  - _**NOTE:**_ If you do not see your PrometheusRule, you may need to create it in the `ibm-common-services` namespace depending upon your OpenShift cluster and Cloud Pak operator configuration. This can be done by supplying the `-n ibm-common-services` flag to the `oc apply -f prom-rule-partitions.yaml` command.
+- Click on the **PartitionCount** alert to expand the details and see which components are triggering the alert.
+
+Now that we have created alerts from the monitoring system, you will want a way to manage those alerts. The default _Alertmanager_ component provides a way to manage firing alerts, notifications, and silences. Prometheus is capable of integrating with many notification systems - from Slack to PagerDuty to HipChat to common HTTP webhooks. For further information on the extensibility of Prometheus, you can view the [Alerting configuration section](https://prometheus.io/docs/alerting/latest/configuration/) of the official docs. For configuring the IBM Cloud Pak Common Services deployed instance of Prometheus, you can view the [Configuring Alertmanager section](https://www.ibm.com/support/knowledgecenter/SSHKN6/monitoring/1.x.x/monitoring_service.html#configuring-alertmanager) of the official docs.
+
+In this section of the tutorial, you will walk through the Alertmanager interface and silence the previously created alerts.
+
+- Access the default Alertmanager instance via `https://cp-console.apps.[cluster-name]/alertmanager/`.
+- You should see the newly created `PartitionCount` alerts listed as firing.
+- Click on the **Info** button for the first alert to see the additional context provided by the alert definition _(ie there are more than 50 partitions)_
+- As alerts fire and become acknowledged, you can silence them to mark them as known, acknowledged, or resolved. To do this, you create a Silence. Click the **Silence** button for one of the alerts in the list.
+- You will see a start time, a duration, and an end time by default. This gives you initial control over what you are silencing and for how long.
+- Next, you will see a list of _Name_ and _Value_ pairs that are filled with the information from the alert instance you clicked on.
+- Delete the elements in the **Matchers** list until only the following items are left. This will allow for a robust capture of all the _PartitionCount_ alerts for the same Event Streams cluster.
+  - `alertname`
+  - `app_kubernetes_io_instance`
+  - `app_kubernetes_io_part_of`
+  - `kubernetes_namespace`
+- Your username should already be filled in for the **Creator**, so enter a **Comment** of _"Silencing demo alerts" and click **Preview Alerts**.
+- Once the affected number of alerts matches the same number of _PartitionCount_ alerts that were listed as firing in Prometheus, click **Create**.
+- Clicking on the **Alerts** tab in the header, you will now see those alerts are silenced - meaning you acknowledged them.
+- To make them visible again prior to the expiration of the created Silence, click on the **Silences** tab from the header.
+- This page lists all the Active, Pending, and Expired silences in the system. You can view, edit, and expire any active Silence to again have the alerts show up in Alertmanager or anywhere else Prometheus is sending notifications.
 
 ## Next Steps
 
@@ -169,6 +236,7 @@ As shown in this tutorial, IBM Event Streams provides a robust default set of mo
 
 ### Additional Reading
 
+- [Monitoring Kafka](https://kafka.apache.org/documentation/#monitoring) via official Apache Kafka documentation
 - [Monitoring Kafka performance metrics](https://www.datadoghq.com/blog/monitoring-kafka-performance-metrics/) via **Datadog**
 - [How to Monitor Kafka](https://blog.serverdensity.com/how-to-monitor-kafka/) via **Server Density**
 - [OpenShift Day 2 Monitoring](https://cloudpak8s.io/day2/Monitoring/) via **IBM Cloud Paks Playbook**
