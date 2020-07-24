@@ -1,0 +1,732 @@
+---
+title: Kafka Streams Test Lab 2
+description: Using Kafka Streams Test for more Operators and Optionally Send to Event Streams
+---
+
+<AnchorLinks>
+    <AnchorLink>Scenario Prerequisites</AnchorLink>
+    <AnchorLink>Adding in more Kafka Streams operators</AnchorLink>
+    <AnchorLink>Producing to and Consuming from a Kafka Topic on Event Streams</AnchorLink>
+</AnchorLinks>
+
+
+## Scenario Prerequisites
+**Java**
+- For the purposes of this lab we suggest Java 8+
+
+**Maven**
+- Maven will be needed for bootstrapping our application from the command-line and running
+our application.
+
+**An IDE of your choice**
+- Ideally an IDE that supports Quarkus (such as Visual Studio Code)
+
+**OpenShift Container Platform, IBM Cloud Pak for Integration and IBM Event Streams**
+- This is an optional portion of the lab for those who have access to an OCP Cluster, IBM Cloud Pak for Integration
+as well as IBM Event Streams installed on top of the Cloud Pak.
+
+- **The following are optional**
+- **OpenShift Container Platform**
+    - v4.4.x
+- **IBM Cloud Pak for Integration**
+    - CP4I2020.2
+- **IBM Event Streams**
+    - The section on use with Event Streams on CP4I assumes Event Streams v10. IF using a previous version such as ESv2019.4.2
+    there are some differences to how you would configure `application.properties` to establish a connectio
+
+
+## Adding in more Kafka Streams operators
+
+- Cool. Let's now create a test to test two different operators, `filter` and `map`. Let's add the following declarations.
+
+```java
+private static String tradingTable = "tradingTable";
+private static String tradingStoreName = "tradingStore";
+private static TestInputTopic<String, String> tradingTableTopic;
+```
+
+Inside the `buildTopology()` function.
+
+```java
+KeyValueBytesStoreSupplier tradingStoreSupplier = Stores.persistentKeyValueStore(tradingStoreName);
+
+KTable<String, String> stockTradingStore = builder.table(tradingTable,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.as(tradingStoreSupplier));
+```
+
+And let's edit the `branch[1]` logic again to create new `KeyValue` pairs of `userId` and `stockSymbol`
+
+*Note*
+- Like in Lab 1, since we're changing `branches[1]` logic you will need to comment out the `@Test` annotation for `filteredStreamHasTwoRecords()`
+test function or there will be exceptions thrown.
+
+```java
+branches[1].filter(
+            (key, value) -> (value.totalCost > 5000)
+        )
+        .map(
+            (key, value) -> KeyValue.pair(value.userId, value.stockSymbol)
+        )
+        .to(
+            tradingTable,
+            Produced.with(Serdes.String(), Serdes.String())
+        );
+```
+
+- You may notice something different here. Previously we wrote straight to `outTopic`, however now we're writing to
+a KTable so that we can query the State Store with our test. So let's create a new test like below -
+
+```java
+    @Test
+    public void filterAndMapNewPair() {
+
+        FinancialMessage mock = new FinancialMessage(
+            "1", "MET", "SWISS", 12, 1822.38, 21868.55, 94, 7, true
+        );
+        inTopic.pipeInput("1", mock);
+
+        KeyValueStore<String,ValueAndTimestamp<String>> tableStore = testDriver.getTimestampedKeyValueStore(tradingStoreName);
+        Assertions.assertEquals(1, tableStore.approximateNumEntries());
+        Assertions.assertEquals("MET", tableStore.get("1").value());
+        //System.out.println(tableStore.get("1").value());
+    }
+```
+
+The first assertion checks whether the store has a record and the second assertion checks that the mock record that we
+inserted has the correct value as our map function created new KeyValue pairs of of `<userId, stockSymbol>`.
+
+
+- It's now time to move to something a little bit more advanced. We're not going to join a KStream with a KTable. The Streams API
+has an inner join, left join, and an outer join. We'll mention this later but KStream-KTable joins are Non-Windowed and asymmetric.
+By asymmetric we mean that a join only gets triggered if the left input stream gets a new record while the right (our KTable) is only
+used to hold our input records and only used to update a materialized table.
+
+- Let's instantiate a few more variables.
+
+```java
+    private static String joinedTopicName = "joinedTopic";
+    private static TestOutputTopic<String, String> joinedTopic;
+    private static String joinedStoreName = "joinedStore";
+```
+
+- And let's create a new KTable to persist the new joined records so that we can query it.
+
+```java
+KTable<String, String> joinedMessageStore = builder.table(joinedTopicName,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.as(joinedStoreSupplier));
+```
+
+- Comment out the previous branch logic or remove them. Our `buildTopology()` function should look like the below -
+
+```java
+public static void buildTopology() {
+        final StreamsBuilder builder = new StreamsBuilder();
+        KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(storeName);
+        KeyValueBytesStoreSupplier tradingStoreSupplier = Stores.persistentKeyValueStore(tradingStoreName);
+        KeyValueBytesStoreSupplier joinedStoreSupplier = Stores.persistentKeyValueStore(joinedStoreName);
+
+        KStream<String, FinancialMessage> transactionStream =
+            builder.stream(
+                inTopicName,
+                Consumed.with(Serdes.String(), financialMessageSerde)
+            );
+
+        KTable<String, String> stockTradingStore = builder.table(tradingTable,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.as(tradingStoreSupplier));
+
+        KTable<String, String> joinedMessageStore = builder.table(joinedTopicName,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.as(joinedStoreSupplier));
+
+        KStream<String, String> joinedStream = transactionStream.join(
+            stockTradingStore,
+            (financialMessage, companyName) -> "userId = " + financialMessage.userId + " companyName = " + companyName);
+
+        joinedStream.to(
+            joinedTopicName,
+            Produced.with(Serdes.String(), Serdes.String()));
+
+        testDriver = new TopologyTestDriver(builder.build(), getStreamsConfig());
+        inTopic = testDriver.createInputTopic(inTopicName, new StringSerializer(), new JsonbSerializer<FinancialMessage>());
+        tradingTableTopic = testDriver.createInputTopic(tradingTable, new StringSerializer(), new StringSerializer());
+        joinedTopic = testDriver.createOutputTopic(joinedTopicName, new StringDeserializer(), new StringDeserializer());
+    }
+
+```
+
+- A closer examination shows us the following
+
+```java
+        KTable<String, String> joinedMessageStore = builder.table(joinedTopicName,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.as(joinedStoreSupplier));
+
+        KStream<String, String> joinedStream = transactionStream.join(
+            stockTradingStore,
+            (financialMessage, companyName) -> "userId = " + financialMessage.userId + " companyName = " + companyName);
+
+        joinedStream.to(
+            joinedTopicName,
+            Produced.with(Serdes.String(), Serdes.String()));
+```
+
+- A new KStream named `joinedStream` is created that is the result of an `inner join` between the left `transactionStream` and
+the right table `stockTradingStore`. A join is performed on matching keys between the Stream and the Table and matched records
+produced a new `<String, String>` pair with the value of `"userId = " + financialMessage.userId + " companyName = " + companyName`.
+
+- Let's implement a simple test to make sure that our inner join works.
+
+```java
+    @Test
+    public void checkStreamAndTableJoinHasOneRecord() {
+
+        tradingTableTopic.pipeInput("2", "Metropolitan Museum of Art");
+
+        FinancialMessage mock = new FinancialMessage(
+            "1", "MET", "SWISS", 12, 1822.38, 21868.55, 94, 7, true
+        );
+        inTopic.pipeInput("1", mock);
+
+        KeyValueStore<String,ValueAndTimestamp<String>> joinedTableStore = testDriver.getTimestampedKeyValueStore(joinedStoreName);
+        Assertions.assertEquals(1, joinedTableStore.approximateNumEntries());
+        System.out.println(joinedTableStore.get("1").value());
+    }
+```
+
+- Our KTable gets one record `("1", "Metropolitan Museum of Art")`, and our Stream gets our mock message. The `inTopic`
+here is the left side of the inner join so a join gets triggered. The `joinedTableStore` has the results of the `joinedTopic`
+so that we can query it. However, this test fails. Why? The reaosn is due to the fact that our `tradingTableTopic` has a record with
+a key of `"2"` and our message has a key of `"1"` so there are no matching records. To make the test pass, change the 2 to a 1.
+
+
+- Time to create a new Test class to not try to confuse ourselves too much. But first let's create two new POJO classes
+and name them `EnrichedMessage.java` and `AggregatedMessage.java`.
+
+*EnrichedMessage*
+```java
+package com.ibm.garage.cpat.Domain;
+
+
+public class EnrichedMessage {
+
+    public String userId;
+    public String stockSymbol;
+    public int quantity;
+    public double stockPrice;
+    public double totalCost;
+    public double adjustedCost;
+    public boolean technicalValidation;
+    public String companyName;
+
+    public EnrichedMessage (FinancialMessage message, String companyName) {
+        this.userId = message.userId;
+        this.stockSymbol = message.stockSymbol;
+        this.quantity = message.quantity;
+        this.stockPrice = message.stockPrice;
+        this.totalCost = message.totalCost;
+        this.companyName = companyName;
+
+        if (message.technicalValidation)
+        {
+            this.technicalValidation = message.technicalValidation;
+            this.adjustedCost = message.totalCost * 1.15;
+        }
+
+        else {
+            this.technicalValidation = message.technicalValidation;
+            this.adjustedCost = message.totalCost;
+        }
+    }
+}
+```
+
+*AggregatedMessage*
+```java
+package com.ibm.garage.cpat.Domain;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+
+public class AggregatedMessage {
+
+    public String userId;
+    public String stockSymbol;
+    public int quantity;
+    public double stockPrice;
+    public double totalCost;
+    public double adjustedCost;
+    public boolean technicalValidation;
+    public String companyName;
+    public int count;
+    public double sum;
+    public double average;
+
+    public AggregatedMessage updateFrom(EnrichedMessage message) {
+        this.userId = message.userId;
+        this.stockSymbol = message.stockSymbol;
+        this.quantity = message.quantity;
+        this.stockPrice = message.stockPrice;
+        this.totalCost = message.totalCost;
+        this.companyName = message.companyName;
+        this.adjustedCost = message.adjustedCost;
+        this.technicalValidation = message.technicalValidation;
+
+        this.count ++;
+        this.sum += message.adjustedCost;
+        this.average = BigDecimal.valueOf(sum / count)
+                    .setScale(1, RoundingMode.HALF_UP).doubleValue();
+
+        return this;
+    }
+}
+```
+
+
+- Lastly let's create that new Test class named `TestAggregate.java` and paste the following
+
+```java
+package com.ibm.garage.cpat.lab;
+
+import java.util.Properties;
+
+import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.TestInputTopic;
+import org.apache.kafka.streams.TestOutputTopic;
+import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.KGroupedStream;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.kstream.WindowedSerdes;
+import org.apache.kafka.streams.processor.StateStore;
+import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
+import org.apache.kafka.streams.state.KeyValueIterator;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Stores;
+import org.apache.kafka.streams.state.ValueAndTimestamp;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import io.quarkus.kafka.client.serialization.JsonbDeserializer;
+import io.quarkus.kafka.client.serialization.JsonbSerde;
+import io.quarkus.kafka.client.serialization.JsonbSerializer;
+import io.quarkus.test.junit.QuarkusTest;
+
+import com.ibm.garage.cpat.FinancialMessage.*;
+import com.ibm.garage.cpat.AggregatedMessage.AggregatedMessage;
+import com.ibm.garage.cpat.EnrichedMessage.*;
+
+
+@QuarkusTest
+public class TestAggregate {
+
+    private static TopologyTestDriver testDriver;
+    private static String inTopicName = "financialMessages";
+    private static String outTopicName = "enrichedMessages";
+    private static String storeName = "financialStore";
+    private static String aggregatedTopicName = "aggregatedMessages";
+
+    private static String companyTable = "companyTable";
+    private static String companyStoreName = "companyStore";
+
+    private static TestInputTopic<String, FinancialMessage> inTopic;
+    private static TestOutputTopic<String, EnrichedMessage> outTopic;
+    private static TestOutputTopic<String, AggregatedMessage> aggregatedTopic;
+    private static TestInputTopic<String, String> companyTableTopic;
+
+    private static final JsonbSerde<FinancialMessage> financialMessageSerde = new JsonbSerde<>(FinancialMessage.class);
+    private static final JsonbSerde<EnrichedMessage> enrichedMessageSerde = new JsonbSerde<>(EnrichedMessage.class);
+    private static final JsonbSerde<AggregatedMessage> aggregatedMessageSerde = new JsonbSerde<>(AggregatedMessage.class);
+    private static final JsonbDeserializer<EnrichedMessageDeserializer> enrichedMessageDeserializer = new JsonbDeserializer<>(EnrichedMessageDeserializer.class);
+
+
+    public static Properties getStreamsConfig() {
+        final Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "kstream-lab3");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummmy:3456");
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        //props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, financialMessageSerde);
+        return props;
+    }
+
+    @BeforeAll
+    public static void buildTopology() {
+        final StreamsBuilder builder = new StreamsBuilder();
+        KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(storeName);
+        KeyValueBytesStoreSupplier companyStoreSupplier = Stores.persistentKeyValueStore(companyStoreName);
+
+        // create a KStream for financial messages.
+        KStream<String, FinancialMessage> financialStream =
+            builder.stream(
+                inTopicName,
+                Consumed.with(Serdes.String(), financialMessageSerde)
+            );
+
+        // create a KTable from a topic for companies.
+        KTable<String, String> companyStore = builder.table(companyTable,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.as(companyStoreSupplier));
+
+        // join KStream with KTable and use aggregate.
+        KStream<String, EnrichedMessage> enrichedStream = financialStream.join(
+                companyStore,
+                //(financialMessage, companyName) -> financialMessage.userId,
+                (financialMessage, companyName) -> {
+                    return new EnrichedMessage(financialMessage, companyName);
+                }
+            );
+
+        enrichedStream.groupByKey()
+            .aggregate(
+                AggregatedMessage::new,
+                (userId, value, aggregatedMessage) -> aggregatedMessage.updateFrom(value),
+                Materialized.<String, AggregatedMessage> as(storeSupplier)
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(aggregatedMessageSerde)
+            )
+            .toStream()
+            .to(
+                aggregatedTopicName,
+                Produced.with(Serdes.String(), aggregatedMessageSerde)
+            );
+
+        testDriver = new TopologyTestDriver(builder.build(), getStreamsConfig());
+        inTopic = testDriver.createInputTopic(inTopicName, new StringSerializer(), new JsonbSerializer<FinancialMessage>());
+        //outTopic = testDriver.createOutputTopic(outTopicName, new StringDeserializer(), new JsonbDeserializer<>(EnrichedMessage.class));
+        companyTableTopic = testDriver.createInputTopic(companyTable, new StringSerializer(), new StringSerializer());
+        aggregatedTopic = testDriver.createOutputTopic(aggregatedTopicName, new StringDeserializer(), new JsonbDeserializer<>(AggregatedMessage.class));
+    }
+
+    @AfterAll
+    public static void close(){
+        testDriver.close();
+    }
+}
+
+```
+
+- What's happening here is we're creating a KStream `financialStream` and a KTable `companyTable` and then joining them.
+The join of those two gives us an `EnrichedMessage` which we're processing through a second KStream `enrichedStream`. This
+is grouped by key and the aggregate operator is called to create new Aggregated Messages which are persisted in the `storeSupplier`
+state store and also streamed to the `aggregatedTopic`.
+
+
+
+- Now to add the actual Test
+
+```java
+    @Test
+    public void aggregatedMessageExists() {
+
+        companyTableTopic.pipeInput("1", "Metropolitan Museum of Art");
+
+        FinancialMessage mock = new FinancialMessage(
+            "1", "MET", "SWISS", 12, 1822.38, 21868.55, 94, 7, true
+        );
+        FinancialMessage mock2 = new FinancialMessage(
+            "1", "MET", "SWISS", 12, 1822.38, 6634.56, 94, 7, true
+        );
+        inTopic.pipeInput("1", mock);
+        inTopic.pipeInput("1", mock2);
+
+        KeyValueStore<String,ValueAndTimestamp<AggregatedMessage>> aggregatedTableStore = testDriver.getTimestampedKeyValueStore(storeName);
+        Assertions.assertEquals(2, aggregatedTableStore.approximateNumEntries());
+        System.out.println("Average = " + aggregatedTableStore.get("1").value().average);
+        Assertions.assertEquals(16389.3, aggregatedTableStore.get("2").value().average);
+    }
+```
+
+- Here in this test we have two different financialMessages inserted with a key of `"1"` and there is only one entry
+in the KTable `("1", "Metropolitan Museum of Art")`. There are two assertions in this test. The first one passes, but the second
+one fails. Why is that? There are two records within the store which is correct... however since the store is a key based, the record
+with a key of `"1"` is being updated. There is no key of `"2"`. To get the second Assertion to pass change
+
+```java
+Assertions.assertEquals(16389.3, aggregatedTableStore.get("2").value().average);
+```
+
+to
+
+```java
+Assertions.assertEquals(16389.3, aggregatedTableStore.get("1").value().average);
+```
+
+
+
+## Producing to and Consuming from a Kafka Topic on Event Streams
+
+- Typically with the Kafka Streams API it's typically assumed that the data is already present on a topic. To expedite the processing
+we're going to use Reactive Messaging to quickly send some quick messages to our topic. Create a `MockProducer.java` class somewhere
+along the lines of `src/main/java/.../MockProducer.java`
+
+```java
+package com.ibm.garage.cpat.Infrastructure;
+
+import javax.enterprise.context.ApplicationScoped;
+
+import org.eclipse.microprofile.reactive.messaging.Outgoing;
+
+import io.reactivex.Flowable;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+
+import java.util.concurrent.TimeUnit;
+import java.util.Random;
+
+import com.ibm.garage.cpat.Domain.*;
+
+
+@ApplicationScoped
+public class MockProducer {
+
+    private Random random = new Random();
+
+    FinancialMessage mock = new FinancialMessage(
+        "1", "MET", "SWISS", 12, 1822.38, 21868.55, 94, 7, true
+        );
+
+    @Outgoing("mock-messages")
+    public Flowable<KafkaRecord<String,FinancialMessage>> produceMock() {
+        return Flowable.interval(5, TimeUnit.SECONDS)
+                       .map(tick -> {
+                            return setRandomUserId(mock);
+                        });
+    }
+
+    public KafkaRecord<String, FinancialMessage> setRandomUserId(FinancialMessage mock) {
+        mock.userId = String.valueOf(random.nextInt(100));
+
+        return KafkaRecord.of(mock.userId, mock);
+    }
+}
+```
+
+What this producer does is it produces a mock message every 5 seconds to the `"mock-messages"` channel
+with a random userId (out of 100).
+
+
+- Next create a class for the Topology that we're going to build. Something similar to the MockProducer above i.e.
+`src/main/java/.../FinancialMessageTopology.java`
+
+```java
+package com.ibm.garage.cpat.Domain;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Produced;
+
+import io.quarkus.kafka.client.serialization.JsonbSerde;
+
+
+@ApplicationScoped
+public class FinancialMessageTopology {
+
+    @ConfigProperty(name = "START_TOPIC_NAME")
+    private String INCOMING_TOPIC;
+
+    @ConfigProperty(name = "TARGET_TOPIC_NAME")
+    private String OUTGOING_TOPIC;
+
+
+    @Produces
+    public Topology buildTopology() {
+
+        StreamsBuilder builder = new StreamsBuilder();
+
+        JsonbSerde<FinancialMessage> financialMessageSerde = new JsonbSerde<>(FinancialMessage.class);
+
+        // Stream reads from input topic, filters it by checking the boolean field on the nessage.
+        // If the boolean is true, it gets passed to the mapValues function which then that record
+        // to an outgoing topic.
+
+        builder.stream(
+            INCOMING_TOPIC,
+            Consumed.with(Serdes.String(), financialMessageSerde)
+        )
+        .filter (
+            (key, message) -> checkValidation(message)
+        )
+        .mapValues (
+            checkedMessage -> adjustPostValidation(checkedMessage)
+        )
+        .to (
+            OUTGOING_TOPIC,
+            Produced.with(Serdes.String(), financialMessageSerde)
+        );
+
+        return builder.build();
+    }
+
+    public boolean checkValidation(FinancialMessage message) {
+        return (message.technicalValidation);
+    }
+
+    public FinancialMessage adjustPostValidation(FinancialMessage message) {
+        message.totalCost = message.totalCost * 1.15;
+
+        return message;
+    }
+
+}
+```
+
+- *Important* Since this is a Quarkus application a lot of the configuration settings are done via a properties file.
+In Quarkus it's in `src/main/resources/application.properties`. Open that file and paste the following. If connecting to
+Event Streams v10.
+
+```properties
+quarkus.http.port=8080
+quarkus.log.console.enable=true
+quarkus.log.console.level=INFO
+
+# Base ES Connection Details
+mp.messaging.connector.smallrye-kafka.bootstrap.servers=${BOOTSTRAP_SERVERS}
+mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
+mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
+mp.messaging.connector.smallrye-kafka.sasl.mechanism=SCRAM-SHA-512
+mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
+                username=${SCRAM_USERNAME} \
+                password=${SCRAM_PASSWORD};
+mp.messaging.connector.smallrye-kafka.ssl.truststore.location=${CERT_LOCATION}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.password=${CERT_PASSWORD}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.type=PKCS12
+
+
+# Initial mock JSON message producer configuration
+mp.messaging.outgoing.mock-messages.connector=smallrye-kafka
+mp.messaging.outgoing.mock-messages.topic=${START_TOPIC_NAME}
+mp.messaging.outgoing.mock-messages.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+
+
+
+# Quarkus Kafka Streams configuration settings
+quarkus.kafka-streams.bootstrap-servers=${BOOTSTRAP_SERVERS}
+quarkus.kafka-streams.application-id=financial-stream
+quarkus.kafka-streams.application-server=localhost:8080
+quarkus.kafka-streams.topics=${START_TOPIC_NAME},${TARGET_TOPIC_NAME}
+quarkus.kafka-streams.health.enabled=true
+
+quarkus.kafka-streams.security.protocol=SASL_SSL
+quarkus.kafka-streams.ssl.protocol=TLSv1.2
+quarkus.kafka-streams.sasl.mechanism=SCRAM-SHA-512
+quarkus.kafka-streams.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
+                username=${SCRAM_USERNAME} \
+                password=${SCRAM_PASSWORD};
+quarkus.kafka-streams.ssl.truststore.location=${CERT_LOCATION}
+quarkus.kafka-streams.ssl.truststore.password=${CERT_PASSWORD}
+quarkus.kafka-streams.ssl.truststore.type=PKCS12
+
+# pass-through options
+kafka-streams.cache.max.bytes.buffering=10240
+kafka-streams.commit.interval.ms=1000
+kafka-streams.metadata.max.age.ms=500
+kafka-streams.auto.offset.reset=latest
+kafka-streams.metrics.recording.level=DEBUG
+
+```
+
+- If using a previous Event Streams version (such as v2019.4.2) or on IBM Cloud.
+
+```properties
+quarkus.http.port=8080
+quarkus.log.console.enable=true
+quarkus.log.console.level=INFO
+
+# Base ES Connection Details
+mp.messaging.connector.smallrye-kafka.bootstrap.servers=${BOOTSTRAP_SERVERS}
+mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
+mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
+mp.messaging.connector.smallrye-kafka.sasl.mechanism=PLAIN
+mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.PlainLoginModule required \
+                username="token" \
+                password=${API_KEY};
+# If connecting to Event Streams on IBM Cloud the following truststore options are not needed.
+mp.messaging.connector.smallrye-kafka.ssl.truststore.location=${CERT_LOCATION}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.password=password
+
+
+# Initial mock JSON message producer configuration
+mp.messaging.outgoing.mock-messages.connector=smallrye-kafka
+mp.messaging.outgoing.mock-messages.topic=${START_TOPIC_NAME}
+mp.messaging.outgoing.mock-messages.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+
+
+
+# Quarkus Kafka Streams configuration settings
+quarkus.kafka-streams.bootstrap-servers=${BOOTSTRAP_SERVERS}
+quarkus.kafka-streams.application-id=financial-stream
+quarkus.kafka-streams.application-server=localhost:8080
+quarkus.kafka-streams.topics=${START_TOPIC_NAME},${TARGET_TOPIC_NAME}
+quarkus.kafka-streams.health.enabled=true
+
+quarkus.kafka-streams.security.protocol=SASL_SSL
+quarkus.kafka-streams.ssl.protocol=TLSv1.2
+quarkus.kafka-streams.sasl.mechanism=PLAIN
+quarkus.kafka-streams.sasl.jaas.config=org.apache.kafka.common.security.scram.PlainLoginModule required \
+                username="token" \
+                password=${API_KEY};
+# If connecting to Event Streams on IBM Cloud the following truststore options are not needed.
+quarkus.kafka-streams.ssl.truststore.location=${CERT_LOCATION}
+quarkus.kafka-streams.ssl.truststore.password=password
+
+# pass-through options
+kafka-streams.cache.max.bytes.buffering=10240
+kafka-streams.commit.interval.ms=1000
+kafka-streams.metadata.max.age.ms=500
+kafka-streams.auto.offset.reset=latest
+kafka-streams.metrics.recording.level=DEBUG
+
+```
+
+- As noted you can see that there are five different environment variables that we need to configure. `START_TOPIC_NAME`,
+`TARGET_TOPIC_NAME`, `BOOTSTRAP_SERVERS`, `CERT_LOCATION` and `API_KEY`. You can get your API Key and Bootstrap Server address from your Event Streams instance
+connection settings. Export the following environment variables. If connecting to Event Streams on IBM Cloud the `CERT_LOCATION`
+isn't needed, so you can comment out those two lines as well as not needing the `CERT_LOCATION` EV.
+
+*ESv10*
+```shell
+export BOOTSTRAP_SERVERS=your-bootstrap-server-address:443 \
+export START_TOPIC_NAME=name-of-topic-to-consume-from \
+export TARGET_TOPIC_NAME=name-of-topic-to-produce-to \
+export CERT_LOCATION=/path-to-pkcs12-cert/es-cert.p12 \
+export CERT_PASSWORD=certificate-password \
+export SCRAM_USERNAME=your-scram-username \
+export SCRAM_PASSWORD=your-scram-password \
+```
+
+*Previous ES versions*
+```shell
+export BOOTSTRAP_SERVERS=your-bootstrap-server-address:443 \
+export START_TOPIC_NAME=name-of-topic-to-consume-from \
+export TARGET_TOPIC_NAME=name-of-topic-to-produce-to \
+export CERT_LOCATION=/path-to-jks-cert/es-cert.jks \
+export API_KEY=your-api-key
+```
+
+- You can now test the Quarkus application
+
+```shell
+./mvnw quarkus:dev
+```
