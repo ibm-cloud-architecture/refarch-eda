@@ -56,7 +56,7 @@
       path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
-    - title: Kafka Mirror Maker
+    - title: Kafka Mirror Maker 2
       path: /technology/kafka-mirrormaker/
     - title: Kafka Monitoring
       path: /technology/kafka-monitoring/
@@ -72,6 +72,8 @@
       path: /scenarios/connect-cos/
     - title: Kafka Streams Labs
       path: /scenarios/kafka-streams/
+    - title: Kafka Mirror Maker 2 Labs
+      path: /scenarios/kafka-mm2/
 - title: Additional reading
   pages:
     - path: /additional-reading/

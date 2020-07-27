@@ -1,0 +1,36 @@
+---
+title: Kafka Mirror Maker 2 Hand-on Labs
+description: Hands-on labs walking users through testing Mirror Maker based replication
+---
+
+## Pre-requisites
+
+The following steps need to be done to get the configurations for the different scenario and the docker-compose file to start a local cluster. 
+
+1. Clone the lab repository
+
+ ```shell
+ git clone https://github.com/ibm-cloud-architecture/refarch-eda-data-consistency
+ ```
+
+1. Get [Docker](https://docs.docker.com/) desktop and docker compose on your local computer.  and docker compose to run the solution locally.
+
+ If for security reason you are not able to install docker on your local workstation, but you have access to a kubernetes cluster, like OpenShift, see the [next section](#running-docker-in-kubernetes-pod).
+
+ In this project main folder there is a [docker compose file](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-data-consistency/master/docker-compose.yml) to start a local three brokers cluster with two Zookeeper nodes.
+
+1. In one Terminal window, start the local cluster using `docker-compose up &` command. The data are persisted on the local disk within this folder.
+
+Your environment is up and running.
+
+## Kafka Mirror Maker 2 Labs
+
+These hands-on labs walk users through building and testing Kafka Mirror Maker 2 based replication.
+
+| Scenario                           | Description         | Link        |
+| --------------------------------| ------------------  |:----------- |
+| Lab 1 | Replicate from Event Streams on Cloud to local Kafka. | [Kafka Mirror Maker 2 - Lab 1](/scenarios/kafka-mm2/lab-1/) |
+| Lab 2 | Using Mirror Maker 2 from Event Streams on premise to Event stream on cloud | [Kafka Mirror Maker 2 - Lab 2](/scenarios/kafka-mm2/lab-2/) |
+
+## Running docker in kubernetes pod
+
