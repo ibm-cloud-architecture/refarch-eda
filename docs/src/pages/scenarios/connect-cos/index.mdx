@@ -599,9 +599,9 @@ mp.messaging.connector.smallrye-kafka.ssl.truststore.type=PKCS12
 
 
 # Initial mock JSON message producer configuration
-mp.messaging.outgoing.OUTBOUND.connector=smallrye-kafka
-mp.messaging.outgoing.OUTBOUND.topic=${TOPIC_NAME}
-mp.messaging.outgoing.OUTBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
+mp.messaging.outgoing.INBOUND.topic=${TOPIC_NAME}
+mp.messaging.outgoing.INBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
 ```
 
 As you can see there are a few more extra environment variables that we need to setup compared to when we connected to the previous version. This no longer uses an API Key.
