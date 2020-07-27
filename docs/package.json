@@ -17,11 +17,11 @@
     "test:prefix": "yarn build:prefix && yarn serve:prefix"
   },
   "dependencies": {
-    "gatsby": "^2.23.11",
-    "gatsby-plugin-google-analytics": "^2.3.6",
-    "gatsby-theme-carbon": "^1.24.4",
-    "react": "^16.8.6",
+    "gatsby": "^2.24.9",
+    "gatsby-plugin-google-analytics": "^2.3.13",
+    "gatsby-theme-carbon": "^1.26.4",
     "gh-pages": "^3.1.0",
+    "react": "^16.8.6",
     "react-dom": "^16.8.6"
   }
 }
