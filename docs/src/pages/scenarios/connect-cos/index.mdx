@@ -12,6 +12,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
   <AnchorLink>Setting up the Kafka Strimzi Operator</AnchorLink>
   <AnchorLink>Setting up the Kafka Connect Cluster</AnchorLink>
   <AnchorLink>Building and Applying IBM COS Sink Connector</AnchorLink>
+  <AnchorLink>Event Streams v10 Addendum</AnchorLink>
   <AnchorLink>Test the Entire Flow</AnchorLink>
 </AnchorLinks>
 
@@ -137,7 +138,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 - Create the Quarkus project. You can replace {} and the contents inside of {} with whatever you would like.
 
 ```bash
-mvn io.quarkus:quarkus-maven-plugin:1.4.2.Final:create \
+mvn io.quarkus:quarkus-maven-plugin:1.6.0.Final:create \
     -DprojectGroupId={org.acme} \
     -DprojectArtifactId={quarkus-kafka} \
     -Dextensions="kafka"
@@ -215,52 +216,34 @@ src/main/resources/application.properties
 - Copy and paste the following into your application.properties file - 
 
 ```properties
-# Event Streams instance connection details. The channel here (INBOUND) will by default be set as the topic.
-mp.messaging.connector.smallrye-kafka.bootstrap.servers={es-bootstrap-address}
+# Event Streams Connection details
+mp.messaging.connector.smallrye-kafka.bootstrap.servers=${BOOTSTRAP_SERVERS}
+mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
+mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
+mp.messaging.connector.smallrye-kafka.sasl.mechanism=PLAIN
+mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.PlainLoginModule required \
+                username="token" \
+                password=${APIKey};
+mp.messaging.connector.smallrye-kafka.ssl.truststore.location=${CERT_LOCATION}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.password=password
+
+
+# Initial mock JSON message producer configuration
 mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
-
-# Event Streams security credentials if necessary (in cases where SSL is enabled). Serializers used for outgoing
-# and deserializers are used for incoming messages.
-mp.messaging.outgoing.INBOUND.key.serializer=org.apache.kafka.common.serialization.IntegerSerializer
-mp.messaging.outgoing.INBOUND.value.serializer=org.apache.kafka.common.serialization.StringSerializer
-mp.messaging.outgoing.INBOUND.sasl.mechanism=PLAIN
-mp.messaging.outgoing.INBOUND.security.protocol=SASL_SSL
-mp.messaging.outgoing.INBOUND.ssl.protocol=TLSv1.2
-mp.messaging.outgoing.INBOUND.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
-            username="token" \
-            password="{APIKey}";
-mp.messaging.outgoing.INBOUND.ssl.truststore.location={/filepath-to-es-truststorefile/}es-cert.jks
-mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
+mp.messaging.outgoing.INBOUND.topic=${TOPIC_NAME}
+mp.messaging.outgoing.INBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
 ```
 
-*Note* - These values that we are configuring can be used with environmental variables instead of hard-coding if you so choose.
-
-- Replace {es-bootstrap-address} with the address of your Event Streams bootstrap server address that we took note of earlier. 
+*Note* - These values that we are configuring can be used with environmental variables. We will export them, or you can choose to hardcode them.
    
-```properties
-mp.messaging.connector.smallrye-kafka.bootstrap.servers={es-bootstrap-address}
+```shell
+export BOOTSTRAP_SERVERS={your-bootstrap-server-address} \
+export TOPIC_NAME=INBOUND \ 
+export CERT_LOCATION={your-path-to-es-cert}/es-cert.jks \
+export APIKey={your-api-key}
 ```
 
-- Replace {APIKey} with your API Key obtained earlier.
-   
-```properties
-mp.messaging.outgoing.INBOUND.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
-            username="token" \
-            password="{APIKey}";
-```
-            
-- Provide the file path to your Event Streams .jks certificate file. Replace {/filepath-to-es-truststorefile/}
-
-```properties
-mp.messaging.outgoing.INBOUND.ssl.truststore.location={/filepath-to-es-truststorefile/}es-cert.jks
-```
-
-- Provide the truststore password. By default it should just be password.
-
-```properties
-mp.messaging.outgoing.INBOUND.ssl.truststore.password={password}
-```
-
+- Replace the values and export the following environment variables. Note that while `TOPIC_NAME` is INBOUND in this case, if we omit this configuration property `mp.messaging.outgoing.INBOUND.topic=${TOPIC_NAME}`, it will default to the channel name as the topic. In this case it will default to `INBOUND`. You can choose to specify a different topic name from the `INBOUND` topic if you so choose. 
 
 - Great! We now have our simple Quarkus Kafka Producer with our Event Streams credentials. We can now test the connection.
 
@@ -334,7 +317,7 @@ We've created the IBM COS Service, created a COS Bucket, and created our Service
 
 
 
-## Setting up the Kafka Strimzi Operator 
+## Setting up the Kafka Strimzi Operator
 
 *Note* - This scenario uses an OCP 4.3 cluster, CP4I2020.1.1 and Event Streams v2019.4.2 so this Strimzi installation step
 may not be necessary if you are on OCP 4.4, CP4I2020.2.1 as well as Event Streams v10 (which is operator based and built on top of Strimzi)
@@ -380,7 +363,7 @@ oc get pods -n openshift-operators
 
 ## Setting up the Kafka Connect Cluster
 
-Note - As stated in the pre-requisites section we will be mirroring the steps followed here at [Kafka Connect to S3 Sink & Source](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/connect-s3/) for more granular information and reading.
+*Note* - As stated in the pre-requisites section we will be mirroring the steps followed here at [Kafka Connect to S3 Sink & Source](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/connect-s3/) for more granular information and reading.
 
 - Now that we have our Strimzi Kafka Operator installed we need the secrets and appropriate credentials set up.
 
@@ -406,7 +389,6 @@ openssl pkcs12 -in es-cert.p12 -nokeys -out es-cert.crt
 oc create secret generic eventstreams-truststore-cert --from-file=es-cert.crt
 ```
 
-- (OPTIONAL) This is an Optional step. Apache Camel by default can log potentially sensitive access key information to the log files. To remedy that we will use a log4j ConfigMap to filter out that potentially sensitive information. Create a log4j.properties file and paste the following into it.
 
 ```bash
 vi log4j.properties
@@ -584,6 +566,152 @@ oc describe kafkaconnector cos-sink-connector
 
 ![IBM COS Sink Connector success](./images/ibm-cos-sink-connector-success.png)
 
+
+## Event Streams v10 Addendum
+
+*A couple of things of note*
+- Most of these steps are the same as the last two (Setting up the Kafka Connect Cluster and IBM COS Sink Connector) besides a change to the YAML files.
+- Event Streams v10 is still rather new so these are subject to change. 
+- Like previously mentioned in the Strimzi setup section, Event Streams v10 is built ontop of the Strimzi operator so we don't need to install those.
+
+
+*Quarkus Application application.properties*
+- Due to the changes to security with Event Streams v10, it has moved from plain text SASL to SCRAM credentials.
+- By default the certificate you download from the ESv10 is now a PKCS12 file and not a JKS. Also it now has an actual password associated now instead of just "password" previously.
+- As such we need to change our `application.properties` file for our Quarkus application to reflect that.
+
+```properties
+quarkus.http.port=8080
+quarkus.log.console.enable=true
+quarkus.log.console.level=INFO
+
+# Base ES Connection Details
+mp.messaging.connector.smallrye-kafka.bootstrap.servers=${BOOTSTRAP_SERVERS}
+mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
+mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
+mp.messaging.connector.smallrye-kafka.sasl.mechanism=SCRAM-SHA-512
+mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
+                username=${SCRAM_USERNAME} \
+                password=${SCRAM_PASSWORD};
+mp.messaging.connector.smallrye-kafka.ssl.truststore.location=${CERT_LOCATION}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.password=${CERT_PASSWORD}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.type=PKCS12
+
+
+# Initial mock JSON message producer configuration
+mp.messaging.outgoing.OUTBOUND.connector=smallrye-kafka
+mp.messaging.outgoing.OUTBOUND.topic=${TOPIC_NAME}
+mp.messaging.outgoing.OUTBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+```
+
+As you can see there are a few more extra environment variables that we need to setup compared to when we connected to the previous version. This no longer uses an API Key.
+
+```shell
+export BOOTSTRAP_SERVERS=your-bootstrap-server-address:443 \
+export TOPIC_NAME=name-of-topic-to-produce-to \
+export CERT_LOCATION=/path-to-pkcs12-cert/es-cert.p12 \
+export CERT_PASSWORD=certificate-password \
+export SCRAM_USERNAME=your-scram-username \
+export SCRAM_PASSWORD=your-scram-password \
+```
+
+
+*KafkaConnectS2I Yaml*
+
+```yaml
+apiVersion: eventstreams.ibm.com/v1beta1
+kind: KafkaConnectS2I
+metadata:
+  name: connect-cluster-101
+  annotations:
+    eventstreams.ibm.com/use-connector-resources: "true"
+spec:
+  logging:
+    type: external
+    name: custom-connect-log4j
+  version: 2.5.0
+  replicas: 1
+  bootstrapServers: {your-internal-bootstrap-server-address}
+  template:
+    pod:
+      imagePullSecrets: []
+      metadata:
+        annotations:
+          eventstreams.production.type: CloudPakForIntegrationNonProduction
+          productID: xxxx
+          productName: IBM Event Streams for Non Production
+          productVersion: 10.0.0
+          productMetric: VIRTUAL_PROCESSOR_CORE
+          productChargedContainers: jng-connect
+          cloudpakId: xxxx
+          cloudpakName: IBM Cloud Pak for Integration
+          cloudpakVersion: 2020.2.1
+          productCloudpakRatio: "2:1"
+  tls:
+      trustedCertificates:
+        - secretName: {your-es-isntance-name}-ca-cert
+          certificate: ca.crt
+  authentication:
+    type: tls
+    certificateAndKey:
+      certificate: user.crt
+      key: user.key
+      secretName: {your-secret-name}
+  config:
+    group.id: connect-cluster-101
+    config.providers: file
+    config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    offset.storage.topic: connect-cluster-101-offsets
+    config.storage.topic: connect-cluster-101-configs
+    status.storage.topic: connect-cluster-101-status
+    config.storage.replication.factor: 1
+    offset.storage.replication.factor: 1
+    status.storage.replication.factor: 1
+
+```
+
+Things of note that were changed.
+
+- `spec.bootstrapservers`: This bootstrap server address is found under the `Internal Connection` option rather than `External` in the ESv10 UI when choosing to `Connect to this Cluster`.
+- `spec.tls.trustedCertificates.secretName`: This will be the autogenerated certificate. It should be prefix'd with your Event Streams instance name. If your ES instance name is ES10 then this secret should be named `ES10-ca-cert`.
+- `spec.authentication.secretName`: This secretname will be the name you enter of your secret when you select `Generate TLS Credentials` with internal connection. ESv10 will automatically create a secret within the same OpenShift namespace/project. That generated secret will have various details in it like `user.cert` and `user.key`. 
+
+
+*IBM COS Sink Connector YAML*
+
+```yaml
+apiVersion: eventstreams.ibm.com/v1alpha1
+kind: KafkaConnector
+metadata:
+  name: cos-sink-connector
+  labels:
+     eventstreams.ibm.com/cluster: jng-connect-cluster-101
+spec:
+  class: com.ibm.eventstreams.connect.cossink.COSSinkConnector
+  tasksMax: 1
+  config:
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.storage.StringConverter
+    topics: {topic-name}
+    cos.api.key: {ibm-cos-api-key}
+    cos.bucket.location: {ibm-cos-bucket-location}
+    cos.bucket.name: {your-ibm-cos-bucket-name}
+    cos.bucket.resiliency: {your-resiliency}
+    cos.service.crn: "{your-ibm-cos-service-crn}"
+    cos.object.records: 5
+    cos.object.deadline.seconds: 5
+    cos.object.interval.seconds: 5
+```
+
+- Not too many differences from the Strimzi/ESv2019.4.2 version. 
+  - Mainly the changing of `apiVersion: eventstreams.ibm.com/v1alpha1`. Not sure why the KafkaConnectS2I is beta and this is alpha. 
+  - `metadata.labels.eventstreams.ibm.com/cluster:` instead of `strimzi.io/cluster`
+  
+- Besides these few changes to the YAMLs this should behave as it did previously.
 
 
 ## Test the Entire Flow
