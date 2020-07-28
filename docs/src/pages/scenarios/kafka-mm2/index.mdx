@@ -34,3 +34,13 @@ These hands-on labs walk users through building and testing Kafka Mirror Maker 2
 
 ## Running docker in kubernetes pod
 
+In one of you project, goes to the Workload > Pods menu in the OpenShift Console. Then Create a pod:
+
+ ![1](./images/create-pod.png)
+
+In the yaml editor, copy [this yaml file](https://gist.githubusercontent.com/osowski/4c9b6eb8e63b93e97ad6fecd8d9c8ff4/raw/8c2720c572458838942ccdba87271c61d4764671/dind.yaml). This operation will download the docker image from ibmcase account on docker hub.
+
+You can also download the yaml and do an `oc apply -f dind.yaml`.
+
+Then remote exec a shell within the pod: `oc exec -it dind bash`. You should be able to run another docker image in this pod, like for example our python environment.
+

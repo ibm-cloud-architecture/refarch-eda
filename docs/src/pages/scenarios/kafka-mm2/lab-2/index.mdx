@@ -5,6 +5,7 @@ description: Using Mirror Maker 2 from Event Streams on premise to Event stream 
 
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Pre-requisites</AnchorLink>
   <AnchorLink>Start Mirror Maker 2</AnchorLink>
   <AnchorLink>Start Consumer from target cluster</AnchorLink>
   <AnchorLink>Start Producer to source cluster</AnchorLink>
@@ -16,7 +17,9 @@ For this scenario the source cluster is an Event Streams on premise on OpenShift
 
  ![1](../images/mm2-a-a.png)
 
-## Start Mirror Maker 2
+## Pre-requisites
+
+* We will use the Cloud shell tool, so connect and create the environment for this shell using the same instructions as in [the schema registry lab](https://ibm-cloud-architecture.github.io/refarch-eda/technology/event-streams/schema-registry-cp4i-v10#ibm-cloud-shell).
 
 * Login to the OpenShift cluster using the console and get the API token
 
@@ -24,77 +27,78 @@ For this scenario the source cluster is an Event Streams on premise on OpenShift
  oc login --token=L0.... --server=https://api.eda-solutions.gse-ocp.net:6443
  ```
 
-* You have to decide if you want to isolate mirror maker 2 pods in its own namespace or runs in the same namespace as Event Streams. For completeness we will create our own namespace / OCP project. Create a project in OpenShift to deploy Mirror Maker cluster, for example: 
+* Clone the github to get access to the mirror maker 2 manif we are using:
 
  ```shell
- oc new-project mm2-es
+ git clone https://github.com/ibm-cloud-architecture/refarch-eda-data-consistency
  ```
- If you have already created this project, use this command to be in this project context: `oc project mm2-es`.
+
+## Start Mirror Maker 2
+
+In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace. 
 
 * Create a secret for the API KEY of the Event Streams target cluster:
 
  ```shell
   oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-event-streams-on-cloud-apikey>
-  ```
+ ```
 
 * Verify the Event Streams on OpenShift route and end point URL. This URL will be used to configure Mirror Maker 2. 
 
  ```shell
  # Go to the project where Event Streams is installed
  oc project integration
- # Get the bootstrap URL
- oc get routes es-1-kafka-bootstrap  -o=jsonpath='{.status.ingress[0].host}{"\n"}'
+ # Use the bootstrap internal URL
+ oc describe svc es-1-kafka-bootstrap  -o=jsonpath='{.status.ingress[0].host}{"\n"}'
  # result:
-    es-1-kafka-bootstrap-integration.apps.eda-solutions.gse-ocp.net
+    es-1-kafka-bootstrap.integration.svc:9093
  ```
 
-* Copy the CA cluster and clients certificate secrets from the event streams project (`integration`) and the target project:
+* Verify the CA certificate secrets:
 
  ```shell
-  oc get secret es-1-cluster-ca-cert -n integration -o yaml | sed s/"namespace: integration"/"namespace: mm2-es"/ | oc apply -n mm2-es -f -
-
-  oc get secret es-1-clients-ca-cert -n integration -o yaml | sed s/"namespace: integration"/"namespace: mm2-es"/ | oc apply -n mm2-es -f -
+  oc describe secret es-1-cluster-ca -n integration
  ```
 
-* Get the TLS CA root certificate from the event streams brokers
+* Get a user with write access to topic, transactions. You can use the User Interface to do so with the Create TLS credential on the intern URL panel.
 
-    ```shell
-    oc get secrets
-    oc extract secret/es-1-cluster-ca-cert --keys=ca.crt --to=- > ca.crt
-    oc extract secret/es-1-clients-ca-cert --keys=ca.crt --to=- >> ca.crt
-    ```
+ ![4](../images/mm2-cred-1.png)
 
-* Transform the certificates for java truststore
+ ![5](../images/mm2-cred-2.png)
 
-    ```shell
-    keytool -import -trustcacerts -alias root -file ca.crt -keystore truststore.jks -storepass password -noprompt
-    ```
+ This user needs to be able to create topic on target cluster.
+ o
+ ![6](../images/mm2-cred-3.png)
 
-* Create a secret from the truststore file so it can be mounted as needed into consumer or producer running in the same OpenShift cluster. 
+ You can specify a specific set of topics, with Java regexp.
 
-  ```shell
-  oc project mm2-es
-  oc create secret generic es-1-truststore --from-file=./truststore.jks
-  ```
+ ![7](../images/mm2-cred-4.png)
 
-* Define source and target cluster properties in a Mirror Maker 2 `es-mm2.yml` descriptor file. There is a file for the replication between Event Streams OCP to Event Streams on cloud [es-ocp-to-es-oc.yml](). We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). 
+ and all the transactions.
+
+* Define source and target cluster properties in a Mirror Maker 2 `es-ocp-to-es-oc.yml` descriptor file. There is a file for the replication between Event Streams OCP to Event Streams on cloud [es-ocp-to-es-oc.yml](). We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). 
 
 Here are some important parameters: The namespace needs to match the newly created project:
 
 ```yaml
-apiVersion: kafka.strimzi.io/v1alpha1
+apiVersion: eventstreams.ibm.com/v1alpha1
 kind: KafkaMirrorMaker2
 metadata:
-  name: es-1
-  namespace: mm2-es
+  name: mm2
+  namespace: integration
 spec:
+  template:
+    pod:
+      metadata:
+        annotations:
+          eventstreams.production.type: CloudPakForIntegrationNonProduction
   version: 2.5.0
   replicas: 1
 ```
 
-The version matches the Kafka version we use. The number of replicas can be set to 1 to start.
+The version matches the Kafka version we use. The number of replicas can be set to 1 to start. The eventstreams.production.type is needed for Event Streams.
 
-Then the yaml defined the connection configuration for each clusters: Event Streams on cloud, so you need to define the bootstrap servers (This could come from a config map too) and the API key coming from the previously defined secret.
+Then the yaml defines the connection configuration for each clusters: Event Streams on cloud, so you need to define the bootstrap servers (This could come from a config map too) and the API key coming from the previously defined secret. The user is always 'token'
 
 ```yaml
 clusters:
@@ -113,11 +117,11 @@ clusters:
       type: plain
 ```
 
-For Event Streams on premise running within OpenShift, the connection uses TLS and the certificates.
+For Event Streams on premise running within OpenShift, the connection uses TLS, certificates and Sram credentials. As we run in a separate namespace the URL is the 'external' one.
 
 ```yaml
 - alias: "es-1-cluster"
-    bootstrapServers: es-1-kafka-bootstrap-integration.apps.eda-solutions.gse-ocp.net:9093
+    bootstrapServers: es-1-kafka-bootstrap.integration.svc:9093
     config:
       config.storage.replication.factor: 3
       offset.storage.replication.factor: 3
@@ -125,11 +129,14 @@ For Event Streams on premise running within OpenShift, the connection uses TLS a
       ssl.endpoint.identification.algorithm: https
     tls: 
       trustedCertificates:
-        - secretName: es-1-clients-ca-cert
-          certificate: ca.crt
         - secretName: es-1-cluster-ca-cert
           certificate: ca.crt
-
+    authentication:
+      type: tls
+      certificateAndKey:
+        certificate: user.crt
+        key: user.key
+        secretName: mm2
           
 ```
 
@@ -140,11 +147,58 @@ Finally the `connectCluster` attribute defines the cluster alias used for Kafka 
  oc apply -f mirror-maker-2/es-ocp/es-ocp-to-es-oc.yml
  ```
 
- oc describe kafkamirrormaker2 mm2-es-1
+* Verify the chareacteristics of the Mirror Maker 2 instance using the CLI
+
+ ```shell
+ oc describe kafkamirrormaker2 mm2
+ ```
+* As Mirror Maker 2 is set to  be connected to the `es-1-cluster` which is the event streams on OCP, it will create its internal topic as:
+
+```shell
+cloudctl es topics
+..
+mirrormaker2-cluster-configs   
+mirrormaker2-cluster-offsets   
+mirrormaker2-cluster-status   
+```
+
+## Start Producer to source cluster
+
+As seen in lab 1, we will use the same python script to create products records. This time the script is producing products data to Event Streams on OpenShift. So we need the URL, pem, and user to access this cluster.
+The credentials can be accessed and defined using the GUI. [This section in the schema registry](https://ibm-cloud-architecture.github.io/refarch-eda/technology/event-streams/schema-registry-cp4i-v10#gui) lab goes into the details on how to get the external URL and Scram password. 
+
+* If not done before download the pem file using the following CLI commands:
+
+ ```shell
+ cloudctl login -a https://cp-console.apps.eda-solutions.gse-ocp.net --skip-ssl-validation
+ cloudctl es init
+ cloudctl es certificates --format pem
+ ```
+* Get userid, password and information of one of the kafka user defined. The namespace used below is the one where event streams is installed.
+
+ ```shell
+ oc get kafkausers--namespace integration
+ oc get kafkauser my-user1 --namespace integration -o jsonpath='{"username: "}{.status.username}{"\nsecret-name: "}{.status.secret}{"\n"}'
+ ```
+* Set the following environment variables:
+
+ ```shell
+ export KAFKA_BROKERS=es-1-kafka-bootstrap-integration.apps.eda-solutions.gse-ocp.net:443
+ export KAFKA_USER=my-user1
+ export KAFKA_PWD=$(oc get secret $KAFKA_USER --namespace integration -o jsonpath='{.data.password}' | base64 --decode)
+ export KAFKA_CERT=/home/es-cert.pem
+ ```
+
+ ```shell
+ cd mirror-maker-2
+ # Execute the script using docker
+ docker run -ti -v $(pwd):/home --rm -e  KAFKA_BROKERS=$KAFKA_SOURCE_BROKERS -e KAFKA_USER=$KAFKA_USER -e KAFKA_PWD=$KAFKA_PWD -e KAFKA_CERT=$KAFKA_CERT ibmcase/kcontainer-python:itgtests python /home/SendProductToKafka.py --file /home/data/products.json
+ ```
 
 ## Start Consumer from target cluster
 
 Specifying the target cluster as Event Streams on cloud, we can also use Kafdrop to see the replicated topic.
 
-
-## Start Producer to source cluster
+```
+./scripts/startKafdrop.sh es-cloud.properties
+```
