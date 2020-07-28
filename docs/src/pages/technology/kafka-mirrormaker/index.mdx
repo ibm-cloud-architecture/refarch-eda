@@ -5,8 +5,17 @@ description: Kafka Mirror Maker 2
 
 This section introduces **Mirror Maker 2.0**, the new replication feature of Kafka 2.4, and how it can be used, along with best practices, for data replication between two Kafka clusters. Mirror Maker 2.0 was defined as part of the Kafka Improvement Process - [KIP 382](https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0).
 
-It is used for disaster recovery, with a active - passive model, so it will be easier to get target cluster and consumer / producer up and runnning. It can be used to replicate over multiple clusters.
-It is possible to deploy in an active - active mode where both clusters get continuous data and replicated data.
+Topic mirroring is used for disaster recovery, with a active - passive model, so it will be easier to get target cluster and consumer / producer up and runnning in case of disaster on the source cluster.
+
+ ![1](../images/mm2-dr.png)
+
+It can be used to replicate over multiple clusters.
+
+ ![2](../images/mm2-multi-cluster.png)
+
+Finally it is possible to deploy in an active - active mode where both clusters get continuous data and replicated data.
+
+ ![3](../images/mm2-act-act.png)
 
 In replication, data in topic, topic states and metadata are replicated.
 
@@ -113,13 +122,13 @@ Mirror maker 2 track offset per consumer group. There are two topics created on 
 In the diagram below we have a source topic/partition A with the last write offset done by a producer to be  5, and the last read committed offset by the consumer assigned to partition 1 being 3. The last replicated offset 3 is mapped as 12 in the target partition. offset numbers do not match between partitions.
 So if the blue consumer needs to reconnect to the green target cluster it will read from the last committed offset which is 12 in this environment. This information is saved in the `checkpoint` topic.
 
-![2](../images/mm2-offset-mgt.png)
+![6](../images/mm2-offset-mgt.png)
 
 Offset synch are emitted at the beginning of the replication and when there is a situation which leads that the numbering sequencing diverges. For example the normal behavior is to increase the offset by one 2,3,4,5,6,7, which is mapped to 12,13,14,15,16,... on target cluster. If the write operation for offset 20 at the source is a 17 on the target then MM 2 emits a new offset synch records to the `offset-synch` topic.
 
 The `checkpoint` and `offset_synch` topics enable replication to be fully restored from the correct offset position on failover. On the following diagram, once the cluster source is down, the consumers on the target cluster are restarted, and they will start from the last committed offset of the source, which was offset 3 that is in fact offset 12 on target replicated topic.
 
-![3](../images/mm2-offset-mgt-2.png)
+![7](../images/mm2-offset-mgt-2.png)
 
 ### Record duplication
 
@@ -127,7 +136,7 @@ Exactly-once delivery is difficult to achieve in distributed system. In the case
 
 But for cross cluster replications, the semantic is based on at least once approach. Duplicates can happen when the mirror maker source task stops before committing its offset to the source topic. A restart will load records from the last committed offset which can generate duplicates. The following diagram illustrate this case, record offset 26 on target topic is a duplicate of record 25.
 
-![4](../images/mm2-dup.png)
+![8](../images/mm2-dup.png)
 
 As mirror maker 2 is a generic topic consumer, it will not participate to a read-committed process, if the topic includes duplicate messages it will propagate to the target.
 
@@ -139,7 +148,7 @@ In this section we want to address horizontal scalability and how to organize th
 
 The following diagram illustrates this kind of topology by using regular expression on the topic white list selection, there are three MirrorMaker 2 instances mirroring the different topics with name starting with `topic-name-A*, topic-name-B*, topic-name-C*,` respectively.
 
-![5](../images/mm2-topology.png)
+![9](../images/mm2-topology.png)
 
 Each connect instance is a JVM workers that replicate the topic/partitions and has different group.id.
 
@@ -191,20 +200,20 @@ Using the REST API it is possible to stop and restart a connector. As of now the
 
 We have presented a similar approach in [this section](vm-provisioning/#restarting-mirrormaker-2), where we tested that each instance of MirrorMaker 2 could assume the replication.  First we will stop the Node 1 instance, upgrade it to the latest version, then start it again.  Then we’ll repeat the same procedure on Node 2.  We’ll continue to watch the Consumer VM window to note that replication should not stop at any point.
 
-![](../images/mm2-v2v-1.png)
+![10](../images/mm2-v2v-1.png)
 
 We’ve now upgraded to Kafka 2.5 including the latest MirrorMaker 2.  Meanwhile, replication was uninterrupted due to the second instance of MirrorMaker 2:
 
-![](../images/mm2-v2v-2.png)
+![11](../images/mm2-v2v-2.png)
 
 Now we’ll restart the Node 1 instance of MirrorMaker 2, stop the Node 2 instance, we can still see replication occurring on the upgraded Node 1 instance of MirrorMaker 2. 
 
-![](../images/mm2-v2v-3.png)
+![12](../images/mm2-v2v-3.png)
 
 We upgrade Node 2’s instance of MirrorMaker 2 exactly as on Node 1, and start it again, and once again, replication is still going.
 
 
-![](../images/mm2-v2v-4.png)
+![13](../images/mm2-v2v-4.png)
 
 When using Strimzi, if the update applies to the MM2 Custom Resource Definition, just reapplying the CRD should be enough.
 

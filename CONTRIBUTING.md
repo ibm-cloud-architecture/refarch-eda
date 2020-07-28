@@ -1,4 +1,5 @@
 ## Contributing to IBM Cloud Architecture reference applications
+
 Anyone can contribute to IBM Cloud Architecture reference applications and their associated projects, whether you are an IBMer or not.
 We welcome your collaboration & contributions happily, as our reference applications are meant to reflect your real world scenarios.
 There are multiple ways to contribute: report bugs and improvement suggestions, improve documentation, and contribute code.

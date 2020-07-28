@@ -41,7 +41,7 @@ As a pre-requisite you need to run your local cluster by using the docker compos
  ```
  Then use: `source .env`
   
- The configuration file is for standalone configuration, and looks like:
+ The configuration file (es-to-local/mm2.properties) is for standalone configuration, and looks like:
 
     ```properties
     clusters=source, target
@@ -53,7 +53,7 @@ As a pre-requisite you need to run your local cluster by using the docker compos
     target.bootstrap.servers=kafka1:9092,kafka2:9093,kafka3:9094
     # enable and configure individual replication flows
     source->target.enabled=true
-    source->target.topics=orders
+    source->target.topics=products
     ```
 
 1. Start Mirror Maker2.0, by using a new container to start another kakfa 2.5 docker container, connected to the  brokers via the `kafkanet` network, and mounting the configuration in the `/home`. We have done a script to modify the properties file from a template file then call mirror maker 2:
