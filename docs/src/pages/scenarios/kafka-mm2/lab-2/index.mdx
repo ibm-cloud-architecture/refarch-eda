@@ -15,7 +15,7 @@ description: Using Mirror Maker 2 from Event Streams on premise to Event stream 
 
 For this scenario the source cluster is an Event Streams on premise on OpenShift, and the target cluster is an Event Stream on Cloud. Mirror Maker 2 runs on OpenShift.
 
- ![1](../images/mm2-a-a.png)
+ ![1](../images/mm2-lab2.png)
 
 ## Pre-requisites
 
@@ -33,9 +33,20 @@ For this scenario the source cluster is an Event Streams on premise on OpenShift
  git clone https://github.com/ibm-cloud-architecture/refarch-eda-data-consistency
  ```
 
+* As Event Streams on the Cloud does not authorize to create topic with the Kafka Admin API, we need to create the following topics with scripts or GUI. The naming convention respects the name of the source cluster as defined in the MirrorMaker2 manifest we will detail later.
+
+  * es-1.checkpoints.internal  use one partition
+  * es-1.heartbeats  use one partition
+  * es-1.products   matches the partition allocated to the source topic
+  * mirrormaker2-cluster-configs one partition
+  * mirrormaker2-cluster-offsets 25 partitions
+  * mirrormaker2-cluster-status 5 partitions.
+
+Use the default replication factor of 3.
+
 ## Start Mirror Maker 2
 
-In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace. 
+In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace (e.g. integration). 
 
 * Create a secret for the API KEY of the Event Streams target cluster:
 
@@ -43,7 +54,7 @@ In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within
   oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-event-streams-on-cloud-apikey>
  ```
 
-* Verify the Event Streams on OpenShift route and end point URL. This URL will be used to configure Mirror Maker 2. 
+* Verify the Event Streams on OpenShift service end point URL. This URL will be used to configure Mirror Maker 2. 
 
  ```shell
  # Go to the project where Event Streams is installed
@@ -76,7 +87,7 @@ In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within
 
  and all the transactions.
 
-* Define source and target cluster properties in a Mirror Maker 2 `es-ocp-to-es-oc.yml` descriptor file. There is a file for the replication between Event Streams OCP to Event Streams on cloud [es-ocp-to-es-oc.yml](). We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). 
+* Define source and target cluster properties in a Mirror Maker 2 `es-ocp-to-es-oc.yml` descriptor file. There is a file for the replication between Event Streams OCP to Event Streams on cloud [es-ocp-to-es-oc.yml](https://github.com/ibm-cloud-architecture/refarch-eda-data-consistency/blob/master/mirror-maker-2/es-ocp/es-ocp-to-es-oc.yml). We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). 
 
 Here are some important parameters: The namespace needs to match the newly created project:
 
@@ -94,6 +105,7 @@ spec:
           eventstreams.production.type: CloudPakForIntegrationNonProduction
   version: 2.5.0
   replicas: 1
+  connectCluster: "event-streams-wdc"
 ```
 
 The version matches the Kafka version we use. The number of replicas can be set to 1 to start. The eventstreams.production.type is needed for Event Streams.
@@ -140,7 +152,7 @@ For Event Streams on premise running within OpenShift, the connection uses TLS, 
           
 ```
 
-Finally the `connectCluster` attribute defines the cluster alias used for Kafka Connect, it must match a cluster in the list at `spec.clusters`.
+Finally the `connectCluster` attribute defines the cluster alias used by MirrorMaker2 to define its hidden topics, it must match the target cluster of the replication in the list at `spec.clusters`.
     
  
  ```shell
@@ -152,15 +164,7 @@ Finally the `connectCluster` attribute defines the cluster alias used for Kafka 
  ```shell
  oc describe kafkamirrormaker2 mm2
  ```
-* As Mirror Maker 2 is set to  be connected to the `es-1-cluster` which is the event streams on OCP, it will create its internal topic as:
-
-```shell
-cloudctl es topics
-..
-mirrormaker2-cluster-configs   
-mirrormaker2-cluster-offsets   
-mirrormaker2-cluster-status   
-```
+* As Mirror Maker 2 is set to  be connected to the `event-streams-wdc` which is the event streams on cloud. 
 
 ## Start Producer to source cluster
 
@@ -202,3 +206,16 @@ Specifying the target cluster as Event Streams on cloud, we can also use Kafdrop
 ```
 ./scripts/startKafdrop.sh es-cloud.properties
 ```
+
+Go to the es-1.products topic to see the replicated messages:
+
+ ![9](../images/kafdrop-eso-esic.png)
+
+ ## Understanding MirrorMaker 2 trace 
+
+A lot of configuration validation at the beginning of the trace to get the connection to both clusters. Any configuration issue to define the connection is generally well reported. URL, TLS certificate, secrets are the common cause of connection issues.
+
+If some message arrive with NO_LEADER for one of the topic, is that MM2 is not able to create the topic on the target cluster and so it is needed to create the topic with command or User Interface.
+
+ * WorkerSourceTask{id=es-1->event-streams-wdc.MirrorHeartbeatConnector-0} is the connector - task for the internal HeartBeat.
+ * WorkerSourceTask{id=es-1->event-streams-wdc.MirrorSourceConnector-0} for the topic to replicate
