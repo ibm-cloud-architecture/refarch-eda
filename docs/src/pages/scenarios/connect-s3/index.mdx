@@ -9,6 +9,7 @@ description: Apache Kafka to AWS S3 object storage Source & Sink Connector useca
   <AnchorLink>Kafka Connect Cluster</AnchorLink>
   <AnchorLink>Kafka to S3 Sink Connector</AnchorLink>
   <AnchorLink>S3 to Kafka Source Connector</AnchorLink>
+  <AnchorLink>Event Streams v10 Addendum</AnchorLink>
   <AnchorLink>Troubleshooting</AnchorLink>
   <AnchorLink>Next steps</AnchorLink>
   <AnchorLink>References</AnchorLink>
@@ -286,6 +287,135 @@ spec:
 Once you have updated the YAML and saved it in a file named `kafka-source-connector.yaml`, this resource can be created via `kubectl apply -f kafka-source-connector.yaml`. You can then tail the output of the `connect-cluster-101` pods for updates on the connector status.
 
 **NOTE:** If you require the connector to only read objects from a subdirecotry of the S3 bucket root, you can set the `camel.component.aws-s3.configuration.prefix` configuration option with the value of the subdirectory name. For example, `camel.component.aws-s3.configuration.prefix: myfoldername` .
+
+
+## Event Streams v10 Addendum
+
+- The steps up to now assumed usage of an OpenShift Container Platform v4.3.x cluster, IBM Cloud Pak for Integration v2020.1.1 and IBM Event Streams v2019.4.2
+- With the release of Event Streams v10 (which is built on top of the Strimzi Kafka Operator) and the new CP4I there are some things need that need to be adjusted in the yamls to reflect that.
+
+- You can edit the previous `kafka-connect.yaml` or create a new file.
+**kafka-connect-esv10.yaml**
+```yaml
+apiVersion: eventstreams.ibm.com/v1beta1
+kind: KafkaConnectS2I
+metadata:
+  name: connect-cluster-101
+  annotations:
+    eventstreams.ibm.com/use-connector-resources: "true"
+spec:
+  #logging:
+  #  type: external
+  #  name: custom-connect-log4j
+  version: 2.5.0
+  replicas: 1
+  bootstrapServers: {internal-bootstrap-server-address}
+  template:
+    pod:
+      imagePullSecrets: []
+      metadata:
+        annotations:
+          eventstreams.production.type: CloudPakForIntegrationNonProduction
+          productID: {product-id}
+          productName: IBM Event Streams for Non Production
+          productVersion: 10.0.0
+          productMetric: VIRTUAL_PROCESSOR_CORE
+          productChargedContainers: {connect-cluster-101}-connect
+          cloudpakId: {cloudpak-id}
+          cloudpakName: IBM Cloud Pak for Integration
+          cloudpakVersion: 2020.2.1
+          productCloudpakRatio: "2:1"
+  tls:
+      trustedCertificates:
+        - secretName: {your-es-instance-name}-cluster-ca-cert
+          certificate: ca.crt
+  authentication:
+    type: tls
+    certificateAndKey:
+      certificate: user.crt
+      key: user.key
+      secretName: {generated-secret-from-ui}
+  externalConfiguration:
+    volumes:
+      - name: aws-credentials
+        secret:
+          secretName: aws-credentials
+  config:
+    group.id: connect-cluster-101
+    config.providers: file
+    config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    offset.storage.topic: connect-cluster-101-offsets
+    config.storage.topic: connect-cluster-101-configs
+    status.storage.topic: connect-cluster-101-status
+```
+
+- There are a couple changes of note here.
+  - `apiVersion: eventstreams.ibm.com/v1beta1` instead of the previous Strimzi one.
+  - `metadata.annotations.eventstreams.ibm.com/use-connector-resources: "true"` instead of the previous Strimzi one as well.
+  - `spec.bootstrapservers:` Previously in Event Streams v2019.4.2 and prior there was only a single external facing route for this bootstrap server address. In Event Streams v10 there is an `External` and `Internal` one now. Replace `{internal-bootstrap-server-address}` with the `Internal` bootstrap server address from the Event Streams v10 UI.
+  - `spec.template.pod.metadata.annotations.*` This entire section is new and represents new metadata that the Event Streams instance needs.
+  - `spec.template.pod.metadata.annotations.productID` You can find this value when trying to deploy an Event Streams Custom Resource from the Installed Event Streams Operator YAML deployment or when applying this YAML through the command-line, OCP will provide you the proper values if they're wrong.
+  - `spec.template.pod.metadata.annotations.cloudpakId` Same as productID.
+  - `spec.tls.trustedCertificates` This is different from the previous one in that this certificate was automatically generated on creation of your Event Streams Kafka Cluster. If your Event Streams instance is named `eventstreams-dev` then this value should be `eventstreams-dev-cluster-ca-cert`.
+  - `spec.authentication.*` This section is mostly different from the previous section. Prior we used a generated API Key, but on Event Streams v10 we will need to generate TLS credentials. In the `Internal` connection details there will be a `Generate TLS Credentials` button. Here you can name your secret and provide the proper access to it. **Note 1** - This is automatically created by the Event Streams Operator into the same namespace as both a `KafkaUser` Custom Resource as well as a secret. If your secret is named `internal-secret` then there will be an automatically generated Kubernetes/OpenShift secret named that as well as a `KafkaUser`. `user.crt` and `user.key` are certificates automatically generated within said secret. **Note 2** - Deletion of that secret will replicate itself. You will need to delete the associated and created `KafkaUser`. 
+  
+**kafka-sink-connector.yaml-esv10.yaml**
+```yaml
+apiVersion: eventstreams.ibm.com/v1alpha1
+kind: KafkaConnector
+metadata:
+  name: s3-sink-connector
+  labels:
+    eventstreams.ibm.com/cluster: connect-cluster-101
+spec:
+  class: org.apache.camel.kafkaconnector.CamelSinkConnector
+  tasksMax: 1
+  config:
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.storage.StringConverter
+    topics: my-topic
+    camel.sink.url: aws-s3://my-s3-bucket?keyName=${date:now:yyyyMMdd-HHmmssSSS}-${exchangeId}
+    camel.sink.maxPollDuration: 10000
+    camel.component.aws-s3.configuration.autocloseBody: false
+    camel.component.aws-s3.accessKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_access_key_id}
+    camel.component.aws-s3.secretKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_secret_access_key}
+    camel.component.aws-s3.region: my-s3-bucket-region
+```
+- For the most part identical besides two minor changes.
+  - `apiVersion: eventstreams.ibm.com/v1alpha1` instead of Strimzi.
+  - `metadata.labels.eventstreams.ibm.com/cluster: connect-cluster-101` again instead of Strimzi.
+  
+**kafka-source-connector.yaml-esv10.yaml**
+```yaml
+apiVersion: eventstreams.ibm.com/v1alpha1
+kind: KafkaConnector
+metadata:
+  name: s3-source-connector
+  labels:
+    eventstreams.ibm.com/cluster: connect-cluster-101
+spec:
+  class: org.apache.camel.kafkaconnector.CamelSourceConnector
+  tasksMax: 1
+  config:
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.camel.kafkaconnector.awss3.converters.S3ObjectConverter
+    topics: my-topic
+    camel.source.kafka.topic: my-topic
+    camel.source.url: aws-s3://my-s3-bucket?autocloseBody=false
+    camel.source.maxPollDuration: 10000
+    camel.component.aws-s3.accessKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_access_key_id}
+    camel.component.aws-s3.secretKey: ${file:/opt/kafka/external-configuration/aws-credentials/aws-credentials.properties:aws_secret_access_key}
+    camel.component.aws-s3.region: my-s3-bucket-region
+```
+- Similar to the S3 sink connector yaml.
+  - `apiVersion: eventstreams.ibm.com/v1alpha1` instead of Strimzi.
+  - `metadata.labels.eventstreams.ibm.com/cluster: connect-cluster-101` again instead of Strimzi.
+  
+
 
 ## Troubleshooting
 
