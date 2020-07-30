@@ -51,7 +51,9 @@ The diagram below shows how these capabilities fit together to form an extended 
 
 ## Integration with analytics and machine learning
 
-The extended architecture extends the basic EDA reference architecture with concepts showing how data science, artificial intelligence and machine learning can be incorporated into an event-driven solution.
+The extended architecture extends the basic EDA reference architecture with concepts showing how data science, artificial intelligence and machine learning can be incorporated into an event-driven solution. The following diagram illustrats the event sources on the left injecting events to topics where green components are consuming from. Those components apply filtering, compute aggregates and stateful operation with time window based rules. Some of those components can include training scoring model, to do for example anomaly detection. The model is built with data scientist workbench tool, like Watson Studio.
+
+ ![2](../../images/hl-arch-rt-analytics.png)
 
 The starting point for data scientists to be able to derive machine learning models or analyze data for trends and behaviors is the existence of the data in a form that they can be consumed. For real-time intelligent solutions, data scientists typically inspect event histories and decision or action records from a system. Then, they reduce this data to some simplified model that scores new event data as it arrives.
 
@@ -92,6 +94,12 @@ For more information see [Getting started](https://dataplatform.cloud.ibm.com/do
 
 While you create new digital business applications as self-contained systems, you likely need to integrate legacy apps and databases into the event-driven system. Two ways of coming directly into the event-driven architecture are as follows:
 
-1. Where legacy applications are connected with MQ. You can connect directly from MQ to the Kafka in the event backbone.  See [IBM Event Streams getting started with MQ article](https://ibm.github.io/event-streams/connecting/mq/).
+1. Where legacy applications are connected with MQ. You can connect directly from MQ to the Kafka in the event backbone.  See [IBM Event Streams getting started with MQ article](https://ibm.github.io/event-streams/connecting/mq/). The major idea here is to leverage the transactionality support of MQ, so writing to the databased and to the queue happen in the same transaction:
 
-2. Where databases support the capture of changes to data, you can publish changes as events to Kafka and hence into the event infrastructure.
+ ![3](../../images/hl-arch-data-pipe-mq.png)
+
+2. Where databases support the capture of changes to data, you can publish changes as events to Kafka and hence into the event infrastructure. This could leverage the [outbox pattern](/patterns/intro/#transactional-outbox) where events are prepared by the application and written, in the same transaction as the other tables, and read by the CDC capture agent.
+
+ ![4](../../images/hl-arch-data-pipe-cdc.png)
+
+Both diagrams illustrate a common architecture for data pipeline, using event backbone, where the data is transformed into different data model, that can be consumed by components that act on those data, and move the data document into data lake for big data processing.
