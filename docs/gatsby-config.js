@@ -23,6 +23,15 @@ module.exports = {
       options: {
         trackingId: "UA-149377589-3"
       }
-    }
+    },
+    {
+      resolve: 'gatsby-transformer-remark',
+      options: {
+        plugins: [
+          'gatsby-remark-autolink-headers',
+          'gatsby-remark-check-links'
+        ]
+      }
+    },
   ],
 };

@@ -17,7 +17,7 @@ For this scenario the source cluster is an Event Streams on IBM Cloud cluster in
 
 ![1](../images/mm2-scen1.png)
 
-As a pre-requisite you need to run your local cluster by using the docker compose as introduced in [this note](/scenarios/kafka-mm2/#pre-requisites).
+As a pre-requisite you need to run your local cluster by using the docker compose as introduced in [this note](/use-cases/kafka-mm2/#pre-requisites).
 
 ## Start local kafka cluster
 
@@ -49,10 +49,10 @@ Your environment is up and running.
 
  ```shell
  export KAFKA_SOURCE_BROKERS=broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
- export KAFKA_SOURCE_APIKEY="<replace with apikey from event streams service credentials>" 
+ export KAFKA_SOURCE_APIKEY="<replace with apikey from event streams service credentials>"
  ```
  Then use: `source .env`
-  
+
  The configuration file (es-to-local/mm2.properties) is for standalone configuration, and looks like:
 
     ```properties
@@ -84,7 +84,7 @@ Your environment is up and running.
 
 ## Start Consumer from target cluster
 
-We will use a simple and useful tool, called [Kafdrop](https://github.com/obsidiandynamics/kafdrop) to see messages in topics. 
+We will use a simple and useful tool, called [Kafdrop](https://github.com/obsidiandynamics/kafdrop) to see messages in topics.
 
 We also have done a simple script to start or stop Kafdrop.
 
@@ -94,7 +94,7 @@ We also have done a simple script to start or stop Kafdrop.
 
 ## Start Producer to source cluster
 
-We are reusing the python environment as defined in the integration tests for the 'kcontainer' solution. [https://hub.docker.com/r/ibmcase/kcontainer-python](https://hub.docker.com/r/ibmcase/kcontainer-python). 
+We are reusing the python environment as defined in the integration tests for the 'kcontainer' solution. [https://hub.docker.com/r/ibmcase/kcontainer-python](https://hub.docker.com/r/ibmcase/kcontainer-python).
 
 This time the script is producing products data. Here are the steps to send 5 records.
 
@@ -131,7 +131,7 @@ Going to view messages you can see the last 5 messages match the one sent to the
  ![3](../images/kafdrop-msg.png)
 
 
-Another way to validate the target `source.products` topic has records, is to use a Kafka console tool, delivered with Apache kafka open source. 
+Another way to validate the target `source.products` topic has records, is to use a Kafka console tool, delivered with Apache kafka open source.
 
   ```shell
   docker run -ti --network kafkanet --rm=true strimzi/kafka:latest-kafka-2.5.0  /bin/bash -c "bin/kafka-console-consumer.sh --bootstrap-server  kafka1:9092 --topic source.products --from-beginning"
@@ -141,4 +141,3 @@ Another way to validate the target `source.products` topic has records, is to us
   { "product_id": "P03", "description": "Salad", "target_temperature": 4,"target_humidity_level": 0.4,"content_type": 1}
   ```
 Stop with Ctrl C.
-

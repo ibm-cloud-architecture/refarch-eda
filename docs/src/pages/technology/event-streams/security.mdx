@@ -18,7 +18,7 @@ This documentation aims to be a introductory hands-on lab for the security featu
 
 ## IAM Concept Summary
 
-To undertand the Identity and access management you can read [this article](https://cloud.ibm.com/docs/iam?topic=iam-iamoverview). 
+To undertand the Identity and access management you can read [this article](https://cloud.ibm.com/docs/iam?topic=iam-iamoverview).
 
 To summarize:
 
@@ -32,7 +32,7 @@ To summarize:
 * API keys can be use to authenticate user or a service / application.
 * To control access three components are used: access groups, resources and access policies.
 	* Access group are used to organize a set of users and service IDs into a single entity and easily assign permissions via _access policies_
-	* _Policies_ give permission to access account resources. Policies include a subject (user, service, access group), target (resource), and role. 
+	* _Policies_ give permission to access account resources. Policies include a subject (user, service, access group), target (resource), and role.
 	* Policy can be set to all resources in a resource group
 	* There are two types of access _roles_: platform management and service access.
 
@@ -63,7 +63,7 @@ The type of Kafka resources that may be secured are: *cluster, topic, group, or 
 This lab requires the following components to work against:
 
 1. An IBM Cloud account. Get a IBM Cloud Account by using the register link in [https://cloud.ibm.com/login](https://cloud.ibm.com/login)
-Create a new account is free of charge. 
+Create a new account is free of charge.
 1. IBM Cloud CLI (<https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started>)
 1. IBM CLoud CLI Event Streams plugin (`ibmcloud plugin install event-streams`)
 
@@ -121,9 +121,9 @@ To do so you need to:
 1. Define an access policy with the following criterias:
 	* Event streams as resource type
 	* All regions
-	* Specifying one of the Event Streams resource instance (the one you provisioned [in this lab](../es-cloud/))
+	* Specifying one of the Event Streams resource instance (the one you provisioned [in this lab](/technology/event-streams/es-cloud/))
 	* Select the service instance that hosts the target cluster
-	* Specify the resource type to be **topic** 
+	* Specify the resource type to be **topic**
 	* And the resource ID to matches `bn-lob1-*`
 
 	![T1](./images/iam-es-top-1.png)
@@ -133,7 +133,7 @@ To do so you need to:
 	![T2](./images/iam-es-top-2.png)
 
 	* Assign the two rules:
-	
+
 	![T3](./images/iam-es-top-3.png)
 
 	* The group has the two access policies:
@@ -143,7 +143,7 @@ To do so you need to:
 
 ## Authentication with API Keys
 
-To let an application to remotely authenticate itself, Event Streams uses API keys. 
+To let an application to remotely authenticate itself, Event Streams uses API keys.
 The goal of this section, is to create API keys so applications, tools, scripts can connect to the newly created IBM Event Streams instance. You will create three keys for the different roles: creation of topics, read access only and read/write access.
 
 1. In your IBM Event Streams instance service page, click on _Service credentials_ on the left hand side menu:
@@ -162,9 +162,9 @@ The goal of this section, is to create API keys so applications, tools, scripts 
 
 	![11](images/11.png)
 
-Using the same process you can add a credential for Writer Role. For the Reader role you will use the CLI in the next section. 
+Using the same process you can add a credential for Writer Role. For the Reader role you will use the CLI in the next section.
 
-API Key is used for the `sasl.jaas.config` conncection properties in Kafka consumer or producer: 
+API Key is used for the `sasl.jaas.config` conncection properties in Kafka consumer or producer:
 
 ```properties
 security.protocol=SASL_SSL
@@ -212,24 +212,24 @@ You could create the service credentials using the CLI, so you will add _Reader_
 
 	OK
 	Service key crn:v1:bluemix:public:messagehub:eu-de:a/b6...248cfa:b05...e687a:resource-key:7ee00.....15a2 was created.
-					
-	Name:          bn-lob1-reader   
-	ID:            crn:v1:bluemix:public:messagehub:eu-de:a/b636d..fa:b05b..7a:resource-key:7ee0042.....b15a2   
-	Created At:    Wed May 13 00:33:49 UTC 2020   
-	State:         active   
-	Credentials:                                   
-				api_key:                  xrvMI4PQYmdOcUwPRUJXy6Xlo9UCY9xywNUPiU3jjpKH      
-				apikey:                   xrvMI4PQYmdOcUwPRUJXy6Xlo9UCY9xywNUPiU3jjpKH      
-				iam_apikey_description:   Auto-generated for key 7ee0042f-572b-46f6-b9cc-912cc63b15a2      
-				iam_apikey_name:          bn-lob1-reader      
-				iam_role_crn:             crn:v1:bluemix:public:iam::::serviceRole:Reader      
-				iam_serviceid_crn:        crn:v1:bluemix:public:iam-identity::a/b636d1....48cfa::serviceid:ServiceId-b4d3....18af1      
-				instance_id:              b05....687a      
-				kafka_admin_url:          https://mh-tcqsppdpzlrkdmkbgmgl-4c201a...1c6f175-0000.eu-de.containers.appdomain.cloud      
-				kafka_brokers_sasl:       [kafka-0.mh-tcqsppdpzlrkdmkbgmgl-4c2...175-0000.eu-de.containers.appdomain.cloud:9093....]      
-				kafka_http_url:           https://mh-tcqsppdpzlrkdmkbgmgl-4c20...-0000.eu-de.containers.appdomain.cloud      
-				password:                 xr......KH      
-				user:                     token      
+
+	Name:          bn-lob1-reader
+	ID:            crn:v1:bluemix:public:messagehub:eu-de:a/b636d..fa:b05b..7a:resource-key:7ee0042.....b15a2
+	Created At:    Wed May 13 00:33:49 UTC 2020
+	State:         active
+	Credentials:
+				api_key:                  xrvMI4PQYmdOcUwPRUJXy6Xlo9UCY9xywNUPiU3jjpKH
+				apikey:                   xrvMI4PQYmdOcUwPRUJXy6Xlo9UCY9xywNUPiU3jjpKH
+				iam_apikey_description:   Auto-generated for key 7ee0042f-572b-46f6-b9cc-912cc63b15a2
+				iam_apikey_name:          bn-lob1-reader
+				iam_role_crn:             crn:v1:bluemix:public:iam::::serviceRole:Reader
+				iam_serviceid_crn:        crn:v1:bluemix:public:iam-identity::a/b636d1....48cfa::serviceid:ServiceId-b4d3....18af1
+				instance_id:              b05....687a
+				kafka_admin_url:          https://mh-tcqsppdpzlrkdmkbgmgl-4c201a...1c6f175-0000.eu-de.containers.appdomain.cloud
+				kafka_brokers_sasl:       [kafka-0.mh-tcqsppdpzlrkdmkbgmgl-4c2...175-0000.eu-de.containers.appdomain.cloud:9093....]
+				kafka_http_url:           https://mh-tcqsppdpzlrkdmkbgmgl-4c20...-0000.eu-de.containers.appdomain.cloud
+				password:                 xr......KH
+				user:                     token
 	```
 
 ## Control application access
@@ -237,14 +237,14 @@ You could create the service credentials using the CLI, so you will add _Reader_
 The last step of this lab is to add a specific IAM group for applications so you can link any future applications to a group so that producer and consumer codes using the Writer role API key as defined previously
 can read and write to specific topic as defined by an access policy.
 
-We want to give this Writer role API key to the `bn-lob1-app` group, so applications within this group can create topics and R/W on those topics with the name `bn-lob1-*`. 
+We want to give this Writer role API key to the `bn-lob1-app` group, so applications within this group can create topics and R/W on those topics with the name `bn-lob1-*`.
 To do so, we have to add to the Access Group `bn-lob1-app`, the service ID that maps the Key created above:
 
 1. In IAM Access groups select the service IDs tab and click on add service id button:
 
 	![SI1](./images/iam-ag-serv-1.png)
 
-1. Search for the service ID name: `bn-lob1-writer` and  
+1. Search for the service ID name: `bn-lob1-writer` and
 
 	![SI2](./images/iam-ag-serv-2.png)
 
@@ -255,7 +255,7 @@ To do so, we have to add to the Access Group `bn-lob1-app`, the service ID that 
 ### Kafka Streams specifics
 
 A lot of Kafka implementations use Kafka Streams API, in this case the applications need to have `Manager` role on topic resource,
-and Reader role for cluster and group with a Manager API Key. 
+and Reader role for cluster and group with a Manager API Key.
 
 ### Connecting application using API Key
 
@@ -270,14 +270,14 @@ mp.messaging.connector.liberty-kafka.sasl.mechanism=PLAIN
 mp.messaging.connector.liberty-kafka.sasl.jaas.config="org.apache.kafka.common.security.plain.PlainLoginModule required username=token password=longapikeycomingfromservicecredential;"
 ```
 
-These properties could in fact be part of a secret in Kubernetes and used by the pod. 
+These properties could in fact be part of a secret in Kubernetes and used by the pod.
 
-## Encryption at rest 
+## Encryption at rest
 
 Event Streams stores message data at rest and message logs on encrypted disks. Event Streams supports customer-managed encryption with provided key: bring you own key. This feature is available on the Enterprise plan only. The [product documentation](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-managing_encryption
-) addresses in detail this capability. 
+) addresses in detail this capability.
 
-In this section, we just want to present some step by step to play with Key Protect, defining root key, and get Wrapped Keys to be used for encryption. 
+In this section, we just want to present some step by step to play with Key Protect, defining root key, and get Wrapped Keys to be used for encryption.
 
 ### Create a Key Protect instance
 
@@ -308,7 +308,7 @@ Get the cloud resource name from the newly create key:
 ```shell
 export GUID=$(ibmcloud resource service-instance eda-KeyProtect --id | grep crn | awk '{print $2}’)
 export TOKEN=$(ibmcloud iam oauth-tokens | awk '{print $4 }'
-) 
+)
 curl -X POST https://us-south.kms.cloud.ibm.com/api/v2/keys/34f2598f-e6e9-4822-8f51-cd9036e537e8?action=wrap -H 'accept: application/vnd.ibm.kms.key_action+json'    -H 'authorization: Bearer $TOKEN' -H 'bluemix-instance: $GUID'  -H 'content-type: application/vnd.ibm.kms.key_action+json'
 ```
 
@@ -330,8 +330,8 @@ Now Event Streams could use your wrapped key to encrypte data at rest.
 
 
 <InlineNotification kind="warning">
-Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance. 
-Loosing any keys, will mean loosing the data. 
+Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance.
+Loosing any keys, will mean loosing the data.
 Restoring access by recreating the authorization between ES and Key Protect, will reopen traffic.
-When rotating the root key a new rewrapping of DEK is performed and the new key needs to be communicated to Event Streams. 
+When rotating the root key a new rewrapping of DEK is performed and the new key needs to be communicated to Event Streams.
 </InlineNotification>

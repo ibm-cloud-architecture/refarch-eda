@@ -62,18 +62,38 @@
       path: /technology/kafka-monitoring/
     - title: Avro and Schemas
       path: /technology/avro-schemas/
-- title: Scenarios & Use Cases
+- title: Use Cases
+  pages:
+    - title: Overview
+      path: /use-cases/overview/
+    - title: Kafka Connect - S3
+      path: /use-cases/connect-s3/
+    - title: Kafka Connect - COS
+      path: /use-cases/connect-cos/
+    - title: Kafka Connect - JDBC
+      path: /use-cases/connect-jdbc/
+    - title: Kafka Connect - IBM MQ
+      path: /use-cases/connect-mq/
+    - title: Kafka Connect - RabbitMQ
+      path: /use-cases/connect-rabbitmq/
+    - title: Kafka Streams Labs
+      path: /use-cases/kafka-streams/
+    - title: Kafka MirrorMaker2 Labs
+      path: /use-cases/kafka-mm2/
+    - title: Monitoring on OpenShift
+      path: /use-cases/monitoring-on-ocp/
+    - title: Monitoring on IBM Cloud
+      path: /use-cases/monitoring-on-cloud/
+    - title: Schema Registry on OpenShift
+      path: /use-cases/schema-registry-on-ocp/
+    - title: Schema Registry on IBM Cloud
+      path: /use-cases/schema-registry-on-cloud/
+- title: Scenarios
   pages:
     - title: Overview
       path: /scenarios/overview/
-    - title: Kafka Connect - S3
-      path: /scenarios/connect-s3/
-    - title: Kafka Connect - COS
-      path: /scenarios/connect-cos/
-    - title: Kafka Streams Labs
-      path: /scenarios/kafka-streams/
-    - title: Kafka Mirror Maker 2 Labs
-      path: /scenarios/kafka-mm2/
+    - title: Realtime Inventory
+      path: /scenarios/realtime-inventory/
 - title: Additional reading
   pages:
     - path: /additional-reading/

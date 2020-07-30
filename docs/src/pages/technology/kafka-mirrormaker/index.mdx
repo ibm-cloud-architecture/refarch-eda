@@ -23,7 +23,7 @@ IBM Event Streams release 10.0 is supporting Mirror Maker 2 as part of the [geo-
 
 ## General concepts
 
-[Mirror maker 2.0](https://strimzi.io/docs/master/#con-configuring-mirror-maker-deployment-configuration-kafka-mirror-maker) is the new solution to replicate data in topics from one Kafka cluster to another. It uses the [Kafka Connect](../kafka-connect/) framework to simplify configuration and horizontal scaling. 
+[Mirror maker 2.0](https://strimzi.io/docs/master/#con-configuring-mirror-maker-deployment-configuration-kafka-mirror-maker) is the new solution to replicate data in topics from one Kafka cluster to another. It uses the [Kafka Connect](../kafka-connect/) framework to simplify configuration and horizontal scaling.
 
 The figure below illustrates the MirrorMaker 2.0 internal components running within Kafka Connect.
 
@@ -66,7 +66,7 @@ We can also define the _blacklist_ with the properties: `topics.blacklist`. Comm
 
 Internally, `MirrorSourceConnector` and `MirrorCheckpointConnector` will create multiple Kafka tasks (up to the value of `tasks.max` property), and `MirrorHeartbeatConnector` creates an additional task. `MirrorSourceConnector` will have one task per topic-partition combination to replicate, while `MirrorCheckpointConnector` will have one task per consumer group. The Kafka Connect framework uses the coordinator API, with the `assign()` API, so there is no consumer group used while fetching data from source topics. There is no call to `commit()` either; rebalancing occurs only when there is a new topic created that matches the _whitelist_ pattern.
 
-Mirror Maker 2 can run on VM, or within container on kubernetes cluster. 
+Mirror Maker 2 can run on VM, or within container on kubernetes cluster.
 
 ### Why replicating?
 
@@ -81,13 +81,13 @@ The classical needs for replication between clusters can be bullet listed as:
 
 ## Deployment examples
 
-We encourage you to go over our [Mirror maker 2 labs](../../scenarios/kafka-mm2/) which addresses different replication scenarios. The `Connect` column defines where the Mirror Maker 2 runs.
+We encourage you to go over our [Mirror maker 2 labs](/use-cases/kafka-mm2/) which addresses different replication scenarios. The `Connect` column defines where the Mirror Maker 2 runs.
 
 
 | Scenario | Source                 | Target                 | Connect | Lab |
 |-------------|------------------------|------------------------|:-------:|:---:|
-| 1  | Event Streams on Cloud  | Local Kafka | Local on localhost   | [Kafka Mirror Maker 2 - Lab 1](/scenarios/kafka-mm2/lab-1/)|
-| Lab 2 | Using Mirror Maker 2 from Event Streams on premise to Event stream on cloud | On OCP | [Kafka Mirror Maker 2 - Lab 2](/scenarios/kafka-mm2/lab-2/) |
+| 1  | Event Streams on Cloud  | Local Kafka | Local on localhost   | [Kafka Mirror Maker 2 - Lab 1](/use-cases/kafka-mm2/lab-1/)|
+| Lab 2 | Using Mirror Maker 2 from Event Streams on premise to Event stream on cloud | On OCP | [Kafka Mirror Maker 2 - Lab 2](/use-cases/kafka-mm2/lab-2/) |
 
 
 ## Replication considerations
@@ -99,9 +99,9 @@ By synchronizing configuration properties, the need for rebalancing is reduced.
 
 When doing manual configuration, even if the initial topic configuration was duplicated, any dynamic changes to the topic properties are not going to be automatically propagated and the administrator needs to change the target topic. If the throughput on the source topic has increased and the number of partition was increased to support the load, then the target cluster will not have the same downstream capability which may lead to overloading (disk space or memory capacity).
 
-Also if the consumer of a partition is expecting to process the event in order within the partition, then changing the number of partitions between source and target will make the ordering not valid any more. 
+Also if the consumer of a partition is expecting to process the event in order within the partition, then changing the number of partitions between source and target will make the ordering not valid any more.
 
-If the replication factor are set differently between the two clusters then the availability guarantees of the replicated data may be impacted and bad settings with broker failure will lead to data lost. 
+If the replication factor are set differently between the two clusters then the availability guarantees of the replicated data may be impacted and bad settings with broker failure will lead to data lost.
 
 Finally, it is important to consider that changes to topic configuration triggers a consumer rebalance which stalls the mirroring process and creates a backlog in the pipeline and increases the end to end latency observed by the downstream application.
 
@@ -180,7 +180,7 @@ For platform sizing, the main metric to assess, is the number of partitions in t
 
 To address capacity planning, we need to review some characteristic of the Kafka Connect framework: For each topic/partition there will be a task running. We can see in the trace that tasks are mapped to threads inside the JVM. So the parallelism will be bound by the number of CPUs the JVM runs on. The parameters `max.tasks` specifies the max parallel processing we can have per JVM. So for each Topic we need to assess the number of partitions to be replicated. Each task is using the consumer API and is part of the same consumer group, the partition within a group are balanced by an internal controller. With Kafka connect any changes to the topic topology triggers a partition rebalancing. In MM2 each consumer / task is assigned a partition by the controller. So the rebalancing is done internally. Still adding a broker node into the cluster will generate rebalancing.
 
-The task processing is stateless, consume - produce wait for acknowledge,  commit offset. In this case the CPU and network are key. For platform tuning activity we need to monitor operating system performance metrics. If the CPU becomes the bottleneck, we can allocate more CPU or start to scale horizontally by adding mirror maker 2 instance. If the network at the server level is the bottleneck, then adding more servers will help. Kafka will automatically balance the load among all the tasks running on all the machines. The size of the message impacts also the throughput as with small message the throughput is CPU bounded. With 100 bytes messages or more we can observe network saturation. 
+The task processing is stateless, consume - produce wait for acknowledge,  commit offset. In this case the CPU and network are key. For platform tuning activity we need to monitor operating system performance metrics. If the CPU becomes the bottleneck, we can allocate more CPU or start to scale horizontally by adding mirror maker 2 instance. If the network at the server level is the bottleneck, then adding more servers will help. Kafka will automatically balance the load among all the tasks running on all the machines. The size of the message impacts also the throughput as with small message the throughput is CPU bounded. With 100 bytes messages or more we can observe network saturation.
 
 The parameters to consider for sizing are the following:
 
@@ -206,7 +206,7 @@ We’ve now upgraded to Kafka 2.5 including the latest MirrorMaker 2.  Meanwhile
 
 ![11](../images/mm2-v2v-2.png)
 
-Now we’ll restart the Node 1 instance of MirrorMaker 2, stop the Node 2 instance, we can still see replication occurring on the upgraded Node 1 instance of MirrorMaker 2. 
+Now we’ll restart the Node 1 instance of MirrorMaker 2, stop the Node 2 instance, we can still see replication occurring on the upgraded Node 1 instance of MirrorMaker 2.
 
 ![12](../images/mm2-v2v-3.png)
 

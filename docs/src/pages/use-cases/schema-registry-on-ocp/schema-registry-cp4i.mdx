@@ -3,7 +3,7 @@ title: IBM Event Streams Schema Registry from IBM CloudPak for Integration
 description: Hands on lab to understand IBM Event Streams from the IBM CloudPak for Integration Schema Registry feature
 ---
 
-This documentation aims to be a introductory hands-on lab on the IBM Event Streams Schema Registry installed throught the IBM Cloud Pak for Integration on an Openshift cluster.
+This documentation aims to be a introductory hands-on lab on the IBM Event Streams Schema Registry installed throughtthe **IBM Cloud Pak for Integration V2020.1.X** on an Openshift cluster.
 
 ## Index
 
@@ -299,7 +299,7 @@ Once you are done with the python demo environment container, just execute `exit
 
 ![diagram](images/schema-registry-lab-cp4i/schema-registry.png)
 
-One of the most common technologies used in the industry these days to define, serialize and deserialize messages flowing through your Kafka topics is Apache Avro (<https://avro.apache.org/docs/current/>). To learn more about Apache Avro, how to define Apache Avro data schemas and more, we strongly recommend to read through our documentation on Avro and data schemas [here](../../avro-schemas/)
+One of the most common technologies used in the industry these days to define, serialize and deserialize messages flowing through your Kafka topics is Apache Avro (<https://avro.apache.org/docs/current/>). To learn more about Apache Avro, how to define Apache Avro data schemas and more, we strongly recommend to read through our documentation on Avro and data schemas [here](/technology/avro-schemas/)
 
 IBM Event Streams development team has developed a Schema Registry to work along your Kafka cluster to provide a place to store descriptions of the message formats used by your producers and consumers. The benefit of storing these descriptions is that you are able to validate that your producing and consuming applications will correctly inter-operate. The Schema Registry will also provide the ability for schemas to evolve in time.
 
@@ -338,7 +338,7 @@ The IBM EVent Streams user interface allow us to create schemas only from _json_
 1. Create an Avro schema file **avsc** with your schema:
 
 	```bash
-	$ echo '{              
+	$ echo '{
 	"type":"record",
 	"name":"demoSchema_UI",
 	"namespace": "schemas.demo.ui",
@@ -363,7 +363,7 @@ The IBM EVent Streams user interface allow us to create schemas only from _json_
 1. Create another Avro schema **avsc** file with a different schema:
 
 	```bash
-	$ echo '{              
+	$ echo '{
 	"type":"record",
 	"name":"demoSchema_CLI",
 	"namespace": "schemas.demo.cli",
@@ -376,12 +376,12 @@ The IBM EVent Streams user interface allow us to create schemas only from _json_
 1. Create a schema by executing the following command:
 
 	```bash
-	$ cloudctl es schema-add --file demoshema-cli.avsc 
+	$ cloudctl es schema-add --file demoshema-cli.avsc
 
 	Schema demoSchema_CLI is active.
 
-	Version   Version ID   Schema           State    Updated                         Comment   
-	1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:30:42 UTC      
+	Version   Version ID   Schema           State    Updated                         Comment
+	1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:30:42 UTC
 
 	Added version 1.0.0 of schema demoSchema_CLI to the registry.
 	OK
@@ -400,22 +400,22 @@ In order to list the schemas in the UI you just simply need to open up the Schem
 1. Execute the following command to list the schemas in your Schema Registry:
 
 ```bash
-$ cloudctl es schemas                   
+$ cloudctl es schemas
 
-Schema                State    Latest version   Latest version ID   Updated   
-AircraftAssignment    active   1.0.0            1                   Tue, 09 Jun 2020 18:53:23 UTC   
-defaultValue          active   1.0.0            1                   Sat, 06 Jun 2020 18:14:41 UTC   
-demoSchema_CLI        active   1.0.0            1                   Thu, 25 Jun 2020 11:30:42 UTC   
-demoSchema_UI         active   1.0.0            1                   Thu, 25 Jun 2020 11:25:04 UTC   
-FlightTimes           active   1.0.0            1                   Tue, 09 Jun 2020 18:56:15 UTC   
-pacs008               active   1.0.0            1                   Sun, 07 Jun 2020 14:47:10 UTC   
-pacs008_cleansed      active   1.0.0            1                   Sun, 07 Jun 2020 14:46:40 UTC   
-pain013               active   1.0.0            1                   Mon, 08 Jun 2020 12:45:15 UTC   
-pain013_cleansed      active   1.0.0            1                   Mon, 08 Jun 2020 12:09:39 UTC   
-partner_sample_pain   active   1.0.0            1                   Sun, 07 Jun 2020 14:48:07 UTC   
-partner_sample2       active   1.0.0            1                   Sun, 07 Jun 2020 14:48:16 UTC   
-rtp_summation         active   1.0.0            1                   Sun, 07 Jun 2020 14:48:30 UTC   
-Schedules             active   1.0.0            1                   Tue, 09 Jun 2020 18:59:23 UTC   
+Schema                State    Latest version   Latest version ID   Updated
+AircraftAssignment    active   1.0.0            1                   Tue, 09 Jun 2020 18:53:23 UTC
+defaultValue          active   1.0.0            1                   Sat, 06 Jun 2020 18:14:41 UTC
+demoSchema_CLI        active   1.0.0            1                   Thu, 25 Jun 2020 11:30:42 UTC
+demoSchema_UI         active   1.0.0            1                   Thu, 25 Jun 2020 11:25:04 UTC
+FlightTimes           active   1.0.0            1                   Tue, 09 Jun 2020 18:56:15 UTC
+pacs008               active   1.0.0            1                   Sun, 07 Jun 2020 14:47:10 UTC
+pacs008_cleansed      active   1.0.0            1                   Sun, 07 Jun 2020 14:46:40 UTC
+pain013               active   1.0.0            1                   Mon, 08 Jun 2020 12:45:15 UTC
+pain013_cleansed      active   1.0.0            1                   Mon, 08 Jun 2020 12:09:39 UTC
+partner_sample_pain   active   1.0.0            1                   Sun, 07 Jun 2020 14:48:07 UTC
+partner_sample2       active   1.0.0            1                   Sun, 07 Jun 2020 14:48:16 UTC
+rtp_summation         active   1.0.0            1                   Sun, 07 Jun 2020 14:48:30 UTC
+Schedules             active   1.0.0            1                   Tue, 09 Jun 2020 18:59:23 UTC
 OK
 ```
 
@@ -442,28 +442,28 @@ OK
 
 ### Create new schema version
 
-To create a new version of a schema, 
+To create a new version of a schema,
 
 1. Let's first create again the previous two schemas:
 
 ```bash
-$ cloudctl es schema-add --file demoshema-ui.avsc 
+$ cloudctl es schema-add --file demoshema-ui.avsc
 
 Schema demoSchema_UI is active.
 
-Version   Version ID   Schema          State    Updated                         Comment   
-1.0.0     1            demoSchema_UI   active   Thu, 25 Jun 2020 11:47:36 UTC      
+Version   Version ID   Schema          State    Updated                         Comment
+1.0.0     1            demoSchema_UI   active   Thu, 25 Jun 2020 11:47:36 UTC
 
 Added version 1.0.0 of schema demoSchema_UI to the registry.
 OK
 ```
 ```bash
-$ cloudctl es schema-add --file demoshema-cli.avsc 
+$ cloudctl es schema-add --file demoshema-cli.avsc
 
 Schema demoSchema_CLI is active.
 
-Version   Version ID   Schema           State    Updated                         Comment   
-1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
+Version   Version ID   Schema           State    Updated                         Comment
+1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC
 
 Added version 1.0.0 of schema demoSchema_CLI to the registry.
 OK
@@ -472,7 +472,7 @@ OK
 1. Add a new attribute to the schemas by editing their Avro schema avsc files:
 
 ```bash
-$ cat demoshema-ui.avsc 
+$ cat demoshema-ui.avsc
 {
   "type":"record",
   "name":"demoSchema_UI",
@@ -506,7 +506,7 @@ As explained in the error notification above, we need to add a default value for
 1. Add a default value for the new attribute:
 
 	```bash
-	$ cat demoshema-ui.avsc  
+	$ cat demoshema-ui.avsc
 	{
 	"type":"record",
 	"name":"demoSchema_UI",
@@ -536,7 +536,7 @@ As explained in the error notification above, we need to add a default value for
 1. If we try to add the new version of the schema from its `demoschema-cli.avsc` Avro schema file, we will get the same error as in the previous UI example:
 
 	```bash
-	$ cloudctl es schema-add --file demoshema-cli.avsc 
+	$ cloudctl es schema-add --file demoshema-cli.avsc
 	FAILED
 	Event Streams API request failed:
 	Error response from server. Status code: 400. Avro schema is not compatible with latest schema version: Compatibility type 'MUTUAL_READ' does not hold between 1 schema(s) in the chronology because: Schema[0] has incompatibilities: ['READER_FIELD_MISSING_DEFAULT_VALUE: attribute1' at '/fields/2'].
@@ -562,9 +562,9 @@ As explained in the error notification above, we need to add a default value for
 
 	Schema demoSchema_CLI is active.
 
-	Version   Version ID   Schema           State    Updated                         Comment   
-	1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
-	2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+	Version   Version ID   Schema           State    Updated                         Comment
+	1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC
+	2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC
 
 	Added version 2.0.0 of schema demoSchema_CLI to the registry.
 	OK
@@ -583,7 +583,7 @@ In order to see the latest version of a data schema using the UI, we just need t
 In order to see the latest version of a data schema using the CLI, we simply need to run the following command:
 
 ```bash
-$ cloudctl es schema demoSchema_CLI --version 2  
+$ cloudctl es schema demoSchema_CLI --version 2
 
 {
   "type": "record",
@@ -614,9 +614,9 @@ $ cloudctl es schema demoSchema_CLI
 
 Schema demoSchema_CLI is active.
 
-Version   Version ID   Schema           State    Updated                         Comment   
-1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
-2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+Version   Version ID   Schema           State    Updated                         Comment
+1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC
+2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC
 OK
 ```
 
@@ -666,13 +666,13 @@ To list all versions of schema in the Schema Registry user interface, you simply
 In order to display all versions of a schema, run the following command:
 
 ```bash
-$ cloudctl es schema demoSchema_CLI            
+$ cloudctl es schema demoSchema_CLI
 
 Schema demoSchema_CLI is active.
 
-Version   Version ID   Schema           State    Updated                         Comment   
-1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC      
-2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+Version   Version ID   Schema           State    Updated                         Comment
+1.0.0     1            demoSchema_CLI   active   Thu, 25 Jun 2020 11:47:43 UTC
+2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC
 OK
 ```
 
@@ -708,8 +708,8 @@ $ cloudctl es schema demoSchema_CLI
 
 Schema demoSchema_CLI is active.
 
-Version   Version ID   Schema           State    Updated                         Comment   
-2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC      
+Version   Version ID   Schema           State    Updated                         Comment
+2.0.0     2            demoSchema_CLI   active   Thu, 25 Jun 2020 14:59:11 UTC
 OK
 
 ```
@@ -740,12 +740,12 @@ The python script that we will use to send an avro message to a Kafka topic is [
 	```python
 	def createEvent():
 		print('Creating event...')
-		
+
 		key = {"key": 1}
 		value = {"message" : "This is a test message"}
-		
+
 		print("DONE")
-		
+
 		return json.dumps(value), json.dumps(key)
 	```
 
@@ -920,7 +920,7 @@ This script, called [KcAvroConsumer.py](https://github.com/ibm-cloud-architectur
 			self.kafka_brokers = kafka_brokers
 			self.kafka_apikey = kafka_apikey
 			self.topic_name = topic_name
-			self.schema_registry_url = schema_registry_url 
+			self.schema_registry_url = schema_registry_url
 			self.kafka_auto_commit = autocommit
 
 		# See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
@@ -987,7 +987,7 @@ Once again, we are going to run these scripts in the python demo environment we 
 
 	```shell
 	$ cloudctl es topic-create test-schema --partitions 1 --replication-factor 1
-	
+
 	Created topic test-schema
 	OK
 	```
@@ -1051,11 +1051,11 @@ If we look know at the schemas our schema registry has:
 ```shell
 $ cloudctl es schemas
 
-Schema                     State    Latest version   Latest version ID   Updated     
-demoSchema_CLI             active   2.0.0            2                   Thu, 25 Jun 2020 14:59:11 UTC   
-demoSchema_UI              active   2.0.0            2                   Thu, 25 Jun 2020 14:21:09 UTC      
-test-schema-key-7jffxi     active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC   
-test-schema-value-a7paxm   active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC   
+Schema                     State    Latest version   Latest version ID   Updated
+demoSchema_CLI             active   2.0.0            2                   Thu, 25 Jun 2020 14:59:11 UTC
+demoSchema_UI              active   2.0.0            2                   Thu, 25 Jun 2020 14:21:09 UTC
+test-schema-key-7jffxi     active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC
+test-schema-value-a7paxm   active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC
 OK
 ```
 
@@ -1123,12 +1123,12 @@ And I can also see that the new shcema has got registered as well:
 
 ```shell
 $ cloudctl es schemas
-Schema                     State    Latest version   Latest version ID   Updated      
-demoSchema_CLI             active   2.0.0            2                   Thu, 25 Jun 2020 14:59:11 UTC   
-demoSchema_UI              active   2.0.0            2                   Thu, 25 Jun 2020 14:21:09 UTC     
-test-schema-key-7jffxi     active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC   
-test-schema-value-a7paxm   active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC  
-test-schema-value-nc2q7    active   1                1                   Mon, 29 Jun 2020 16:38:16 UTC   
+Schema                     State    Latest version   Latest version ID   Updated
+demoSchema_CLI             active   2.0.0            2                   Thu, 25 Jun 2020 14:59:11 UTC
+demoSchema_UI              active   2.0.0            2                   Thu, 25 Jun 2020 14:21:09 UTC
+test-schema-key-7jffxi     active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC
+test-schema-value-a7paxm   active   1                1                   Fri, 26 Jun 2020 14:25:07 UTC
+test-schema-value-nc2q7    active   1                1                   Mon, 29 Jun 2020 16:38:16 UTC
 OK
 ```
 
@@ -1159,7 +1159,7 @@ $ cloudctl es schema test-schema-value-nc2q7 --version 1
 
 <InlineNotification kind="info">
 
-The schema evolution above (test-schema-value-nc2q7) should have got registered as a new version of the already existing schema (test-schema-value-a7paxm). IBM Event Streams allows schemas to auto-register themselves when when these are sent along with a message from a producer application. However, the Schema Registry does not pick "new" schemas up as a new version of a previous schema and simply creates a new schema. Anyway, when reading messages off the topic, Schema Registry handles well what schema to return back to the receiver application so messages can get properly deserialized. Will see that in the next section. 
+The schema evolution above (test-schema-value-nc2q7) should have got registered as a new version of the already existing schema (test-schema-value-a7paxm). IBM Event Streams allows schemas to auto-register themselves when when these are sent along with a message from a producer application. However, the Schema Registry does not pick "new" schemas up as a new version of a previous schema and simply creates a new schema. Anyway, when reading messages off the topic, Schema Registry handles well what schema to return back to the receiver application so messages can get properly deserialized. Will see that in the next section.
 
 </InlineNotification>
 
