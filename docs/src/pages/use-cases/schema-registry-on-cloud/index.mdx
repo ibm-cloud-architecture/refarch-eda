@@ -3,9 +3,11 @@ title: Event Streams on IBM Cloud Schema Registry Lab
 description: Hands on lab to understand IBM Event Streams on IBM Cloud Schema Registry feature
 ---
 
+<!-- Originally available via "/technology/event-streams/schema-registry/" -->
+
 This documentation aims to be a introductory hands-on lab on IBM Event Streams on IBM Cloud Schema Registry where we will go through the different capabilities of the Schema Registry that is available for IBM Event Streams on IBM Cloud users.
 
-We strongly recommend to complete first the **IBM Event Streams on IBM Cloud lab** you can find [here](es-cloud/).
+We strongly recommend to complete first the **IBM Event Streams on IBM Cloud lab** you can find [here](/technology/event-streams/es-cloud/).
 
 ## Index
 
@@ -43,19 +45,19 @@ At this point, we want to create the needed service credentials in order to allo
 
 1. In your IBM Event Streams instance service page, click on _Service credentials_ on the left hand side menu:
 
-	![8](images/8.png)
+	![8](./images/8.png)
 
 1. Observe, there is no service credentials yet and click on the _New credential_ button on the top right corner:
 
-	![9](images/9.png)
+	![9](./images/9.png)
 
 1. Enter a name for your service, choose _Manager_ role for now and click on _Add_:
 
-	![10](images/10.png)
+	![10](./images/10.png)
 
 1. You should now see your new service credential and be able to inspect its details if you click on its dropdown arrow on it left:
 
-	![11](images/11.png)
+	![11](./images/11.png)
 
 1. We could have created the service credentials using the CLI as well but we leave that as extra homework for students to try on their own. However, we can explore the service credentials using the CLI with `ibmcloud resource service-key <service_credentials_name>`:
 
@@ -126,7 +128,7 @@ Kafdrop is a web UI for viewing Kafka topics and browsing consumer groups. The t
 
 Kafdrop runs as a Docker container in your wokstation and in order to run it,
 
-1. Set the **password** value for the **sasl.jaas.config** property in the [kafka.properties](kafka.properties) file you can find in this repo. The value for password is the *api_key/password* attributes of your service credentials. If you don't remember how to get this, review that section [here](#api-key)
+1. Set the **password** value for the **sasl.jaas.config** property in the [kafka.properties](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/kafka.properties) file you can find in this repo. The value for password is the *api_key/password* attributes of your service credentials. If you don't remember how to get this, review that section [here](#api-key)
 
 	```properties
 	security.protocol=SASL_SSL
@@ -151,15 +153,15 @@ Kafdrop runs as a Docker container in your wokstation and in order to run it,
 
 1. You can point your browser to <http://localhost:9000/> to access the Kafdrop application:
 
-	![18](images/18.png)
+	![18](./images/18.png)
 
 1. You can see the topic details by clicking on the name of that topic:
 
-	![19](images/19.png)
+	![19](./images/19.png)
 
 1. You can watch the messages on this topic by clicking on _View Messages_ button under the topic name and configuring the partition, offset and number of messages option that you are presented with in the next screen. Finally, click on _View Messages_ button at the right:
 
-	![20](images/20.png)
+	![20](./images/20.png)
 
 1. To stop the Kafdrop container once you have finsihed the tutorial, simply list the containers running on your workstation, find the container id for your Kafdrop container and stop it:
 
@@ -197,7 +199,7 @@ In order to build our python demo environment we first need to clone the github 
 1. Change directory into `refarch-eda-tools/labs/es-cloud-schema-lab` to find the assets we will we working from now on for the python demo environment and few other scripts/applications:
 
 	```shell
-	$ cd refarch-eda-tools/labs/es-cloud-schema-lab 
+	$ cd refarch-eda-tools/labs/es-cloud-schema-lab
 
 	$ ls -all
 	total 240
@@ -214,7 +216,7 @@ In order to build our python demo environment we first need to clone the github 
 
 ### Build
 
-This Docker container can be built by using the [Dockerfile](Dockerfile) provided within this github repository.
+This Docker container can be built by using the [Dockerfile](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/Dockerfile) provided within this github repository.
 
 To build your python demo environment Docker container, execute the following on your workstation:
 
@@ -267,7 +269,7 @@ Once you are done with the python demo environment container, just execute `exit
 
 </InlineNotification>
 
-![diagram](images/EDA-avro-schema-registry.png)
+![diagram](./images/EDA-avro-schema-registry.png)
 
 One of the most common technologies used in the industry these days to define, serialize and deserialize messages flowing through your Kafka topics is Apache Avro (<https://avro.apache.org/docs/current/>). To learn more about Apache Avro, how to define Apache Avro data schemas and more see our documentation [here](https://ibm-cloud-architecture.github.io/refarch-kc/avro/avro)
 
@@ -300,7 +302,7 @@ Currently the schema registry is in early access status. This means that a limit
 
 ### Enabling the Schema Registry
 
-Currently the schema registry is not enabled by default and can only be enabled for IBM Event Streams Enterprise plan service instances. To request the enablement of the schema registry, please raise a support ticket [here](https://cloud.ibm.com/docs/get-support?topic=get-support-getting-customer-support#using-avatar). Ensure that you **include the CRN of your Event Streams service instance in the ticket**. The CRN of the service instance can be found using the following IBM Cloud CLI command `ibmcloud resource service-instance <SERVICENAME>` (where `SERVICENAME` is the name of your Event Streams service instance). For more info on how to get your IBM Event Streams service instance CRN review the [Event Streams on Cloud hands on lab](../es-cloud/#creating-event-streams-instance-with-ibm-cloud-cli).
+Currently the schema registry is not enabled by default and can only be enabled for IBM Event Streams Enterprise plan service instances. To request the enablement of the schema registry, please raise a support ticket [here](https://cloud.ibm.com/docs/get-support?topic=get-support-getting-customer-support#using-avatar). Ensure that you **include the CRN of your Event Streams service instance in the ticket**. The CRN of the service instance can be found using the following IBM Cloud CLI command `ibmcloud resource service-instance <SERVICENAME>` (where `SERVICENAME` is the name of your Event Streams service instance). For more info on how to get your IBM Event Streams service instance CRN review the [Event Streams on Cloud hands on lab](/technology/event-streams/es-cloud/#creating-event-streams-instance-with-ibm-cloud-cli).
 
 If you have already enabled the schema registry capability for an Event Streams Enterprise plan service instance, it will automatically receive updates as new capabilities become available.
 
@@ -308,7 +310,7 @@ If you have already enabled the schema registry capability for an Event Streams 
 
 To access the schema registry, you will need the URL of the schema registry as well as a set of credentials that can be used to authenticate with the registry. Both of these pieces of information can be found by inspecting the service credentials for your service. To view these in the UI, click on your service instance, select _Service credentials_ in the left-hand navigation pane, then click on the dropdown arrow next to one of the service credentials name listed in the table. You should see something like this:
 
-![22](images/22.png)
+![22](./images/22.png)
 
 You will need the value of **kafka_http_url**, which is also the URL of the schema registry, and the value of **apikey** which you can use as the credential for authenticating with the schema registry.
 
@@ -349,10 +351,10 @@ Creating a schema requires at least both:
 * Writer role access to the schema resource that matches the schema being created
 
 1. Create a schema with:
-	
+
 	`curl -u token:$KAFKA_APIKEY -H 'Content-Type: application/json' -H 'X- Registry-ArtifactId: <SCHEMA_ID>' $URL/artifacts -d '<AVRO_SCHEMA>'`
 
-	```shell 
+	```shell
 	$ curl	-u token:$KAFKA_APIKEY \
 			-H 'Content-Type: application/json' \
 			-H 'X-Registry-ArtifactId: demo-schema' \
@@ -595,7 +597,7 @@ The python script that we will use to send an avro message to a Kafka topic is [
 		print('Creating event...')
 
 		event = {
-				"eventKey" : "1", 
+				"eventKey" : "1",
 				"message" : "This is a test message"
 				}
 
@@ -771,7 +773,7 @@ This script, called [KcAvroConsumer.py](https://github.com/ibm-cloud-architectur
 			self.kafka_brokers = kafka_brokers
 			self.kafka_apikey = kafka_apikey
 			self.topic_name = topic_name
-			self.schema_registry_url = schema_registry_url 
+			self.schema_registry_url = schema_registry_url
 			self.kafka_auto_commit = autocommit
 
 		# See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
@@ -832,7 +834,7 @@ In this section we are going to see how Schema Registry works when you have an a
 
 Once again, we are going to run these scripts in the python demo environment we presented earlier in this lab in [this section](#python-demo-environment). Please, review that section in order to understand how to run the environment in your local workstation.
 
-1. Make sure you have a newly created topic for this exercise (review the [IBM Event Streams on IBM Cloud lab](es-cloud/) if needed):
+1. Make sure you have a newly created topic for this exercise (review the [IBM Event Streams on IBM Cloud lab](/technology/event-streams/es-cloud/) if needed):
 
 	```shell
 	$ ibmcloud es topic-create test
@@ -865,7 +867,7 @@ Once again, we are going to run these scripts in the python demo environment we 
 
 ### Create a message
 
-In order to create a message, we execute the `ProduceAvroMessage.py` within the `/tmp/lab/src` folder in our python demo environment. This script, as you could see in the [Python Avro Producer](#python-avro-producer) section, it is sending the event `{'eventKey': '1', 'message': 'This is a test message'}` according to the schemas defined in [default_key.avsc](avro_files/default_key.avsc) and [default_value.avsc](avro_files/default_value.avsc) for the key and value of the event respectively.
+In order to create a message, we execute the `ProduceAvroMessage.py` within the `/tmp/lab/src` folder in our python demo environment. This script, as you could see in the [Python Avro Producer](#python-avro-producer) section, it is sending the event `{'eventKey': '1', 'message': 'This is a test message'}` according to the schemas defined in [default_key.avsc](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/avro_files/default_key.avsc) and [default_value.avsc](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/avro_files/default_value.avsc) for the key and value of the event respectively.
 
 ```shell
 python ProduceAvroMessage.py test
@@ -884,7 +886,7 @@ Message delivered to test [0]
 
 We should now have a new message in our `test` kafka topic. We can check that out using [Kafdrop](#kafdrop):
 
-![23](images/23.png)
+![23](./images/23.png)
 
 <InlineNotification kind="info">
 
@@ -906,7 +908,7 @@ $ curl -u token:$KAFKA_APIKEY $URL/artifacts
 ["test-key","test-value"]
 ```
 
-we see two schemas, `test-key` and `test-value`, which in fact correspond to the Avro data schema used for the `key` ([default_key.avsc](avro_files/default_key.avsc)) and the `value` ([default_value.avsc](avro_files/default_value.avsc)) of events sent to the `test` topic in the [ProduceAvroMessage.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/src/ProduceAvroMessage.py) as explained before sending the message.
+we see two schemas, `test-key` and `test-value`, which in fact correspond to the Avro data schema used for the `key` ([default_key.avsc](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/avro_files/default_key.avsc)) and the `value` ([default_value.avsc](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/avro_files/default_value.avsc)) of events sent to the `test` topic in the [ProduceAvroMessage.py](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/es-cloud-schema-lab/src/ProduceAvroMessage.py) as explained before sending the message.
 
 To make sure of what we are saying, we can inspect those schemas:
 
@@ -938,7 +940,7 @@ $ curl -s -u token:$KAFKA_APIKEY $URL/artifacts/test-value | jq .
 }
 ```
 
-If I now decided that my events should contain another attribute, I would modify the event value schema ([default_value.avsc](avro_files/default_value.avsc)) to reflect that as well as `ProduceAvroMessage.py` to send that new attribute in the event it sends:
+If I now decided that my events should contain another attribute, I would modify the event value schema ([default_value.avsc](https://github.com/ibm-cloud-architecture/refarch-eda-tools/blob/master/labs/es-cloud-schema-lab/avro_files/default_value.avsc)) to reflect that as well as `ProduceAvroMessage.py` to send that new attribute in the event it sends:
 
 ```shell
 # python ProduceAvroMessage.py test
@@ -957,7 +959,7 @@ Message delivered to test [0]
 
 I can see that an event with a new attribute has been sent:
 
-![24](images/24.png)
+![24](./images/24.png)
 
 And I can also see that the new shcema has got registered as well as a **new version** for the already exisiting schema:
 
@@ -1738,7 +1740,7 @@ With the addition of the new schema IAM resource type it is possible to create p
 * all of the schemas stored by an instance of IBM Event Streams
 * all of the schemas stored by all of the instances of IBM Event Streams in an account
 
-Please, review the security documentation you can find [here](../security/) in order to understand how to create the policies for assigning specific permissions at the differentt levels of a cloud resource (that is, at the level of any Event Streams, a specific Event Streams instance but all topics, etc).
+Please, review the security documentation you can find [here](/technology/event-streams/security/) in order to understand how to create the policies for assigning specific permissions at the differentt levels of a cloud resource (that is, at the level of any Event Streams, a specific Event Streams instance but all topics, etc).
 
 ### Schema security role mapping
 

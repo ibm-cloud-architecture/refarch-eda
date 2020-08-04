@@ -5,7 +5,7 @@ description: Hands-on labs walking users through testing Mirror Maker based repl
 
 ## Pre-requisites
 
-The following steps need to be done to get the configurations for the different scenario and the docker-compose file to start a local cluster. 
+The following steps need to be done to get the configurations for the different scenario and the docker-compose file to start a local cluster.
 
 1. Clone the lab repository
 
@@ -20,8 +20,8 @@ These hands-on labs walk users through building and testing Kafka Mirror Maker 2
 
 | Scenario                           | Description         | Link        |
 | --------------------------------| ------------------  |:----------- |
-| Lab 1 | Replicate from Event Streams on Cloud to local Kafka. | [Kafka Mirror Maker 2 - Lab 1](/scenarios/kafka-mm2/lab-1/) |
-| Lab 2 | Using Mirror Maker 2 from Event Streams on premise to Event stream on cloud | [Kafka Mirror Maker 2 - Lab 2](/scenarios/kafka-mm2/lab-2/) |
+| Lab 1 | Replicate from Event Streams on Cloud to local Kafka. | [Kafka Mirror Maker 2 - Lab 1](/use-cases/kafka-mm2/lab-1/) |
+| Lab 2 | Using Mirror Maker 2 from Event Streams on premise to Event stream on cloud | [Kafka Mirror Maker 2 - Lab 2](/use-cases/kafka-mm2/lab-2/) |
 
 ## Running docker in kubernetes pod
 
@@ -34,4 +34,3 @@ In the yaml editor, copy [this yaml file](https://gist.githubusercontent.com/oso
 You can also download the yaml and do an `oc apply -f dind.yaml`.
 
 Then remote exec a shell within the pod: `oc exec -it dind bash`. You should be able to run another docker image in this pod, like for example our python environment.
-
