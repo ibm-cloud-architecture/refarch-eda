@@ -10,7 +10,9 @@ description: Command Query Responsibility Segregation (CQRS) pattern
   <AnchorLink>Solution and Pattern</AnchorLink>
   <AnchorLink>Considerations</AnchorLink>
   <AnchorLink>Combining event sourcing and CQRS</AnchorLink>
- <AnchorLink>The consistency challenge</AnchorLink>
+ <AnchorLink>Keeping the write model on Mainframe</AnchorLink>
+ <AnchorLink>The consistency challenges</AnchorLink>
+
 </AnchorLinks>
 
 ## Problems and Constraints
@@ -158,7 +160,7 @@ With this structure, the `Read model` microservice will most likely consume even
 
 We can note that, we can separate the API definition and management in a API gateway.
 
-The [shipment order microservice](https://ibm-cloud-architecture.github.io/refarch-kc-order-ms) is implementing this pattern and we are explaining a development approach in [this article](./details/).
+The [shipment order microservice](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms) is implementing this pattern.
 
 Some implementation items to consider:
 
@@ -180,7 +182,16 @@ The CQRS pattern was introduced by [Greg Young](https://www.youtube.com/watch?v=
 
 As you can see in previous figure, as soon as we see two arrows from the same component, we have to ask ourselves how does it work: the write model has to persist Order in its own database and then sends OrderCreated event to the topic... Should those operations be atomic and controlled with transaction? We detail this in next section.
 
-## The consistency challenge
+## Keeping the write model on Mainframe
+
+It is very important to note that the system of records and transaction processing is still easier to run on mainframe to support strong consistency. But with the move to cloud native development, it does not mean we have to move all the system of records to the cloud. Data pipelines can be put in place, but CQRS should help by keeping the write model on the current system of records and without impacting the current MIPS utilization move data in the eventual consistency workd of the cloud native, distributed computing world.
+
+ ![](./images/cqrs-mainframe.png)
+
+In the figure above, the write model follows the current transaction processing on the mainframce, change data capture push data to Event backbone for getting real time visibility into the distributed world. The read is the costly operation, dues to the joins to be done to build the projection views needed to expose data depending of the business use cases. This is more true with distributed microservices. 
+Reference data can be injected in one load job to topic and persisted in the event store so streaming applications can leverage them by joining with transactional data. 
+
+## The consistency challenges
 
 As introduced in the previous section, there is a potential problem of data inconsistency: once a command saves changes into the database, the consumers do not see the new or updated data until event notification completes processing.
 
@@ -239,9 +250,6 @@ public Response create(OrderCreate dto) {
 
 What to do when we need to add attribute to event?. So we need to create a versioninig schema for event structure. You need to use flexible schema like json schema, [Apache Avro](https://avro.apache.org/docs/current/) or [protocol buffer](https://developers.google.com/protocol-buffers/) and may be, add an event adapter (as a function?) to translate between the different event structures.
 
-### Next
-
-As a next level we want to address how to [develop a service using CQRS](./details/).
 
 ### Code reference
 
