@@ -3,20 +3,18 @@ title: Kafka Streams
 description: Kafka Streams
 ---
 
-Kafka Streams is a graph of processing nodes to implement the logic to process event streams. Each node process events from the parent node. We recommend reading this excellent introduction [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) from Jay Kreps from Confluent to get a good understanding of why Kafka stream was created.
+Kafka Streams is a graph of processing nodes to implement the logic to process event streams. The logic is implemented via one topology that represents the graph.  Each node within the grapth, processes events from the parent node. We recommend reading this excellent introduction [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) from Jay Kreps from Confluent to get a good understanding of why Kafka stream was created.
 
 To summarize, **Kafka Stream** has the following capabilities:
 
-* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations. It uses producer / consumer APIs, stateful storage and consumer groups. It treats both past and future data the same way.
-* This is an embedded library to integrate in your application.
-* Integrate tables for state persistence combined streams of events.
-* Consumes continuous real time flows of records and publishes new flows.
-* Can scale vertically, by increasing the number of threads for each Kafka Streams application on a single machine, or horizontally by adding an additional machine with the same `application.id`.
-* Supports exactly-once processing semantics to guarantee that each record will be processed once and only once even when there is a failure.
+* Stream processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations, like real time analytics. It uses producer / consumer APIs, stateful storage and consumer groups. It treats both past and future data the same way.
+* Kafka Stream is an embedded library to integrate in your Java application. No need for separate processing cluster.
+* It integrates tables for state persistence combined streams of events. Tables are saved in kafka topic too and are queryables.
+* Topology consumes continuous real time flows of records and publishes new flows to one or more topics.
+* It can scale vertically, by increasing the number of threads for each Kafka Streams application on a single machine, and horizontally by adding additional machines.  Each deployed instance use the same value for the `application.id` kafka stream property.
+* It supports exactly-once processing semantics to guarantee that each record is processed once and only once even when there is a failure.
 * Stream APIs transform, aggregate and enrich data, per record with milli second latency, from one topic to another one.
 * Supports stateful and windowing operations by processing one record at a time.
-* Can be integrated in java application. No need for separate processing cluster. It is a Java API. But a Stream app is executed outside of the broker code, which is different than message flow in an ESB.
-* Elastic, highly scalable, fault tolerance, it can recover from failure.
 
 ![](../images/kafka-stream-arch.png)
 
@@ -47,7 +45,7 @@ KStream<String, String> textLines = builder.stream(source);
 
 KTable<String, Long> wordCounts = textLines
     .flatMapValues(textLine -> Arrays.asList(pattern.split(textLine.toLowerCase())))
-    .print(Printed.toSysOut()
+    .print(Printed.toSysOut())
     .groupBy((key, word) -> word)
     .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("counts-store"));
 // sink is another kafka topic. Produce for each word the number of occurrence in the given doc
@@ -104,13 +102,20 @@ Outputs of the WordCount application is actually a continuous stream of updates,
 
 ## Some other examples
 
-* Map values:
+See [this work in progress repository](https://github.com/jbcodeforce/kafka-streams-samples) where we implement some topology for some common patterns.
+
+* For example map values to from Item to a new type (inventory):
 
 ```java
-KStream<String,String> simpleFirstStream =
- builder.stream("src-topic", Consumed.with(Serdes.String(), Serdes.String()));
-          .mapValues(String::toUpperCase);
-          .to("out-topic", Produced.with(Serdes.String(), Serdes.String()));
+private JsonbSerde<Item> itemSerde = new JsonbSerde<>(Item.class);
+...
+builder.stream(inTopicName, Consumed.with(Serdes.String(), itemSerde))
+        .mapValues( v ->  {
+            Inventory ivt = new Inventory();
+            ivt.itemID = v.itemCode;
+            ivt.quantity = v.quantity;
+            return   ivt;})
+        .to(resultTopicName, Produced.with(Serdes.String(), inventorySerde));
 ```
 
 * Extract values from input to create other object: (Example from KStreams in Action book chapter 3)
@@ -134,6 +139,7 @@ KStream<Long, Purchase> filteredKStream = purchaseKStream.filter((key, purchase)
 
 * Partitions are assigned to a StreamTask, and each StreamTask has its own state store. So important to be sure to have key and kafka will assign records with same key to same partition so lookup inside state store will work.
 * Avoid external database lookup as part of the stream: As kafka can handle million of records per second, so a lookup to an external database to do a join between a primary key that is in the event and a table in the database to do a data enrichment, for example is a bad practice. The approach will be to use Ktable, with state store and perform a join in memory.
+* Reference data can be loaded inside a Ktable for event stream enrichment.
 
 ### Join streams Examples
 
@@ -159,4 +165,5 @@ Multiple instances of a Faust worker can be started independently to distribute 
 
 * The API and [product documentation](https://kafka.apache.org/21/documentation/streams/developer-guide/).
 * [Deep dive explanation for the differences between KStream and KTable from Michael Noll](https://www.michael-noll.com/blog/2018/04/05/of-stream-and-tables-in-kafka-and-stream-processing-part1/)
+* [Our set of samples to getting started in coding kafka streams](https://github.com/jbcodeforce/kafka-streams-samples) 
 * [Distributed, Real-time Joins and Aggregations using Kafka Stream, from Michael Noll at Confluent](https://www.confluent.io/blog/distributed-real-time-joins-and-aggregations-on-user-activity-events-using-kafka-streams/)

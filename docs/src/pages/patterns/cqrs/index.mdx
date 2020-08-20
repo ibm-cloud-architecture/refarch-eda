@@ -188,7 +188,7 @@ It is very important to note that the system of records and transaction processi
 
  ![](./images/cqrs-mainframe.png)
 
-In the figure above, the write model follows the current transaction processing on the mainframce, change data capture push data to Event backbone for getting real time visibility into the distributed world. The read is the costly operation, dues to the joins to be done to build the projection views needed to expose data depending of the business use cases. This is more true with distributed microservices. 
+In the figure above, the write model follows the current transaction processing on the mainframce, change data capture push data to Event backbone for getting real time visibility into the distributed world. The read is the costly operation, dues to the joins to be done to build the projection views needed to expose data depending of the business use cases. This is more true with distributed microservices. All the write operations for the business entities kept in the mainframe's system of records are still done via the transaction. 
 Reference data can be injected in one load job to topic and persisted in the event store so streaming applications can leverage them by joining with transactional data. 
 
 ## The consistency challenges
