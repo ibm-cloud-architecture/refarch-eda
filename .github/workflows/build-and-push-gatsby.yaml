@@ -8,7 +8,6 @@ on:
     #  - '**'
     paths:
       - 'docs/**'
-      #- 'docs-gatsby/**'
       - '.github/workflows/build-and-push-gatsby.yaml'
 
 env:
@@ -33,7 +32,7 @@ jobs:
       working-directory: ${{ env.WORKDIR }}
       run: npm run build:prefix --if-present
     - name: Deploy Gatsby docs to gh-pages branch
-      uses: osowski/github-pages-deploy-action@releases/v3
+      uses: ibm-cloud-architecture/github-pages-deploy-action@releases/v3
       with:
         ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: gh-pages
