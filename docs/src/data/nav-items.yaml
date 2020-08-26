@@ -14,8 +14,8 @@
       path: /concepts/events-versus-messages/
 - title: Advantages of EDA
   pages:
-    - title: Push
-      path: /advantages/push/
+    - title: Microservice decoupling
+      path: /advantages/microservice
     - title: Resiliency
       path: /advantages/resiliency/
     - title: Scalability

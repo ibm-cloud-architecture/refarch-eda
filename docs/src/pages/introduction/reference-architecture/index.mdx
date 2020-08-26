@@ -7,6 +7,7 @@ description: What is the purpose of the event-driven reference architecture?
   <AnchorLink>Event Driven Architecture</AnchorLink>
   <AnchorLink>Extended Architecture</AnchorLink>
   <AnchorLink>Integration with analytics and machine learning</AnchorLink>
+  <AnchorLink>Modern Data Lake</AnchorLink>
   <AnchorLink>Legacy Integration</AnchorLink>
 </AnchorLinks>
 
@@ -90,6 +91,20 @@ To complete the extended architecture for integration with analytics and machine
 
 For more information see [Getting started](https://dataplatform.cloud.ibm.com/docs/content/getting-started/overview-ws.html) with Watson Studio.
 
+## Modern Data Lake
+
+One of the standard architecture to build data lake is the lambda architecture with data injection, stream processing, batch processing to data store and then queries as part of the service layer. It is designed to handle massive quantities of data by taking advantage of both batch and stream processing methods. Lambda architecture depends on a data model with an append-only, immutable data source that serves as a system of record. The batch layer precomputes results using a distributed processing system that can handle very large quantities of data. Output from the batch and speed layers are stored in the serving layer, which responds to ad-hoc queries by returning precomputed views or building views from the processed data.
+
+The following figure is an enhancement of the lambda architecture with the adoption of Kafka as event backbone for data pipeline and source of truth and streaming processing to support real time analytics and streaming queries.
+
+ ![3](../../images/data-lake-1.png)
+
+On the left the different data sources, injected using different protocols like MQTT, HTTP, or Kafka Connect... The business applications are supported by different microservices that are exposed by APIs and event-driven. The APIs is managed by API management product. Business events are produced as facts about the business entities, and persisted in the append log of kafka topic. Transactional data can be injected from MQ queues to Kafka topic, via MQ connectors. 
+
+The data platform offers a set of capabilities to expose data for consumers like Data Science workbench (Watson Studio) via virtualization and data connections. The data are cataloged and governed to ensure integrity and visibility. The storage can be block based, document oriented or table oriented.
+
+Batch queries and map reduce can address huge data raw, while streaming queries can support real time aggregates and analytics.
+
 ## Legacy integration
 
 While you create new digital business applications as self-contained systems, you likely need to integrate legacy apps and databases into the event-driven system. Two ways of coming directly into the event-driven architecture are as follows:
@@ -103,3 +118,20 @@ While you create new digital business applications as self-contained systems, yo
  ![4](../../images/hl-arch-data-pipe-cdc.png)
 
 Both diagrams illustrate a common architecture for data pipeline, using event backbone, where the data is transformed into different data model, that can be consumed by components that act on those data, and move the data document into data lake for big data processing.
+
+Finally it is important to note that the deployment of the event streams, CDC can be colocated in the mainframe to reduce operation and runtime cost. It also reduces complexity. In the following diagram, event stream brokers are deployed on OpenShift on Linux on Z and the CDC servers on Linux too.
+
+ ![6](../../images/es-on-z-deployment.png)
+ 
+This architecture pattern try to reduce the MIPs utilization on the mainframe to the minimum by still ensuring data pipeline, with transactional integrity. 
+
+* Quality of Service – autoscaling / balancing between Linux nodes, Resilience.
+* Latency  - memory speed (Network ->  HiperSocket, with memory speed and bandwidth)
+* Reduce MIPS  (avoid Authentication-TLS overhead on z/OS as no network traffic is encrypted)
+* Avoid network spend / management / maintenance between servers
+* Improved QoS for the Kafka service – inherits Z platform  (Event Streams is the only Kafka variant currently supported on Linix on Z) 
+* Reduced complexity / management cost
+* Reduced latency / network infrastructure (apply – Kafka hop is now  in memory) – avoids need for encryption 
+
+The CDC server uses Transaction Capture Consumer to keep transaction integrity while publishing to kafka topic. CICS Business events are mechanism for declaratively emitting event from CICS routines.
+
