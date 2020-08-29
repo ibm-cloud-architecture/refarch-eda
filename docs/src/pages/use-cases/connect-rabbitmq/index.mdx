@@ -16,9 +16,20 @@ description: Apache Kafka to RabbitMQ Source Connector usecase
 <AnchorLink>Verify messages arrived in Kafka items topic</AnchorLink>
 </AnchorLinks>
 
+This hands-on lab demonstrates how to use IBM RabbitMQ source connector to inject message to Event Streams On Premise. 
 We are using the [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
 
-The [lab repository](https://github.com/jbcodeforce/eda-kconnect-lab) includes a docker compose file (`RabbitMQ-Kconnect-compose.yaml`) under the `infrastructure` folder to run Rabbit MQ and Kafka Connect together on your local computer.
+The code, configurations and detail readme instructions are in this repository that you should clone:
+
+```shell
+git clone https://github.com/jbcodeforce/eda-kconnect-lab
+```
+
+To send message to RabbitMQ, we have implemented a simple simulator, to send item sale messages for one of the stores. The code is under [store-sale-producer](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/store-sale-producer) folder and we have also uploaded the image into dockerhub.
+
+For quick start and demonstration the [github repository for this lab](https://github.com/jbcodeforce/eda-kconnect-lab) includes a docker compose file [RabbitMQ-Kconnect-compose.yaml](https://github.com/jbcodeforce/eda-kconnect-lab/blob/master/infrastructure/RabbitMQ-Kconnect-compose.yaml) under the `infrastructure` folder to run Rabbit MQ and Kafka Connect together on your local computer. We recommend to follow the instructions in the [store-sale-producer readme](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/store-sale-producer) file.
+
+But we want to also run and deploy this solution on OpenShift and Event Streams on Premise.
 
 ## Pre-requisites
 
@@ -26,7 +37,7 @@ The [lab repository](https://github.com/jbcodeforce/eda-kconnect-lab) includes a
 
 _Pull in necessary pre-req context from [Realtime Inventory Pre-reqs](/scenarios/realtime-inventory/#general-pre-requisites)._
 
-To send message to RabbitMQ, we have implemented a simple simulator, to send item sale messages for one of the stores. The code is under `store-sale-producer` folder and we have also uploaded the image into dockerhub. If you need to rebuild the image the following commands may be done:
+ If you need to rebuild the image the following commands may be done:
 
 ```shell
 ./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.group=ibmcase -Dquarkus.container-image.tag=1.0.0

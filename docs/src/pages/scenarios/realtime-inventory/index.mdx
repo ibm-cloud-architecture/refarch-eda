@@ -22,11 +22,11 @@ description: An end-to-end data pipeline lab scenario, connecting multiple compo
 
 ## Overview
 
-This lab will address multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Cloud. At the high level Kafka connect is used to integrate external systems into the Kafka ecosystem. For example external system can inject message to queue manager, from which a first Kafka source connector will get the message to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, that will be use by Sink connectors.
+This lab addresses multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams on Premise. At the high level Kafka connect is used to integrate external systems into the Kafka ecosystem. For example external system can inject messages to queue manager, from which a first Kafka source connector will publish the messages to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, that will be use by Sink connectors.
 
 ![1](./images/kconnect-overview.png)
 
-To support this lab we are reusing a classical business use case where stores are sending their transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservice, real time analytics and complex event processing, Kafka is added to the legacy environment. Adopting Kafka connect lets integrate with existing applications without any changes.
+To support this lab we are reusing a classical business use case where stores are sending their transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservice, real time analytics and complex event processing, Kafka is added to this legacy environment. Adopting Kafka connect lets integrate with existing applications without any changes.
 
 ## Solution anatomy
 
