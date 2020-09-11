@@ -89,29 +89,50 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 - While viewing our Event Streams Instance, navigate to the Topics menu from the left. Click Connect to this Cluster - 
 
-![Connect to this Cluster](./images/connect-to-this-cluster.png)
+![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
 
-- Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
-
-![Bootstrap Address](./images/bootstrap-server.png)
+- Make sure that you're on **External Connection** as we will need to test/connect from an application on a local machine. Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
 
 
-- Generate your **API Key**. Click the Generate API Key button.
+- Generate your **SCRAM Credentials**. Click the `Generate SCRAM Credentials` button.
 
-![Generate API Key 1](./images/generate-api-key-1.png)
+![Generate SCRAM1 ](./images/esv10-generate-scram.png)
 
+- Select a name for your secret and make sure you rmeember/take note of it as we will need this later. Also choose the Produce, Consume, Create Topics and Schema Option.
 
-- Select a name for your application. It doesn't really matter too much what you name it. Also choose the Produce, Consume, Create Topics and Schema Option.
+![Generate SCRAM 2](./images/gesv10-scram-1.png)
 
-![Generate API Key 2](./images/generate-api-key-2.png)
+- Select `All Topics` and then click Next.
 
-- Select All Topics and then click Next.
+![Generate SCRAM 3](./images/esv10-scram-2.png)
 
-![Generate API Key 3](./images/generate-api-key-3.png)
+- Leave it with `All Consumer Groups` and click Next.
 
-- Leave it All Consumer Groups on "ON" and click Next.
+![Generate SCRAM 4](./images/esv10-scram-3.png)
 
-![Generate API Key 4](./images/generate-api-key-4.png)
+- Leave it on `All Transactional IDs`
+
+![Generate SCRAM 5](./images/esv10-scram-4.png)
+
+- You may occassionally see this error in the UI. The reason this occurs is that the KafkaUser Custom Resource that gets created also houses our Secret. However the secret itself will sometimes only be created after the KafkaUser due to a timeout. 
+
+![Generate SCRAM Error]()
+
+- If this error occurs, log into your OpenShift cluster and go to the project/namespace that your Event Streams v10 instance is installed in. If you run these commands you will see your secret.
+
+`oc get kafkauser`
+`oc get secrets`
+
+- Your `SCRAM Username` that we will need for later is the name of your secret. The `SCRAM Password` can be either obtained by going to your OpenShift Console Web UI and revealing the password through the secrets menu or through the CLI. Run the following commands to see the value of the password.
+
+`oc get secret your-secret -o yaml | grep password`
+
+- This will return you a base64 encoded value. Decode this like so
+
+`echo "dWpPN3ZSSEF1clRK" | base64 -d`
+
+![SCRAM Secret]()
+
 
 - You can copy down your API Key by hitting the Copy API Key button, or you can select Download as JSON so you can have a .json file with your API Key for better organization. Afterwards hit Close.
 
