@@ -66,6 +66,8 @@
   pages:
     - title: Overview
       path: /use-cases/overview/
+    - title: Common pre-requisites
+      path: /use-cases/overview/pre-requisites
     - title: Kafka Connect - S3
       path: /use-cases/connect-s3/
     - title: Kafka Connect - COS

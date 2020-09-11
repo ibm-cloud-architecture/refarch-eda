@@ -1,0 +1,65 @@
+---
+title: Common pre-requisites
+description: Common pre-requisites for the different labs and use cases
+---
+
+<AnchorLinks>
+  <AnchorLink>IBM Cloud Shell</AnchorLink>
+</AnchorLinks>
+
+## IBM Cloud Shell
+
+Here we are going to set up our IBM Cloud Shell with all the tools required to carry out this lab.
+
+Start your IBM Cloud Shell by pointing your browser to <https://cloud.ibm.com/shell>
+
+![shell](./images/shell-v10.png)
+
+#### IBM Cloud Pak CLI
+
+Cloudctl is a command line tool to manage Container Application Software for Enterprises (CASEs). This CLI will allow us to manage Cloud Pak related components as well as software, like IBM Event Streams, installed through any IBM Cloud Pak.
+
+In order to install it, execute the following commands in your IBM Cloud Shell:
+
+1. Download the IBM Cloud Pak CLI - `curl -L https://github.com/IBM/cloud-pak-cli/releases/latest/download/cloudctl-linux-amd64.tar.gz -o cloudctl-linux-amd64.tar.gz`
+1. Untar it - `tar -xvf cloudctl-linux-amd64.tar.gz`
+1. Rename it for ease of use - `mv cloudctl-linux-amd64 cloudctl`
+1. Include it to the PATH environment variable - `export PATH=$PATH:$PWD`
+1. Make sure your IBM Cloud Pak CLI is in the path- `which cloudctl`
+1. Make sure your IBM Cloud Pak CLI works - `cloudctl help`
+
+![shell2](./images/shell2-v10.png)
+
+#### Event Streams plugin for IBM Cloud Pak CLI
+
+This plugin will allow us to manage IBM Event Streams.
+
+In order to install it, execute the following commands in your IBM Cloud Shell:
+
+1. Download the Event Streams plugin for IBM Cloud Pak CLI - `curl -L http://ibm.biz/es-cli-linux -o es-plugin`
+1. Install it - `cloudctl plugin install es-plugin`
+1. Make sure it works - `cloudctl es help`
+
+![shell3](./images/shell3-v10.png)
+
+#### Git
+
+IBM Cloud Shell comes with Git already installed out of the box.
+
+#### Vi
+
+IBM Cloud Shell comes with Vi already installed out of the box.
+
+#### Python 3
+
+IBM Cloud Shell comes with Python 3 already installed out of the box. However, we need to install the following modules that will be used later on in this tutorial when we run a Python application to work with Avro, Schemas and messages. These modules are `confluent_kafka` and `avro-python3`
+
+In order to install these modules, execute the following command in your IBM Cloud Shell:
+
+1. Install the modules - `python3 -mpip install avro-python3 confluent_kafka`
+
+![shell4](./images/shell4-v10.png)
+
+**Congrats!** you have now your IBM Cloud Shell ready to start working.
+
+## Getting TLS authentication from Event Streams on OpenShift

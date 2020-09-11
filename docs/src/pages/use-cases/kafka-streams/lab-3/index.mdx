@@ -1,0 +1,111 @@
+---
+title: Kafka Streams Test Lab 3
+description: Using Kafka Streams to compute real time inventory stock
+---
+
+<AnchorLinks>
+    <AnchorLink>Overview</AnchorLink>
+    <AnchorLink>Scenario Prerequisites</AnchorLink>
+    <AnchorLink>Develop the application</AnchorLink>
+</AnchorLinks>
+
+
+## Overview
+
+- In this lab scenario we're going to use [Quarkus](https://quarkus.io) to develop the core application with Kafka streams api and microprofile reactive messaging.
+- We will be testing using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TestDriver to mimic a Topology, a Stream and Table.
+
+The requirements to address are:
+
+- consume item sold from items topic, item has unique key. Item event has store information
+- compute for each item its current stock cross store
+- compute the store stock for each item
+- generate inventory event for store - item - stock
+- expose APIs to get stock for a store or for an item
+
+## Scenario Prerequisites
+
+**Java**
+- For the purposes of this lab we suggest Java 11+
+
+**Maven**
+- Maven will be needed for bootstrapping our application from the command-line and running
+our application.
+
+**An IDE of your choice**
+- Ideally an IDE that supports Quarkus (such as Visual Studio Code)
+
+**OpenShift Container Platform**
+- v4.4.x
+
+**IBM Cloud Pak for Integration**
+- CP4I2020.2
+
+**IBM Event Streams**
+- The section on use with Event Streams on CP4I assumes Event Streams v10. If using a previous version such as ESv2019.4.2, there are some differences to how you would configure `application.properties` to establish a connection.
+
+**Code Source**: clone the following git repository: `git clone https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory`
+
+
+## Develop the application
+
+### Setting up the Quarkus Application
+
+- We will bootstrap the Quarkus application with the following Maven command
+
+```shell
+mvn io.quarkus:quarkus-maven-plugin:1.7.2.Final:create \
+    -DprojectGroupId={com.ibm} \
+    -DprojectArtifactId={quarkus-kstreams-lab} \
+    -Dextensions="kafka,kafka-streams,resteasy-jsonb,smallrye-health,smallrye-reactive-messaging-kafka,quarkus-smallrye-openapi,quarkus-kafka-streams,openshift"
+```
+
+You can replace the fields within {} as you like.
+- recall that is if you want to add an extension do something like: `./mvnw Quarkus:add-extension -Dextensions="kafka"`
+- Since we will be using the Kafka Streams testing functionality we will need to edit the `pom.xml` to add
+the dependency to our project. Open `pom.xml` and add the following.
+
+```xml
+<dependency>
+    <groupId>org.apache.kafka</groupId>
+    <artifactId>kafka-streams-test-utils</artifactId>
+    <version>2.5.0</version>
+    <scope>test</scope>
+</dependency>
+```
+### Start the dev mode 
+
+```shell
+./mvnw quarkus:dev
+```
+
+## Define the domain entities
+
+Under the `src/main/java/../domain` folder add the two classes representing the business entities we are using:
+
+```Java
+public class Item {
+    public static String RESTOCK = "RESTOCK";
+    public static String SALE = "SALE";
+    public String storeName;
+    public String sku;
+    public int quantity;
+    public String type;
+    public Double price;
+    public String timestamp;
+
+    public Item(){}
+}
+```
+
+This item will also being used for event structure on `items` topic. The type attribute is to specify if this is a sale event or a restock event.
+
+The inventory per store includes a map of item.sku and quantity.
+
+```Java
+public class Inventory {
+    public String storeName;
+    public HashMap<String,Long> stock = new HashMap<String,Long>();
+    public Inventory(){}
+}
+```
