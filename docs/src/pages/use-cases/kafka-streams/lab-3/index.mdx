@@ -3,10 +3,16 @@ title: Kafka Streams Test Lab 3
 description: Using Kafka Streams to compute real time inventory stock
 ---
 
+<InlineNotification kind="warning">
+<strong>TODO</strong> - Work in progress
+</InlineNotification>
+
 <AnchorLinks>
     <AnchorLink>Overview</AnchorLink>
     <AnchorLink>Scenario Prerequisites</AnchorLink>
     <AnchorLink>Develop the application</AnchorLink>
+    <AnchorLink>Integration Tests</AnchorLink>
+    <AnchorLink>Deploy to OpenShift</AnchorLink>
 </AnchorLinks>
 
 
@@ -44,42 +50,102 @@ our application.
 **IBM Event Streams**
 - The section on use with Event Streams on CP4I assumes Event Streams v10. If using a previous version such as ESv2019.4.2, there are some differences to how you would configure `application.properties` to establish a connection.
 
-**Code Source**: clone the following git repository: `git clone https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory`
+**Code Source**: clone the following git repository: `git clone https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory`.
 
+The final source code is in this project: [https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory).
+
+## Use application as-is
+
+If you do not want to develop the application, you can deploy it on OpenShift using our docker image. See the [repository readme](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory) to do so.
 
 ## Develop the application
 
 ### Setting up the Quarkus Application
 
-- We will bootstrap the Quarkus application with the following Maven command
+- We will bootstrap the Quarkus application with the following Maven command (See [Quarkus maven tooling guide](https://quarkus.io/guides/maven-tooling#project-creation) for more information):
 
 ```shell
 mvn io.quarkus:quarkus-maven-plugin:1.7.2.Final:create \
-    -DprojectGroupId={com.ibm} \
-    -DprojectArtifactId={quarkus-kstreams-lab} \
-    -Dextensions="kafka,kafka-streams,resteasy-jsonb,smallrye-health,smallrye-reactive-messaging-kafka,quarkus-smallrye-openapi,quarkus-kafka-streams,openshift"
+    -DprojectGroupId=ibm.garage \
+    -DprojectArtifactId=quarkus-kstreams-lab3 \
+    -Dextensions="resteasy-jsonb,resteasy-mutiny,smallrye-health,quarkus-smallrye-openapi,openshift"
 ```
 
-You can replace the fields within {} as you like.
+You can replace the `projectGroupId, projectArtifactId` fields as you like.
 - recall that is if you want to add an extension do something like: `./mvnw Quarkus:add-extension -Dextensions="kafka"`
-- Since we will be using the Kafka Streams testing functionality we will need to edit the `pom.xml` to add
-the dependency to our project. Open `pom.xml` and add the following.
 
-```xml
-<dependency>
-    <groupId>org.apache.kafka</groupId>
-    <artifactId>kafka-streams-test-utils</artifactId>
-    <version>2.5.0</version>
-    <scope>test</scope>
-</dependency>
-```
 ### Start the dev mode 
 
 ```shell
 ./mvnw quarkus:dev
 ```
+Going to the URL [http://localhost:8080/](http://localhost:8080/) will generate an exception, as we need to add configuration for Kafka-Streams.
 
-## Define the domain entities
+Let add the minimum into the `application.properties`
+
+```properties
+quarkus.log.console.format=%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n
+quarkus.log.console.level=INFO
+quarkus.log.console.enable=true
+quarkus.http.port=8080
+quarkus.swagger-ui.always-include=true
+quarkus.openshift.expose=true
+```
+
+Now the application should display a basic web page. As we defined to use OpenAPI the following address should give us the API defined: [http://localhost:8080/swagger-ui/#/default](http://localhost:8080/swagger-ui/#/default).
+
+and health works too: [http://localhost:8080/health](http://localhost:8080/health)
+
+Let add a simple resource under the following package `ibm.garage.lab3.api`
+
+```java
+mport javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
+
+@ApplicationScoped
+@Path("/inventory")
+public class InventoryResource {
+    
+    @GET
+    @Path("/store/{storeID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public  Uni<JsonObject> getStock(@PathParam("storeID") String storeID) {
+            JsonObject stock = new JsonObject("{\"name\": \"hello you\", \"id\": \"" + storeID + "\"}");
+            return Uni.createFrom().item( stock);
+    }
+}
+```
+
+Outside of the traditional JAXRS annotation, we are using Uni class from [Mutiny](https://smallrye.io/smallrye-mutiny/) to get the API being asynchronous non-blocking.
+
+A refresh [http://localhost:8080/swagger-ui/](http://localhost:8080/swagger-ui/) will get the new API which should work.
+
+### Deploy to OpenShift using s2i
+
+Before going too far in the development, let deploy this simple app to OpenShift. We assume you are logged to the cluster via `oc login...`
+
+The following command should package the application and create OpenShift manifests, build a docker images and push it to OpenShift Private registry.
+
+```shell
+./mvnw package -Dquarkus.kubernetes.deploy=true -Dquarkus.container-image.build=true
+```
+
+It can take some seconds to build and deploy: `oc get pods -w` lets you see the build pods and the running app once the build is done. As we expose the application an OpenShift route was created. The url is at the end of the build output:
+`The deployed application can be accessed at: http://quarkus-kstreams-lab3...`
+
+For example this was the URL to access the swagger:
+
+[http://quarkus-kstreams-lab3-jbsandbox.gse-eda-demo-2020-08-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud/swagger-ui/](http://quarkus-kstreams-lab3-jbsandbox.gse-eda-demo-2020-08-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud/swagger-ui/)
+
+
+### Define the domain entities
 
 Under the `src/main/java/../domain` folder add the two classes representing the business entities we are using:
 
@@ -109,3 +175,287 @@ public class Inventory {
     public Inventory(){}
 }
 ```
+
+As part of the logic we want to add methods in the Inventory class to update the quantity given an item. So the two following methods are added
+
+```Java
+public Inventory updateStockQuantity(String k, Item newValue) {
+        this.storeName = k;
+        if (newValue.type.equals("SALE")) 
+            newValue.quantity=-newValue.quantity;
+        return this.updateStock(newValue.sku,newValue.quantity);
+    }
+
+    public Inventory updateStock(String sku, long newV) {
+        if (stock.get(sku) == null) {
+            stock.put(sku, Long.valueOf(newV));
+        } else {
+            Long currentValue = stock.get(sku);
+            stock.put(sku, Long.valueOf(newV) + currentValue );
+        }
+        return this;
+    }
+```
+
+Modify the InventoryResource to return the inventory instead of JsonObject.
+
+```java
+public  Uni<Inventory> getStock(@PathParam("storeID") String storeID) {
+        Inventory stock = new Inventory();
+        stock.storeName = storeID;
+        Item newItem = new Item();
+        newItem.quantity = 10;
+        newItem.sku="item-01";
+        newItem.type = Item.RESTOCK;
+        stock.updateStockQuantity(storeID, newItem);
+            return Uni.createFrom().item( stock);
+    }
+```
+
+You should get a json like:
+
+```json
+{"stock": {
+    "item-01": 10
+  },
+  "storeName": "Store-A"
+}
+```
+
+We are good with the REST end point. Lets add Kafka-streams
+
+### Add Kafka
+
+```shell
+./mvnw Quarkus:add-extension -Dextensions="kafka,kafka-streams,smallrye-reactive-messaging-kafka"
+```
+
+Since we will be using the Kafka Streams testing functionality we will need to edit the `pom.xml` to add
+the dependency to our project. Open `pom.xml` and add the following.
+
+```xml
+<dependency>
+    <groupId>org.apache.kafka</groupId>
+    <artifactId>kafka-streams-test-utils</artifactId>
+    <version>2.5.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Modify the properties to add kafka, kafka-streams and reactive messaging parameters like
+
+```properties
+quarkus.kafka-streams.auto.offset.reset=latest
+quarkus.kafka-streams.health.enabled=true
+quarkus.kafka-streams.consumer.session.timeout.ms=7000
+quarkus.kafka-streams.consumer.heartbeat.interval.ms=200
+quarkus.kafka-streams.application-id=item-aggregator
+quarkus.kafka-streams.topics=items,inventory
+
+mp.messaging.incoming.item-channel.connector=smallrye-kafka
+mp.messaging.incoming.item-channel.topic=items
+mp.messaging.incoming.item-channel.group.id=item-aggregator
+```
+
+### Define an item deserializer
+
+The item needs to be deserialized to a Item bean, so we add a new class:
+
+```java
+import io.quarkus.kafka.client.serialization.JsonbDeserializer;
+
+public class ItemDeserializer extends JsonbDeserializer<Item> {
+    public ItemDeserializer(){
+        // pass the class to the parent.
+        super(Item.class);
+    }
+}
+```
+
+and a declaration in the properties file (change the class name if needed):
+
+```properties
+mp.messaging.incoming.item-channel.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+mp.messaging.incoming.item-channel.value.deserializer=ibm.garage.lab3.infrastructure.ItemDeserializer
+```
+
+### Define the topology
+
+While in dev mode, we can add the `StoreInventoryAgent` class under the infrastructure folder. This class will define the topology to consume messages from the `items` topic. The Serdes are class to support the serialization and deserialization of the beans we define as part of the event model.
+
+We will start just by having a print out topology to get the plumbing done. So it will consume items topic:
+```Java
+@ApplicationScoped
+public class StoreInventoryAgent {
+    
+    public String itemSoldTopicName = "items";
+
+    private JsonbSerde<Item> itemSerde = new JsonbSerde<>(Item.class);
+   
+
+    public Topology buildTopology(){
+        StreamsBuilder builder = new StreamsBuilder();
+        
+        builder.stream(itemSoldTopicName, 
+            Consumed.with(Serdes.String(), itemSerde))
+            .peek( (k,v) -> System.out.println(k));
+
+        return builder.build();
+    }
+}
+```
+
+### Connect to Event Streams
+
+We need to complete the configuration to connect to the remote Event Streams running on OpenShift.
+
+* Create the items and inventory topics, following the instructions as described [in this note](../.. /overview/pre-requisites#creating-event-streams-topics) or using the following command:
+
+ ```shell
+ cloudctl es topic-create --name items --partitions 3 --replication-factor 3
+ cloudctl es topic-create --name inventory --partitions 1 --replication-factor 3
+ cloudctl es topics
+ ```
+
+* Get a user and scram-sha-512 password to remotely connect [see product documentation](https://ibm.github.io/event-streams/getting-started/connecting/) on how to do it, or use our [quick summary here](http://localhost:8000/use-cases/overview/pre-requisites#get-shram-user).
+
+* Get Server certificate. See our [quick summary here](http://localhost:8000/use-cases/overview/pre-requisites#get-tls-server-public-certificate)
+
+* Modify the properties file to define the kafka connection properties:
+
+ ```properties
+kafka.bootstrap.servers=${KAFKA_BROKERS}
+kafka.security.protocol=${SECURE_PROTOCOL}
+kafka.ssl.protocol=TLSv1.2
+kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username\=\"${KAFKA_USER}\" password\=\"${KAFKA_PASSWORD}\";
+kafka.sasl.mechanism=SCRAM-SHA-512
+kafka.ssl.truststore.location=${KAFKA_CERT_PATH}
+kafka.ssl.truststore.password=${KAFKA_CERT_PWD}
+kafka.ssl.truststore.type=PKCS12
+ ```
+
+* Define a file like `.env` to set environment variables, and modify the settings accordingly
+
+    ```
+    KAFKA_BROKERS=minimal-prod-kafka-bootstrap-eventstreams....containers.appdomain.cloud:443
+    KAFKA_USER=
+    KAFKA_PASSWORD=
+    KAFKA_CERT_PATH=${PWD}/certs/es-cert.p12
+    KAFKA_CERT_PWD=
+    SECURE_PROTOCOL=SASL_SSL
+    ```
+
+* Restart the quarkus in dev mode
+
+ ```shell
+ source .env
+ ./mvnw quarkus:dev
+ ```
+
+ normally you should not get any exception and a trace like
+
+ ```
+    AdminClientConfig values: 
+    bootstrap.servers = [minimal-prod-kafka-bootstrap-eventstreams.gse-.....containers.appdomain.cloud:443]
+    client.dns.lookup = default
+    client.id = 
+    connections.max.idle.ms = 300000
+    default.api.timeout.ms = 60000
+    metadata.max.age.ms = 300000
+    metric.reporters = []
+    metrics.num.samples = 2
+    metrics.recording.level = INFO
+    metrics.sample.window.ms = 30000
+ ```
+
+### Complete the topology
+
+The requirements can be bullet listed as:
+
+* out-topic: inventory: contains the invenory stock events.
+* Ktable <storeID, <itemID, count> with store. To keep store inventory
+* Interactive query to get data from store and expose the result as reactive REST resource.
+
+To update the buildTopology function by getting the store and build a Ktable
+
+```Java
+ KTable<String,Inventory> inventory = builder.stream(itemSoldTopicName, 
+                        Consumed.with(Serdes.String(), itemSerde))
+            // use store name as key
+            .map((k,v) ->  new KeyValue<>(v.storeName, v))
+            .groupByKey(Grouped.with(Serdes.String(),itemSerde))
+       
+```
+
+Then the operation to take this <storeName, item> record and transform it to Inventory instance, and update existing inventory entry is the `aggregate` function:
+
+```Java
+.aggregate(
+      () ->  new Inventory(), // initializer
+      (k , newItem, currentInventory) 
+            -> currentInventory.updateStockQuantity(k,newItem), 
+      Materialized.<String,Inventory,KeyValueStore<Bytes,byte[]>>as(StoreInventoryAgent.STOCKS_STORE_NAME)
+            .withKeySerde(Serdes.String())
+            .withValueSerde(inventorySerde));
+```
+
+First row is to initialize new key, record with an empty Inventory object. 
+The second row is executed when a key is found (first key too), and update the currentInventory with the new quantity from the item. The outcome of this is a Ktable<storeName, Inventory> 
+The content is materialized in a store.
+
+The update operation on the inventory is a simple hashmap update: 
+
+```Java
+// in Inventory Class
+public Inventory updateStockQuantity(String k, Item newValue) {
+        this.storeName = k;
+        if (newValue.type.equals("SALE")) 
+            newValue.quantity=-newValue.quantity;
+        return this.updateStock(newValue.sku,newValue.quantity);
+    }
+
+    public Inventory updateStock(String sku, long newV) {
+        if (stock.get(sku) == null) {
+            stock.put(sku, Long.valueOf(newV));
+        } else {
+            Long currentValue = stock.get(sku);
+            stock.put(sku, Long.valueOf(newV) + currentValue );
+        }
+        return this;
+    }
+```
+
+Finally the KTable is streamed out to the inventory topic:
+
+```Java
+inventory.toStream()
+            .to(inventoryStockTopicName,
+                Produced.with(Serdes.String(),inventorySerde));
+      
+```
+
+The KTable is also materialized as a store that can be accessed via an API like `/inventory/store/{storeid}/{itemid}` using interactive query.
+
+As items topic can be partitioned, a REST call may not reach the good end points, as the local store may not have the expected queried key. So the code is using interactive query to get access to the local state stores or return a URL of a remote store where the records for the given key are.
+
+## Integration tests
+
+ For running the integration test, we propose to copy the e2e folder from the solution repository and follow the [readme instructions section end-to-end-testing ](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory#end-to-end-testing).
+
+## Deploy to OpenShift
+
+Be sure to have done [the steps described here](../../overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift) to get user credentials and Server side certificate. 
+We need to define a config map manifest (src/main/kubernetes/configmap.yml) for the user and brokers internal URL. The userID used is one of the scram-sha-512 ones.
+
+ ```yaml
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+    name: item-aggregator-cm
+ data:
+    KAFKA_USER: app-demo
+    SECURE_PROTOCOL: SASL_SSL
+    KAFKA_BROKERS: minimal-prod-kafka-bootstrap.eventstreams.svc:9093
+ ```
+
+Configure it with `oc apply -f src/main/kubernetes/configmap.yml`.

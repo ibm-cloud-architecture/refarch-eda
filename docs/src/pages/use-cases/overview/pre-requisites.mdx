@@ -5,6 +5,8 @@ description: Common pre-requisites for the different labs and use cases
 
 <AnchorLinks>
   <AnchorLink>IBM Cloud Shell</AnchorLink>
+  <AnchorLink>Creating Event Streams Topics</AnchorLink>
+  <AnchorLink>Getting TLS authentication from Event Streams on OpenShift</AnchorLink>
 </AnchorLinks>
 
 ## IBM Cloud Shell
@@ -62,4 +64,112 @@ In order to install these modules, execute the following command in your IBM Clo
 
 **Congrats!** you have now your IBM Cloud Shell ready to start working.
 
+## Creating Event Streams Topics
+
+This section is a generic example of the steps to proceed to define a topic with Event Streams on OpenShift using the User Interface. The example is to define a topic named INBOUND with 1 partition and a replica set to 3. Change to any other topic you want to create.
+
+- Get the route for event streams. We assume the namespace is `eventstreams`
+ 
+ ```shell
+  oc get routes -n eventstreams | grep ui
+  ```
+
+- Navigate to the Event Streams Console using the exposed route URL.
+
+- Click the Topics option on the navigation bar on the left. Create the INBOUND topic.
+
+![Create Topic](./images/create-topic.png)
+
+![Topic Name](./images/inbound-topic-name.png)
+
+- Leave Partitions at 1.
+
+![Partition](./images/partitions.png)
+
+- Depending on how long you want messages to persist you can change this.
+
+![Message Retention](./images/message-retention.png)
+
+- You can leave Replication Factor at the default 3.
+
+![Replication](./images/replicas.png)
+
+- Click Create.
+
+### Create topic using CLI
+
+You can do the samething using CLI, [see the product documentation](https://ibm.github.io/event-streams/getting-started/creating-topics/).
+
+ ```shell
+ cloudctl es topic-create --name INBOUND --partitions 1 --replication-factor 3
+ ```
+
 ## Getting TLS authentication from Event Streams on OpenShift
+
+### Get TLS server public certificate
+
+The cluster public certificate is required for all external connections and is available to download from the Cluster connection panel under the Certificates heading. Upon downloading the PKCS12 certificate, the certificate password will also be displayed. We can also get those certificate and password via CLI:
+
+See [product documentation for detail](https://ibm.github.io/event-streams/getting-started/connecting/). A quick set of commands:
+
+ ```shell
+ oc get secret -n eventstreams | grep cluster-ca-cert
+ # use the ca-cert for the instance you target 
+ oc get secret minimal-prod-cluster-ca-cert  -n eventstreams -o jsonpath='{.data.ca\.p12}' | base64 --decode > es-cert.p12
+ # or the command:
+ oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.p12 -n eventstreams
+ # and password
+ oc get secret minimal-prod-cluster-ca-cert -n eventstreams -o jsonpath='{.data.ca\.password}' | base64 --decode
+ # or the command
+ oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.password -n eventstreams
+ ```
+
+### Get Scram-sha-512 user 
+
+Select one of the Kafka users with Scram authentication defined or create a new one with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
+
+ ```shell
+ # if not logged yes to your openshift cluster where the docker private registry resides do:
+ oc login --token=... --server=https://c...
+ oc get kafkausers -n eventstreams
+
+ NAME                                     AUTHENTICATION   AUTHORIZATION
+ demo-app                                 scram-sha-512    simple
+ ```
+
+ We use a user with scram-sha-512 authentication named: `demo-app`
+
+* Copy user's secret to the current project where the application will run
+
+ ```shell
+ oc get secret  demo-app -n eventstreams --export -o yaml | oc apply -f -
+ ```
+
+* Get the user password:
+
+ ```shell
+ oc get secret demo-app -n eventstreams -o jsonpath='{.data.password}' | base64 --decode
+ ```
+
+* Set the KAFKA_USER and KAFKA_PASSWORD, and SECURE_PROTOCOL=SASL_SSL environment variables for your application.
+
+### Get TLS user 
+
+If you want to use mutual authentication with client certificate, you need a tls user. And use the same commands as in previous section to get user name and user's password. The differences are in the password access and that you need to download client certificate as keystore to be integrated in the Java app.
+
+ ```shell
+ # password is in another key
+ oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.password}' | base64 --decode  
+ ```
+
+* Get the user client certificate and password
+
+  ```shell
+  cd certs
+  oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.p12}' | base64 --decode > user.p12
+  ```
+
+  Modify USER_CERT_PWD and USER_CERT_PATH=${PWD}/certs/user.p12 in the `.env` file
+
+
+Also set the env variable as SECURE_PROTOCOL=SSL

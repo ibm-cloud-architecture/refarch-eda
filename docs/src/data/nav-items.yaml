@@ -48,6 +48,8 @@
   pages:
     - title: Kafka Overview
       path: /technology/kafka-overview/
+    - title: MQ in EDA context
+      path: /technology/mq/
     - title: Kafka Producers & Consumers
       path: /technology/kafka-producers-consumers/
     - title: Kafka Streams

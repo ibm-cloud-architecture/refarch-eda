@@ -53,35 +53,8 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 
 ## Creating Event Streams Topics
-- Navigate to the Cloud Pak for Integration Platform Navigator. 
 
-- Click View Instances and click the Event Streams instance that you have created.
-
-- Click `Connect to this Cluster` in the top right.
-![Connect to this Cluster](./images/connect-to-this-cluster.png)
-
-- Click the Topics option on the left. Create the INBOUND topic.
-
-![Create Topic](./images/create-topic.png)
-
-![Topic Name](./images/inbound-topic-name.png)
-
-- Leave Partitions at 1.
-
-![Partition](./images/partitions.png)
-
-- Depending on how long you want messages to persist you can change this.
-
-![Message Retention](./images/message-retention.png)
-
-- You can leave Replication Factor at the default 3.
-
-![Replication](./images/replicas.png)
-
-- Click Create.
-
-
-
+See instructions in [the common pre-requisite section](../overview/pre-requisites/#creating-event-streams-topics)
 
 ## Event Streams Security: API Key, Credentials and Certificates
 
@@ -95,11 +68,9 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 ![Bootstrap Address](./images/bootstrap-server.png)
 
-
 - Generate your **API Key**. Click the Generate API Key button.
 
 ![Generate API Key 1](./images/generate-api-key-1.png)
-
 
 - Select a name for your application. It doesn't really matter too much what you name it. Also choose the Produce, Consume, Create Topics and Schema Option.
 
