@@ -117,7 +117,32 @@ While you create new digital business applications as self-contained systems, yo
 
  ![4](../../images/hl-arch-data-pipe-cdc.png)
 
-Both diagrams illustrate a common architecture for data pipeline, using event backbone, where the data is transformed into different data model, that can be consumed by components that act on those data, and move the data document into data lake for big data processing.
+Or use an efficient CDC product to get the change data capture at the transaction level. IBM offers the best CDC product on the market, ([InfoSphere Data Replication 11.4.0](https://www.ibm.com/support/knowledgecenter/SSTRGZ_11.4.0/com.ibm.idr.frontend.doc/pv_welcome.html)), with subsecond average latency and support full transactional semantics with exactly once consumption. It includes an [efficient Kafka integration](https://www.ibm.com/support/knowledgecenter/SSTRGZ_11.4.0/com.ibm.cdcdoc.cdckafka.doc/concepts/systemrequirements.html). 
+
+One of the challenges of basic CDC products, is the replication per table pattern, leads to retry to rebuild the transaction integrity using kafka stream to join data from multiple topics. The [TCC (Transactionally consistent consumer) technology](https://www.ibm.com/support/knowledgecenter/SSTRGZ_11.4.0/com.ibm.cdcdoc.cdckafka.doc/concepts/kafkatcc.html) allows Kafka replication to have semantics similar to a relational database. This dramatically increases the types of business logic that can be implemented. Developer can recreate the order of operations in source transactions across multiple Kafka topics and partitions and consume Kafka records that are free of duplicates by including the Kafka transactionally consistent consumer library in your Java applications. 
+TCC allows:
+
+* Elimination of any duplicates, even in abnormal termination scenarios
+* Reconstruction of exact transaction order, despite those transactions having been performance optimized and applied out of order to Kafka
+* Reconstruction of exact operation order within a transaction, despite said operations having been applied to different topics and/or partitions.  This is not offered by default Kafka's "exactly once" functionality
+* Ability for hundreds+ producers to participate in a single transaction.  Kafka's implementation has one producer create all messages for a transaction, despite those messages going to different topics.
+* Provides a unique bookmark, so that downstream applications can check-point and resume exactly where they last left off if they fail.
+
+*We recommend listeing to this presentation from Shawn Roberston - IBM, on [A Solution for Leveraging Kafka to Provide End-to-End ACID Transactions](https://www.confluent.io/kafka-summit-sf18/a-solution-for-leveraging-kafka-to-provide-end-to-end-acid-transactions/)*
+
+The second, very important, feature is on the producer side, with the Kafka custom operation processor (or KCOP) infrastructure. KCOP helps you to control over the Kafka producer records that are written to Kafka topics in response to insert, update, and delete operations that occur on source database tables. It allows a user to programmatically dictate the exact key an byte values of the message written to Kafka. Therefore any individual row transformation message encoding format is achievable. Out of the box it includes Avro, CSV, JSON message encoding formats. It is possible to perform column level RSA encryption on certain values before writing.
+It also permits enriching of the message with additional annotation if needed.
+Developers have the complete choice over how data is represented. Eg. Can write data in Kafka Compaction compliant format with deletes being represented as Kafka tombstones or can write the content of the message being deleted.
+
+It also supports Kafka Header fields for efficient downstream routing without the need for immediate de-serialization.
+The KCOP allows a user to determine how many messages are written to Kafka in response to a source operation, the content of the messages, and their destination.
+* Allows for filtering based on column values.
+* Allows for writing the entire row with sensitive data to highly restricted topics and a subset of the columns to wider shared topics.
+* Allows for writing the same message in two different formats to two different topics.  Useful in environments where some consuming applications want JSON, others prefer Avro, both can be produced in parallel if desired.
+* Allows for sending special flags to a monitoring topic.  Eg. when a transaction exceeds $500, in addition to the regular message, a special topic is written to notifying of the large value transaction
+
+
+The two diagrams above, illustrate a common architecture for data pipeline, using event backbone, where the data is transformed into different data model, that can be consumed by components that act on those data, and move the data document into data lake for big data processing.
 
 Finally it is important to note that the deployment of the event streams, CDC can be colocated in the mainframe to reduce operation and runtime cost. It also reduces complexity. In the following diagram, event stream brokers are deployed on OpenShift on Linux on Z and the CDC servers on Linux too.
 
@@ -133,5 +158,5 @@ This architecture pattern try to reduce the MIPs utilization on the mainframe to
 * Reduced complexity / management cost
 * Reduced latency / network infrastructure (apply – Kafka hop is now  in memory) – avoids need for encryption 
 
-The CDC server uses Transaction Capture Consumer to keep transaction integrity while publishing to kafka topic. CICS Business events are mechanism for declaratively emitting event from CICS routines.
+The CDC server uses [Transaction Capture Consumer](https://www.ibm.com/support/knowledgecenter/SSTRGZ_11.4.0/com.ibm.cdcdoc.cdckafka.doc/concepts/kafkatcc.html) to keep transaction integrity while publishing to kafka topic. CICS Business events are mechanism for declaratively emitting event from CICS routines.
 

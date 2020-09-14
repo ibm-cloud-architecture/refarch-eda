@@ -135,6 +135,9 @@ KeyValueMapper<String, Purchase, Long> purchaseDateAsKey = (key, purchase) -> pu
 KStream<Long, Purchase> filteredKStream = purchaseKStream.filter((key, purchase) -> purchase.getPrice() > 5.00).selectKey(purchaseDateAsKey);
 ```
 
+## Interactive queries
+
+
 ## Some design considerations
 
 * Partitions are assigned to a StreamTask, and each StreamTask has its own state store. So important to be sure to have key and kafka will assign records with same key to same partition so lookup inside state store will work.
