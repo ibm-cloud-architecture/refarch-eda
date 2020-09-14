@@ -128,16 +128,16 @@ See [product documentation for detail](https://ibm.github.io/event-streams/getti
 
 Select one of the Kafka users with Scram authentication defined or create a new one with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
 
- ```shell
- # if not logged yes to your openshift cluster where the docker private registry resides do:
- oc login --token=... --server=https://c...
- oc get kafkausers -n eventstreams
+  ```shell
+  # if not logged yes to your openshift cluster where the docker private registry resides do:
+  oc login --token=... --server=https://c...
+  oc get kafkausers -n eventstreams
 
- NAME                                     AUTHENTICATION   AUTHORIZATION
- demo-app                                 scram-sha-512    simple
- ```
+  NAME                                     AUTHENTICATION   AUTHORIZATION
+  demo-app                                 scram-sha-512    simple
+  ```
 
- We use a user with scram-sha-512 authentication named: `demo-app`
+  We use a user with scram-sha-512 authentication named: `demo-app`
 
 * Copy user's secret to the current project where the application will run
 
