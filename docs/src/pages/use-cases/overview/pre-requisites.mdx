@@ -6,6 +6,7 @@ description: Common pre-requisites for the different labs and use cases
 <AnchorLinks>
   <AnchorLink>IBM Cloud Shell</AnchorLink>
   <AnchorLink>Creating Event Streams Topics</AnchorLink>
+  <AnchorLink>Getting scram authentication from Event Streams on OpenShift</AnchorLink>
   <AnchorLink>Getting TLS authentication from Event Streams on OpenShift</AnchorLink>
   <AnchorLink>Using Kafdrop</AnchorLink>
 </AnchorLinks>
@@ -104,6 +105,65 @@ You can do the samething using CLI, [see the product documentation](https://ibm.
  ```shell
  cloudctl es topic-create --name INBOUND --partitions 1 --replication-factor 3
  ```
+
+## Getting scram authentication from Event Streams on OpenShift
+
+- To connect to an Event Streams Instance from an application running out side of the OpenShift cluster, we need to get external access credential. This is done by getting a scram user and TLS server certificate. 
+
+- While viewing our Event Streams Instance, navigate to the 'Connect to this cluster' menu from the left. Click Connect to this Cluster - 
+
+- Make sure that you're on **External Connection** as we will need to test/connect from an application not running on OCP cluster. Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our application's connection to the Event Streams instance.
+
+![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
+
+- Generate your **SCRAM Credentials**. Click the `Generate SCRAM Credentials` button.
+
+![Generate SCRAM1 ](./images/esv10-generate-scram.png)
+
+- Select a name for your secret and make sure you remember it as this also represents the user identifier for the connection. Also choose the Produce, Consume, Create Topics and Schema Option.
+
+![Generate SCRAM 2](./images/esv10-scram-1.png)
+
+- Select `All Topics` and then click Next.
+
+![Generate SCRAM 3](./images/esv10-scram-2.png)
+
+- Leave it with `All Consumer Groups` and click Next.
+
+![Generate SCRAM 4](./images/esv10-scram-3.png)
+
+- Select all transaction IDs and then generate your **API Key**. Click the Generate API Key button.
+
+![Generate SCRAM 5](./images/esv10-scram-4.png)
+
+- Select a name for your application. It doesn't really matter too much what you name it. 
+
+- If the following error occurs, log into your OpenShift cluster and go to the project/namespace that your Event Streams v10 instance is installed in. If you run these commands you will see your user created.
+
+`oc get kafkauser`
+
+`oc get secrets`
+
+- Your `SCRAM Username` that we will need for later is the name of your secret. The `SCRAM Password` can be either obtained by going to your OpenShift Console Web UI and revealing the password through the secrets menu or through the CLI. Run the following commands to see the value of the password.
+
+`oc get secret your-secret -jsonpath '{.data.password}' -n eventstreams | base64 --decode `
+
+- This will return you a base64 encoded value. Decode this like so
+
+`echo "dWpPN3ZSSEF1clRK" | base64 -d`
+
+![SCRAM Secret](./images/esv10-scram-secret.png)
+
+
+- Lastly download the PKCS12 truststore .pkcs12 certificate. Once you hit the Download button the password to the truststore will be revealed. **Copy this down** as we will need it.
+
+![PKCS12 Truststore](./images/esv10-pkcs12.png)
+
+
+**Summary** 
+
+We now have the bootstrap server address, SCRAM Username (also the name of the KafkaUser/Secret CRs) and Password, .pcks12 truststore certificate, and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
+
 
 ## Getting TLS authentication from Event Streams on OpenShift
 
