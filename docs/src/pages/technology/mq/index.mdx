@@ -97,11 +97,31 @@ spec:
  oc describe queuemanager eda-mq-lab
  ```
 
- You should get the console from this URL:
+ You should get the console from this URL: https://eda-mq-lab-ibm-mq-web-....containers.appdomain.cloud/ibmmq/console/#/
  
  ![4](./images/mq-console.png)
 
+To access to the `mqsc` CLI and run configuration remote connect via `oc exec -it <podname> bash`.
+
+## Running MQ in docker
+
+The [following recent article](https://developer.ibm.com/tutorials/mq-connect-app-queue-manager-containers/) from Richard J. Coppen presents such deployment, and can be summarized as:
+
+```shell
+# Use Docker to create a volume:
+docker volume create qm1data
+# Start queue manager: QM1
+docker run --env LICENSE=accept --env MQ_QMGR_NAME=QM1 --volume qm1data:/mnt/mqm --publish 1414:1414 --publish 9443:9443 --detach --env MQ_APP_PASSWORD=passw0rd ibmcom/mq:latest
+# The queue manager’s listener listens on port 1414 for incoming connections and port 9443 is used by MQ console
+```
+
+One queue is created DEV.QUEUE.1 and a channel: DEV.APP.SRVCONN. 
+
+Then `docker exec` on the docker container and use the `mqsc` CLI.
+
 ## Getting access to the MQ manager
+
+The MQ Console is a web browser based interface for interacting with MQ objects. It comes pre-configured inside the developer version of MQ in a container. On localhost deployment the URL is [ https://localhost:9443/ibmmq/console/]( https://localhost:9443/ibmmq/console/) while on OpenShift it depends of the Route created.
 
 ## Important readings
 
