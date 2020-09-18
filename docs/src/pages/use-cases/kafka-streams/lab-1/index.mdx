@@ -39,8 +39,8 @@ our application.
 
 ```shell
 mvn io.quarkus:quarkus-maven-plugin:1.6.0.Final:create \
-    -DprojectGroupId={com.ibm} \
-    -DprojectArtifactId={quarkus-kstreams-lab} \
+    -DprojectGroupId=com.ibm \
+    -DprojectArtifactId=quarkus-kstreams-lab-1 \
     -Dextensions="kafka,kafka-streams,resteasy-jsonb,quarkus-kafka-streams"
 ```
 
@@ -61,8 +61,8 @@ the dependency to our project. Open `pom.xml` and add the following.
 ## Creating your first Test Class
 
 - Now let's create our first Test Class.
-```src/test/java/.../TestLoadKtableFromTopic.java```
-You can customize this file path post `src/test/java` to however you see fit.
+```src/test/java/com/ibm/garage/cpat/TestLoadKtableFromTopic.java```
+You can customize this file path post `src/test/java/.../TestLoadKtableFromTopic.java` to however you see fit.
 
 
 - Open the `TestLoadKtableFromTopic.java` file and paste the following content.
@@ -257,7 +257,7 @@ public class FinancialMessage {
 set those at your own discretion.
 
 - Now that we have our Java class, let's create a new and separate Java Test class separate from the `TestLoadKtableFromTopic.java`
-for separation of logic. `src/test/java/.../lab/TestFinancialMessage.java`. Again you may use your own
+for separation of logic. `src/test/java/com/ibm/garage/cpat/lab/TestFinancialMessage.java`. Again you may use your own
 filepath. Copy the contents below.
 
 ```java
