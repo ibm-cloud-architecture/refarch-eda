@@ -4,11 +4,15 @@ description: Using Kafka Streams Test for more Operators and Optionally Send to 
 ---
 
 <AnchorLinks>
+    <AnchorLink>Overview</AnchorLink>
     <AnchorLink>Scenario Prerequisites</AnchorLink>
     <AnchorLink>Adding in more Kafka Streams operators</AnchorLink>
     <AnchorLink>Producing to and Consuming from a Kafka Topic on Event Streams</AnchorLink>
 </AnchorLinks>
 
+## Overview
+- This is a continuation of the previous [Lab 1](/use-cases/kafka-streams/lab-1/. You can follow most of those steps before you get started here.
+- There's a few more pre-reqs (if you so choose to use them) outlined below.
 
 ## Scenario Prerequisites
 **Java**
@@ -473,7 +477,7 @@ Assertions.assertEquals(16389.3, aggregatedTableStore.get("1").value().average);
 
 - Typically with the Kafka Streams API it's typically assumed that the data is already present on a topic. To expedite the processing
 we're going to use Reactive Messaging to quickly send some quick messages to our topic. Create a `MockProducer.java` class somewhere
-along the lines of `src/main/java/.../MockProducer.java`
+along the lines of `src/main/java/com/ibm/Infrastructure/MockProducer.java`
 
 ```java
 package com.ibm.garage.cpat.Infrastructure;
@@ -521,7 +525,7 @@ with a random userId (out of 100).
 
 
 - Next create a class for the Topology that we're going to build. Something similar to the MockProducer above i.e.
-`src/main/java/.../FinancialMessageTopology.java`
+`src/main/java/com/ibm/Domain/FinancialMessageTopology.java`
 
 ```java
 package com.ibm.garage.cpat.Domain;
@@ -703,7 +707,7 @@ kafka-streams.metrics.recording.level=DEBUG
 - As noted you can see that there are five different environment variables that we need to configure. `START_TOPIC_NAME`,
 `TARGET_TOPIC_NAME`, `BOOTSTRAP_SERVERS`, `CERT_LOCATION` and `API_KEY`. You can get your API Key and Bootstrap Server address from your Event Streams instance
 connection settings. Export the following environment variables. If connecting to Event Streams on IBM Cloud the `CERT_LOCATION`
-isn't needed, so you can comment out those two lines as well as not needing the `CERT_LOCATION` EV.
+isn't needed, so you can comment out those two lines as well as not needing the `CERT_LOCATION` ENV. Also if you would like to connect to a plain local Kafka Cluster on a container for example you will need to remove some of the security settings in `application.properties` (ssl, sasl, etc.)
 
 *ESv10*
 ```shell
@@ -713,7 +717,7 @@ export TARGET_TOPIC_NAME=name-of-topic-to-produce-to \
 export CERT_LOCATION=/path-to-pkcs12-cert/es-cert.p12 \
 export CERT_PASSWORD=certificate-password \
 export SCRAM_USERNAME=your-scram-username \
-export SCRAM_PASSWORD=your-scram-password \
+export SCRAM_PASSWORD=your-scram-password
 ```
 
 *Previous ES versions*
@@ -724,6 +728,15 @@ export TARGET_TOPIC_NAME=name-of-topic-to-produce-to \
 export CERT_LOCATION=/path-to-jks-cert/es-cert.jks \
 export API_KEY=your-api-key
 ```
+
+*Local Kafka Cluster*
+```shell
+export BOOTSTRAP_SERVERS=your-bootstrap-server-address:443 \
+export START_TOPIC_NAME=name-of-topic-to-consume-from \
+export TARGET_TOPIC_NAME=name-of-topic-to-produce-to 
+```
+
+
 
 - You can now test the Quarkus application
 
