@@ -7,7 +7,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
   <AnchorLink>Overview</AnchorLink>
   <AnchorLink>Scenario Prerequisites</AnchorLink>
   <AnchorLink>Creating Event Streams Topics</AnchorLink>
-  <AnchorLink>Event Streams Security: API Key, Credentials and Certificates</AnchorLink>
+  <AnchorLink>Event Streams Security: SCRAM Credentials and Certificates</AnchorLink>
   <AnchorLink>Creating the Quarkus with MicroProfile Reactive Messaging Application</AnchorLink>
   <AnchorLink>Setting up the Kafka Strimzi Operator</AnchorLink>
   <AnchorLink>Setting up the Kafka Connect Cluster</AnchorLink>
@@ -56,7 +56,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 See instructions in [the common pre-requisite section](../overview/pre-requisites/#creating-event-streams-topics)
 
-## Event Streams Security: API Key, Credentials and Certificates
+## Event Streams Security: SCRAM Credentials and Certificates
 
 - To connect to our Event Streams Instance we will need to follow a few steps to properly connect to it.
 
@@ -81,7 +81,9 @@ See instructions in [the common pre-requisite section](../overview/pre-requisite
 
 - Leave it with `All Consumer Groups` and click Next.
 
-- Generate your **API Key**. Click the Generate API Key button.
+![Generate SCRAM 4](./images/esv10-scram-3.png)
+
+- You can either leave it on `All Transactional IDs` or `None`.
 
 ![Generate SCRAM 5](./images/esv10-scram-4.png)
 
