@@ -56,6 +56,8 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 See instructions in [the common pre-requisite section](../overview/pre-requisites/#creating-event-streams-topics)
 
+- We will need to create a single `INBOUND` topic. The `INBOUND` topic is where our Quarkus application will produce to and where our IBM COS Sink Connector will pull data from to send to the COS Bucket.
+
 ## Event Streams Security: Credentials and Certificates
 
 *Note* - These steps are outlining Event Streams v2019.4.x (if trying to connect to Event Streams v10 there is a separate section for that)
