@@ -58,7 +58,7 @@ See instructions in [the common pre-requisite section](../overview/pre-requisite
 
 ## Event Streams Security: SCRAM Credentials and Certificates
 
-- To connect to our Event Streams Instance we will need to follow a few steps to properly connect to it.
+- To connect to our Event Streams version 10 instance unlike the previous versions of Event Streams on CP4I or the hosted Event Streams service on IBM Cloud we will need to follow a few steps to properly connect to it.
 
 - While viewing our Event Streams Instance, navigate to the Topics menu from the left. Click Connect to this Cluster - 
 
@@ -347,7 +347,7 @@ oc get pods -n openshift-operators
 
 ## Setting up the Kafka Connect Cluster
 
-*Note* - As stated in the pre-requisites section we will be mirroring the steps followed here at [Kafka Connect to S3 Sink & Source](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/connect-s3/) for more granular information and reading.
+*Note* - These steps are based on Event Streams v2019.4.x, there is a section for Event Streams v10 if that's your environment. As stated in the pre-requisites section we will be mirroring the steps followed here at [Kafka Connect to S3 Sink & Source](https://ibm-cloud-architecture.github.io/refarch-eda/scenarios/connect-s3/) for more granular information and reading.
 
 - Now that we have our Strimzi Kafka Operator installed we need the secrets and appropriate credentials set up.
 
@@ -461,9 +461,11 @@ oc apply -f kafka-connect.yaml
 
 ## Building and Applying IBM COS Sink Connector
 
+*Note* - Like the above Kafka Connect Cluster section, these steps are based on Event Streams v2019.4.x, there is a section for Event Streams v10 if that's your environment.
+
 The IBM COS Source Connector source code is availabe at this repository [here](https://github.com/ibm-messaging/kafka-connect-ibmcos-sink). 
 
-(IMPORTANT) The Strimzi Kafka Connect Cluster uses a Java 8 runtime so make sure you're actively using the Java 8 JRE.
+**(IMPORTANT) The Strimzi Kafka Connect Cluster apparently uses a Java 8 runtime so make sure you're actively using the Java 8 JRE at least for building the connector JAR file, otherwise the Kafka Connect Cluster will not be able to detect the COS Sink Connector.**
 
 - Clone the Kafka Connect IBM COS Source Connector repository and then change your folder.
 ```shell
