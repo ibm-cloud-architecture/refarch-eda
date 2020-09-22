@@ -538,9 +538,11 @@ oc describe kafkaconnector cos-sink-connector
 - Most of these steps are the same as the last two (Setting up the Kafka Connect Cluster and IBM COS Sink Connector) besides a change to the YAML files.
 - Event Streams v10 is still rather new so these are subject to change. 
 - Like previously mentioned in the Strimzi setup section, Event Streams v10 is built ontop of the Strimzi operator so we don't need to install those.
-
+- We will need *both* the `External` and `Internal` connection details. 
 
 *Event Streams v10 Credentials*
+
+- For connecting external applications like our Quarkus producer application will need the `External Connection` details which involve `SCRAM Credentials` whereas our Event Streams Kafka Connect Cluster requires `Internal Connection` and TLS certificates.
 
 ![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
 
@@ -551,7 +553,7 @@ oc describe kafkaconnector cos-sink-connector
 
 ![Generate SCRAM 1](./images/esv10-generate-scram.png)
 
-- Select a name for your secret and make sure you rmeember/take note of it as we will need this later. Also choose the Produce, Consume, Create Topics and Schema Option.
+- Select a name for your secret and make sure you remember/take note of it as we will need this later. Also choose the Produce, Consume, Create Topics and Schema Option.
 
 ![Generate SCRAM 2](./images/esv10-scram-1.png)
 
@@ -586,6 +588,7 @@ oc describe kafkaconnector cos-sink-connector
 
 ![SCRAM Secret](./images/esv10-scram-secret.png)
 
+- You will need `Internal Connection` details and the created `TLS Credentials` for the Kafka Connect Cluster.
 
 - Lastly download the PKCS12 truststore .pkcs12 certificate. Once you hit the Download button the password to the truststore will be revealed. **Copy this down** as we will need it.
 
