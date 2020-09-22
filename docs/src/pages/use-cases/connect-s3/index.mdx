@@ -66,7 +66,7 @@ As different use cases will require different configuration details to accommoda
    kubectl create secret generic eventstreams-apikey --from-literal=password=<eventstreams_api_key>
    ```
 
-**IBM Event Streams Certificates (IBM Cloud Pak for Integration deployments only)**
+**IBM Event Streams Certificates on IBM Cloud Pak for Integration**
 - If you are using an IBM Event Streams instance deployed via the IBM Cloud Pak for Integration, you must also download the generated truststore file to provide TLS communication between the connectors and the Kafka brokers.
 - This file, along with its password, can be found on the **Connect to this cluster** dialog in the Event Streams UI.
 - Once downloaded, it must be configured to work with the Kafka Connect certificate deployment pattern:
@@ -74,6 +74,16 @@ As different use cases will require different configuration details to accommoda
    ```shell
    keytool -importkeystore -srckeystore es-cert.jks -destkeystore es-cert.p12 -deststoretype PKCS12
    openssl pkcs12 -in es-cert.p12 -nokeys -out es-cert.crt
+   kubectl create secret generic eventstreams-truststore-cert --from-file=es-cert.crt
+   ```
+
+**IBM Event Streams Certificates on IBM Cloud Pak for Integration**
+- If you are using an IBM Event Streams instance deployed on IBM Cloud, you need to provide the root CA certificate to connect correctly from the Kafka Connect instance.
+- This file can be downloaded as `eventstreams.cloud.ibm.com.cer` from the endpoint defined in your service credentials via the `kafka_http_url` property.
+- Once downloaded, it must be configured to work with the Kafka Connect certificate deployment pattern:
+
+   ```shell
+   openssl x509 -inform DER -in eventstreams.cloud.ibm.com.cer -out es-cert.crt
    kubectl create secret generic eventstreams-truststore-cert --from-file=es-cert.crt
    ```
 
@@ -361,8 +371,8 @@ spec:
   - `spec.template.pod.metadata.annotations.productID` You can find this value when trying to deploy an Event Streams Custom Resource from the Installed Event Streams Operator YAML deployment or when applying this YAML through the command-line, OCP will provide you the proper values if they're wrong.
   - `spec.template.pod.metadata.annotations.cloudpakId` Same as productID.
   - `spec.tls.trustedCertificates` This is different from the previous one in that this certificate was automatically generated on creation of your Event Streams Kafka Cluster. If your Event Streams instance is named `eventstreams-dev` then this value should be `eventstreams-dev-cluster-ca-cert`.
-  - `spec.authentication.*` This section is mostly different from the previous section. Prior we used a generated API Key, but on Event Streams v10 we will need to generate TLS credentials. In the `Internal` connection details there will be a `Generate TLS Credentials` button. Here you can name your secret and provide the proper access to it. **Note 1** - This is automatically created by the Event Streams Operator into the same namespace as both a `KafkaUser` Custom Resource as well as a secret. If your secret is named `internal-secret` then there will be an automatically generated Kubernetes/OpenShift secret named that as well as a `KafkaUser`. `user.crt` and `user.key` are certificates automatically generated within said secret. **Note 2** - Deletion of that secret will replicate itself. You will need to delete the associated and created `KafkaUser`. 
-  
+  - `spec.authentication.*` This section is mostly different from the previous section. Prior we used a generated API Key, but on Event Streams v10 we will need to generate TLS credentials. In the `Internal` connection details there will be a `Generate TLS Credentials` button. Here you can name your secret and provide the proper access to it. **Note 1** - This is automatically created by the Event Streams Operator into the same namespace as both a `KafkaUser` Custom Resource as well as a secret. If your secret is named `internal-secret` then there will be an automatically generated Kubernetes/OpenShift secret named that as well as a `KafkaUser`. `user.crt` and `user.key` are certificates automatically generated within said secret. **Note 2** - Deletion of that secret will replicate itself. You will need to delete the associated and created `KafkaUser`.
+
 **kafka-sink-connector.yaml-esv10.yaml**
 ```yaml
 apiVersion: eventstreams.ibm.com/v1alpha1
@@ -388,7 +398,7 @@ spec:
 - For the most part identical besides two minor changes.
   - `apiVersion: eventstreams.ibm.com/v1alpha1` instead of Strimzi.
   - `metadata.labels.eventstreams.ibm.com/cluster: connect-cluster-101` again instead of Strimzi.
-  
+
 **kafka-source-connector.yaml-esv10.yaml**
 ```yaml
 apiVersion: eventstreams.ibm.com/v1alpha1
@@ -414,7 +424,7 @@ spec:
 - Similar to the S3 sink connector yaml.
   - `apiVersion: eventstreams.ibm.com/v1alpha1` instead of Strimzi.
   - `metadata.labels.eventstreams.ibm.com/cluster: connect-cluster-101` again instead of Strimzi.
-  
+
 
 
 ## Troubleshooting
