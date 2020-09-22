@@ -7,7 +7,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
   <AnchorLink>Overview</AnchorLink>
   <AnchorLink>Scenario Prerequisites</AnchorLink>
   <AnchorLink>Creating Event Streams Topics</AnchorLink>
-  <AnchorLink>Event Streams Security: SCRAM Credentials and Certificates</AnchorLink>
+  <AnchorLink>Event Streams Security: Credentials and Certificates</AnchorLink>
   <AnchorLink>Creating the Quarkus with MicroProfile Reactive Messaging Application</AnchorLink>
   <AnchorLink>Setting up the Kafka Strimzi Operator</AnchorLink>
   <AnchorLink>Setting up the Kafka Connect Cluster</AnchorLink>
@@ -56,65 +56,44 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 See instructions in [the common pre-requisite section](../overview/pre-requisites/#creating-event-streams-topics)
 
-## Event Streams Security: SCRAM Credentials and Certificates
+## Event Streams Security: Credentials and Certificates
 
-- To connect to our Event Streams version 10 instance unlike the previous versions of Event Streams on CP4I or the hosted Event Streams service on IBM Cloud we will need to follow a few steps to properly connect to it.
+*Note* - These steps are outlining Event Streams v2019.4.x (if trying to connect to Event Streams v10 there is a separate section for that)
 
 - While viewing our Event Streams Instance, navigate to the Topics menu from the left. Click Connect to this Cluster - 
 
-![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
-
-- Make sure that you're on **External Connection** as we will need to test/connect from an application on a local machine. Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
+![Connect to this Cluster](./images/connect-to-this-cluster.png)
 
 
-- Generate your **SCRAM Credentials**. Click the `Generate SCRAM Credentials` button.
 
-![Generate SCRAM1 ](./images/esv10-generate-scram.png)
+- Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
 
-- Select a name for your secret and make sure you rmeember/take note of it as we will need this later. Also choose the Produce, Consume, Create Topics and Schema Option.
+![Bootstrap Address](./images/bootstrap-server.png)
 
-![Generate SCRAM 2](./images/esv10-scram-1.png)
+- Generate your **API Key**. Click the Generate API Key button.
 
-- Select `All Topics` and then click Next.
+![Generate API Key 1](./images/generate-api-key-1.png)
 
-![Generate SCRAM 3](./images/esv10-scram-2.png)
-
-- Leave it with `All Consumer Groups` and click Next.
-
-![Generate SCRAM 4](./images/esv10-scram-3.png)
-
-- You can either leave it on `All Transactional IDs` or `None`.
-
-![Generate SCRAM 5](./images/esv10-scram-4.png)
 
 - Select a name for your application. It doesn't really matter too much what you name it. Also choose the Produce, Consume, Create Topics and Schema Option.
 
-- If this error occurs, log into your OpenShift cluster and go to the project/namespace that your Event Streams v10 instance is installed in. If you run these commands you will see your secret.
+![Generate API Key 2](./images/generate-api-key-2.png)
 
-`oc get kafkauser`
+- Select All Topics and then click Next.
 
+![Generate API Key 3](./images/generate-api-key-3.png)
 
-`oc get secrets`
+- Leave it All Consumer Groups on "ON" and click Next.
 
-- Your `SCRAM Username` that we will need for later is the name of your secret. The `SCRAM Password` can be either obtained by going to your OpenShift Console Web UI and revealing the password through the secrets menu or through the CLI. Run the following commands to see the value of the password.
+![Generate API Key 4](./images/generate-api-key-4.png)
 
-`oc get secret your-secret -o yaml | grep password`
+- You can copy down your API Key by hitting the Copy API Key button, or you can select Download as JSON so you can have a .json file with your API Key for better organization. Afterwards hit Close.- To connect to our Event Streams version 10 instance unlike the previous versions of Event Streams on CP4I or the hosted Event Streams service on IBM Cloud we will need to follow a few steps to properly connect to it.
 
-- This will return you a base64 encoded value. Decode this like so
-
-`echo "dWpPN3ZSSEF1clRK" | base64 -d`
-
-![SCRAM Secret](./images/esv10-scram-secret.png)
-
-
-- Lastly download the PKCS12 truststore .pkcs12 certificate. Once you hit the Download button the password to the truststore will be revealed. **Copy this down** as we will need it.
-
-![PKCS12 Truststore](./images/esv10-pkcs12.png)
 
 
 
 **Summary** 
-- We now have the bootstrap server address, SCRAM Username (also the name of the KafkaUser/Secret CRs) and Password, .pcks12 truststore certificate, and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
+- We now have the bootstrap server address, APi Key or SCRAM Username (also the name of the KafkaUser/Secret CRs if on ESv10) and Password, .jks file or .pcks12 truststore certificate (if ESv1), and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
 
 
 
@@ -559,6 +538,60 @@ oc describe kafkaconnector cos-sink-connector
 - Most of these steps are the same as the last two (Setting up the Kafka Connect Cluster and IBM COS Sink Connector) besides a change to the YAML files.
 - Event Streams v10 is still rather new so these are subject to change. 
 - Like previously mentioned in the Strimzi setup section, Event Streams v10 is built ontop of the Strimzi operator so we don't need to install those.
+
+
+*Event Streams v10 Credentials*
+
+![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
+
+- Make sure that you're on **External Connection** as we will need to test/connect from an application on a local machine. Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our Quarkus Application's connection to the Event Streams instance.
+
+
+- Generate your **SCRAM Credentials**. Click the `Generate SCRAM Credentials` button.
+
+![Generate SCRAM 1](./images/esv10-generate-scram.png)
+
+- Select a name for your secret and make sure you rmeember/take note of it as we will need this later. Also choose the Produce, Consume, Create Topics and Schema Option.
+
+![Generate SCRAM 2](./images/esv10-scram-1.png)
+
+- Select `All Topics` and then click Next.
+
+![Generate SCRAM 3](./images/esv10-scram-2.png)
+
+- Leave it with `All Consumer Groups` and click Next.
+
+![Generate SCRAM 4](./images/esv10-scram-3.png)
+
+- You can either leave it on `All Transactional IDs` or `None`.
+
+![Generate SCRAM 5](./images/esv10-scram-4.png)
+
+- Select a name for your application. It doesn't really matter too much what you name it. Also choose the Produce, Consume, Create Topics and Schema Option.
+
+- If this error occurs, log into your OpenShift cluster and go to the project/namespace that your Event Streams v10 instance is installed in. If you run these commands you will see your secret.
+
+`oc get kafkauser`
+
+
+`oc get secrets`
+
+- Your `SCRAM Username` that we will need for later is the name of your secret. The `SCRAM Password` can be either obtained by going to your OpenShift Console Web UI and revealing the password through the secrets menu or through the CLI. Run the following commands to see the value of the password.
+
+`oc get secret your-secret -o yaml | grep password`
+
+- This will return you a base64 encoded value. Decode this like so
+
+`echo "dWpPN3ZSSEF1clRK" | base64 -d`
+
+![SCRAM Secret](./images/esv10-scram-secret.png)
+
+
+- Lastly download the PKCS12 truststore .pkcs12 certificate. Once you hit the Download button the password to the truststore will be revealed. **Copy this down** as we will need it.
+
+![PKCS12 Truststore](./images/esv10-pkcs12.png)
+
+
 
 
 *Quarkus Application application.properties*
