@@ -3,6 +3,10 @@ title: Kafka Streams
 description: Kafka Streams
 ---
 
+<InlineNotification kind="warning">
+<strong>Continuous update as we progress</strong> Updated 09/23/2020 
+</InlineNotification>
+
 Kafka Streams is client API to build microservices with input and output data are in Kafka. It is based on programming a graph of processing nodes to support the business logic developer wants to apply on the event streams. 
 
 We recommend reading this excellent introduction [Kafka stream made simple](https://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple/) from Jay Kreps from Confluent to get a good understanding of why Kafka stream was created.
@@ -129,9 +133,13 @@ We found the following tutorial helpful to grow your competency on Kafka Streams
 
 ## Interactive queries
 
-State store can be queried. Result can be from the local store, if the key is in the local KTable, or remote. The metadata of the key to task allocation is maintained and shared between tasks. 
+State store can be queried, and this is supported by [the interactive queries](https://kafka.apache.org/10/documentation/streams/developer-guide/interactive-queries.html). Result can be from the local store, if the key is in the local store, or a remote one. The metadata of the key to task allocation is maintained and shared between tasks. 
 
-Here is an example of processing. The storeID is the key used in the KTable.
+As a Kafka stream app runs on multiple instances, the entire state of the app is distributed among the instances. 
+Here is an example of processing. 
+ ![9](https://kafka.apache.org/10/images/streams-interactive-queries-api-01.png)
+
+The storeID is the key used in the KTable.
 
 ```java
  public InventoryQueryResult getStoreStock(String storeID) {

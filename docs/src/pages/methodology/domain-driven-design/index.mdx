@@ -8,6 +8,7 @@ This section describes how to apply domain driven design with event based applic
     <AnchorLink>Overview</AnchorLink>
     <AnchorLink>Starting materials</AnchorLink>
     <AnchorLink>Domain driven design steps</AnchorLink>
+    <AnchorLink>Concepts and rationale underlying the design approach</AnchorLink>
     <AnchorLink>Applied DDD for the reference implementation</AnchorLink>
 </AnchorLinks>
 
@@ -137,26 +138,26 @@ Play with the model as you talk about the system. Describe scenarios out loud us
 
 #### Entities and Value Objects
 
-Entities are part of the ubiquitous language, and represent business concepts that can be uniquely identified by some atributes. They have a life cycle that is important to model.
+Entities are part of the ubiquitous language, and represent business concepts that can be uniquely identified by some attributes. They have a life cycle that is important to model, specially in the context of an event driven solution.
 
-Value Object also represent things in the domain but without identity, and they are frequently transient, created for an operation and then discarded.
+Value Objects represent things in the domain but without identity, and they are frequently transient, created for an operation and then discarded.
 
-Some time in a certain context a value object could become an entity. As an example, an Address will be most of the time a value object, excepts in a mapping app or in an agenda app.
+Some time, in a certain context, a value object could become an entity. As an example, an Order will be a value object in the context of a fullfilment sub-domain, while a core entity in order management service.
 
 Below is an example of entities (Customer and Shipping Order) and value objects (delivery history and delivery specification):
 
-![](./images/ent-vo.png)
+![4](./images/ent-vo.png)
 
 
 #### Aggregate boundaries
 
-An aggregate is a cluster of associated objects that we treat as a unit for the purpose of data changes. An entity is most likely and aggregate and every things related to it define its boundaries.
+An aggregate is a cluster of associated objects that we treat as a unit for the purpose of data changes. An entity is most likely an aggregate and every things related to it define its boundaries.
 
 #### Bounded Contexts
 
-Bounded Context explicitly defines the boundaries of your model. This concept is critical in large software projects. A Bounded Context sets the limits around what a specific team works on and helps them to define their own vocabulary within that particular context. When you define a bounded context, you define who uses it, how they use it, where it applies within a larger application context, and what it consists of in terms of things like Swagger documentation and code repositories.
+Bounded Context explicitly defines the boundaries of your model. This concept is critical in large software projects. A Bounded Context sets the limits around what a specific team works on and helps them to define their own vocabulary within that particular context. When you define a bounded context, you define who uses it, how they use it, where it applies within a larger application context, and what it consists of, in terms of things like OpenAPI documentation and code repositories.
 
-Within a business context every use of a given domain term, phrase, or sentence, **the Ubiquitous Language** inside the boundary has a specific contextual meaning. So order context is a boundary context and groups order, ordered product type, pickup and shipping addresses, delivery specifications, delivery history.
+Within a business context every use of a given domain term, phrase, or sentence, **the Ubiquitous Language**, inside the boundary has a specific contextual meaning. So order context is a bounded context and groups order, ordered product type, pickup and shipping addresses, delivery specifications, delivery history....
 
 #### Repositories
 
@@ -165,7 +166,7 @@ Client applications request objects from the repository using query methods that
 
 #### Event linked microservices design - structure
 
-A complete event driven microservices specification (the target of this design step) includes specifications of the following:
+A complete event driven microservice specification (the target of this design step) includes specifications of the following elements:
 
 * Event Topics
     * Used to configure the Event Backbone
@@ -186,8 +187,6 @@ A complete event driven microservices specification (the target of this design s
 * Recovery processing, scaling:
     * We expect this to be highly patterned and template driven not requiring example-specific design.
 
----
-
 ### Step 4: Define modules
 
 * Each aggregate will be implemented as some composition of:
@@ -197,8 +196,6 @@ A complete event driven microservices specification (the target of this design s
 * The command microservice will be built around a collection of active entites for the aggregate, keyed by some primary key.
 * The separation of each aggregate into specific component microservices as outlined above, will be a complete list of microservices for the build / sprint.
 * Identify the data collections, and collection organization (keying structure) in each command and query microservice for this build.
-
----
 
 ### Step 5: Limit the context and scope for this particular build / sprint
 
@@ -213,11 +210,9 @@ We assume that we are developing a particular build for a sprint within some agi
 * Identify the external query APIs and command APIs which this build should support
 * Create entity lifecycle diagrams for entites having a full lifecycle implementation in this build / sprint.
 
----
-
 ### Step 6: Generate microservice interaction diagrams for the build
 
-* The diagram will show API calls initiating state change. They should map the commands discovered during the event storming.
+* The diagram will show API calls initiating state change. They should map the commands discovered during the event storming sessions.
 * It shows for each interaction whether this is a synchronous API calls or an asynchronous event interaction via the event backbone.
 * The diagram labels each specific event interaction between microservices trigerring a state change.
 * Typically queries are synchronous API calls since the caller cannot usefully proceeed until a result is returned.
@@ -227,15 +222,13 @@ We assume that we are developing a particular build for a sprint within some agi
 
 * When, at the next level of detail, the individual fields in each event are specified and typed, the [CloudEvents standard](https://github.com/cloudevents/spec) may be used as a starting point.
 
----
-
 ### Step 7: Specify recovery approach in case a microservice fails
 
 * If a microservice fails it will need to recover its internal state by reloading data from one or more topics, from the latest committed read.
 * In general, command and query microservices will have a standard pattern for doing this.
 * Any custom event filtering and service specific logic should be specified.
 
-### Concepts and rationale underlying the design approach
+## Concepts and rationale underlying the design approach
 
 *What is the difference between event information stored in the event backbone and state data stored in the microservices?*
 
