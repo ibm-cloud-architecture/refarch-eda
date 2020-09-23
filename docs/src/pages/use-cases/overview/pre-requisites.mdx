@@ -185,6 +185,12 @@ See [product documentation for detail](https://ibm.github.io/event-streams/getti
  oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.password -n eventstreams
  ```
 
+Copy the server certificate into your OpenShift project where consumer and producer code will be deployed:
+
+```shell
+ oc get secret minimal-prod-cluster-ca-cert  -n eventstreams --export -o yaml | oc apply -f - 
+```
+
 ### Get Scram-sha-512 user 
 
 Select one of the Kafka users with Scram authentication defined or create a new one with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
@@ -230,8 +236,8 @@ If you want to use mutual authentication with client certificate, you need a tls
   oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.p12}' | base64 --decode > user.p12
   ```
 
-  Modify USER_CERT_PWD and USER_CERT_PATH=${PWD}/certs/user.p12 in the `.env` file
-
+Modify USER_CERT_PWD and USER_CERT_PATH=${PWD}/certs/user.p12 in the `.env` file
+While starting your application if you get an exception with message like: `Caused by: java.io.IOException: toDerInputStream rejects tag type 77`, this is due to keystore p12 file was not decoded with base64.  
 
 Also set the env variable as SECURE_PROTOCOL=SSL
 
@@ -241,6 +247,27 @@ Also set the env variable as SECURE_PROTOCOL=SSL
 
 Here are scripts that can be useful to start a local Kafdrop webserver.
 
-[]()
+```shell
+source .env
+sed 's/KAFKA_USER/'$KAFKA_USER'/g' ./scripts/kafka.properties > ./scripts/output.properties
+sed -i '' 's/KAFKA_PASSWORD/'$KAFKA_PASSWORD'/g' ./scripts/output.properties
+sed -i '' 's/KAFKA_CERT_PWD/'$KAFKA_CERT_PWD'/g' ./scripts/output.properties
+docker run -d --rm -p 9000:9000 \
+    --name kafdrop \
+    -v $(pwd)/certs:/home/certs \
+    -e KAFKA_BROKERCONNECT=$KAFKA_BROKERS \
+    -e KAFKA_PROPERTIES=$(cat ./scripts/output.properties | base64) \
+    -e JVM_OPTS="-Xms32M -Xmx64M" \
+    -e SERVER_SERVLET_CONTEXTPATH="/" \
+    obsidiandynamics/kafdrop
+```
+
+[See also those scripts: startKafdrop](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-item-inventory/master/scripts/startKafdrop.sh)
+
+and [to stop kafdrop](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-item-inventory/master/scripts/stopKafdrop.sh)
+
+```shell
+docker stop $(docker stop kafdrop)
+```
 
 The Web console is at [http://localhost:9000/](http://localhost:9000/)
