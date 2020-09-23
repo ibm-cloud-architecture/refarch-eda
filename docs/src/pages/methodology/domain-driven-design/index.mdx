@@ -4,66 +4,74 @@ description: Domain Driven Design
 ---
 
 This section describes how to apply domain driven design with event based application and describe the high level steps which uses output from the event storming session and derives a set of micro services design specifications.
+<AnchorLinks>
+    <AnchorLink>Overview</AnchorLink>
+    <AnchorLink>Starting materials</AnchorLink>
+    <AnchorLink>Domain driven design steps</AnchorLink>
+    <AnchorLink>Applied DDD for the reference implementation</AnchorLink>
+</AnchorLinks>
 
-[Event storming](/methodology/event-storming/) is part of the domain-driven design methodology. And domain-driven design was deeply describe in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215/?tag=hyprod-20&linkCode=df0&hvadid=312118197030&hvpos=1o1&hvnetw=g&hvrand=3363692763187919455&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032152&hvtargid=pla-449269547899&psc=1) from 2004. At IBM we also summarized the concepts needed for implementing microservice in [Kyle Brown's ddd article](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview).
+## Overview 
+
+[Event storming](/methodology/event-storming/) is part of the domain-driven design methodology. And domain-driven design was deeply described in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215/?tag=hyprod-20&linkCode=df0&hvadid=312118197030&hvpos=1o1&hvnetw=g&hvrand=3363692763187919455&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032152&hvtargid=pla-449269547899&psc=1) from 2004. At IBM, we also summarized the concepts needed for implementing microservice in [Kyle Brown's DDD article](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview).
 
 From this body of knowledge we can derive the following important elements:
 
 * Domain Driven Design is about understanding the business domain in which the solution has to be developed
-* Context is important to define as definitions within a context
-* For microservice we need to find the boundary of responsability
+* Context is important to define the business term definitions within a context
+* For microservice we need to find the boundary of responsability to be able to apply clear separation of concern pattern. 
 
 The goals for the design step are:
 
 * To support highly modular cloud native microservices.
 * To adopt event coupled microservices - facilitating independent modification and evolution of each microservice separately.
-* To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of microservice implementation: data consitency, transaction cross domains, and complex queries between aggregates managed by different services.
+* To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of distributed system implementation: data consitency, transaction cross domains, and complex queries between aggregates managed by different services.
 
-## Starting materials generated during the Event Storming workshop
+## Starting materials
 
-We make use of the following materials generated during Event Storming and analysis workshop:
+At IBM garage we start with a design thinking workshop enhanced with event storming to model the to-be scenario when end to end business process visibility is needed. Discovering events using event storming simplifies the process discovery and sequencing of tasks. BPMN modeling may also being use to model a process but it has the tendency to lock the thinking in a flow, while event storming focuses on what happened as facts, and so it easier to get events sequencing. Also events coming from no-where could still be discovered and have their value. Event storming workshop starts some domain driven design analysis by getting some of the following materials:
 
 * Domains - sub domains
 * Event Sequence flow.
-* Events – business term definition.
+* Events – business term definition: the start of ubiquitous language.
 * Critical events.
-* Business entity
-* Aggregates and services:
-    * Users – role based user stories.
-    * Commands.
-    * Event linkages.
-    * Policies.
-    * Event prediction and probability flows.
+* Business entities, aggregates
+* Commands
+* Actores - Users – role based on Empathy maps and stakeholders list.
+* Event linkages.
+* Business Policies.
+* Event prediction and probability flows.
 
-The derivation of these material was described in: [the event storming introduction](/methodology/event-storming/).
+The derivation of those materials was described in [the event storming introduction](/methodology/event-storming/).
 
-Here is an example of starting material illustrating the beginning of the process for the Reefer shipping business process:
+Here is an example of starting material illustrating the beginning of the process for the Reefer shipping business process, with order placement and shipping contract elaboration:
 
 ![Event Storming Order](./images/event-storming-order.png)
 
-From there we complement the analysis and start the domain design.
+From there we complement this analysis by extending it with the domain driven design elements.
 
-## Steps in the design process
+## Domain driven design steps
 
-### Step 1: Assess domain and subdomains
+### Step 1: Assess domains and sub-domains
 
-Domain is what an organization does, and it includes the how to perform its operations.  It is composed of sub domains. A Core Domain is a part of the business Domain that is of primary importance to the success of the organization, the organization needs to excel at it.
+Domain is what an organization does, and it includes the "how to", it performs its operations.  Domain may be composed of sub-domains. A "Core" domain is a part of the business domain that is of primary importance to the success of the organization, the organization needs to excel at it to make business impact and difference.
 
-During the event storming analysis, you define the domain and groups a set of subdomains like orders, invoice, customer, ... and external systems. Here is an example of such domain and subdomains:
+During the event storming analysis, you define the domains and groups a set of sub-domains together. In the following figure, the container shipping domain is what the application we have to develop belongs to, and is composed of sub-domains like orders, shipping, inventory, .... Other domains like weather, CRM, invoice, are supporting the shipping domain but are not the focus of the design. Here is an example of such domain and subdomains:
 
 ![DDD Subdomains](./images/domain-subdomains.png)
 
-We have three core subdomains and the rest are supports.
+We have three core sub-domains and the rest are supports. Shipping over seas company needs to excel at managing container inventory, managing the shipping, the itineraries, and vessels.  
 
----
 
-### Step 2: Defined the potential application
+### Step 2: Define the application context
 
-At the high level, when doing the analysis, you should have some insight decision of the top level application to develop, but it is also important to also list other systems to interact with. A classic system context diagram is a nice tool to represent that. The EDA reference implementation solution includes such [system context diagram](https://ibm-cloud-architecture.github.io/refarch-kc/design/architecture/#system-context).
+At the high level, when doing the analysis, you should have some insight decisions of the top level application to develop, with some ideas of the other systems to interact with. A classical "system context diagram" is a efficient tool to represent the application high level context. The external systems to integrate with, are strongly correlated to the domains discovered from previous step. 
 
-Each interface needs to be documented using an efficient tools of [interface characteristics](https://www.ibm.com/developerworks/websphere/techjournal/1201_clark/1201_clark.html).
+For the EDA reference implementation solution the [system context diagram is visible here](https://ibm-cloud-architecture.github.io/refarch-kc/design/architecture/#system-context).
 
-full set of interface characteristics is shown below:
+Each interface to those system needs to be documented using the [interface characteristics approach](https://www.ibm.com/developerworks/websphere/techjournal/1201_clark/1201_clark.html) presented by IBM Kim Clark.
+
+The full set of interface characteristics to consider for each system to integrate is summarized below:
 
 * FUNCTIONAL DEFINITION
 
@@ -116,7 +124,8 @@ full set of interface characteristics is shown below:
     * Known exception conditions
     * Unexpected error presentation
 
----
+So with a system context diagram and interface characteristics to external system we have a good undestanding of the application context and interaction with external domains.
+
 
 ### Step 3: Define the ubiquitous language
 
@@ -244,6 +253,6 @@ For non-state-changing queries, for which the response is always instantaneously
 * Each query which might require speciaoized secondary indexing to respond to queries can be implemented in a separate CQRS query service which subscribes to events  to do all internal updating and receives events from the event backbone in a ( Consistent) eventually correct order.
 * This allows for recovery of any failed service by rebuilding it in "eventually correct" order.
 
-### Applied DDD for the reference implementation
+## Applied DDD for the reference implementation
 
-See [this note for details](https://ibm-cloud-architecture.github.io/refarch-kc-order-ms/ddd-applied/).
+See [this article to see how we applied DDD for the shipping good over seas implementation](https://ibm-cloud-architecture.github.io/refarch-kc/implementation/domain-driven-design/).

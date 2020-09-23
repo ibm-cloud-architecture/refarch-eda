@@ -4,13 +4,14 @@ description: Using Kafka Streams to compute real time inventory stock
 ---
 
 <InlineNotification kind="warning">
-<strong>TODO</strong> - Work in progress
+<strong>Work in progress</strong> - Interactive query not finished
 </InlineNotification>
 
 <AnchorLinks>
     <AnchorLink>Overview</AnchorLink>
     <AnchorLink>Scenario Prerequisites</AnchorLink>
     <AnchorLink>Develop the application</AnchorLink>
+    <AnchorLink>Interactive queries</AnchorLink>
     <AnchorLink>Integration Tests</AnchorLink>
     <AnchorLink>Deploy to OpenShift</AnchorLink>
     <AnchorLink>Another item producer</AnchorLink>
@@ -409,7 +410,7 @@ SECURE_PROTOCOL=SASL_SSL
     INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, kafka-streams, kubernetes, kubernetes-client, mutiny, resteasy, resteasy-jsonb, resteasy-mutiny, smallrye-context-propagation, smallrye-health, smallrye-openapi, smallrye-reactive-messaging, smallrye-reactive-messaging-kafka, swagger-ui, vertx]
  ```
 
-### Define the topology
+### Define the kafka streams topology
 
 While in dev mode, we can add the `StoreInventoryAgent` class under the domain folder. We want to apply a domain driven design implementation approach using domain classes to represent the business logic and code expressed with ubiquituous language. The proposed implementation almost reach this language, adding only into the vocabulary the concept of streams and table in the form of KStream and KTable. We could have avoid that but it will not bring that much value for the implementation. Stream and tables are clear enought terms to be understood by business analysts.
 
@@ -562,9 +563,9 @@ public void setup() {
 Do not use `@QuarkusTest` in the test class to avoid loading the application.properties. 
 
 
-## Interaction query
+## Interactive queries
 
-Now as presented in [this note](../../technology/kafka-streams), as soon as we use KTable materialized with state store we can use query to get the last state of the records saved. 
+Now as presented in [this note](../../../technology/kafka-streams/#interactive-queries), as soon as we use KTable materialized with state store we can use query to get the last state of the records saved. 
 The API returns a query result on the inventory. We can define such bean as:
 
 ```Java
@@ -620,7 +621,7 @@ metadata = streams.queryMetadataForKey(
     }
 ```
 
-## API 
+### API 
 
 Now we want to complete our APIs by adding information on the store metadata from URL `/meta-data`. The method to add to the Resource class is:
 
