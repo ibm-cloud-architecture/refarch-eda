@@ -4,7 +4,7 @@ description: Using Kafka Streams to compute real time inventory stock
 ---
 
 <InlineNotification kind="warning">
-<strong>Work in progress</strong> Updated 09/23/2020 - Interactive query not finished
+<strong>Work in progress</strong> Updated 09/23/2020 - End to end testing could be better
 </InlineNotification>
 
 <AnchorLinks>
@@ -594,7 +594,7 @@ So the Resource class is not
 public Uni<InventoryQueryResult> getStock(@PathParam("storeID") String storeID) {
     InventoryQueryResult result = queries.getStoreStock(storeID);
     if (result.getResult().isPresent()) {
-        return Uni.createFrom().item(result.getInventory());
+        return Uni.createFrom().item(result);
     } else {
         return  Uni.createFrom().item(InventoryQueryResult.notFound());
     }

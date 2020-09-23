@@ -136,25 +136,79 @@ We found the following tutorial helpful to grow your competency on Kafka Streams
 State store can be queried, and this is supported by [the interactive queries](https://kafka.apache.org/10/documentation/streams/developer-guide/interactive-queries.html). Result can be from the local store, if the key is in the local store, or a remote one. The metadata of the key to task allocation is maintained and shared between tasks. 
 
 As a Kafka stream app runs on multiple instances, the entire state of the app is distributed among the instances. 
-Here is an example of processing. 
- ![9](https://kafka.apache.org/10/images/streams-interactive-queries-api-01.png)
 
-The storeID is the key used in the KTable.
+The Stream topology will transform the stream to table with one of the groupBy or aggregate operation:
 
 ```java
- public InventoryQueryResult getStoreStock(String storeID) {
-        KeyQueryMetadata metadata = metadata = streams.queryMetadataForKey(
-                StoreInventoryAgent.STOCKS_STORE_NAME,
-                storeID,
-                Serdes.String().serializer());
-       
-        if (metadata == null || metadata == KeyQueryMetadata.NOT_AVAILABLE) {
-            return InventoryQueryResult.notFound();
-        } else if (metadata.getActiveHost().host().equals(host)) {
-            Inventory result = getStockStore().get(storeID);
-            ...
-        } else { //call remote node via REST API given the getActiveHost().host() and port()
 
+items
+.groupByKey(ItemStream.buildGroupDefinition())
+.aggregate(
+    () ->  new Inventory(),
+    (k , newItem, existingInventory) 
+        -> existingInventory.updateStockQuantity(k,newItem), 
+        InventoryAggregate.materializeAsInventoryStore()); 
+```
+
+which then it can be materialized as queryable key - value store.
+
+```java
+// class InventoryAggregate
+/**
+ * Create a key value store named INVENTORY_STORE_NAME to persist store inventory
+ */
+public static Materialized<String, Inventory, KeyValueStore<Bytes, byte[]>> materializeAsInventoryStore() {
+    return Materialized.<String, Inventory, KeyValueStore<Bytes, byte[]>>as(INVENTORY_STORE_NAME)
+            .withKeySerde(Serdes.String()).withValueSerde(inventorySerde);
+}
+```
+
+Each store is local to the instance it was created in:
+
+ ![9](https://kafka.apache.org/10/images/streams-interactive-queries-api-01.png)
+
+The storeID is the key used in the KTable. Once the Kafka Stream is started and store created (loop to get it ready) then it is easy to access it:
+
+```java
+@Inject
+KafkaStreams streams;
+
+private ReadOnlyKeyValueStore<String, Inventory> getInventoryStockStore() {
+        while (true) {
+            try {
+    
+                StoreQueryParameters<ReadOnlyKeyValueStore<String,Inventory>> parameters = StoreQueryParameters.fromNameAndType(InventoryAggregate.INVENTORY_STORE_NAME,QueryableStoreTypes.keyValueStore());
+                return streams.store(parameters);
+        ...
+
+// access one element of the store
+Inventory result = getInventoryStockStore().get(storeID);
+
+```
+
+To get access to remote store, we need to expose each store via an API. The easiest one is a REST api, but it could be any RPC protocol. Each instance is uniquely identified via the `application.server` property. When deploying on kubernetes it could be the pod IP address accessible via the $POD_IP environment variable.  
+
+Below is a quarkus declaration:
+
+```properties
+hostname=${POD_IP:localhost}
+quarkus.kafka-streams.application-server=${hostname}:8080
+```
+
+Now the design decision is to return the URL of the remote instance to the client doing the query call or do the call internally to the instnace reached to always returning a result.
+
+The knowledge of other application instance is done by sharing metadata. The following code example illustrates the access to metadata for store via the kafka stream context and then build a pipeline medata to share information about host, port and partition allocation.
+
+```java
+streams.allMetadataForStore(ItemStream.ITEMS_STORE_NAME)
+                .stream()
+                .map(m -> new PipelineMetadata(
+                        m.hostInfo().host() + ":" + m.hostInfo().port(),
+                        m.topicPartitions()
+                                .stream()
+                                .map(TopicPartition::toString)
+                                .collect(Collectors.toSet())))
+                .collect(Collectors.toList());
 ```
 
 ## Design considerations
