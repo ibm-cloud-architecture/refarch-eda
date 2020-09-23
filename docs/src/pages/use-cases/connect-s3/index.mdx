@@ -77,7 +77,7 @@ As different use cases will require different configuration details to accommoda
    kubectl create secret generic eventstreams-truststore-cert --from-file=es-cert.crt
    ```
 
-**IBM Event Streams Certificates on IBM Cloud Pak for Integration**
+**IBM Event Streams Certificates on IBM Cloud**
 - If you are using an IBM Event Streams instance deployed on IBM Cloud, you need to provide the root CA certificate to connect correctly from the Kafka Connect instance.
 - This file can be downloaded as `eventstreams.cloud.ibm.com.cer` from the endpoint defined in your service credentials via the `kafka_http_url` property.
 - Once downloaded, it must be configured to work with the Kafka Connect certificate deployment pattern:
