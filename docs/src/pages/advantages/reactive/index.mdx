@@ -1,0 +1,72 @@
+---
+title: Reactive Systems
+description: EDA supports Reactive Systems implementation
+---
+
+
+<InlineNotification kind="warning">
+<strong>Started 09/24/2020 - still working progress</strong> Updated /./
+</InlineNotification>
+
+
+This chapter describes how event driven architecture addresses the implementation of reactive systems and goes over the different most recent technologies to implement such event-driven responsive applications.
+
+<AnchorLinks>
+    <AnchorLink>Context</AnchorLink>
+    <AnchorLink>More...</AnchorLink>
+</AnchorLinks>
+
+## Overview
+
+Modern business applications embrace the strong need to be responsive, bringing immediate response and feedbacks to the end user or system acting on it at the moment it needed. Modern solution based on microservices need to support load and failure and developers adopt the reactive manifesto and modern programming libraries and software to support the manifesto characteristics. 
+
+The [reactive manifesto](https://www.reactivemanifesto.org/) defines four characteristics modern cloud native application needs to support:
+
+ ![1](./images/reactive-manifesto.png)
+
+
+* **Message driven**: the underlying behavior is to have an asynchronous message driven backbone, to enable loose coupling of the application components by exchanging asynchronous messages to minimize or isolate the negative effects of resource contention, coherency delays and inter-service communication network latency. It is the base to support the other reactive characteristics. It also helps for isolation and support location transparency.
+* **Elastic**: The system stays responsive under varying workload, it can scale up and down the resource utilization depending of the load to the system.
+* **Resilient**: stay responsive in the face of failure, this is a key characteristics. It implies distributed systems.
+* **Responsive**: deliver a consistent quality of service to end users or systems, react quickly and consistently to events happening in the system.
+
+Reactive architecture is an architecture approach aims to use asynchronous messaging or event driven architecture to build Responsive, Resilient and Elastic systems. 
+
+Under the "reactive" terms we can see two important caveats:
+
+* **Reactive systems** is a group of application components which can heal and scale automatically. It address data consistency, cross domain communication, orchestration, failure, recovery... 
+* **Reactive programming** is a subset of asynchronous programming and a paradigm where the availability of new information drives the logic forward rather than having control flow driven by a thread-of-execution. This is the adoption of non-blocking IO and event-based model.
+
+We recommend to go over [this excellent IBM article on defining reactive](https://ibm.biz/DefiningReactive
+) to go deeper into those concepts.
+
+### Is it for me?
+
+We have learnt from years of point to point microservice implementations, that embrassing asynchronous communication help a lot to support scaling, integration, coupling and failover. So adopting reactive design and implementation may look complex at first but is a necessity in the long run. In e-commerce, a lot of monolithic applications were redesigned to adopt reactive manifesto characteristics to support scaling the business need and respond to sporadic demand. In the world of big data, collecting, aggregating, applying real time analytics, decisions and AI need to scale and respond to events at the time of occurence. 
+
+## EDA and reactive systems
+
+The adoption of event driven microservice implementation fits well into the reactive manifesto, where most of the work presented in this git repository started by adoptin Kafka as event backbone, it is too reductor to think EDA is just kafka. EDA supports reactive systems at large, and developing event-driven microservice should use reactive libraries to support non-blocking IO and messaging. Also microservices is part of the game, functions are also in scope and serverless 2.0, knative eventing are the new kids in the play.
+
+The manifesto stipulates "message driven" while EDA is about events. Events represent unmmutable data and facts about what happened, and components subscribe to those event streams. Message content data sent to a specific destination or consumer. For sure we define EDA implementations to cover both. And we should not be purist and opinionated about that much: it will not make any sense to say: you are using queue to exchange message while we produce events in topic, are different architectures, we see them to be part of a larger asynchronous based architecture. 
+
+## Technology review 
+
+* concurrency
+parallelism
+stream with back pressure
+vert.x
+mutiny
+amqp 
+knative eventing
+
+## Code samples
+
+* [Vert.x kafka client](https://vertx.io/docs/vertx-kafka-client/java/)
+* [Experiences writing a reactive Kafka application](https://developer.ibm.com/tutorials/transforming-a-kafka-application-to-be-reactive/)
+
+## More...
+
+* [Reactive Systems Explained - Book from Grace Jansen - Peter Gollmar](ibm.biz/ReactiveReport)
+* [Reactive Java Modules show how to build an event-driven, streams-optimized Kafka-based Java application. You will use the Eclipse MicroProfile Reactive Messaging API and Open Liberty to build it and then you'll learn how to test it in true-to-production environments by using containers with MicroShed testing.](https://ide.skillsnetwork.site/reactive-java-workshop)
+* [Resiliency discussion in IBM architecture center]( (https://www.ibm.com/cloud/architecture/architectures/resilience))

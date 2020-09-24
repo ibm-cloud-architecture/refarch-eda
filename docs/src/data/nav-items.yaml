@@ -16,6 +16,8 @@
   pages:
     - title: Microservice decoupling
       path: /advantages/microservice
+    - title: Reactive systems
+      path: /advantages/reactive/
     - title: Resiliency
       path: /advantages/resiliency/
     - title: Scalability
