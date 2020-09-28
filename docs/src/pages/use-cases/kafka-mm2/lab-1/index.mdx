@@ -1,5 +1,5 @@
 ---
-title: Kafka Mirror Maker 2 Lab 1
+title: Mirror Maker 2 - Event Streams Service to Local Kafka 
 description: Using MM2 from Event Streams on Cloud to local Kafka 2.5 cluster.
 ---
 
@@ -21,18 +21,15 @@ As a pre-requisite you need to run your local cluster by using the docker compos
 
 ## Start local kafka cluster
 
-1. Get [Docker](https://docs.docker.com/) desktop and docker compose on your local computer.  and docker compose to run the solution locally.
+If for security reason you are not able to install docker on your local workstation, but you have access to a kubernetes cluster, like OpenShift, see the [next section](#running-docker-in-kubernetes-pod).
 
- If for security reason you are not able to install docker on your local workstation, but you have access to a kubernetes cluster, like OpenShift, see the [next section](#running-docker-in-kubernetes-pod).
-
- In this project main folder there is a [docker compose file](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-data-consistency/master/docker-compose.yml) to start a local three brokers cluster with two Zookeeper nodes.
+In this project main folder there is a [docker compose file](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-data-consistency/master/docker-compose.yml) to start a local two brokers cluster with one Zookeeper node.
 
 1. In one Terminal window, start the local cluster using `docker-compose up &` command. The data are persisted on the local disk within this folder.
 
-Your environment is up and running.
+Your local environment is up and running.
 
 ## Start Kafka Connect
-
 
 1. If this is the first time you start this local Kafka cluster, you need to create the `products` topic. Start a Kafka container to access the Kafka tools with the command:
 
@@ -48,25 +45,25 @@ Your environment is up and running.
 1. Modify .env file to set environment variables for Source Event Streams cluster brokers address and APIKEY.
 
  ```shell
- export KAFKA_SOURCE_BROKERS=broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
- export KAFKA_SOURCE_APIKEY="<replace with apikey from event streams service credentials>"
+ export KAFKA_SOURCE_BROKERS=broker-...:9093
+ export KAFKA_SOURCE_PASSWORD="<replace with apikey from event streams service credentials>"
  ```
- Then use: `source .env`
-
- The configuration file (es-to-local/mm2.properties) is for standalone configuration, and looks like:
+ 
+ The configuration file (mirror-maker-2/es-to-local/mm2.properties) is for standalone configuration, and looks like:
 
     ```properties
     clusters=source, target
-    source.bootstrap.servers=broker-3-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
+    source.bootstrap.servers=broker-3...:9093
     source.security.protocol=SASL_SSL
     source.ssl.protocol=TLSv1.2
     source.sasl.mechanism=PLAIN
     source.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="985...";
-    target.bootstrap.servers=kafka1:9092,kafka2:9093,kafka3:9094
+    target.bootstrap.servers=kafka1:9092,kafka2:9093
     # enable and configure individual replication flows
     source->target.enabled=true
     source->target.topics=products
     ```
+  A lot of these properties are for the security settings. The `clusters` property defines the alias name for the source to target, and then `source->target.*` properties define the topic to replicate...
 
 1. Start Mirror Maker2.0, by using a new container to start another kakfa 2.5 docker container, connected to the  brokers via the `kafkanet` network, and mounting the configuration in the `/home`. We have done a script to modify the properties file from a template file then call mirror maker 2:
 
@@ -74,7 +71,7 @@ Your environment is up and running.
     ./scripts/launchMM2.sh
     ```
 
-    The command starts the container with a command very similar as:
+    The command update the properties file from the environment variables and starts the container with a command very similar as:
 
     ```shell
      docker run -ti --network kafkanet -v $(pwd):/home -v $(pwd)/mirror-maker-2/logs:/opt/kafka/logs strimzi/kafka:latest-kafka-2.5.0 /bin/bash -c "/opt/kafka/bin/connect-mirror-maker.sh /home/mirror-maker-2/es-to-local/mm2.properties"
@@ -82,7 +79,7 @@ Your environment is up and running.
 
     The `mm2.properties` file defines the source and target clusters and the topics to replicate.
 
-## Start Consumer from target cluster
+## Start consumer from target cluster
 
 We will use a simple and useful tool, called [Kafdrop](https://github.com/obsidiandynamics/kafdrop) to see messages in topics.
 
@@ -103,7 +100,7 @@ cd mirror-maker-2
 # 1- if not done set environment variables to reach the remote kafka cluster, source of the replication
 source ../.env
 # 2- Execute the script using docker
-docker run -ti -v $(pwd):/home --rm -e  KAFKA_BROKERS=$KAFKA_SOURCE_BROKERS -e KAFKA_APIKEY=$KAFKA_SOURCE_APIKEY ibmcase/kcontainer-python:itgtests python /home/SendProductToKafka.py --file /home/data/products.json
+docker run -ti -v $(pwd):/home --rm -e  KAFKA_BROKERS=$KAFKA_SOURCE_BROKERS -e KAFKA_SOURCE_PASSWORD=$KAFKA_SOURCE_PASSWORD -e KAFKA_USER=$KAFKA_SOURCE_USER ibmcase/kcontainer-python:itgtests python /home/SendProductToKafka.py --file /home/data/products.json
 ```
 
 The traces should look like:

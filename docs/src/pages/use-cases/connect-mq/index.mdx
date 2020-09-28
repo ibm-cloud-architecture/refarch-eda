@@ -7,10 +7,10 @@ description: Apache Kafka to IBM MQ Sink Connector use case
 <strong>Work in progress</strong> - MQ Sink Connector on virtual or baremetal server, MQ and Event Streams on IBM Cloud not completed...
 </InlineNotification>
 
-This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data into a MQ queue. We can have multiple deployment combinations but we will limit to two patterns:
+This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data from Kafka topic into a MQ queue. We can have multiple deployment combinations but we will limit to two patterns:
 
 <AnchorLinks>
-<AnchorLink>MQ Sink Connector, MQ, Kafka on OpenShift</AnchorLink>
+<AnchorLink>MQ Sink Connector, MQ,and Kafka on OpenShift</AnchorLink>
 <AnchorLink>MQ Sink Connector on virtual or baremetal server, MQ and Event Streams on IBM Cloud</AnchorLink>
 </AnchorLinks>
 
@@ -40,7 +40,7 @@ Kafka is runnning in its own namespace, and we are using Event Streams from Clou
 
 ### Pre-requisites
 
-We assume that you have an instance of Event Streams already running on OpenShift, with a TLS authentication user type. See [those instructions](../../use-cases/overview/pre-requisites#getting-scram-authentication-from-event-streams-on-openshift) to get them.
+We assume that you have an instance of Event Streams already running on OpenShift, with a TLS authentication user type. See [those instructions](../../use-cases/overview/pre-requisites#getting-scram-authentication-from-event-streams-on-openshift) to get those credentials.
 
 The MQ broker is running on OpenShift and was created using kubernetes operators: we have documented a simple how to guide in [this MQ summary](../../technology/mq#installation-with-cloud-pak-for-integration). The instance is exposed via a Route so we can access the administration console using the admin credentials of Cloud Pak for Integration.
 
