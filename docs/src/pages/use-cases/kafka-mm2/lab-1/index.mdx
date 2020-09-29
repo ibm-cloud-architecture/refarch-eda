@@ -5,10 +5,11 @@ description: Using MM2 from Event Streams on Cloud to local Kafka 2.5 cluster.
 
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Start local Kafka cluster</AnchorLink>
   <AnchorLink>Start Kafka Connect</AnchorLink>
   <AnchorLink>Start Consumer from target cluster</AnchorLink>
   <AnchorLink>Start Producer to source cluster</AnchorLink>
-
+  <AnchorLink>Clean up</AnchorLink>
 </AnchorLinks>
 
 ## Overview
@@ -17,9 +18,13 @@ For this scenario the source cluster is an Event Streams on IBM Cloud cluster in
 
 ![1](../images/mm2-scen1.png)
 
+1. Mirror maker 2 runs in standalone on local server
+1. A python producer write to `products` topic defined on Evenstreams on IBM Cloud 
+1. A consumer to validate the replicated records
+
 As a pre-requisite you need to run your local cluster by using the docker compose as introduced in [this note](/use-cases/kafka-mm2/#pre-requisites).
 
-## Start local kafka cluster
+## Start local Kafka cluster
 
 If for security reason you are not able to install docker on your local workstation, but you have access to a kubernetes cluster, like OpenShift, see the [next section](#running-docker-in-kubernetes-pod).
 
@@ -30,17 +35,6 @@ In this project main folder there is a [docker compose file](https://raw.githubu
 Your local environment is up and running.
 
 ## Start Kafka Connect
-
-1. If this is the first time you start this local Kafka cluster, you need to create the `products` topic. Start a Kafka container to access the Kafka tools with the command:
-
-  ```shell
-  docker run -ti -v $(pwd):/home --network kafkanet strimzi/kafka:latest-kafka-2.5.0 bash -c "/home/scripts/createProductsTopic.sh"
-  ```
-1. Verify the topic is created:
-
- ```shell
- docker exec -ti refarch-eda-data-consistency_kafka1_1 /bin/bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka1:9092 --list"
- ```
 
 1. Modify .env file to set environment variables for Source Event Streams cluster brokers address and APIKEY.
 
@@ -74,13 +68,30 @@ Your local environment is up and running.
     ./scripts/launchMM2.sh
     ```
 
-    The command update the properties file from the environment variables and starts the container with a command very similar as:
+    This script updates the properties file from the environment variables and starts the container with a command very similar as:
 
     ```shell
      docker run -ti --network kafkanet -v $(pwd):/home -v $(pwd)/mirror-maker-2/logs:/opt/kafka/logs strimzi/kafka:latest-kafka-2.5.0 /bin/bash -c "/opt/kafka/bin/connect-mirror-maker.sh /home/mirror-maker-2/es-to-local/mm2.properties"
     ```
 
     The `mm2.properties` file defines the source and target clusters and the topics to replicate.
+
+1. Verify the MM2 topics are created:
+
+ ```shell
+ docker exec -ti refarch-eda-data-consistency_kafka1_1 /bin/bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka1:9091 --list"
+
+ list"
+__consumer_offsets
+heartbeats
+mm2-configs.source.internal
+mm2-offsets.source.internal
+mm2-status.source.internal
+source.checkpoints.internal
+source.heartbeats
+source.products
+ ```
+
 
 ## Start consumer from target cluster
 
@@ -131,13 +142,15 @@ Going to view messages you can see the last 5 messages match the one sent to the
 Another way to validate the target `source.products` topic has records, is to use a Kafka console tool, delivered with Apache kafka open source.
 
   ```shell
-  docker run -ti --network kafkanet --rm=true strimzi/kafka:latest-kafka-2.5.0  /bin/bash -c "bin/kafka-console-consumer.sh --bootstrap-server  kafka1:9092 --topic source.products --from-beginning"
+  docker run -ti --network kafkanet --rm=true strimzi/kafka:latest-kafka-2.5.0  /bin/bash -c "bin/kafka-console-consumer.sh --bootstrap-server  kafka1:9091 --topic source.products --from-beginning"
 
   { "product_id": "P01", "description": "Carrots", "target_temperature": 4,"target_humidity_level": 0.4,"content_type": 1}
   { "product_id": "P02", "description": "Banana", "target_temperature": 6,"target_humidity_level": 0.6,"content_type": 2}
   { "product_id": "P03", "description": "Salad", "target_temperature": 4,"target_humidity_level": 0.4,"content_type": 1}
   ```
 Stop producer with Ctrl C.
+
+## Clean up
 
 You are done with the lab, to stop everything:
 

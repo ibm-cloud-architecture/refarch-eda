@@ -1,0 +1,37 @@
+---
+title: Getting a starting environment to develop EDA solution
+description:  Getting a starting environment to develop EDA solution
+---
+
+We are presenting in this note how to get development and deployment environments to start developing Event Driven microservice solution. We assume OpensShift deployment and at first Java as the main programming language.
+
+## Infrastructure for dev integration test
+
+* OpenShift
+* cloud pak operators
+    * Add [IBM Common Services opertors](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
+    * Add the IBM operators to the list of installable operators. Same product note as above.
+    * Get [entitlement key](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/entitlement_key.html)
+* cloud pak for integration
+    * Install Cloud pak for integration operator using the Operator hub catalog
+    * Install Cloud pak for integration platform navigator from the operator hub catalog
+    * The previous steps should have installed the common services if they were not install before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
+* cloud pak for application
+
+### Deploy event streams
+
+    The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. Here is an example of yaml
+
+    ```yaml
+    
+    ```
+
+### Deploy Strimzi
+
+## Java Developer environment
+
+* Go with [Quarkus](http://quarkus.io) so all being set with maven plugin.
+* Kafka Strimzi image for docker and docker-compose to get up and running quikcly. We have different docker composes files for you to start with:
+    * One Broker, one Zookeeper, kafka 2.5
+
+## Python Developer environment

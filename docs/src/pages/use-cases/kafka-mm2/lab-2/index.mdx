@@ -1,6 +1,6 @@
 ---
-title: Mirror Maker 2 ES on prem to ES on Cloud
-description: Using Mirror Maker 2 from Event Streams on premise to Event stream on cloud
+title: Mirror Maker 2 ES on RHOS to ES on Cloud
+description: Using Mirror Maker 2 from Event Streams on OpenShift to Event Streams on cloud
 ---
 
 <AnchorLinks>
@@ -16,6 +16,10 @@ description: Using Mirror Maker 2 from Event Streams on premise to Event stream 
 For this scenario the source cluster is an Event Streams on premise on OpenShift, and the target cluster is an Event Stream on Cloud. Mirror Maker 2 runs on OpenShift.
 
  ![1](../images/mm2-lab2.png)
+
+ 1. Mirror Maker 2 runs on OpenShift as pod in the same namespace as Event Streams
+ 2. A producer in python to send records to `products` topic, will run locally or could be deployed on OpenShift too as a job
+ 3. Event Streams on Cloud with replicated topic and Kafdrop to see the replicated messages.
 
 ## Pre-requisites
 
@@ -35,21 +39,18 @@ For this scenario the source cluster is an Event Streams on premise on OpenShift
 
 * As Event Streams on the Cloud does not authorize to create topic with the Kafka Admin API, we need to create the following topics with scripts or GUI. The naming convention respects the name of the source cluster as defined in the MirrorMaker2 manifest we will detail later.
 
-  * es-1.checkpoints.internal  using one partition
-  * es-1.heartbeats  using one partition
-  * es-1.products   matches the partition allocated to the source topic
-  * mirrormaker2-cluster-configs one partition
-  * mirrormaker2-cluster-offsets 25 partitions
-  * mirrormaker2-cluster-status 5 partitions.
+  * `es-1.products`   matches the partition allocated to the source topic
+  * `mirrormaker2-cluster-configs` one partition
+  * `mirrormaker2-cluster-offsets` 25 partitions
+  * `mirrormaker2-cluster-status` 5 partitions.
 
 Use the default replication factor of 3.
-
 
 * Create a secret for the API KEY of the Event Streams on Cloud as target cluster:
 
  ```shell
  # Go to the project where Event Streams is installed
- oc project eventstreams
+ oc project integration
 oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-event-streams-on-cloud-apikey>
  ```
 
@@ -59,7 +60,7 @@ oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-
  # Use the bootstrap internal URL
  oc get svc light-es-kafka-bootstrap
  # The URL is
- light-es-kafka-bootstrap.eventstreams.svc:9093
+ light-es-kafka-bootstrap.integration.svc:9093
  ```
 
 * Verify the CA certificate secrets:
@@ -72,99 +73,114 @@ oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-
 
 ## Start Mirror Maker 2
 
-In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace (e.g. eventstreams). 
+In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace (e.g. integration). 
 
 * Define source and target cluster properties in a Mirror Maker 2 `es-ocp-to-es-oc.yml` descriptor file. There is one example of such file for the replication between Event Streams OCP to Event Streams on cloud [here: es-ocp-to-es-oc.yml](https://github.com/ibm-cloud-architecture/refarch-eda-data-consistency/blob/master/mirror-maker-2/es-ocp/es-ocp-to-es-oc.yml). We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). 
 
-Here are some important parameters you need to consider: The namespace needs to match the event streams project, and the annotations the product version and ID. The connectCluster needs to match the alias of the target cluster. The alis `es-ic` is defined later in this manifest:
+  Here are some important parameters you need to consider: The namespace needs to match the event streams project, and the annotations the product version and ID. The connectCluster needs to match the alias of the target cluster. The alias `es-ic` is defined later in this manifest:
 
-```yaml
-apiVersion: eventstreams.ibm.com/v1alpha1
-kind: KafkaMirrorMaker2
-metadata:
-  name: mm2
-  namespace: eventstreams
-spec:
-  template:
-    pod:
-      metadata:
-        annotations:
-          eventstreams.production.type: CloudPakForIntegrationNonProduction
-          productCloudpakRatio: "2:1"
-          productChargedContainers: mm2-mirrormaker2
-          productVersion: 10.0.0
-          productID: 2a79e49111f44ec3acd89608e56138f5
-          cloudpakName: IBM Cloud Pak for Integration
-          cloudpakId: c8b82d189e7545f0892db9ef2731b90d
-          productName: IBM Event Streams for Non Production
-          cloudpakVersion: 2020.2.1
-          productMetric: VIRTUAL_PROCESSOR_CORE
-  version: 2.5.0
-  replicas: 1
-  connectCluster: "es-ic"
-```
+  ```yaml
+  apiVersion: eventstreams.ibm.com/v1alpha1
+  kind: KafkaMirrorMaker2
+  metadata:
+    name: mm2
+    namespace: integration
+  spec:
+    template:
+      pod:
+        metadata:
+          annotations:
+            eventstreams.production.type: CloudPakForIntegrationNonProduction
+            productCloudpakRatio: "2:1"
+            productChargedContainers: mm2-mirrormaker2
+            productVersion: 10.0.0
+            productID: 2a79e49111f44ec3acd89608e56138f5
+            cloudpakName: IBM Cloud Pak for Integration
+            cloudpakId: c8b82d189e7545f0892db9ef2731b90d
+            productName: IBM Event Streams for Non Production
+            cloudpakVersion: 2020.2.1
+            productMetric: VIRTUAL_PROCESSOR_CORE
+    version: 2.5.0
+    replicas: 1
+    connectCluster: "es-ic"
+  ```
 
-The version matches the Kafka version we use. The number of replicas can be set to 1 to start. The eventstreams.production.type is needed for Event Streams.
+  The version matches the Kafka version we use. The number of replicas can be set to 1 to start. The `eventstreams.production.type` is needed for Event Streams.
 
-Then the yaml defines the connection configuration for each clusters: Event Streams on cloud, so you need to define the bootstrap servers (This could come from a config map too) and the API key coming from the previously defined secret. The user is always 'token'
+  Then the yaml defines the connection configuration for each clusters: Event Streams on cloud, so you need to define the bootstrap servers (This could come from a config map too) and the API key coming from the previously defined secret. The user is always 'token'
 
-```yaml
-clusters:
-  - alias: "es-ic"
-    bootstrapServers: broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
-    config:
-      config.storage.replication.factor: 3
-      offset.storage.replication.factor: 3
-      status.storage.replication.factor: 3
-    tls: {}
-    authentication:
-      passwordSecret:
-          secretName: es-oc-api-secret  
-          password: password 
-      username: token
-      type: plain
-```
+  ```yaml
+  clusters:
+    - alias: "es-ic"
+      bootstrapServers: broker-0-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-1-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5-qnprtqnp7hnkssdz.kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
+      config:
+        config.storage.replication.factor: 3
+        offset.storage.replication.factor: 3
+        status.storage.replication.factor: 3
+      tls: {}
+      authentication:
+        passwordSecret:
+            secretName: es-oc-api-secret  
+            password: password 
+        username: token
+        type: plain
+  ```
 
-For Event Streams on premise running within OpenShift, the connection uses TLS, certificates and Sram credentials. As we run in a separate namespace the URL is the 'external' one.
+  For Event Streams on premise running within OpenShift, the connection uses TLS, certificates and Sram credentials. As we run in a separate namespace the URL is the 'external' one.
 
-```yaml
-- alias: "es-1"
-    bootstrapServers: light-es-kafka-bootstrap.integration.svc:9093
-    config:
-      config.storage.replication.factor: 3
-      offset.storage.replication.factor: 3
-      status.storage.replication.factor: 3
-      ssl.endpoint.identification.algorithm: https
-    tls: 
-      trustedCertificates:
-        - secretName: light-es-cluster-ca-cert
-          certificate: ca.crt
-    authentication:
-      type: tls
-      certificateAndKey:
-        certificate: user.crt
-        key: user.key
-        secretName: jb-tls-user
-          
-```
+  ```yaml
+  - alias: "es-1"
+      bootstrapServers: light-es-kafka-bootstrap.integration.svc:9093
+      config:
+        config.storage.replication.factor: 3
+        offset.storage.replication.factor: 3
+        status.storage.replication.factor: 3
+        ssl.endpoint.identification.algorithm: https
+      tls: 
+        trustedCertificates:
+          - secretName: light-es-cluster-ca-cert
+            certificate: ca.crt
+      authentication:
+        type: tls
+        certificateAndKey:
+          certificate: user.crt
+          key: user.key
+          secretName: es-tls-user
+            
+  ```
 
-Finally the `connectCluster` attribute defines the cluster alias used by MirrorMaker2 to define its hidden topics, it must match the target cluster of the replication in the list at `spec.clusters`.
+ Finally the `connectCluster` attribute defines the cluster alias used by MirrorMaker2 to define its hidden topics, it must match the target cluster of the replication in the list at `spec.clusters`.
     
  
  ```shell
  oc apply -f mirror-maker-2/es-ocp/es-ocp-to-es-oc.yml
  ```
 
-* Verify the chareacteristics of the Mirror Maker 2 instance using the CLI
+* Verify the characteristics of the Mirror Maker 2 instance using the CLI
 
  ```shell
  oc describe kafkamirrormaker2 mm2
  ```
-* As Mirror Maker 2 is set to  be connected to the `es-ic` cluster which is the event streams on cloud cluster. 
+* See the logs:
+
+  ```shell
+  oc get pods | grep mm2
+  oc logs mm2-mirrormaker2-...
+  ```
 
 ## Start Consumer from target cluster
 
-Specifying the target cluster as Event Streams on cloud, we can also use Kafdrop to see the replicated topic.
+As Mirror Maker 2 is set to replicate topics to the `es-ic` cluster which is the event streams on cloud cluster we now need to connect a consumer to see the replicated records. For that we can use Kafdrop and we need tosSpecifying the target cluster as Event Streams on cloud:
+
+Define environment variables to connect to Event Streams on cloud
+
+```
+ES_IC_BROKERS=broker-0-...
+ES_IC_USER=token
+ES_IC_PASSWORD=n...
+ES_IC_SASL_MECHANISM=PLAIN
+ES_IC_LOGIN_MODULE=org.apache.kafka.common.security.plain.PlainLoginModule
+```
 
 ```
 ./scripts/startKafdrop.sh es-ic
@@ -174,7 +190,7 @@ Go to the es-1.products topic to see the replicated messages:
 
  ![9](../images/kafdrop-eso-esic.png)
 
-
+you may have any now.
 
 ## Start Producer to source cluster
 
@@ -189,7 +205,9 @@ The credentials can be accessed and defined using the GUI. [This section in comm
  cloudctl es init
  cloudctl es certificates --format pem
  ```
-* Get userid, password and information of one of the kafka user defined. The namespace used below is the one where event streams is installed.
+ save this `.pem` file under `mirror-maker2` folder.
+
+* Get userid, password and information of one of thesram based authentication user defined previously. The namespace used below is the one where event streams is installed.
 
  ```shell
  oc get kafkausers 
@@ -197,23 +215,33 @@ The credentials can be accessed and defined using the GUI. [This section in comm
 * Set the following environment variables:
 
  ```shell
- export KAFKA_BROKERS=light-es-kafka-bootstrap-integration.apps.eda-solutions.gse-ocp.net:443
- export KAFKA_USER=jb-scram-user
- export KAFKA_PWD=$(oc get secret $KAFKA_USER --namespace eventstreams -o jsonpath='{.data.password}' | base64 --decode)
- export KAFKA_CERT=/home/es-cert.pem
+ ES_OCP_BROKERS=light-es-kafka-bootstrap-integration.gse-eda-2020-10-0143c5dd31acd8e030a1d6e0ab1380e3-0000.us-south.containers.appdomain.cloud:443
+ ES_OCP_USER=es-scram-user
+ ES_OCP_PASSWORD=$(oc get secret $ES_OCP_USER --namespace integration -o jsonpath='{.data.password}' | base64 --decode)
+ ES_OCP_CERT=/home/es-cert.pem
+ ES_OCP_SASL_MECHANISM=SCRAM-SHA-512
+ 
  ```
-
+ Now send five records:
  ```shell
  cd mirror-maker-2
- # Execute the script using docker
- docker run -ti -v $(pwd):/home --rm -e  KAFKA_BROKERS=$KAFKA_SOURCE_BROKERS -e KAFKA_USER=$KAFKA_USER -e KAFKA_PWD=$KAFKA_PWD -e KAFKA_CERT=$KAFKA_CERT ibmcase/kcontainer-python:itgtests python /home/SendProductToKafka.py --file /home/data/products.json
+ ./sendProductRecords.sh es-ocp
  ```
+
+ * Going to the Event Streams Console we can see the message in the `products` topic.
 
  ## Understanding MirrorMaker 2 trace 
 
 A lot of configuration validation at the beginning of the trace to get the connection to both clusters. Any configuration issue to define the connection is generally well reported. URL, TLS certificate, secrets are the common cause of connection issues.
 
-If some message arrive with NO_LEADER for one of the topic, is that MM2 is not able to create the topic on the target cluster and so it is needed to create the topic with command or User Interface.
+If some messages happen with NO_LEADER for one of the topics, this means MM2 is not able to create the topic on the target cluster and so it is needed to create the topic with command or User Interface.
 
- * WorkerSourceTask{id=es-1->event-streams-wdc.MirrorHeartbeatConnector-0} is the connector - task for the internal HeartBeat.
- * WorkerSourceTask{id=es-1->event-streams-wdc.MirrorSourceConnector-0} for the topic to replicate
+Then we can observe the following:
+ * It creates a producer to the target cluster for the offsets topics: ` [Producer clientId=producer-1] Cluster ID: Bj7Ui3UPQaKtJx7HOkWxPw`
+ * It creates consumer for the 25 offset topic partitions: `[Consumer clientId=consumer-mirrormaker2-cluster-1, groupId=mirrormaker2-cluster] Subscribed to partition(s): mirrormaker2-cluster-offsets-0,....`
+ * One Kafka connect worker is started: `Worker started ... Starting KafkaBasedLog with topic mirrormaker2-cluster-status`
+ * Create a producer and consumers for the ` mirrormaker2-cluster-status` topic for 5 partitions
+ * Create another producer and consumer for the `mirrormaker2-cluster-config` topic
+
+ * Create WorkerSourceTask{id=es-1->es-ic.MirrorHeartbeatConnector-0} is the connector - task for the internal HeartBeat.
+ * WorkerSourceTask{id=es-1->es-ic.MirrorSourceConnector-0} for the topic to replicate

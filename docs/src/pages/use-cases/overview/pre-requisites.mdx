@@ -146,7 +146,7 @@ You can do the samething using CLI, [see the product documentation](https://ibm.
 
 - Your `SCRAM Username` that we will need for later is the name of your secret. The `SCRAM Password` can be either obtained by going to your OpenShift Console Web UI and revealing the password through the secrets menu or through the CLI. Run the following commands to see the value of the password.
 
-`oc get secret your-secret -jsonpath '{.data.password}' -n eventstreams | base64 --decode `
+`oc get secret your-secret -o jsonpath='{.data.password}' -n eventstreams | base64 --decode  && echo ""`
 
 - This will return you a base64 encoded value. Decode this like so
 
@@ -180,7 +180,7 @@ See [product documentation for detail](https://ibm.github.io/event-streams/getti
  # or the command:
  oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.p12 -n eventstreams
  # and password
- oc get secret minimal-prod-cluster-ca-cert -n eventstreams -o jsonpath='{.data.ca\.password}' | base64 --decode
+ oc get secret minimal-prod-cluster-ca-cert -n eventstreams -o jsonpath='{.data.ca\.password}' | base64 --decode  && echo ""
  # or the command
  oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.password -n eventstreams
  ```
@@ -215,7 +215,7 @@ Select one of the Kafka users with Scram authentication defined or create a new 
 * Get the user password:
 
  ```shell
- oc get secret demo-app -n eventstreams -o jsonpath='{.data.password}' | base64 --decode
+ oc get secret demo-app -n eventstreams -o jsonpath='{.data.password}' | base64 --decode  && echo ""
  ```
 
 * Set the KAFKA_USER and KAFKA_PASSWORD, and SECURE_PROTOCOL=SASL_SSL environment variables for your application.
@@ -226,7 +226,7 @@ If you want to use mutual authentication with client certificate, you need a tls
 
  ```shell
  # password is in another key
- oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.password}' | base64 --decode  
+ oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.password}' | base64 --decode && echo ""
  ```
 
 * Get the user client certificate and password
