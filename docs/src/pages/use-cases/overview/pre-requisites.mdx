@@ -271,3 +271,15 @@ docker stop $(docker stop kafdrop)
 ```
 
 The Web console is at [http://localhost:9000/](http://localhost:9000/)
+
+## Running docker in kubernetes pod
+
+If you need to run some of the lab within a shell session with docker, you can create a pod, using OpenShift console under one of your project:
+
+ ![1](./images/create-pod.png)
+
+In the yaml editor, copy [this yaml file](https://gist.githubusercontent.com/osowski/4c9b6eb8e63b93e97ad6fecd8d9c8ff4/raw/8c2720c572458838942ccdba87271c61d4764671/dind.yaml). This operation will download the docker image from dockerhub ibmcase account.
+
+You can also download the yaml and do an `oc apply -f dind.yaml`.
+
+Then remote exec a shell within the pod: `oc exec -it dind bash`. You should be able to run another docker image in this pod, like for example our python environment.

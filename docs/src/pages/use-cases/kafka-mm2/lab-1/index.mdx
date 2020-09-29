@@ -45,8 +45,11 @@ Your local environment is up and running.
 1. Modify .env file to set environment variables for Source Event Streams cluster brokers address and APIKEY.
 
  ```shell
- export KAFKA_SOURCE_BROKERS=broker-...:9093
- export KAFKA_SOURCE_PASSWORD="<replace with apikey from event streams service credentials>"
+ ES_IC_BROKERS=broker-0-q.....cloud.ibm.com:9093
+ ES_IC_USER=token
+ ES_IC_PASSWORD="<replace with apikey from event streams service credentials>"
+ ES_IC_SASL_MECHANISM=PLAIN
+ ES_IC_LOGIN_MODULE=org.apache.kafka.common.security.plain.PlainLoginModule
  ```
  
  The configuration file (mirror-maker-2/es-to-local/mm2.properties) is for standalone configuration, and looks like:
@@ -97,10 +100,7 @@ This time the script is producing products data. Here are the steps to send 5 re
 
 ```shell
 cd mirror-maker-2
-# 1- if not done set environment variables to reach the remote kafka cluster, source of the replication
-source ../.env
-# 2- Execute the script using docker
-docker run -ti -v $(pwd):/home --rm -e  KAFKA_BROKERS=$KAFKA_SOURCE_BROKERS -e KAFKA_SOURCE_PASSWORD=$KAFKA_SOURCE_PASSWORD -e KAFKA_USER=$KAFKA_SOURCE_USER ibmcase/kcontainer-python:itgtests python /home/SendProductToKafka.py --file /home/data/products.json
+./sendProductRecords.sh es-ic
 ```
 
 The traces should look like:
@@ -137,4 +137,15 @@ Another way to validate the target `source.products` topic has records, is to us
   { "product_id": "P02", "description": "Banana", "target_temperature": 6,"target_humidity_level": 0.6,"content_type": 2}
   { "product_id": "P03", "description": "Salad", "target_temperature": 4,"target_humidity_level": 0.4,"content_type": 1}
   ```
-Stop with Ctrl C.
+Stop producer with Ctrl C.
+
+You are done with the lab, to stop everything:
+
+```shell
+# stop kafdrop
+docker stop kafdrop
+# stop mirror maker 2
+docker stop mm2
+# stop local kafka cluster
+docker-compose down
+```
