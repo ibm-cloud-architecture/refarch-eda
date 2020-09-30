@@ -24,9 +24,9 @@ In this lab, we're going to use [Quarkus](https://quarkus.io) to develop the log
 
 The requirements to address are:
 
-- consume item sold from items topic, item has unique key. Item event has store information
-- compute for each item its current stock cross store
-- compute the store stock for each item
+- consume item sold events from the `items` topic. Item has SKU as unique key. Item event has store ID reference
+- compute for each item its current stock cross stores
+- compute the store's stock for each item
 - generate inventory event for store - item - stock
 - expose APIs to get stock for a store or for an item
 
@@ -34,11 +34,11 @@ Here is a simple diagram to illustrate the components used:
 
  ![1](./images/item-aggregator-ctx.png)
 
-The goal of this lab, is to develop the green component which exposes an API to support Kafka stream interactive queries on top of the aggregates save in state store (light blue storage/per service deployed and persisted in kafka as topic).
+The goal of this lab, is to develop the green component which exposes an API to support Kafka stream interactive queries on top of the aggregates to compute inventory views and saved in state store (light blue storage/per service deployed and persisted in kafka as topic).
 
 We will be testing using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TopologyTestDriver to mimic a Topology, a Stream and Table. 
 
-This application is deployed to OpenShift cluster with Event Streams running. We use the quarkus kubernetes plugin with all the needed definitions are done in the `application.properties`.
+This application is deployed to OpenShift cluster with Event Streams running. We use the quarkus kubernetes plugin with all the needed definitions in the `application.properties`.
 
 ## Scenario Pre-requisites
 
@@ -62,7 +62,7 @@ our application.
 - CP4I2020.2
 
 **IBM Event Streams**
-- The lab uses Event Streams v10 on Cloud Pack for Integration. If using a previous version such as ESv2019.4.2, there are some differences to how to establish connection to the Kafka brokers.
+- The lab uses Event Streams v10.x on Cloud Pack for Integration. If using a previous version such as ESv2019.4.2, there are some differences to how to establish connection to the Kafka brokers.
 
 **Code Source**: clone the following git repository: `git clone https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory`.
 
@@ -70,7 +70,7 @@ The final source code is in this Git repository: [https://github.com/ibm-cloud-a
 
 ## Use application as-is
 
-If you do not want to develop the application, you can deploy the esisting final app on OpenShift using our [docker image](https://hub.docker.com/r/ibmcase/item-aggregator). See the [repository readme](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory) to do so.
+If you do not want to develop the application, you can deploy the existing final app on OpenShift using our [docker image](https://hub.docker.com/r/ibmcase/item-aggregator). See the [repository readme](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory) to do so.
 
 ## Develop the application
 
@@ -144,7 +144,7 @@ To move from imperative programming to a more reactive approach, we are using Un
 
 ### Deploy to OpenShift using s2i
 
-Before going too far in the development, let deploy this simple app to OpenShift using the source to image capability. We assume you are logged to the cluster via `oc login...`, and that you have created a project: `oc new-project jb-lab3`.
+Before going too far in the development, let deploy this simple app to OpenShift using the source to image capability. We assume you are logged to the cluster via `oc login...`, and that you have created a project: `oc new-project kstreams-labs`.
 
 The following command should package the application and create OpenShift manifests, build a docker images and push it to OpenShift Private registry.
 
