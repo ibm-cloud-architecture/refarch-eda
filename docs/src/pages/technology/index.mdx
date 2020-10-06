@@ -8,30 +8,209 @@ We are presenting in this note how to get development and deployment environment
 ## Infrastructure for dev integration test
 
 * OpenShift
-* cloud pak operators
-    * Add [IBM Common Services opertors](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
+* Cloud Pak Pperators
+    * Add [IBM Common Services operators](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
     * Add the IBM operators to the list of installable operators. Same product note as above.
     * Get [entitlement key](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/entitlement_key.html)
-* cloud pak for integration
+* Cloud Pak for Integration
     * Install Cloud pak for integration operator using the Operator hub catalog
     * Install Cloud pak for integration platform navigator from the operator hub catalog
-    * The previous steps should have installed the common services if they were not install before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
+    * The previous steps should have installed the common services if they were not installed before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
 * cloud pak for application
 
-### Deploy event streams
+### Deploying Event Streams
 
-    The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. Here is an example of yaml
+    The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. Here is an example of the yaml. Note that there are a few sample yamls that come after you install the Event Streams Operator. This yaml is for Event Streams v10.0 -
 
-    ```yaml
-    
-    ```
+```yaml
+apiVersion: eventstreams.ibm.com/v1beta1
+kind: EventStreams
+metadata:
+  name: minimal-prod
+  namespace: cp4i
+spec:
+  version: 10.0.0
+  license:
+    accept: false
+    use: CloudPakForIntegrationProduction
+  adminApi: {}
+  adminUI: {}
+  collector: {}
+  restProducer: {}
+  schemaRegistry:
+    storage:
+      type: persistent-claim
+      size: 100Mi
+      class: enter-storage-class-name-here
+  strimziOverrides:
+    kafka:
+      replicas: 3
+      authorization:
+        type: runas
+      config:
+        inter.broker.protocol.version: '2.5'
+        interceptor.class.names: com.ibm.eventstreams.interceptors.metrics.ProducerMetricsInterceptor
+        log.cleaner.threads: 6
+        log.message.format.version: '2.5'
+        num.io.threads: 24
+        num.network.threads: 9
+        num.replica.fetchers: 3
+        offsets.topic.replication.factor: 3
+      listeners:
+        external:
+          type: route
+          authentication:
+            type: scram-sha-512
+        tls:
+          authentication:
+            type: tls
+      metrics: {}
+      storage:
+        type: persistent-claim
+        size: 4Gi
+        class: enter-storage-class-name-here
+    zookeeper:
+      replicas: 3
+      metrics: {}
+      storage:
+        type: persistent-claim
+        size: 2Gi
+        class: enter-storage-class-name-here
+```
 
 ### Deploy Strimzi
+* 
 
-## Java Developer environment
+## Java Developer Environment
 
 * Go with [Quarkus](http://quarkus.io) so all being set with maven plugin.
+* You can scaffold your application through the [Quarkus Web UI](https://code.quarkus.io/) which will allow you to pick and choose your project dependencies. You may also do it through the CLI like so: 
+   ```shell
+   mvn io.quarkus:quarkus-maven-plugin:1.8.1.Final:create \
+    -DprojectGroupId=ibm.garage \
+    -DprojectArtifactId=your-application \
+    -Dextensions="kafka"
+  ```
+  - If you already have your project created and you know the name of an extension you want ot add, you can do it through the CLI like the following - 
+  ```shell
+  ./mvnw quarkus:add-extension -Dextensions="kafka"
+  ```
 * Kafka Strimzi image for docker and docker-compose to get up and running quikcly. We have different docker composes files for you to start with:
     * One Broker, one Zookeeper, kafka 2.5
 
-## Python Developer environment
+## Python Developer Environment
+
+* There are a few Python packages but the [Confluent Kafka Python](https://github.com/confluentinc/confluent-kafka-python) package can serve our needs.
+* For Python environments you can use the Confluent Python package and install the dependency with pip.
+   - pip install confluent-kafka
+
+* The following is a very simple Python Producer to send events to Event Streams V10.0:
+```python
+import json, os
+from confluent_kafka import KafkaError, Producer
+
+class KafkaProducer:
+
+    def __init__(self,kafka_brokers = "",scram_username = "",scram_password = ""):
+        self.kafka_brokers = kafka_brokers
+        self.scram_username = scram_username
+        self.scram_password = scram_password
+
+    def prepareProducer(self,groupID = "pythonproducers"):
+        # Configure the Kafka Producer (https://docs.confluent.io/current/clients/confluent-kafka-python/#kafka-client-configuration)
+        options = {
+                'bootstrap.servers':  self.kafka_brokers,
+                'group.id': groupID,
+                'security.protocol': 'SASL_SSL',
+                'sasl.mechanisms': 'SCRAM-SHA-512',
+                'sasl.username': self.scram_username,
+                'sasl.password': self.scram_password,
+                'ssl.ca.location': os.environ['PEM_CERT']
+        }
+        # Print out the configuration
+        print("--- This is the configuration for the producer: ---")
+        print(options)
+        print("---------------------------------------------------")
+        # Create the producer
+        self.producer = Producer(options)
+
+    def delivery_report(self,err, msg):
+        """ Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). """
+        if err is not None:
+            print('[ERROR] - Message delivery failed: {}'.format(err))
+        else:
+            print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+
+    def publishEvent(self, topicName, eventToSend, keyName):
+        # Print the event to send
+        dataStr = json.dumps(eventToSend)
+        # Produce the message
+        self.producer.produce(topicName,key=eventToSend[keyName],value=dataStr.encode('utf-8'), callback=self.delivery_report)
+        # Flush
+        self.producer.flush()
+```
+
+* The following is a simple Python consumer
+
+```python
+import json,os
+from confluent_kafka import Consumer, KafkaError
+
+
+class KafkaConsumer:
+
+    def __init__(self, kafka_brokers = "", scram_username = "",scram_password = "", topic_name = "",autocommit = True):
+        self.kafka_brokers = kafka_brokers
+        self.scram_username = scram_username
+        self.scram_password = scram_password
+        self.topic_name = topic_name
+        self.kafka_auto_commit = autocommit
+
+    # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
+    # Prepares de Consumer with specific options based on the case
+    def prepareConsumer(self, groupID = "ConsumePlainMessagePython"):
+        options ={
+                'bootstrap.servers':  self.kafka_brokers,
+                'group.id': groupID,
+                'auto.offset.reset': 'earliest',
+                'enable.auto.commit': self.kafka_auto_commit,
+                'security.protocol': 'SASL_SSL',
+                'sasl.mechanisms': 'SCRAM-SHA-512',
+                'sasl.username': self.scram_username,
+                'sasl.password': self.scram_password,
+                'ssl.ca.location': os.environ['PEM_CERT']
+        }
+        # Print the configuration
+        print("--- This is the configuration for the consumer: ---")
+        print(options)
+        print("---------------------------------------------------")
+        # Create the consumer
+        self.consumer = Consumer(options)
+        # Subscribe to the topic
+        self.consumer.subscribe([self.topic_name])
+    
+    # Prints out and returns the decoded events received by the consumer
+    def traceResponse(self, msg):
+        msgStr = msg.value().decode('utf-8')
+        print('[Message] - Next Message consumed from {} partition: [{}] at offset {} with key {}:\n\tmessage: {}'
+                    .format(msg.topic(), msg.partition(), msg.offset(), str(msg.key()), msgStr ))
+
+    # Polls for next event
+    def pollNextEvent(self):
+        # Poll for messages
+        msg = self.consumer.poll(timeout=10.0)
+        # Validate the returned message
+        if msg is None:
+            print("[INFO] - No new messages on the topic")
+        elif msg.error():
+            if ("PARTITION_EOF" in msg.error()):
+                print("[INFO] - End of partition")
+            else:
+                print("[ERROR] - Consumer error: {}".format(msg.error()))
+        else:
+            # Print the message
+            msgStr = self.traceResponse(msg)
+    
+    def close(self):
+        self.consumer.close()
+```
