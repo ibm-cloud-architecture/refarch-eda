@@ -141,31 +141,26 @@ public class Producer {
 ```java
 package com.ibm.garage.infrastructure;
 
-import io.reactivex.Flowable;
-import io.smallrye.reactive.messaging.kafka.KafkaRecord;
-import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.enterprise.context.ApplicationScoped;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import javax.enterprise.event.Observes;
 
-
-/**
- * This class produces a message every 5 seconds.
- * The Kafka configuration is specified in the application.properties file.
-*/
 @ApplicationScoped
 public class Consumer {
-    private Random random = new Random();
 
-    @Outgoing("mock-consumer")      
-    public Flowable<KafkaRecord<Integer, String>> generate() {
-        return Flowable.interval(5, TimeUnit.SECONDS)    
-                .onBackpressureDrop()
-                .map(tick -> {      
-                    return KafkaRecord.of(random.nextInt(100), String.valueOf(random.nextInt(100)));
-                });
-    }                  
-}
+    private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
+
+    @Incoming("mock-consumer")
+    public void consumingMessage(String incomingMessage) {
+        LOGGER.info("Message received from topic = {}", incomingMessage);
+        //System.out.println(incomingMessage);
+    }
+    
 ```
 
 * Quarkus does it's configuration via an `application.properties` file within the `src/main/resources/` path. A sample properties file.
@@ -474,3 +469,6 @@ python ProducePlainMessage.py
 ```shell
 python ConsumePlainMessage.py
 ```
+
+
+## Node.js Developer Environment
