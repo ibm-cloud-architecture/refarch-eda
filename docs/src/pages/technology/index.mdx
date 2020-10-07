@@ -191,7 +191,7 @@ mp.messaging.outgoing.mock-producer.key.serializer=org.apache.kafka.common.seria
 
 # Kafka Streams consumer configuration
 mp.messaging.incoming.mock-consumer.connector=smallrye-kafka
-mp.messaging.incoming.mock-consumer.topic=${OUTGOING_TOPIC_NAME}
+mp.messaging.incoming.mock-consumer.topic=${TOPIC_NAME}
 mp.messaging.incoming.mock-consumer.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 mp.messaging.incoming.mock-consumer.key.deerializer=org.apache.kafka.common.serialization.IntegerDeserializer
 ```
