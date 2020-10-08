@@ -472,3 +472,98 @@ python ConsumePlainMessage.py
 
 
 ## Node.js Developer Environment
+
+* Like the Python environments, we will need a SCRAM Username, password, and the PEM Certificate.
+
+* Here is a simple Node.js producer application that will produce 20 messages to the Kafka topic.
+**producer.js**
+```node
+var Kafka = require('node-rdkafka');
+
+var kafka_options = {
+    //'debug': 'all',
+    'metadata.broker.list': process.env.KAFKA_BROKERS,
+    'security.protocol': 'sasl_ssl',
+    'sasl.mechanisms': 'SCRAM-SHA-512',
+    'sasl.username': process.env.SCRAM_USERNAME,
+    'sasl.password': process.env.SCRAM_PASSWORD,
+    'ssl.ca.location': process.env.PEM_PATH,
+    'log.connection.close' : false,
+    'client.id': 'ES-NodeJS-101'
+};
+
+var topicName = process.env.TOPIC_NAME
+
+producer = new Kafka.Producer(kafka_options);
+producer.setPollInterval(100);
+// Register listener for debug information; only invoked if debug option set in kafka_options
+producer.on('event.log', function(log) {
+    console.log(log);
+});
+// Register error listener
+producer.on('event.error', function(err) {
+    console.error('Error from producer:' + JSON.stringify(err));
+});
+
+// Register delivery report listener
+producer.on('delivery-report', function(err, dr) {
+    if (err) {
+        console.error('Delivery report: Failed sending message ' + dr.value);
+        console.error(err);
+        // We could retry sending the message
+    } else {
+        console.log('Message produced, partition: ' + dr.partition + ' offset: ' + dr.offset);
+    }
+});
+
+var sendMessageToTopic = function() {
+    console.log('The producer has connected.');
+    const genMessage = i => new Buffer.from(`Kafka example, message number ${i}`);
+    console.log('Producer is now sending 20 messages to the Kafka Topic');
+    const maxMessages = 20;
+    for (var i = 0; i < maxMessages; i++) {
+        producer.produce(topicName, -1, genMessage(i), i);
+    }
+}
+
+// Register callback invoked when producer has connected
+producer.on('ready', function() {
+
+    sendMessageToTopic();
+
+    // request metadata for all topics
+    producer.getMetadata({
+        timeout: 10000
+    },
+    function(err, metadata) {
+        if (err) {
+            console.error('Error getting metadata: ' + JSON.stringify(err));
+            shutdown(-1);
+        } else {
+            console.log('Producer obtained metadata: ' + JSON.stringify(metadata));
+            var topicsByName = metadata.topics.filter(function(t) {
+                return t.name === topicName;
+            });
+            if (topicsByName.length === 0) {
+                console.error('ERROR - Topic ' + topicName + ' does not exist. Exiting');
+                shutdown(-1);
+            }
+        }
+    });
+    var counter = 0;
+});
+
+producer.connect();
+
+```
+
+* We will need a few environment variables to provide to our application so that it can connect to Event Streams.
+
+```shell
+export KAFKA_BROKERS=your-external-bootstrap-server-address \
+export SCRAM_USERNAME=your-scram-username \
+export SCRAM_PASSWORD=your-scram-password \
+export TOPIC_NAME=your-topic-name \
+export PEM_PATH=/path-to-your-pem-certificate/es-cert.pem
+```
+
