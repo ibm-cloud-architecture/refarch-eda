@@ -473,7 +473,10 @@ python ConsumePlainMessage.py
 
 ## Node.js Developer Environment
 
-* Like the Python environments, we will need a SCRAM Username, password, and the PEM Certificate.
+* We will make use of the [node-rdkafka](https://github.com/Blizzard/node-rdkafka) library for our purposes. 
+
+* The following code is based off this application [here](https://chrisphillips-cminion.github.io/eventstreams/2019/08/22/NodeJS-IBMES-101.html)
+
 
 * Here is a simple Node.js producer application that will produce 20 messages to the Kafka topic.
 **producer.js**
@@ -557,7 +560,91 @@ producer.connect();
 
 ```
 
-* We will need a few environment variables to provide to our application so that it can connect to Event Streams.
+* Below is a simple Node.js consumer:
+**consumer.js**
+```node
+var Kafka = require('node-rdkafka');
+
+var kafka_options = {
+    //'debug': 'all',
+    'metadata.broker.list': process.env.KAFKA_BROKERS,
+    'security.protocol': 'sasl_ssl',
+    'sasl.mechanisms': 'SCRAM-SHA-512',
+    'sasl.username': process.env.SCRAM_USERNAME,
+    'sasl.password': process.env.SCRAM_PASSWORD,
+    'ssl.ca.location': process.env.PEM_PATH,
+    'log.connection.close' : false,
+    'group.id': 'ES-NodeJS-101-consumer'
+};
+
+
+
+var topicName = process.env.TOPIC_NAME
+
+const consumer = new Kafka.KafkaConsumer(kafka_options, {
+    "auto.offset.reset": "beginning"
+  });
+
+
+consumer.on('event.log', function(log) {
+    console.log(log);
+});
+
+// Register error listener
+consumer.on('event.error', function(err) {
+    console.error('Error from consumer:' + JSON.stringify(err));
+});
+
+var consumedMessages = []
+// Register callback to be invoked when consumer has connected
+consumer.on('ready', function() {
+    console.log('The consumer has connected.');
+
+    // request metadata for one topic
+    consumer.getMetadata({
+        topic: topicName,
+        timeout: 10000
+    },
+    function(err, metadata) {
+        if (err) {
+            console.error('Error getting metadata: ' + JSON.stringify(err));
+            shutdown(-1);
+        } else {
+            console.log('Consumer obtained metadata: ' + JSON.stringify(metadata));
+
+        }
+    });
+
+    consumer.subscribe([topicName]);
+
+    consumerLoop = setInterval(function () {
+        if (consumer.isConnected()) {
+            // The consume(num, cb) method can take a callback to process messages.
+            // In this sample code we use the ".on('data')" event listener instead,
+            // for illustrative purposes.
+            consumer.consume(10);
+        }    
+
+        if (consumedMessages.length === 0) {
+            console.log('No messages consumed');
+        } else {
+            for (var i = 0; i < consumedMessages.length; i++) {
+                var m = consumedMessages[i];
+                console.log('Message consumed: topic=' + m.topic + ', partition=' + m.partition + ', offset=' + m.offset + ', key=' + m.key + ', value=' + m.value.toString());
+            }
+            consumedMessages = [];
+        }
+    }, 2000);
+});
+
+// Register a listener to process received messages
+consumer.on('data', function(m) {
+    consumedMessages.push(m);
+});
+
+consumer.connect()
+```
+* Like the Python environments, we will need a SCRAM Username, password, and the PEM Certificate. We will need a few environment variables to provide to our application so that it can connect to Event Streams.
 
 ```shell
 export KAFKA_BROKERS=your-external-bootstrap-server-address \
@@ -567,3 +654,8 @@ export TOPIC_NAME=your-topic-name \
 export PEM_PATH=/path-to-your-pem-certificate/es-cert.pem
 ```
 
+* To run these applications after exporting the necessary environment variables:
+```shell
+node producer.js
+node consumer.js
+```
