@@ -8,30 +8,654 @@ We are presenting in this note how to get development and deployment environment
 ## Infrastructure for dev integration test
 
 * OpenShift
-* cloud pak operators
-    * Add [IBM Common Services opertors](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
+   * [OpenShift Container Platform Installation Documentation](https://docs.openshift.com/container-platform/4.5/welcome/index.html) 
+   * OpenShift Container Platform is flexible and can be installed in a number of different environments - onprem, cloud, and hybrid environments.
+   * 
+* Cloud Pak Pperators
+    * Add [IBM Common Services operators](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
     * Add the IBM operators to the list of installable operators. Same product note as above.
     * Get [entitlement key](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/entitlement_key.html)
-* cloud pak for integration
+* Cloud Pak for Integration
     * Install Cloud pak for integration operator using the Operator hub catalog
     * Install Cloud pak for integration platform navigator from the operator hub catalog
-    * The previous steps should have installed the common services if they were not install before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
+    * The previous steps should have installed the common services if they were not installed before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
+    * More information on [CP4I Installation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install.html)
 * cloud pak for application
 
-### Deploy event streams
+### Deploying Event Streams
 
-    The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. Here is an example of yaml
+    The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. Here is an example of the yaml. Note that there are a few sample yamls that come after you install the Event Streams Operator. This yaml is for Event Streams v10.0 -
 
-    ```yaml
-    
-    ```
+```yaml
+apiVersion: eventstreams.ibm.com/v1beta1
+kind: EventStreams
+metadata:
+  name: minimal-prod
+  namespace: cp4i
+spec:
+  version: 10.0.0
+  license:
+    accept: false
+    use: CloudPakForIntegrationProduction
+  adminApi: {}
+  adminUI: {}
+  collector: {}
+  restProducer: {}
+  schemaRegistry:
+    storage:
+      type: persistent-claim
+      size: 100Mi
+      class: enter-storage-class-name-here
+  strimziOverrides:
+    kafka:
+      replicas: 3
+      authorization:
+        type: runas
+      config:
+        inter.broker.protocol.version: '2.5'
+        interceptor.class.names: com.ibm.eventstreams.interceptors.metrics.ProducerMetricsInterceptor
+        log.cleaner.threads: 6
+        log.message.format.version: '2.5'
+        num.io.threads: 24
+        num.network.threads: 9
+        num.replica.fetchers: 3
+        offsets.topic.replication.factor: 3
+      listeners:
+        external:
+          type: route
+          authentication:
+            type: scram-sha-512
+        tls:
+          authentication:
+            type: tls
+      metrics: {}
+      storage:
+        type: persistent-claim
+        size: 4Gi
+        class: enter-storage-class-name-here
+    zookeeper:
+      replicas: 3
+      metrics: {}
+      storage:
+        type: persistent-claim
+        size: 2Gi
+        class: enter-storage-class-name-here
+```
 
 ### Deploy Strimzi
+* On OpenShift Container Platform v4.0.x to 4.3.x as well as pre-Event Streams v10 the Strimzi Operator will serve most of our needs. It can serve as the base so that we can utilize technologies like KafkaConnect, KafkaConnectS2i, KafkaConnector, Mirror Maker2 and other Custom Resources.
+* You can install it via [Operator Hub](https://strimzi.io/blog/2019/03/06/strimzi-and-operator-lifecycle-manager/)
+* You can also install the Strimzi and it's [Cluster Operator](https://strimzi.io/docs/operators/master/deploying.html#cluster-operator-str) bay applying a yaml file through CLI.
 
-## Java Developer environment
+## Java Developer Environment
 
 * Go with [Quarkus](http://quarkus.io) so all being set with maven plugin.
+* You can scaffold your application through the [Quarkus Web UI](https://code.quarkus.io/) which will allow you to pick and choose your project dependencies. You may also do it through the CLI like so: 
+   ```shell
+   mvn io.quarkus:quarkus-maven-plugin:1.8.1.Final:create \
+    -DprojectGroupId=ibm.garage \
+    -DprojectArtifactId=your-application \
+    -Dextensions="kafka,kafka-streams,quarkus-kafka-streams"
+  ```
+  - If you already have your project created and you know the name of an extension you want ot add, you can do it through the CLI like the following - 
+  ```shell
+  ./mvnw quarkus:add-extension -Dextensions="kafka"
+  ```
+  
+* Here's a very simple Quarkus Producer application utilizing MicroProfile Reactive Messaging that sends messages to Event Stream v10 and newer: 
+**Producer.java**
+```java
+package com.ibm.garage.infrastructure;
+
+import io.reactivex.Flowable;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import javax.enterprise.context.ApplicationScoped;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+
+/**
+ * This class produces a message every 5 seconds.
+ * The Kafka configuration is specified in the application.properties file.
+*/
+@ApplicationScoped
+public class Producer {
+    private Random random = new Random();
+
+    @Outgoing("mock-producer")      
+    public Flowable<KafkaRecord<Integer, String>> generate() {
+        return Flowable.interval(5, TimeUnit.SECONDS)    
+                .onBackpressureDrop()
+                .map(tick -> {      
+                    return KafkaRecord.of(random.nextInt(100), String.valueOf(random.nextInt(100)));
+                });
+    }                  
+}
+
+```
+
+
+* Now we have a simple Quarkus consumer, also using MicroProfile Reactive Messaging and printing the message.
+
+```java
+package com.ibm.garage.infrastructure;
+
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+
+@ApplicationScoped
+public class Consumer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
+
+    @Incoming("mock-consumer")
+    public void consumingMessage(String incomingMessage) {
+        LOGGER.info("Message received from topic = {}", incomingMessage);
+        //System.out.println(incomingMessage);
+    }
+    
+```
+
+* Quarkus does it's configuration via an `application.properties` file within the `src/main/resources/` path. A sample properties file.
+
+```properties
+quarkus.http.port=8080
+quarkus.log.console.enable=true
+quarkus.log.console.level=INFO
+
+# Base ES Connection Details
+mp.messaging.connector.smallrye-kafka.bootstrap.servers=${BOOTSTRAP_SERVERS}
+mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
+mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
+mp.messaging.connector.smallrye-kafka.sasl.mechanism=SCRAM-SHA-512
+mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
+                username=${SCRAM_USERNAME} \
+                password=${SCRAM_PASSWORD};
+mp.messaging.connector.smallrye-kafka.ssl.truststore.location=${CERT_LOCATION}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.password=${CERT_PASSWORD}
+mp.messaging.connector.smallrye-kafka.ssl.truststore.type=PKCS12
+
+
+# mock message producer configuration
+mp.messaging.outgoing.mock-producer.connector=smallrye-kafka
+mp.messaging.outgoing.mock-producer.topic=${TOPIC_NAME}
+mp.messaging.outgoing.mock-producer.value.serializer=org.apache.kafka.common.serialization.StringSerializer
+mp.messaging.outgoing.mock-producer.key.serializer=org.apache.kafka.common.serialization.IntegerSerializer
+
+# Kafka Streams consumer configuration
+mp.messaging.incoming.mock-consumer.connector=smallrye-kafka
+mp.messaging.incoming.mock-consumer.topic=${TOPIC_NAME}
+mp.messaging.incoming.mock-consumer.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+mp.messaging.incoming.mock-consumer.key.deerializer=org.apache.kafka.common.serialization.IntegerDeserializer
+```
+* There are a few environment variables we need to pass to our properties before we can run it. Replace the values which can be retrieved from the Event Streams on CP4I UI.
+
+```shell
+export BOOTSTRAP_SERVERS=your-external-bootstrap-address:xxxx \
+export SCRAM_USERNAME=your-scram-username \
+export SCRAM_PASSWORD=your-scram-password \
+export TOPIC_NAME=your-topic \
+export CERT_LOCATION=/your-path-to-cert/es-cert.p12 \
+export CERT_PASSWORD=your-cert-password
+```
+
+* To run your applications run the following which will allow hot-reloading (if that's a functionality you need)
+```shell
+./mvnw quarkus:dev
+```
+
+
 * Kafka Strimzi image for docker and docker-compose to get up and running quikcly. We have different docker composes files for you to start with:
     * One Broker, one Zookeeper, kafka 2.5
 
-## Python Developer environment
+## Python Developer Environment
+
+* There are a few Python packages but the [Confluent Kafka Python](https://github.com/confluentinc/confluent-kafka-python) package can serve our needs.
+* For Python environments you can use the Confluent Python package and install the dependency with pip.
+   - pip install confluent-kafka
+
+* The following is a very simple Python Producer that will serve as the scaffold:
+**KafkaProducer.py**
+```python
+import json, os
+from confluent_kafka import KafkaError, Producer
+
+class KafkaProducer:
+
+    def __init__(self, groupID = "KafkaProducer"):
+        # Get the producer configuration
+        self.producer_conf = self.getProducerConfiguration(groupID)
+        # Create the producer
+        self.producer = Producer(self.producer_conf)
+
+    def getProducerConfiguration(self,groupID):
+        try:
+            options ={
+                    'bootstrap.servers': os.environ['KAFKA_BROKERS'],
+                    'group.id': groupID
+            }
+            if (os.getenv('KAFKA_PASSWORD','') != ''):
+                # Set security protocol common to ES on prem and on IBM Cloud
+                options['security.protocol'] = 'SASL_SSL'
+                # Depending on the Kafka User, we will know whether we are talking to ES on prem or on IBM Cloud
+                # If we are connecting to ES on IBM Cloud, the SASL mechanism is plain
+                if (os.getenv('KAFKA_USER','') == 'token'):
+                    options['sasl.mechanisms'] = 'PLAIN'
+                # If we are connecting to ES on OCP, the SASL mechanism is scram-sha-512
+                else:
+                    options['sasl.mechanisms'] = 'SCRAM-SHA-512'
+                # Set the SASL username and password
+                options['sasl.username'] = os.getenv('KAFKA_USER','')
+                options['sasl.password'] = os.getenv('KAFKA_PASSWORD','')
+            # If we are talking to ES on prem, it uses an SSL self-signed certificate.
+            # Therefore, we need the CA public certificate for the SSL connection to happen.
+            if (os.path.isfile(os.getenv('KAFKA_CERT','/certs/es-cert.pem'))):
+                options['ssl.ca.location'] = os.getenv('KAFKA_CERT','/certs/es-cert.pem')
+            
+            # Print out the producer configuration
+            self.printProducerConfiguration(options)
+
+            return options
+
+        except KeyError as error:
+            print('[KafkaProducer] - [ERROR] - A required environment variable does not exist: ' + error)
+            exit(1)
+
+    def printProducerConfiguration(self,options):
+        # Printing out producer config for debugging purposes        
+        print("[KafkaProducer] - This is the configuration for the producer:")
+        print("[KafkaProducer] - -------------------------------------------")
+        print('[KafkaProducer] - Bootstrap Server:      {}'.format(options['bootstrap.servers']))
+        if (os.getenv('KAFKA_PASSWORD','') != ''):
+            # Obfuscate password
+            if (len(options['sasl.password']) > 3):
+                obfuscated_password = options['sasl.password'][0] + "*****" + options['sasl.password'][len(options['sasl.password'])-1]
+            else:
+                obfuscated_password = "*******"
+            print('[KafkaProducer] - Security Protocol:     {}'.format(options['security.protocol']))
+            print('[KafkaProducer] - SASL Mechanism:        {}'.format(options['sasl.mechanisms']))
+            print('[KafkaProducer] - SASL Username:         {}'.format(options['sasl.username']))
+            print('[KafkaProducer] - SASL Password:         {}'.format(obfuscated_password))
+            if (os.path.isfile(os.getenv('KAFKA_CERT','/certs/es-cert.pem'))): 
+                print('[KafkaProducer] - SSL CA Location:       {}'.format(options['ssl.ca.location']))
+        print("[KafkaProducer] - -------------------------------------------")
+
+    def delivery_report(self,err, msg):
+        """ Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). """
+        if err is not None:
+            print('[KafkaProducer] - [ERROR] - Message delivery failed: {}'.format(err))
+        else:
+            print('[KafkaProducer] - Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+
+    def publishEvent(self, topicName, eventToSend, keyName):
+        # Print the event to send
+        dataStr = json.dumps(eventToSend)
+        # Produce the message
+        self.producer.produce(topicName,key=eventToSend[keyName],value=dataStr.encode('utf-8'), callback=self.delivery_report)
+        # Flush
+        self.producer.flush()
+```
+* Now that we have the Producer we need to actually send Events.
+**ProducePlainMessage.py**
+```python
+import argparse
+from KafkaProducer import KafkaProducer
+
+if __name__ == '__main__':
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Message Producer Example")
+    parser.add_argument('-t', dest="topic", required=True, help="Topic name")
+    args = parser.parse_args()
+    
+    # Create the event to be sent
+    event = {"eventKey" : "1", "message" : "This is a test message"}
+    
+    # Print it out
+    print("--- Event to be published: ---")
+    print(event)
+    print("----------------------------------------")
+    
+    # Create the Kafka Producer
+    kafka_producer = KafkaProducer()
+    # Publish the event
+    kafka_producer.publishEvent(args.topic,event,"eventKey")
+```
+
+* The following is a simple Python consumer
+**KafkaConsumer.py**
+```python
+import json,os
+from confluent_kafka import Consumer, KafkaError
+
+
+class KafkaConsumer:
+
+    def __init__(self, topic_name = "kafka-producer", groupID = 'KafkaConsumer', autocommit = True):
+        # Get the consumer configuration
+        self.consumer_conf = self.getConsumerConfiguration(groupID, autocommit)
+        # Create the Avro consumer
+        self.consumer = Consumer(self.consumer_conf)
+        # Subscribe to the topic
+        self.consumer.subscribe([topic_name])
+
+    def getConsumerConfiguration(self, groupID, autocommit):
+        try:
+            options ={
+                    'bootstrap.servers': os.environ['KAFKA_BROKERS'],
+                    'group.id': groupID,
+                    'auto.offset.reset': "earliest",
+                    'enable.auto.commit': autocommit,
+            }
+            if (os.getenv('KAFKA_PASSWORD','') != ''):
+                # Set security protocol common to ES on prem and on IBM Cloud
+                options['security.protocol'] = 'SASL_SSL'
+                # Depending on the Kafka User, we will know whether we are talking to ES on prem or on IBM Cloud
+                # If we are connecting to ES on IBM Cloud, the SASL mechanism is plain
+                if (os.getenv('KAFKA_USER','') == 'token'):
+                    options['sasl.mechanisms'] = 'PLAIN'
+                # If we are connecting to ES on OCP, the SASL mechanism is scram-sha-512
+                else:
+                    options['sasl.mechanisms'] = 'SCRAM-SHA-512'
+                # Set the SASL username and password
+                options['sasl.username'] = os.getenv('KAFKA_USER','')
+                options['sasl.password'] = os.getenv('KAFKA_PASSWORD','')
+            # If we are talking to ES on prem, it uses an SSL self-signed certificate.
+            # Therefore, we need the CA public certificate for the SSL connection to happen.
+            if (os.path.isfile(os.getenv('KAFKA_CERT','/certs/es-cert.pem'))):
+                options['ssl.ca.location'] = os.getenv('KAFKA_CERT','/certs/es-cert.pem')
+
+            # Print out the producer configuration
+            self.printConsumerConfiguration(options)
+
+            return options
+
+        except KeyError as error:
+            print('[KafkaConsumer] - [ERROR] - A required environment variable does not exist: ' + error)
+            exit(1)
+    
+    def printConsumerConfiguration(self,options):
+        # Printing out consumer config for debugging purposes        
+        print("[KafkaConsumer] - This is the configuration for the consumer:")
+        print("[KafkaConsumer] - -------------------------------------------")
+        print('[KafkaConsumer] - Bootstrap Server:      {}'.format(options['bootstrap.servers']))
+        if (os.getenv('KAFKA_PASSWORD','') != ''):
+            # Obfuscate password
+            if (len(options['sasl.password']) > 3):
+                obfuscated_password = options['sasl.password'][0] + "*****" + options['sasl.password'][len(options['sasl.password'])-1]
+            else:
+                obfuscated_password = "*******"
+            print('[KafkaConsumer] - Security Protocol:     {}'.format(options['security.protocol']))
+            print('[KafkaConsumer] - SASL Mechanism:        {}'.format(options['sasl.mechanisms']))
+            print('[KafkaConsumer] - SASL Username:         {}'.format(options['sasl.username']))
+            print('[KafkaConsumer] - SASL Password:         {}'.format(obfuscated_password))
+            if (os.path.isfile(os.getenv('KAFKA_CERT','/certs/es-cert.pem'))): 
+                print('[KafkaConsumer] - SSL CA Location:       {}'.format(options['ssl.ca.location']))
+        print('[KafkaConsumer] - Offset Reset:          {}'.format(options['auto.offset.reset']))
+        print('[KafkaConsumer] - Autocommit:            {}'.format(options['enable.auto.commit']))
+        print("[KafkaConsumer] - -------------------------------------------")
+    
+    # Prints out and returns the decoded events received by the consumer
+    def traceResponse(self, msg):
+        print('[KafkaConsumer] - Next Message consumed from {} partition: [{}] at offset: {}\n\tkey: {}\n\tvalue: {}'
+                    .format(msg.topic(), msg.partition(), msg.offset(), msg.key().decode('utf-8'), msg.value().decode('utf-8')))
+
+    # Polls for next event
+    def pollNextEvent(self):
+        # Poll for messages
+        msg = self.consumer.poll(timeout=10.0)
+        # Validate the returned message
+        if msg is None:
+            print("[KafkaConsumer] - [INFO] - No new messages on the topic")
+        elif msg.error():
+            if ("PARTITION_EOF" in msg.error()):
+                print("[KafkaConsumer] - [INFO] - End of partition")
+            else:
+                print("[KafkaConsumer] - [ERROR] - Consumer error: {}".format(msg.error()))
+        else:
+            # Print the message
+            self.traceResponse(msg)
+    
+    def close(self):
+        self.consumer.close()
+```
+
+* Now for the plain Kafka Python consumer
+**ConsumePlainMessage.py**
+```python
+import argparse
+from KafkaConsumer import KafkaConsumer
+
+####################### MAIN #######################
+if __name__ == '__main__':
+    
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Message Consumer Example")
+    parser.add_argument('-t', dest="topic", required=True, help="Topic name")
+    args = parser.parse_args()
+
+    # Create a Kafka Consumer
+    kafka_consumer = KafkaConsumer(args.topic)
+    # Poll for next message
+    kafka_consumer.pollNextEvent()
+    # Close the consumer
+    kafka_consumer.close()
+```
+
+
+* In `KafkaProducer.py` as well as `KafkaConsumer.py` we will need to provide environment variables so that our producer can parse it and actually connect to an Event Streams intance.
+
+```shell
+export KAFKA_BROKERS=your-brokers \
+export KAFKA_USER=your-scram-username \
+export KAFKA_PASSWORD=your-scram-password \
+export KAFKA_CERT=your-cert-path
+
+```
+
+* To run your Producer and send a simple message - 
+```shell
+python ProducePlainMessage.py -t <your-topic-name>
+```
+
+* To consume
+```shell
+python ConsumePlainMessage.py -t <your-topic-name>
+```
+
+
+## Node.js Developer Environment
+
+* We will make use of the [node-rdkafka](https://github.com/Blizzard/node-rdkafka) library for our purposes. 
+
+* The following code is based off this application [here](https://chrisphillips-cminion.github.io/eventstreams/2019/08/22/NodeJS-IBMES-101.html)
+
+
+* Here is a simple Node.js producer application that will produce 20 messages to the Kafka topic.
+**producer.js**
+```node
+var Kafka = require('node-rdkafka');
+
+var kafka_options = {
+    //'debug': 'all',
+    'metadata.broker.list': process.env.KAFKA_BROKERS,
+    'security.protocol': 'sasl_ssl',
+    'sasl.mechanisms': 'SCRAM-SHA-512',
+    'sasl.username': process.env.SCRAM_USERNAME,
+    'sasl.password': process.env.SCRAM_PASSWORD,
+    'ssl.ca.location': process.env.PEM_PATH,
+    'log.connection.close' : false,
+    'client.id': 'ES-NodeJS-101'
+};
+
+var topicName = process.env.TOPIC_NAME
+
+producer = new Kafka.Producer(kafka_options);
+producer.setPollInterval(100);
+// Register listener for debug information; only invoked if debug option set in kafka_options
+producer.on('event.log', function(log) {
+    console.log(log);
+});
+// Register error listener
+producer.on('event.error', function(err) {
+    console.error('Error from producer:' + JSON.stringify(err));
+});
+
+// Register delivery report listener
+producer.on('delivery-report', function(err, dr) {
+    if (err) {
+        console.error('Delivery report: Failed sending message ' + dr.value);
+        console.error(err);
+        // We could retry sending the message
+    } else {
+        console.log('Message produced, partition: ' + dr.partition + ' offset: ' + dr.offset);
+    }
+});
+
+var sendMessageToTopic = function() {
+    console.log('The producer has connected.');
+    const genMessage = i => new Buffer.from(`Kafka example, message number ${i}`);
+    console.log('Producer is now sending 20 messages to the Kafka Topic');
+    const maxMessages = 20;
+    for (var i = 0; i < maxMessages; i++) {
+        producer.produce(topicName, -1, genMessage(i), i);
+    }
+}
+
+// Register callback invoked when producer has connected
+producer.on('ready', function() {
+
+    sendMessageToTopic();
+
+    // request metadata for all topics
+    producer.getMetadata({
+        timeout: 10000
+    },
+    function(err, metadata) {
+        if (err) {
+            console.error('Error getting metadata: ' + JSON.stringify(err));
+            shutdown(-1);
+        } else {
+            console.log('Producer obtained metadata: ' + JSON.stringify(metadata));
+            var topicsByName = metadata.topics.filter(function(t) {
+                return t.name === topicName;
+            });
+            if (topicsByName.length === 0) {
+                console.error('ERROR - Topic ' + topicName + ' does not exist. Exiting');
+                shutdown(-1);
+            }
+        }
+    });
+    var counter = 0;
+});
+
+producer.connect();
+
+```
+
+* Below is a simple Node.js consumer:
+**consumer.js**
+```node
+var Kafka = require('node-rdkafka');
+
+var kafka_options = {
+    //'debug': 'all',
+    'metadata.broker.list': process.env.KAFKA_BROKERS,
+    'security.protocol': 'sasl_ssl',
+    'sasl.mechanisms': 'SCRAM-SHA-512',
+    'sasl.username': process.env.SCRAM_USERNAME,
+    'sasl.password': process.env.SCRAM_PASSWORD,
+    'ssl.ca.location': process.env.PEM_PATH,
+    'log.connection.close' : false,
+    'group.id': 'ES-NodeJS-101-consumer'
+};
+
+
+
+var topicName = process.env.TOPIC_NAME
+
+const consumer = new Kafka.KafkaConsumer(kafka_options, {
+    "auto.offset.reset": "beginning"
+  });
+
+
+consumer.on('event.log', function(log) {
+    console.log(log);
+});
+
+// Register error listener
+consumer.on('event.error', function(err) {
+    console.error('Error from consumer:' + JSON.stringify(err));
+});
+
+var consumedMessages = []
+// Register callback to be invoked when consumer has connected
+consumer.on('ready', function() {
+    console.log('The consumer has connected.');
+
+    // request metadata for one topic
+    consumer.getMetadata({
+        topic: topicName,
+        timeout: 10000
+    },
+    function(err, metadata) {
+        if (err) {
+            console.error('Error getting metadata: ' + JSON.stringify(err));
+            shutdown(-1);
+        } else {
+            console.log('Consumer obtained metadata: ' + JSON.stringify(metadata));
+
+        }
+    });
+
+    consumer.subscribe([topicName]);
+
+    consumerLoop = setInterval(function () {
+        if (consumer.isConnected()) {
+            // The consume(num, cb) method can take a callback to process messages.
+            // In this sample code we use the ".on('data')" event listener instead,
+            // for illustrative purposes.
+            consumer.consume(10);
+        }    
+
+        if (consumedMessages.length === 0) {
+            console.log('No messages consumed');
+        } else {
+            for (var i = 0; i < consumedMessages.length; i++) {
+                var m = consumedMessages[i];
+                console.log('Message consumed: topic=' + m.topic + ', partition=' + m.partition + ', offset=' + m.offset + ', key=' + m.key + ', value=' + m.value.toString());
+            }
+            consumedMessages = [];
+        }
+    }, 2000);
+});
+
+// Register a listener to process received messages
+consumer.on('data', function(m) {
+    consumedMessages.push(m);
+});
+
+consumer.connect()
+```
+* Like the Python environments, we will need a SCRAM Username, password, and the PEM Certificate. We will need a few environment variables to provide to our application so that it can connect to Event Streams.
+
+```shell
+export KAFKA_BROKERS=your-external-bootstrap-server-address \
+export SCRAM_USERNAME=your-scram-username \
+export SCRAM_PASSWORD=your-scram-password \
+export TOPIC_NAME=your-topic-name \
+export PEM_PATH=/path-to-your-pem-certificate/es-cert.pem
+```
+
+* To run these applications after exporting the necessary environment variables:
+```shell
+node producer.js
+node consumer.js
+```
