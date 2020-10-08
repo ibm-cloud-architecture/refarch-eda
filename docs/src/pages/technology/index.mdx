@@ -311,7 +311,7 @@ from KafkaProducer import KafkaProducer
 if __name__ == '__main__':
 
     # Parse arguments
-    parser = argparse.ArgumentParser(description="Avro Message Producer Example")
+    parser = argparse.ArgumentParser(description="Message Producer Example")
     parser.add_argument('-t', dest="topic", required=True, help="Topic name")
     args = parser.parse_args()
     
@@ -437,7 +437,7 @@ from KafkaConsumer import KafkaConsumer
 if __name__ == '__main__':
     
     # Parse arguments
-    parser = argparse.ArgumentParser(description="Avro Message Consumer Example")
+    parser = argparse.ArgumentParser(description="Message Consumer Example")
     parser.add_argument('-t', dest="topic", required=True, help="Topic name")
     args = parser.parse_args()
 
