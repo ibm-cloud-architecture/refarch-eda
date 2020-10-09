@@ -11,7 +11,7 @@ We are presenting in this note how to get development and deployment environment
    * [OpenShift Container Platform Installation Documentation](https://docs.openshift.com/container-platform/4.5/welcome/index.html) 
    * OpenShift Container Platform is flexible and can be installed in a number of different environments - onprem, cloud, and hybrid environments.
    * 
-* Cloud Pak Pperators
+* Cloud Pak Operators
     * Add [IBM Common Services operators](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
     * Add the IBM operators to the list of installable operators. Same product note as above.
     * Get [entitlement key](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/entitlement_key.html)
@@ -83,6 +83,7 @@ spec:
 ```
 
 ### Deploy Strimzi
+
 * On OpenShift Container Platform v4.0.x to 4.3.x as well as pre-Event Streams v10 the Strimzi Operator will serve most of our needs. It can serve as the base so that we can utilize technologies like KafkaConnect, KafkaConnectS2i, KafkaConnector, Mirror Maker2 and other Custom Resources.
 * You can install it via [Operator Hub](https://strimzi.io/blog/2019/03/06/strimzi-and-operator-lifecycle-manager/)
 * You can also install the Strimzi and it's [Cluster Operator](https://strimzi.io/docs/operators/master/deploying.html#cluster-operator-str) bay applying a yaml file through CLI.

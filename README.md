@@ -7,24 +7,6 @@ The content of this repository was the source of the event-driven reference arch
 
 ### Building this booklet locally
 
-The content of this repository is written with markdown files, packaged with [MkDocs](https://www.mkdocs.org/) and can be built into a book-readable format by MkDocs build processes.
-
-1. Install MkDocs locally following the [official documentation instructions](https://www.mkdocs.org/#installation).
-1. Install Material plugin for mkdocs:  `pip install mkdocs-material` 
-2. `git clone https://github.com/ibm-cloud-architecture/refarch-eda.git` _(or your forked repository if you plan to edit)_
-3. `cd refarch-eda`
-4. `mkdocs serve`
-5. Go to `http://127.0.0.1:8000/` in your browser.
-
-### Building this booklet locally but with docker
-
-In some cases you might not want to alter your Python setup and rather go with a docker image instead. This requires docker is running locally on your computer though.
-
-* docker pull squidfunk/mkdocs-material
-* git clone https://github.com/ibm-cloud-architecture/refarch-eda.git (or your forked repository if you plan to edit)
-* docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
-* Go to http://127.0.0.1:8000/ in your browser.
-
 ### Pushing the book to GitHub Pages
 
 1. Ensure that all your local changes to the `master` branch have been committed and pushed to the remote repository.
@@ -60,20 +42,8 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 ## Contributors
 
 * Lead developer [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
+* Lead developer [Rick Osowski](https://www.linkedin.com/in/rosowski/)
+* Content developer [Jesus Almaraz](https://www.linkedin.com/in/jesus-almaraz-hernandez/)
 * Lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
-* [IBM Streams Analytics team]
-  * [Martin Siegenthaler](https://www.linkedin.com/in/martin-siegenthaler-7654184/)
-  * [David Engebretsen](https://www.linkedin.com/in/david-engebretsen/)
-  * [Francis Parr](https://www.linkedin.com/in/francis-parr-26041924)
-* [IBM Decision Insight team]
-  * [Jose De Freitas](https://www.linkedin.com/in/jose-de-freitas-755a501b/)
-* IBM Garage team: 
-    * [Hemankita Perabathini](https://www.linkedin.com/in/hemankita-perabathini/)
-    * [John Martin]()
-    * [Wil Plannel]
-* IBM Lab Services
-    * [Sila Kissuu](https://www.linkedin.com/in/kissuu/)
-    * [Zach Silverstein](https://www.linkedin.com/in/zsilverstein/)
-
 
 Please [contact me](mailto:boyerje@us.ibm.com) for any questions.
