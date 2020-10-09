@@ -5,26 +5,31 @@ description:  Getting a starting environment to develop EDA solution
 
 We are presenting in this note how to get development and deployment environments to start developing Event Driven microservice solution. We assume OpensShift deployment and at first Java as the main programming language.
 
-## Infrastructure for dev integration test
+## Infrastructure for dev Integration test
 
 * OpenShift
    * [OpenShift Container Platform Installation Documentation](https://docs.openshift.com/container-platform/4.5/welcome/index.html) 
    * OpenShift Container Platform is flexible and can be installed in a number of different environments - onprem, cloud, and hybrid environments.
-   * 
+   * OpenShift v4.4.x and newer is required for CP4I2020.2.1 (and subsequently Event Streams v10.0) and CP4Apps v4.2.x
 * Cloud Pak Operators
     * Add [IBM Common Services operators](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_online_catalog_sources.html) 
     * Add the IBM operators to the list of installable operators. Same product note as above.
     * Get [entitlement key](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/entitlement_key.html)
 * Cloud Pak for Integration
-    * Install Cloud pak for integration operator using the Operator hub catalog
-    * Install Cloud pak for integration platform navigator from the operator hub catalog
+    * Install Cloud Pak for Integration operator using the Operator hub catalog
+    * Install Cloud Pak for Integration platform navigator from the operator hub catalog
     * The previous steps should have installed the common services if they were not installed before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
     * More information on [CP4I Installation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install.html)
-* cloud pak for application
+* Cloud Pak for Application
+  * You can either install Cloud Pak for Applications via the [CLI](https://www.ibm.com/support/knowledgecenter/SSCSJL_4.1.x/install-icpa-cli.html) or the [cloudctl CASE launcher](https://www.ibm.com/support/knowledgecenter/en/SSCSJL_4.2.x/install-icpa-case.html)
+  * Like the Cloud Pak for Integration you will need a key for the entitled registry.
+  
 
 ### Deploying Event Streams
 
-    The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. Here is an example of the yaml. Note that there are a few sample yamls that come after you install the Event Streams Operator. This yaml is for Event Streams v10.0 -
+- The instructions are in the [product documentation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install_event_streams.html), and are very simple using the IBM Event Streams operator. Select minimal configuration with persistence. 
+
+- Here is an example of the yaml. Note that there are a few sample yamls that come after you install the Event Streams Operator. This yaml is for Event Streams v10.0 -
 
 ```yaml
 apiVersion: eventstreams.ibm.com/v1beta1
@@ -84,24 +89,25 @@ spec:
 
 ### Deploy Strimzi
 
+* [Strimzi](https://strimzi.io/) is a very powerful and useful distributed Kafka deployment built for use with Kubernetes and OpenShift.
 * On OpenShift Container Platform v4.0.x to 4.3.x as well as pre-Event Streams v10 the Strimzi Operator will serve most of our needs. It can serve as the base so that we can utilize technologies like KafkaConnect, KafkaConnectS2i, KafkaConnector, Mirror Maker2 and other Custom Resources.
 * You can install it via [Operator Hub](https://strimzi.io/blog/2019/03/06/strimzi-and-operator-lifecycle-manager/)
-* You can also install the Strimzi and it's [Cluster Operator](https://strimzi.io/docs/operators/master/deploying.html#cluster-operator-str) bay applying a yaml file through CLI.
+* You can also install the Strimzi and it's [Cluster Operator](https://strimzi.io/docs/operators/master/deploying.html#cluster-operator-str) by applying a yaml file through CLI.
 
 ## Java Developer Environment
 
 * Go with [Quarkus](http://quarkus.io) so all being set with maven plugin.
 * You can scaffold your application through the [Quarkus Web UI](https://code.quarkus.io/) which will allow you to pick and choose your project dependencies. You may also do it through the CLI like so: 
-   ```shell
-   mvn io.quarkus:quarkus-maven-plugin:1.8.1.Final:create \
-    -DprojectGroupId=ibm.garage \
-    -DprojectArtifactId=your-application \
-    -Dextensions="kafka,kafka-streams,quarkus-kafka-streams"
+```shell
+mvn io.quarkus:quarkus-maven-plugin:1.8.1.Final:create \
+-DprojectGroupId=ibm.garage \
+-DprojectArtifactId=your-application \
+-Dextensions="kafka,kafka-streams,quarkus-kafka-streams"
   ```
-  - If you already have your project created and you know the name of an extension you want ot add, you can do it through the CLI like the following - 
-  ```shell
-  ./mvnw quarkus:add-extension -Dextensions="kafka"
-  ```
+* If you already have your project created and you know the name of an extension you want ot add, you can do it through the CLI like the following - 
+```shell
+./mvnw quarkus:add-extension -Dextensions="kafka"
+```
   
 * Here's a very simple Quarkus Producer application utilizing MicroProfile Reactive Messaging that sends messages to Event Stream v10 and newer: 
 **Producer.java**
@@ -213,8 +219,9 @@ export CERT_PASSWORD=your-cert-password
 ```
 
 
-* Kafka Strimzi image for docker and docker-compose to get up and running quikcly. We have different docker composes files for you to start with:
+* Kafka Strimzi image for docker and docker-compose to get up and running quickly. We have different docker composes files for you to start with:
     * One Broker, one Zookeeper, kafka 2.5
+    * TODO
 
 ## Python Developer Environment
 
