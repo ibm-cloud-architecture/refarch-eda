@@ -488,7 +488,7 @@ python ConsumePlainMessage.py -t <your-topic-name>
 
 * Here is a simple Node.js producer application that will produce 20 messages to the Kafka topic.
 **producer.js**
-```node
+```javascript
 var Kafka = require('node-rdkafka');
 
 var kafka_options = {
@@ -570,7 +570,7 @@ producer.connect();
 
 * Below is a simple Node.js consumer:
 **consumer.js**
-```node
+```javascript
 var Kafka = require('node-rdkafka');
 
 var kafka_options = {
