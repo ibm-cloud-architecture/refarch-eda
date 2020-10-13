@@ -66,6 +66,8 @@
       path: /technology/kafka-monitoring/
     - title: Avro and Schemas
       path: /technology/avro-schemas/
+    - title: Development Environment
+      path: /technology/
 - title: Use Cases
   pages:
     - title: Overview
