@@ -495,10 +495,13 @@ python ConsumePlainMessage.py -t <your-topic-name>
 
 ## Node.js Developer Environment
 
-* We will make use of the [node-rdkafka](https://github.com/Blizzard/node-rdkafka) library for our purposes. 
-
 * The following code is based off this application [here](https://chrisphillips-cminion.github.io/eventstreams/2019/08/22/NodeJS-IBMES-101.html)
 
+* We will make use of the [node-rdkafka](https://github.com/Blizzard/node-rdkafka) library for our purposes. Therefore we will need to install the dependency for the project first:
+
+```shell
+npm install node-rdkafka --save
+```
 
 * Here is a simple Node.js producer application that will produce 20 messages to the Kafka topic.
 
