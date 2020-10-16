@@ -100,7 +100,7 @@
   pages:
     - title: Overview
       path: /scenarios/overview/
-    - title: Realtime Inventory
+    - title: Real-time Inventory
       path: /scenarios/realtime-inventory/
 - title: Additional reading
   pages:
