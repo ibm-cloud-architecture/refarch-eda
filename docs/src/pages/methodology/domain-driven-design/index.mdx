@@ -72,7 +72,7 @@ For the EDA reference implementation solution the [system context diagram is vis
 
 Each interface to those system needs to be documented using the [interface characteristics approach](https://www.ibm.com/developerworks/websphere/techjournal/1201_clark/1201_clark.html) presented by IBM Kim Clark.
 
-The full set of interface characteristics to consider for each system to integrate is summarized below:
+The full set of interface characteristics to consider for each system to integrate with is summarized below:
 
 * FUNCTIONAL DEFINITION
 
@@ -130,6 +130,8 @@ So with a system context diagram and interface characteristics to external syste
 
 ### Step 3: Define the ubiquitous language
 
+*Eric Evans: "To communicate effectively, the code must be based on the same language used to write the requirements, the same language the developers speak with each other and with domain experts"*
+
 This is where the work from the event storming and the relation with the business experts should help. Domain experts use their jargon while technical team members have their own language tuned for discussing the domain in terms of design. The terminology of day-to-day discussions is disconnected from the terminology embedded in the code, so the ubiquitous language helps to allign knowledge with design elements, code and tests. (Think about EJB, JPA entity, all the JEE design jargon versus ShippingOrder, order provisioning, fullfillment... )
 
 The vocabulary of that ubiquitous language includes the class names and prominent operation names. The language includes terms to discuss rules that have been made explicit in the model. Be sure to commit the team to exercising that language relentlessly in all communication within the business and in the code. Use the same language in diagrams, writing, and especially speech.
@@ -158,6 +160,21 @@ An aggregate is a cluster of associated objects that we treat as a unit for the 
 Bounded Context explicitly defines the boundaries of your model. This concept is critical in large software projects. A Bounded Context sets the limits around what a specific team works on and helps them to define their own vocabulary within that particular context. When you define a bounded context, you define who uses it, how they use it, where it applies within a larger application context, and what it consists of, in terms of things like OpenAPI documentation and code repositories.
 
 Within a business context every use of a given domain term, phrase, or sentence, **the Ubiquitous Language**, inside the boundary has a specific contextual meaning. So order context is a bounded context and groups order, ordered product type, pickup and shipping addresses, delivery specifications, delivery history....
+
+#### Business operation API
+
+As part of the commands discovered during the event storming, some of them are related to business operations that could be managed and have business objective in term of cost control or new revenu stream. 
+
+If needed, some more specific requirement about the APIs can be formalized using the [API adoption canvas](https://developer.ibm.com/apiconnect/2017/08/24/api-adoption-canvas/), which helps to capture all key aspects of API adoption with a lean approach.
+
+The characteristics to consider for a development point of view and DDD are:
+
+* API product description
+* SLA and expected performance 
+* Exposure to developer communities
+* Expected short, medium and long term API management and versioning strategy
+
+For an implementation point of view, when mapping API to RESTful resource the data and verbs need to be defined, When APIs are asynchronous, the description of the delivery channel becomes important.
 
 #### Repositories
 
@@ -222,7 +239,43 @@ We assume that we are developing a particular build for a sprint within some agi
 
 * When, at the next level of detail, the individual fields in each event are specified and typed, the [CloudEvents standard](https://github.com/cloudevents/spec) may be used as a starting point.
 
-### Step 7: Specify recovery approach in case a microservice fails
+### Step 7: TDD meets DDD
+
+Test Driven Development is a well established practice to develop software efficiently. Since 2003 and extreme programming practice, it helps when doing refactoring, improve code quality and focus on simple design. As Dan North stated in 2018, it could have been bettwe name 'Example Guided Design' as starting by the test improve the design, and writing tests that map example and end user stories will make it more clear and mapped to the requirements. With DDD, TDD needs to support the ubiquituous language and have tests intent clearly stated.  We can easily adopt the following practices:
+
+* Isolate tests per bounded context
+* Adopt collective ownership of code and tests
+* Pair programming between tester and developer
+* Enforce contunuous feedbacks
+* Keep tests in source control with the code and for integration tests in a dedicated folder or even repository. Have their executions as part of CI/CD pipeline.
+* Write test with te Gherkin syntax:
+
+```
+Feature: title of the scenario or test method
+Given [initial context]
+When [event or trigger]
+then [expected output]
+```
+
+Here is an example of such structure in Junit 5 test:
+
+```java
+public void given_order_created_should_emit_event() throws OrderCreationException {
+    assume_there_is_no_event_emitted();
+    OrderEventPayload new_order = ShippingOrderTestDataFactory.given_a_new_order();
+    // when
+    service.createOrder(new_order);
+    // then
+    assertTrue(order_created_event_generated());
+    OrderCommandEvent createdOrderEvent = (OrderCommandEvent)commandEventProducer.getEventEmitted();
+    assertTrue(new_order.getOrderID().equals(((OrderEventPayload)createdOrderEvent.getPayload()).getOrderID()));
+}
+```
+
+
+### Step 8: Address failover and other NFRs
+
+NFRs impact architecture decision, technology choices and coding. So address those NFRs as early as possible during requirements and analysis and then design phases. 
 
 * If a microservice fails it will need to recover its internal state by reloading data from one or more topics, from the latest committed read.
 * In general, command and query microservices will have a standard pattern for doing this.
