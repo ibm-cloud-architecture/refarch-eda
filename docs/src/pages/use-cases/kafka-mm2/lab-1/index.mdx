@@ -65,13 +65,14 @@ Your local environment is up and running.
 1. Start Mirror Maker2.0, by using a new container to start another kakfa 2.5 docker container, connected to the  brokers via the `kafkanet` network, and mounting the configuration in the `/home`. We have done a script to modify the properties file from a template file then call mirror maker 2:
 
     ```shell
-    ./scripts/launchMM2.sh
+    cd es-to-local
+    ./launchMM2.sh
     ```
 
     This script updates the properties file from the environment variables and starts the container with a command very similar as:
 
     ```shell
-     docker run -ti --network kafkanet -v $(pwd):/home -v $(pwd)/mirror-maker-2/logs:/opt/kafka/logs strimzi/kafka:latest-kafka-2.5.0 /bin/bash -c "/opt/kafka/bin/connect-mirror-maker.sh /home/mirror-maker-2/es-to-local/mm2.properties"
+     docker run -ti --network kafkanet -v $(pwd):/home -v $(pwd)/mirror-maker-2/logs:/opt/kafka/logs strimzi/kafka:latest-kafka-2.6.0 /bin/bash -c "/opt/kafka/bin/connect-mirror-maker.sh /home/mirror-maker-2/es-to-local/mm2.properties"
     ```
 
     The `mm2.properties` file defines the source and target clusters and the topics to replicate.

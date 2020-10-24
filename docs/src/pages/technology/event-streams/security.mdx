@@ -6,6 +6,7 @@ description: Hands on lab to understand Event Streams on Cloud security features
 This documentation aims to be a introductory hands-on lab for the security feature of IBM Event Streams.
 
 <AnchorLinks>
+  <AnchorLink>Security considerations</AnchorLink>
   <AnchorLink>IAM Concept Summary</AnchorLink>
   <AnchorLink>Event Streams access management concepts</AnchorLink>
   <AnchorLink>Pre-requisites</AnchorLink>
@@ -15,6 +16,15 @@ This documentation aims to be a introductory hands-on lab for the security featu
   <AnchorLink>Control application access</AnchorLink>
   <AnchorLink>Encryption at rest</AnchorLink>
 </AnchorLinks>
+
+## Security considerations
+
+There are a lot of security requirements to address to secure platform and solution, in this section we will list some of them
+
+* **Secure data access** which include data in motion or at rest encryption, connection and isolation via private network. Support to Virtual Private Network and bring your own keys.
+* **Control access to Kafka cluster** and resources like topics, using role based access control, SAML tokens and TLS certificates. Bring your own keys.
+* **Monitor and audit** to provide audit log and secured APIs access
+* **User onboarding**: define application specific service accounts, and admin users for devOps staff. 
 
 ## IAM Concept Summary
 

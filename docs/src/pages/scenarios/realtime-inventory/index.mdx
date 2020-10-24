@@ -1,38 +1,43 @@
 ---
-title: Realtime Inventory, powered by Kafka Connect
+title: Realtime Inventory, powered by Kafka
 description: An end-to-end data pipeline lab scenario, connecting multiple components of a realtime inventory system via Kafka Connect.
 ---
 
 <InlineNotification kind="warning">
-<strong>Update 10/20/2020</strong> - Work in progress
+<strong>Update 10/23/2020</strong> - Work in progress
 </InlineNotification>
 
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
   <AnchorLink>Solution anatomy</AnchorLink>
   <AnchorLink>General pre-requisites</AnchorLink>
-  <AnchorLink>Scenario setup</AnchorLink>
-  <AnchorLink>Step 1: Deploy the MQ Sink Connector locally</AnchorLink>
-  <AnchorLink>Step 2: Deploy the MQ Sink Connector on OpenShift</AnchorLink>
-  <AnchorLink>Step 3: Deploy the RabbitMQ Source Connector locally</AnchorLink>
-  <AnchorLink>Step 4: Deploy the JDBC Sink Connector locally</AnchorLink>
-  <AnchorLink>Step 5: Run the solution components end-to-end on Kubernetes</AnchorLink>
-  <AnchorLink>TODOs</AnchorLink>
-</AnchorLinks>
+  <AnchorLink>Lab 1: RabbitMQ Source Connector to Kafka items topic</AnchorLink>
+ </AnchorLinks>
 
 ## Overview
 
-This lab addresses multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams / Kafka on Premise. At the high level Kafka connect is used to integrate external systems into the Kafka ecosystem. For example external system can inject item sale messages to queue manager, from which a first Kafka source connector publishes the messages to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, which will be used by Sink connectors.
+This lab addresses multiple scenarios that aim to build an end to end data pipeline, as depicted by the following figure, using Event Streams / Kafka on Premise and Kafka Connect cluster. At the high level Kafka Connect is used to integrate external systems into the Kafka ecosystem. For example external systems can inject item sale messages to queue manager, from which a first Kafka source connector publishes the messages to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, which will be used by Sink connectors.
 
  ![1](./images/kconnect-overview.png)
 
-To support this lab we are reusing a classical business use case around `real time inventory` where stores are sending their sale transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservices, real time analytics and complex event processing, Kafka is added to this legacy environment. Adopting Kafka connect lets integrate with existing applications without any changes.
+To support this lab we are reusing a classical business use case around `real time inventory processing` where stores are sending their sale transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservices, real time analytics and complex event processing, Kafka is added to this legacy environment. Adopting Kafka Connect helps to integrate with existing applications without any changes.
 
-All the components of this scenario are ready to run on OpenShift, but we are also providing a docker compose to run all of them on your local workstation. The important knowledge is on the programming model we used, and the Kafka Connect configuration and code.
+All the components of this scenario are ready to run on OpenShift, but we are also providing different docker compose files to run all of those components on your local workstation. The important body of knowledge of this scenario is related to the programming model we used, and the Kafka Connect configuration and code.
+
+## What you will learn
+
+* Use Quarkus, with reactive programming API like Mutiny, with Kafka API to produce message to Kafka
+* Same Quarkus app can generate messages to RabbitMQ using the AMQP API
+* Same Quarkus app can generate mesasges to IBM MQ using JMS
+* Use Kafka Connect to get source and sink cluster to get date from the queue and to queue or DB
+* Use Quarkus and Kafka streams to compute aggregates to build an inventory view from the stream of events
+* Use the RabbitMQ source connector from IBM Event messaging open source contribution
+* Use the IBM MQ sink connector from IBM Event messaging open source contribution
+* Use the JDBC sink connector from IBM Event messaging open source contribution
 
 ## Solution anatomy
 
-The lab is divided into smaller scenarios that can be combined to support the real time inventory data pipeline as illustrated in the figure below:
+This end to end scenario is divided into smaller labs that can be combined to support the real time inventory data pipeline as illustrated in the figure below:
 
  ![2](./images/kconnect-scenario-components.png)
 
@@ -58,46 +63,38 @@ The lab is divided into smaller scenarios that can be combined to support the re
 
 For an end to end demonstration the following steps can be demonstrated once the environment is up and running.
 
-1. The Stores view present the stores Acme Inc is managing. 
+1. Start with the Store Simulator -> Stores view to present the stores Acme Inc is managing. Those stores ID will be used as key for sending events to Kafka.
 
-1. Start to send 10 messages to [Rabbit MQ]()
+![0](./images/stores-view.png)
+
+1. In the Simulator view start to send 10 messages to [Rabbit MQ]()
 
 ## General pre-requisites
 
-<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this lab. You can run with docker compose, or deploy to an OpenShift cluster. We propose to run the components with docker compose for the scenario 1,2,3 and scenario 4 is for a deployment of the components on a Kubernetes cluster that could run on-premises or on any Cloud provider using Openshift. If you do not want to build all the components, we have each of them available in Docker Hub and the Docker Compose file should run them automatically.
+<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this scenario. You can run with docker compose locally on your laptopn, or deploy the component to an OpenShift cluster. For quick demonstration purpose, each lab / use case have docker compose files to test them in isolation, or a bigger end to end processing with Rabbit MQ, Kafka Connect, Store Simulator, Item aggregator and DB2. If you do not want to build all the components, we have each of them available in Docker Hub.
 </InlineNotification>
 
-We need the following tools to run the lab. We try to use docker images as much as possible to do not impact your local laptop.
+We need the following tools to run the different labs. We try to use docker images as much as possible to do not impact your local laptop.
 
 * [Docker](https://docs.docker.com/) and docker compose to run the solution locally.
 * You need to get [docker compose](https://docs.docker.com/compose/).
 * [git CLI](https://git-scm.com/downloads).
 * [Maven](https://maven.apache.org/install.html).
 
-Clone the lab repository: [refarch-eda-tools](https://github.com/ibm-cloud-architecture/refarch-eda-tools)
+Clone the labs repository: [refarch-eda-tools](https://github.com/ibm-cloud-architecture/refarch-eda-tools)
 
-## Scenario setup
+### OpenShift specific setup
 
-1. Start the main docker compose: 
+1. Connect to your OpenShift cluster using 'oc' cli
+1. Create a new project `oc new-project eda-inventory`
+1. If not done yet, deploy Event Streams using the [instructions here](/use-cases/overview/pre-requisites#install-event-streams-using-operators)
 
-```shell
-docker-compose up
-```
 
-1. Prepare the Kafka Connect environment, as we need to use three connectors. Therefore we need to clone the source, build and get the jars file in the connectors. In fact we have developed scripts to automate those tedious steps:
+## Lab 1: RabbitMQ Source Connector to Kafka items topic
 
-  * Under the `kconnect` folder run `./setupConnectors.sh` script and get the three connectors downloaded and built.
-  * Build a docker image for the connector: this is also done by running a second script: `./createOrStartKconnect.sh build`.
+Following the [RabbitMQ Source Connector lab](/use-cases/connect-rabbitmq/) use case to deploy the connector runtime, connecting your source RabbitMQ environment to the target Kafka environment and `items` topic.
 
-## Step 1: Deploy the RabbitMQ Source Connector locally
-
-Follow the [RabbitMQ Source Connector](/use-cases/connect-rabbitmq/) use case to deploy the connector runtime, connecting your source RabbitMQ environment to the target Kafka environment and topic.
-
-## Step 1: Deploy the MQ Sink Connector locally
-
-Follow the [MQ Sink Connector](/use-cases/connect-mq/) use case to deploy the connector runtime, connecting your source Kafka environment and topic to the target MQ queue manager.
-
-## Step 2: Deploy the MQ Sink Connector on OpenShift
+## Lab 2: Deploy the MQ Sink Connector on OpenShift
 
 Optionally, follow the [MQ Sink Connector](/use-cases/connect-mq/) use case to deploy the connector runtime to OpenShift, connecting your source Kafka environment and topic to the target MQ queue manager.
 

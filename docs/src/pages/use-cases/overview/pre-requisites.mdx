@@ -5,6 +5,7 @@ description: Common pre-requisites for the different labs and use cases
 
 <AnchorLinks>
   <AnchorLink>IBM Cloud Shell</AnchorLink>
+  <AnchorLink>Install Event Streams using operators</AnchorLink>
   <AnchorLink>Creating Event Streams Topics</AnchorLink>
   <AnchorLink>Getting scram authentication from Event Streams on OpenShift</AnchorLink>
   <AnchorLink>Getting TLS authentication from Event Streams on OpenShift</AnchorLink>
@@ -65,6 +66,52 @@ In order to install these modules, execute the following command in your IBM Clo
 ![shell4](./images/shell4-v10.png)
 
 **Congrats!** you have now your IBM Cloud Shell ready to start working.
+
+## Install Event Streams using operators
+
+See the [product instructions](https://ibm.github.io/event-streams/installing/installing/) to deploy using IBM operators. Here is a summary of the steps using the CLI
+  
+* Verify operators are visibles in OpenShift market place 
+
+ ```
+ oc get catalogsource -n openshift-marketplace
+ NAME                   DISPLAY                TYPE      PUBLISHER   AGE
+ certified-operators    Certified Operators    grpc      Red Hat     15d
+ community-operators    Community Operators    grpc      Red Hat     15d
+ ibm-operator-catalog   IBM Operator Catalog   grpc      IBM         6s
+ opencloud-operators    IBMCS Operators        grpc      IBM         23h
+ redhat-marketplace     Red Hat Marketplace    grpc      Red Hat     15d
+ redhat-operators       Red Hat Operators      grpc      Red Hat     15d
+ ```
+
+* If the IBM catalogs are not displayed add the following:
+
+ ```shell
+ oc apply -f 
+https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-tools/master/evenstreams-config/ibm-catalog.yaml
+ # 
+ oc apply -f 
+ https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-tools/master/evenstreams-config/ibm-cs-catalog.yaml
+ ```
+
+* Create a project to host eventstreams cluster:
+
+  ```shell
+  oc new-project eventstreams
+  ```
+* Use Openshift console -> Operators > OperatorHub to search for event streams, then install the operator. (The last test done was on 2.1.0 version). We define the kafka cluster operator to manage instances on any projects, which means the operator will be deployed to `openshift-operators`, to use channel version `2.1`. It takes some time before the operator pod is scheduled.
+* Get your license entitlement key from this web site: [https://myibm.ibm.com/products-services/containerlibrary](https://myibm.ibm.com/products-services/containerlibrary), and save it in a file named `key`.
+* Create a secret to access the IBM docker registry to get access to the product image:
+
+  ```shell
+  oc create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=$(cat key) --docker-server="cp.icr.io" -n eventstreams
+  ```
+* Install an Event Streams instance: Instances of Event Streams can be created after the Event Streams operator is installed. You can use te OpenShift console or our predefined cluster defintion:
+
+ ```shell
+ oc apply -f 
+https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-tools/master/evenstreams-config/eventstreams-light-insecure.yaml
+ ```
 
 ## Creating Event Streams Topics
 

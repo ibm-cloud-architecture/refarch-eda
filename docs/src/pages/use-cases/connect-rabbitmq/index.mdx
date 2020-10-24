@@ -4,89 +4,109 @@ description: Apache Kafka to RabbitMQ Source Connector usecase
 ---
 
 <InlineNotification kind="warning">
-<strong>TODO</strong> - Work in progress
+<strong>Updated 10/23/2020</strong>
 </InlineNotification>
 
 <AnchorLinks>
-<AnchorLink>Pre-requisites</AnchorLink>
-<AnchorLink>Start the backend environment</AnchorLink>
-<AnchorLink>Verify the RabbitMQ settings</AnchorLink>
-<AnchorLink>Configure the kafka connector for Rabbitmq source</AnchorLink>
-<AnchorLink>Generate sale messages</AnchorLink>
-<AnchorLink>Verify messages arrived in Kafka items topic</AnchorLink>
+<AnchorLink>Just run it!</AnchorLink>
+<AnchorLink>Deploy on OpenShift</AnchorLink>
 </AnchorLinks>
 
 This hands-on lab demonstrates how to use IBM RabbitMQ source connector to inject message to Event Streams On Premise. 
-We are using the [IBM messaging github: source connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source). The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
+We are using the [IBM messaging github: source Kafka connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source) open sourced component. The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
 
-The code, configurations and detail readme instructions are in this repository that you should clone:
+The following diagram illustrates the component of this demo / lab:
 
-```shell
-git clone https://github.com/jbcodeforce/eda-kconnect-lab
-```
+![0](./images/comp-view.png)
 
-To send message to RabbitMQ, we have implemented a simple simulator, to send item sale messages for one of the stores. The code is under [store-sale-producer](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/store-sale-producer) folder and we have also uploaded the image into dockerhub.
-
-For quick start and demonstration the [github repository for this lab](https://github.com/jbcodeforce/eda-kconnect-lab) includes a docker compose file [RabbitMQ-Kconnect-compose.yaml](https://github.com/jbcodeforce/eda-kconnect-lab/blob/master/infrastructure/RabbitMQ-Kconnect-compose.yaml) under the `infrastructure` folder to run Rabbit MQ and Kafka Connect together on your local computer. We recommend to follow the instructions in the [store-sale-producer readme](https://github.com/jbcodeforce/eda-kconnect-lab/tree/master/store-sale-producer) file.
-
-But we want to also run and deploy this solution on OpenShift and Event Streams on Premise.
-
-## Pre-requisites
-
-<InlineNotification kind="warning"><strong>TODO</strong></InlineNotification>
-
-_Pull in necessary pre-req context from [Realtime Inventory Pre-reqs](/scenarios/realtime-inventory/#general-pre-requisites)._
-
- If you need to rebuild the image the following commands may be done:
+The configurations used in this use case are in the `refarch-eda-tools` repository that you should clone:
 
 ```shell
-./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.group=ibmcase -Dquarkus.container-image.tag=1.0.0
+git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
 ```
 
-## Start the backend environment
+## Just run it!
 
-In this section we start RabbitMQ, Kafka Connect and the Store Item Sale generator app. This app exposes a REST api to generate items sale operations that happen in a predefined set of stores.
+For demonstration purpose, we have defined a docker compose file and a set of images ready to be used. So it will be eaiery to demonstrate the scenario of sending messages to Rabbit MQ `items` queue, have a Kafka connector configured and a simple Kafka consumer which consumes JSon doc from `items` topic. 
 
-Under the infrastructure folder use the command: `docker-compose -f RabbitMQ-Kconnect-compose.yaml up`.
+To send message to RabbitMQ, we have implemented a simple store simulator, to send item sale messages for a set of stores. The code is under [eda-store-simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) repository and we have also uploaded the image [into dockerhub ibmcase/eda-store-simulator](https://hub.docker.com/repository/docker/ibmcase/eda-store-simulator).
 
-The trace includes RabbitMQ, storeSaleGenerator_1 and Kafka connect logs. Here is a small extract of important messages:
+To quickly start a local demonstration environment, the [github repository for this lab](https://github.com/ibm-cloud-architecture/refarch-eda-tools) includes a [docker compose file](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/rabbitmq-source-lab/docker-compose.yaml) under the `labs/rabbitmq-source-lab` folder.
 
 ```shell
-rabbitmq_1            | 2020-06-17 06:12:58.293 [info] <0.9.0> Server startup complete; 4 plugins started.
-rabbitmq_1            |  * rabbitmq_management
-rabbitmq_1            |  * rabbitmq_web_dispatch
-rabbitmq_1            |  * rabbitmq_management_agent
-rabbitmq_1            |  * rabbitmq_amqp1_0
-rabbitmq_1            |  completed with 4 plugins.
-....
-storeSaleGenerator_1  | 2020-06-17 06:12:44,056 INFO  [io.quarkus] (main) Profile prod activated.
-storeSaleGenerator_1  | 2020-06-17 06:12:44,057 INFO  [io.quarkus] (main) Installed features: [cdi, mutiny, resteasy, resteasy-jsonb, smallrye-openapi, smallrye-reactive-messaging, smallrye-reactive-messaging-amqp, vertx]
+git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
+cd refarch-eda-tools/labs/rabbitmq-source-lab
+docker-compose up &
+docker ps 
+
+IMAGE                              COMMAND                   PORT                  
+ibmcase/kconnect:v1.0.0            "./bin/connect-distr…"    0.0.0.0:8083->8083/  
+strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/kafka-se…"    0.0.0.0:9092->9092/
+ibmcase/eda-store-simulator        "/deployments/run-ja…"    0.0.0.0:8080->8080/
+rabbitmq:3-management              "docker-entrypoint.s…"    0.0.0.0:5672->5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   
+strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/zookeepe…"    0.0.0.0:2181->2181/                                                                                      
 ```
 
-## Verify the RabbitMQ settings
+* Once the different containers are started, you can deploy the source connector as describe [in this section](#) but which come to a simple POST
 
-In a Web Browser go to [http://localhost:1567/](http://localhost:1567/) using the guest/guest login.
+```shell
+curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors   --data "@./rabbitmq-source.json
+```
+
+* And then looking at the deployed connectors using [http://localhost:8083/connectors](http://localhost:8083/connectors) or the RabbitMQ connector with [http://localhost:8083/connectors/RabbitMQSourceConnector](http://localhost:8083/connectors/RabbitMQSourceConnector).
+
+* Send some records using the simulator using the [http://localhost:8080/#/simulator](http://localhost:8080/#/simulator) URL and the user interface: 
+
+ ![1](./images/store-simul-rmq.png)
+
+
+* Verify the RabbitMQ settings
+
+In a Web Browser go to [http://localhost:1567/](http://localhost:1567/) using the rabbit-user/rabbit-pass login.
 
 You should reach this console:
 
 ![7](./images/rabbitmq-overview.png)
 
-If in the Admin tab you do not see **rabbit-user** listed do the following:
-
-* Add a new admin user: **rabbit-user/rabbit-pass** using the Admin tab. Enable the virtual host to be '/'.
-
-![](./images/rabbitmq-user.png)
-
-
-Go to the Queue tab and add `items` queue with default parameters:
-
-![8](./images/rabbitmq-item-queue.png)
-
-
-With the following result
+Go to the Queue tab and select the `items` queue:
 
 ![9](./images/rabbitmq-item-queue-2.png)
 
+* Now verify the Kafka connect-* topics are created successfully:
+
+ ```shell
+ docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list"
+ # you should get at least
+ __consumer_offsets
+ connect-configs
+ connect-offsets
+ connect-status
+ items
+ ```
+
+* Verify the message arrived to the `items` in kafka topic:
+
+ ```shell
+ docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic items --from-beginning"
+
+ # You may have a trace like which maps the messages sent 
+ "{\"id\":0,\"price\":11.0,\"quantity\":6,\"sku\":\"Item_5\",\"storeName\":\"Store_3\",\"timestamp\":\"2020-10-23T19:11:26.395325\",\"type\":\"SALE\"}"
+"{\"id\":1,\"price\":68.5,\"quantity\":0,\"sku\":\"Item_5\",\"storeName\":\"Store_1\",\"timestamp\":\"2020-10-23T19:11:26.395447\",\"type\":\"SALE\"}"
+ ```
+
+You validated the solution work end to end. Now we can try to deploy those components to OpenShift.
+
+## Deploy on OpenShift
+
+In this section, we want to run and deploy the connector and Rabbit MQ on OpenShift using Event Streams on Premise.
+
+### Pre-requisites
+
+<InlineNotification kind="warning"><strong>TODO</strong></InlineNotification>
+
+_Pull in necessary pre-req from the [Realtime Inventory Pre-reqs](/scenarios/realtime-inventory/#general-pre-requisites), like for example the deployment of the store simulator._
+
+## Deploy Rabbit MQ
 
 ## Configure the kafka connector for Rabbitmq source
 
@@ -136,31 +156,3 @@ kconnect_1  INFO Creating Channel (com.ibm.eventstreams.connect.rabbitmqsource.R
 rabbitmq_1  connection <0.1766.0> (172.19.0.3:33040 -> 172.19.0.2:5672): user 'rabbit-user' authenticated and granted access to vhost '/'
 ```
 
-## Generate sale messages
-
-The Store application has an OpenAPI [http://localhost:8080/swagger-ui/](http://localhost:8080/swagger-ui/) definition to send messages:  `/stores/start/2` api:
-
-![5](./images/store-app-1.png)
-
-Or use `curl -X POST http://localhost:8080/stores/start/2`
-
-In the trace you should see something like:
-
-```shell
-storeSaleGenerator_1  INFO  [ibm.gse.eda.sto.inf.ItemSaleGenerator] (executor-thread-1) {"id":0,"storeName":"SF02","itemCode":"IT07","quantity":7,"price":46.79320631709398}
-storeSaleGenerator_1  INFO  [ibm.gse.eda.sto.inf.ItemSaleGenerator] (executor-thread-1) {"id":1,"storeName":"NYC01","itemCode":"IT00","quantity":7,"price":0.7764381649099172}
-```
-## Verify messages arrived in Kafka items topic
-
-We can use the Kafdrop tool to go to the `items` topic as illustrated below. The tool can be started via the `./startKafdrop.sh` command under the `infrastructure` folder after setting a `kakfa.properties` file as:
-
-```properties
-security.protocol=SASL_SSL
-ssl.protocol=TLSv1.2
-ssl.enabled.protocols=TLSv1.2
-ssl.endpoint.identification.algorithm=HTTPS
-sasl.mechanism=PLAIN
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="APIKEY";
-```
-
-![](./images/kafdrop.png)
