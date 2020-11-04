@@ -4,7 +4,7 @@ description: Apache Kafka to RabbitMQ Source Connector usecase
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 10/23/2020</strong>
+<strong>Updated 11/02/2020</strong>
 </InlineNotification>
 
 <AnchorLinks>
@@ -27,9 +27,11 @@ git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
 
 ## Just run it!
 
-For demonstration purpose, we have defined a docker compose file and a set of images ready to be used. So it will be eaiery to demonstrate the scenario of sending messages to Rabbit MQ `items` queue, have a Kafka connector configured and a simple Kafka consumer which consumes JSon doc from `items` topic. 
+For demonstration purpose, we have defined a docker compose file and a set of docker images ready for use. So it will be easier to demonstrate the scenario of sending messages to Rabbit MQ `items` queue, have a Kafka connector configured and a simple Kafka consumer which consumes Json doc from the `items` Kafka topic. 
 
-To send message to RabbitMQ, we have implemented a simple store simulator, to send item sale messages for a set of stores. The code is under [eda-store-simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) repository and we have also uploaded the image [into dockerhub ibmcase/eda-store-simulator](https://hub.docker.com/repository/docker/ibmcase/eda-store-simulator).
+To send message to RabbitMQ, we have implemented a simple store sale simulator, which sends item sale messages for a set of stores. The code is under [eda-store-simulator repository](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and we have also uploaded the image [into dockerhub ibmcase/eda-store-simulator](https://hub.docker.com/repository/docker/ibmcase/eda-store-simulator).
+
+### Start backend services
 
 To quickly start a local demonstration environment, the [github repository for this lab](https://github.com/ibm-cloud-architecture/refarch-eda-tools) includes a [docker compose file](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/rabbitmq-source-lab/docker-compose.yaml) under the `labs/rabbitmq-source-lab` folder.
 
@@ -47,15 +49,21 @@ rabbitmq:3-management              "docker-entrypoint.s…"    0.0.0.0:5672->567
 strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/zookeepe…"    0.0.0.0:2181->2181/                                                                                      
 ```
 
-* Once the different containers are started, you can deploy the source connector as describe [in this section](#) but which come to a simple POST
+### Deploy source connector
+
+Once the different containers are started, you can deploy the RabbitMQ source connector using the following POST
 
 ```shell
+# under the folder
 curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors   --data "@./rabbitmq-source.json
 ```
 
 * And then looking at the deployed connectors using [http://localhost:8083/connectors](http://localhost:8083/connectors) or the RabbitMQ connector with [http://localhost:8083/connectors/RabbitMQSourceConnector](http://localhost:8083/connectors/RabbitMQSourceConnector).
 
-* Send some records using the simulator using the [http://localhost:8080/#/simulator](http://localhost:8080/#/simulator) URL and the user interface: 
+```
+```
+
+* Send some records using the simulator at the [http://localhost:8080/#/simulator](http://localhost:8080/#/simulator) URL and the user interface: 
 
  ![1](./images/store-simul-rmq.png)
 
@@ -106,7 +114,33 @@ In this section, we want to run and deploy the connector and Rabbit MQ on OpenSh
 
 _Pull in necessary pre-req from the [Realtime Inventory Pre-reqs](/scenarios/realtime-inventory/#general-pre-requisites), like for example the deployment of the store simulator._
 
-## Deploy Rabbit MQ
+### Deploy RabbitMQ using operators
+
+See [the installation instructions](https://www.rabbitmq.com/kubernetes/operator/install-operator.html) to get a RabbitMQ **operator** installed, or use our manifests from the [refarch-eda-tools](https://github.com/ibm-cloud-architecture/refarch-eda-tools) repository, which will set user 1000 and 999 for OpenShift deployment.
+
+* Create a dedicated project to run RabbitMQ operator to observe any projects, and install CRD, service account, RBAC role, deployment... 
+
+```shell
+oc new-project rabbitmq-system
+# under the labs/rabbitmq-source-lab folder do
+kubectl apply -f cluster-operator.yml
+
+kubectl get customresourcedefinitions.apiextensions.k8s.io
+```
+
+* Create a project for RabbitMQ cluster. It is recommended to have separate project for RabbitMQ cluster.
+Modify the namespace to be able to deploy RabbitMQ cluster into it. So we need to get user 999 authorized:
+
+ ```shell
+  oc edit namespace rabbitmq-cluster
+  # Then add the following annotations:
+  annotations:
+    openshift.io/sa.scc.supplemental-groups: 999/1
+    openshift.io/sa.scc.uid-range: 999/1
+ ```
+
+ Or use our custom  `oc apply -f rmq-cluster.yaml`
+
 
 ## Configure the kafka connector for Rabbitmq source
 

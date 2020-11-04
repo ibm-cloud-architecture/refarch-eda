@@ -1,5 +1,5 @@
 ---
-title: Realtime Inventory, powered by Kafka
+title: Real-time Inventory, powered by Kafka
 description: An end-to-end data pipeline lab scenario, connecting multiple components of a realtime inventory system via Kafka Connect.
 ---
 
@@ -61,20 +61,24 @@ This end to end scenario is divided into smaller labs that can be combined to su
 
 ## Demonstration Script 
 
-For an end to end demonstration the following steps can be demonstrated once the environment is up and running.
+For an end-to-end demonstration the following steps can be demonstrated once the environment is up and running.
 
 1. Start with the Store Simulator -> Stores view to present the stores Acme Inc is managing. Those stores ID will be used as key for sending events to Kafka.
 
-![0](./images/stores-view.png)
+ ![0](./images/stores-view.png)
 
-1. In the Simulator view start to send 10 messages to [Rabbit MQ]()
+1. In the Simulator view start to send 10 messages to 
+
+ ![1](./images/rmq-simulator.png)
+
+1. 
 
 ## General pre-requisites
 
-<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this scenario. You can run with docker compose locally on your laptopn, or deploy the component to an OpenShift cluster. For quick demonstration purpose, each lab / use case have docker compose files to test them in isolation, or a bigger end to end processing with Rabbit MQ, Kafka Connect, Store Simulator, Item aggregator and DB2. If you do not want to build all the components, we have each of them available in Docker Hub.
+<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this scenario. You can run with docker compose locally on your laptop, or deploy the component to an OpenShift cluster. For quick demonstration purpose, each of the labs / use cases have docker compose file to test them in isolation. If you do not want to build all the components, we have each of them available in Docker Hub.
 </InlineNotification>
 
-We need the following tools to run the different labs. We try to use docker images as much as possible to do not impact your local laptop.
+We need the following tools to run the different labs. We try to use docker images as much as possible to do not impact your local laptop with tools you may not want python for example.
 
 * [Docker](https://docs.docker.com/) and docker compose to run the solution locally.
 * You need to get [docker compose](https://docs.docker.com/compose/).
@@ -85,22 +89,27 @@ Clone the labs repository: [refarch-eda-tools](https://github.com/ibm-cloud-arch
 
 ### OpenShift specific setup
 
+If you choose to use OpenShift as target environment to run the lab at least address the following items:
+
 1. Connect to your OpenShift cluster using 'oc' cli
 1. Create a new project `oc new-project eda-inventory`
-1. If not done yet, deploy Event Streams using the [instructions here](/use-cases/overview/pre-requisites#install-event-streams-using-operators)
+1. If not done yet, deploy Event Streams using the [instructions from this note](/use-cases/overview/pre-requisites#install-event-streams-using-operators).
+1. Get secrets and users to access topics and cluster as described in [this note](/use-cases/overview/pre-requisites#getting-scram-authentication-from-event-streams-on-openshift)
+1. Get [TLS certificates](/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift) if your cluster was setup with TLS.
+1. Deploy the Store simulator app as Knative serving app. 
+
+## Lab 1: RabbitMQ Source Connector to Kafka items topic [A]
+
+Follow the [RabbitMQ Source Connector lab](/use-cases/connect-rabbitmq/) to deploy the Kafka connector runtime, and deploy the RabbitMQ source connector configuration so it can get messages from RabbitMQ `items` queue to the target Kafka `items` topic.
+
+ ![2](../../use-cases/connect-rabbitmq/images/comp-view.png)
+
+## Lab 2: Deploy the MQ Sink Connector on OpenShift [B]
+
+Follow the [MQ Sink Connector](/use-cases/connect-mq/) use case to deploy the connector runtime to OpenShift, connecting your source Kafka environment and topic to the target MQ queue manager.
 
 
-## Lab 1: RabbitMQ Source Connector to Kafka items topic
-
-Following the [RabbitMQ Source Connector lab](/use-cases/connect-rabbitmq/) use case to deploy the connector runtime, connecting your source RabbitMQ environment to the target Kafka environment and `items` topic.
-
-## Lab 2: Deploy the MQ Sink Connector on OpenShift
-
-Optionally, follow the [MQ Sink Connector](/use-cases/connect-mq/) use case to deploy the connector runtime to OpenShift, connecting your source Kafka environment and topic to the target MQ queue manager.
-
-
-
-## Step 4: Deploy the JDBC Sink Connector locally
+## Lab 3: Deploy the JDBC Sink Connector locally
 
 Follow the [JDBC Sink Connector](/use-cases/connect-jdbc/) use case to deploy the connector runtime, connecting your source Kafka environment and topic to the target DB2 database.
 
@@ -108,29 +117,8 @@ Follow the [JDBC Sink Connector](/use-cases/connect-jdbc/) use case to deploy th
 
 This solution covers all the components of the data pipeline. It still uses DB2 and Event Streams on Cloud but deploy all the other component in OpenShift as part of IBM Kubernetes Service.
 
-### Pre-requisites
-
-Create the following services in IBM Cloud:
-
-* [DB2 instance](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started).
-* [IBM Kubernetes Service](https://cloud.ibm.com/docs/containers?topic=containers-cs_cluster_tutorial#cs_cluster_tutorial).
-
-### Deployment
-
-To be finished !
-
-1. Verify the Store Sale Simulator runs
-1. Verify the connectors `http://localhost:8083/connectors`
-
 
 ## TODOs
-
-- Update deployment instructions to prioritize OCP, utilzing Tekton and/or Build/DeploymentConfigs as necessary
-  - [ ] Provide PRIMARY deployment instructions to OCP, including necessary backend services
-  - [ ] Provide SECONDARY deployment instructions via Docker Compose, including necessary backend services
-- Provide support for IBM Event Streams on Cloud and IBM Event Streams V10 via CP4I.
-  - [ ] IBM Event Streams on Cloud
-  - [ ] IBM Event Streams V10
 
 Older content to classify
 
