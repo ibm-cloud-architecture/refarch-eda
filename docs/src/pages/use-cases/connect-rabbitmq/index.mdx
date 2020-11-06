@@ -4,7 +4,7 @@ description: Apache Kafka to RabbitMQ Source Connector usecase
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 11/02/2020</strong>
+<strong>Updated 11/02/2020</strong> Lab completed on local computer. Not working on OpenShift due to an issue on RabbitMQ operator.
 </InlineNotification>
 
 <AnchorLinks>
@@ -12,7 +12,7 @@ description: Apache Kafka to RabbitMQ Source Connector usecase
 <AnchorLink>Deploy on OpenShift</AnchorLink>
 </AnchorLinks>
 
-This hands-on lab demonstrates how to use IBM RabbitMQ source connector to inject message to Event Streams On Premise. 
+This hands-on lab demonstrates how to use IBM RabbitMQ Kafka source connector to inject message to Event Streams On Premise or any Kafka cluster. 
 We are using the [IBM messaging github: source Kafka connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source) open sourced component. The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
 
 The following diagram illustrates the component of this demo / lab:
@@ -25,9 +25,11 @@ The configurations used in this use case are in the `refarch-eda-tools` reposito
 git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
 ```
 
+under the [labs/rabbitmq-source-lab](https://github.com/ibm-cloud-architecture/refarch-eda-tools/tree/master/labs/rabbitmq-source-lab) folder.
+
 ## Just run it!
 
-For demonstration purpose, we have defined a docker compose file and a set of docker images ready for use. So it will be easier to demonstrate the scenario of sending messages to Rabbit MQ `items` queue, have a Kafka connector configured and a simple Kafka consumer which consumes Json doc from the `items` Kafka topic. 
+For demonstration purpose, we have defined a docker compose file and a set of docker images ready to use. So it will be easier to demonstrate the scenario of sending messages to Rabbit MQ `items` queue, have a Kafka connector configured and a simple Kafka consumer which consumes Json doc from the `items` Kafka topic. 
 
 To send message to RabbitMQ, we have implemented a simple store sale simulator, which sends item sale messages for a set of stores. The code is under [eda-store-simulator repository](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and we have also uploaded the image [into dockerhub ibmcase/eda-store-simulator](https://hub.docker.com/repository/docker/ibmcase/eda-store-simulator).
 
@@ -38,15 +40,15 @@ To quickly start a local demonstration environment, the [github repository for t
 ```shell
 git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
 cd refarch-eda-tools/labs/rabbitmq-source-lab
-docker-compose up &
+docker-compose up -d
 docker ps 
 
-IMAGE                              COMMAND                   PORT                  
-ibmcase/kconnect:v1.0.0            "./bin/connect-distr…"    0.0.0.0:8083->8083/  
-strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/kafka-se…"    0.0.0.0:9092->9092/
-ibmcase/eda-store-simulator        "/deployments/run-ja…"    0.0.0.0:8080->8080/
-rabbitmq:3-management              "docker-entrypoint.s…"    0.0.0.0:5672->5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   
-strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/zookeepe…"    0.0.0.0:2181->2181/                                                                                      
+IMAGE                              NAMES                            PORT                  
+ibmcase/kconnect:v1.0.0            rabbitmq-source-lab_kconnect_1   0.0.0.0:8083->8083/  
+strimzi/kafka:latest-kafka-2.6.0   rabbitmq-source-lab_kafka_1      0.0.0.0:9092->9092/
+ibmcase/eda-store-simulator        rabbitmq-source-lab_simulator_1  0.0.0.0:8080->8080/
+rabbitmq:3-management              rabbitmq-source-lab_rabbitmq_1   0.0.0.0:5672->5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   
+strimzi/kafka:latest-kafka-2.6.0   rabbitmq-source-lab_zookeeper_1 0.0.0.0:2181->2181/                                                                                      
 ```
 
 ### Deploy source connector
@@ -54,23 +56,44 @@ strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/zookeepe…"    0.0.0.0:2181->218
 Once the different containers are started, you can deploy the RabbitMQ source connector using the following POST
 
 ```shell
-# under the folder
-curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors   --data "@./rabbitmq-source.json
+# under the folder use the curl to post configuration
+./sendRMQSrcConfig.sh localhost:8083
+
+# Trace should look like
+{"name":"RabbitMQSourceConnector",
+"config":{"connector.class":"com.ibm.eventstreams.connect.rabbitmqsource.RabbitMQSourceConnector",
+"tasks.max":"1",
+"kafka.topic":"items",
+"rabbitmq.host":"rabbitmq",
+"rabbitmq.port":"5672",
+"rabbitmq.queue":"items",
+"rabbitmq.username":"rabbit-user",
+"rabbitmq.password":"rabbit-pass",
+"rabbitmq.prefetch.count":"500",
+"rabbitmq.automatic.recovery.enabled":"true",
+"rabbitmq.network.recovery.interval.ms":"10000",
+"rabbitmq.topology.recovery.enabled":"true",
+"name":"RabbitMQSourceConnector"},
+"tasks":[],
+"type":"source"}
 ```
 
-* And then looking at the deployed connectors using [http://localhost:8083/connectors](http://localhost:8083/connectors) or the RabbitMQ connector with [http://localhost:8083/connectors/RabbitMQSourceConnector](http://localhost:8083/connectors/RabbitMQSourceConnector).
+* And then looking at the deployed connectors using [http://localhost:8083/connectors](http://localhost:8083/connectors) or the RabbitMQ connector with [http://localhost:8083/connectors/RabbitMQSourceConnector](http://localhost:8083/connectors/RabbitMQSourceConnector) to get the same response as the above json.
 
-```
+* Create `items` topic into Kafka using the script:
+
+```shell
+./createTopics.sh
 ```
 
-* Send some records using the simulator at the [http://localhost:8080/#/simulator](http://localhost:8080/#/simulator) URL and the user interface: 
+* Send some records using the simulator at the [http://localhost:8080/#/simulator](http://localhost:8080/#/simulator) URL by first selecting RabbitMQ button and the number of message to send: 
 
  ![1](./images/store-simul-rmq.png)
 
 
 * Verify the RabbitMQ settings
 
-In a Web Browser go to [http://localhost:1567/](http://localhost:1567/) using the rabbit-user/rabbit-pass login.
+In a Web Browser go to [http://localhost:15672/](http://localhost:15672/) using the rabbit-user/rabbit-pass login.
 
 You should reach this console:
 
@@ -80,10 +103,14 @@ Go to the Queue tab and select the `items` queue:
 
 ![9](./images/rabbitmq-item-queue-2.png)
 
+And then get 1 message from the queue:
+
+![10](./images/rabbitmq-item-msgs.png)
+
 * Now verify the Kafka connect-* topics are created successfully:
 
  ```shell
- docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list"
+ docker run -ti --network  rabbitmq-source-lab_default strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list"
  # you should get at least
  __consumer_offsets
  connect-configs
@@ -95,14 +122,14 @@ Go to the Queue tab and select the `items` queue:
 * Verify the message arrived to the `items` in kafka topic:
 
  ```shell
- docker run -ti --network kafkanet strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic items --from-beginning"
+ docker run -ti --network  rabbitmq-source-lab_default  strimzi/kafka:latest-kafka-2.6.0 bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic items --from-beginning"
 
  # You may have a trace like which maps the messages sent 
  "{\"id\":0,\"price\":11.0,\"quantity\":6,\"sku\":\"Item_5\",\"storeName\":\"Store_3\",\"timestamp\":\"2020-10-23T19:11:26.395325\",\"type\":\"SALE\"}"
 "{\"id\":1,\"price\":68.5,\"quantity\":0,\"sku\":\"Item_5\",\"storeName\":\"Store_1\",\"timestamp\":\"2020-10-23T19:11:26.395447\",\"type\":\"SALE\"}"
  ```
 
-You validated the solution work end to end. Now we can try to deploy those components to OpenShift.
+You validated the solution works end to end. Now we can try to deploy those components to OpenShift.
 
 ## Deploy on OpenShift
 
@@ -154,6 +181,7 @@ The `rabbitmq-source.json` define the connector and the RabbitMQ connection para
         "tasks.max": "1",
         "kafka.topic" : "items",
         "rabbitmq.host": "rabbitmq",
+        "rabbitmq.port": 5672,
         "rabbitmq.queue" : "items",
         "rabbitmq.prefetch.count" : "500",
         "rabbitmq.automatic.recovery.enabled" : "true",
