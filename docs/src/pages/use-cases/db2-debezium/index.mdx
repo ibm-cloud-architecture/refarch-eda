@@ -1,0 +1,91 @@
+--- 
+title: DB2 Change Data Capture with Debezium
+description: DB2 Change Data Capture with Debezium
+---
+
+This lab goes over how to implement a change data capture on order events table created using the [outbox pattern](/patterns/intro/#transactional-outbox) and the Debezium open source project.
+
+
+<InlineNotification kind="warning">
+<strong>Created 11/10/2020</strong> Under construction !
+</InlineNotification>
+
+
+## Quick summary of Debezium
+
+[Debezium](https://debezium.io/) is an open source project, led by RedHat, to support capturing changes to a database and generate those changes to Kafka. It runs in Kafka Connect so support High availability and horizontal scaling. 
+
+To get started we recommend going into [the tutorial](https://debezium.io/documentation/reference/tutorial.html), review the [product documentation](https://debezium.io/documentation/reference/index.html) and for deeper dive you can leverage the [Debezium examples](https://github.com/debezium/debezium-examples). 
+
+
+In an data pipeline architecture, Change Data Capture, helps to inject existing data from existing Database to Kafka and the event-driven microservice. It is important to note that the data generated will be close to what is in the data base, it is possible to do some data transformation to generate some 'business event' from the database updates. Or use raw data and add a Kafka Streams processing to do the data transformation. 
+
+Debezium supports DB2 as data source as [introduced by this project](https://github.com/debezium/debezium-incubator/tree/master/debezium-connector-db2). As part of the Debezium tutorial in the [Debezium examples](https://github.com/debezium/debezium-examples), you can find a docker compose to start DB2 and Debezium.
+
+For most of development effort, we are using a docker-compose to run a basic infrastructure with kafka and kafka connect. 
+
+Once DB server and the Kafka connect are started, the approach is to register the DB connector using a json file like below. CDC uses a specific schema to keep source table update. We will detail that in next section.
+
+  ```json
+  {
+    "name": "order-connector",
+    "config": {
+        "connector.class" : "io.debezium.connector.db2.Db2Connector",
+        "tasks.max" : "1",
+        "database.server.name" : "db2",
+        "database.hostname" : "db2",
+        "database.port" : "50000",
+        "database.user" : "db2inst1",
+        "database.password" : "=Password!",
+        "database.dbname" : "TESTDB",
+        "database.cdcschema": "ASNCDC",
+        "database.history.kafka.bootstrap.servers" : "kafka:9092",
+        "database.history.kafka.topic": "db2.orders"
+    }
+  }
+  ```
+
+### DB2 connector
+
+The detailed product [documentation is here](https://debezium.io/documentation/reference/connectors/db2.html), but below is a quick summary of the things to consider:
+
+* Tables to monitor are in capture mode, so they have associated chage data table. 
+* The Db2 connector reads change events from change-data tables and emits the events to Kafka topics.
+* The Debezium Db2 connector is based on the [ASN Capture/Apply](https://www.ibm.com/support/pages/q-replication-and-sql-replication-product-documentation-pdf-format-version-101-linux-unix-and-windows) agents. A capture agent:
+  * Generates change-data tables for tables that are in capture mode.
+  * Monitors tables in capture mode and stores change events for updates to those tables in their corresponding change-data tables.
+* A user defined function is needed to start or stop the ADN agent, put expected tables in capture mode, create the ASN schema abd change data tables. 
+* The connector emits a change event for each row-level insert, update, and delete operation to a Kafka topic that has the same name as the changed table.
+* When the Db2 connector first connects to a particular Db2 database, it starts by performing a consistent snapshot of each table that is in capture mode
+* The connector keeps the log sequence number (LSN) of the change data table entry.
+* Database schema is also replicated so it supports schema updates
+* Each event contains the structure of its key and the payload. Or a reference for a schema registry entry.
+
+
+## Use Case outline
+
+The use case is part of a larger scenario about ordering vaccines. Vaccine orders are managed by an order microservice and using the outbox pattern order created and order updated events are produced to a specific table which is captured by the Debezium connector.
+
+ ![0](./images/component-view.png)
+
+## Run the environment locally
+
+Clone the order management service:
+
+ ```shell
+ git clone https://github.com/ibm-cloud-architecture/vaccine-order-mgr
+ ```
+And then start the five processes with docker-compose.
+
+ ```shell
+ docker-compose up --build -d
+ ```
+
+### Define 
+
+
+### Start consumer
+
+```
+docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh     --bootstrap-server kafka:9092     --from-beginning     --property print.key=true     --topic db2server.DB2INST1.ORDERS
+```

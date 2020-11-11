@@ -96,6 +96,8 @@
       path: /use-cases/schema-registry-on-ocp/
     - title: Schema Registry on IBM Cloud
       path: /use-cases/schema-registry-on-cloud/
+    - title: DB2 - CDC Debezium - Outbox
+      path: /use-cases/db2-debezium/
 - title: Scenarios
   pages:
     - title: Overview

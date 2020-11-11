@@ -4,7 +4,7 @@ description: Apache Kafka to RabbitMQ Source Connector usecase
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 11/02/2020</strong> Lab completed on local computer. Not working on OpenShift due to an issue on RabbitMQ operator.
+<strong>Updated 11/10/2020</strong> Lab completed on local computer. Instruction not completed for OpenShift deployment.
 </InlineNotification>
 
 <AnchorLinks>
@@ -133,41 +133,63 @@ You validated the solution works end to end. Now we can try to deploy those comp
 
 ## Deploy on OpenShift
 
-In this section, we want to run and deploy the connector and Rabbit MQ on OpenShift using Event Streams on Premise.
+In this section, you will deploy the Kafka connector and Rabbit MQ on OpenShift using Event Streams on Premise as Kafka cluster.
 
 ### Pre-requisites
 
-<InlineNotification kind="warning"><strong>TODO</strong></InlineNotification>
+* To run the demonstration be sure to have the event store simulator deployed: [see instructions here.]()
 
 _Pull in necessary pre-req from the [Realtime Inventory Pre-reqs](/scenarios/realtime-inventory/#general-pre-requisites), like for example the deployment of the store simulator._
 
 ### Deploy RabbitMQ using operators
 
-See [the installation instructions](https://www.rabbitmq.com/kubernetes/operator/install-operator.html) to get a RabbitMQ **operator** installed, or use our manifests from the [refarch-eda-tools](https://github.com/ibm-cloud-architecture/refarch-eda-tools) repository, which will set user 1000 and 999 for OpenShift deployment.
+See [the installation instructions](https://www.rabbitmq.com/kubernetes/operator/install-operator.html) to get a RabbitMQ **operator** installed, or use our manifests from the [refarch-eda-tools](https://github.com/ibm-cloud-architecture/refarch-eda-tools) repository, which will set user 1000 and 999 for OpenShift deployment. The RabbitMQ cluster operator runs as user ID `1000`. The RabbitMQ pod runs the RabbitMQ container as user ID `999` and an init container as user ID `0`.
 
 * Create a dedicated project to run RabbitMQ operator to observe any projects, and install CRD, service account, RBAC role, deployment... 
 
-```shell
-oc new-project rabbitmq-system
-# under the labs/rabbitmq-source-lab folder do
-kubectl apply -f cluster-operator.yml
+ ```shell
+ oc new-project rabbitmq-system
+ # under the labs/rabbitmq-source-lab folder do
+ kubectl apply -f cluster-operator.yml
 
-kubectl get customresourcedefinitions.apiextensions.k8s.io
-```
+ kubectl get customresourcedefinitions.apiextensions.k8s.io
+ ```
 
-* Create a project for RabbitMQ cluster. It is recommended to have separate project for RabbitMQ cluster.
-Modify the namespace to be able to deploy RabbitMQ cluster into it. So we need to get user 999 authorized:
+* Create a second project for RabbitMQ cluster. It is recommended to have separate project for RabbitMQ cluster.
+Modify the namespace to be able to deploy RabbitMQ cluster into it. So we need to get user 999 authorized. For that we specify a security constraint named: `rabbitmq-cluster`
+
+ ```shell
+  #Define a Security Context Constraint
+  oc apply -f rmq-scc.yaml
+ ```
+
+* Update the name space to get openshift scc userid and groupid range. You can do that in two ways, by directly editing the namespace definition:
 
  ```shell
   oc edit namespace rabbitmq-cluster
   # Then add the following annotations:
   annotations:
     openshift.io/sa.scc.supplemental-groups: 999/1
-    openshift.io/sa.scc.uid-range: 999/1
+    openshift.io/sa.scc.uid-range: 0-999/1
  ```
 
- Or use our custom  `oc apply -f rmq-cluster.yaml`
+ Or by using our custom cluster definition: `oc apply -f rmq-cluster-ns.yaml`
 
+*  For every RabbitMQ cluster assign the previously created security context constraint to the cluster's service account: ` oc adm policy add-scc-to-user rabbitmq-cluster -z rmqcluster-rabbitmq-server`
+
+* Finally create a cluster instance: `oc apply -f rmq-cluster.yaml`.
+* Define a route on the client service on port 15672
+* Get the admin user and password as defined in the secrets
+
+ ```shell
+  oc describe secret rmqcluster-rabbitmq-default-user
+  # Get user name
+  oc get secret rmqcluster-rabbitmq-default-user  -o jsonpath='{.data.username}' | base64 --decode 
+  # Get password
+  oc get secret rmqcluster-rabbitmq-default-user  -o jsonpath='{.data.password}' | base64 --decode 
+ ```
+
+To validate the RabbitMQ cluster runs correctly you can use the RabbitMQ console, and add the `items` queue.
 
 ## Configure the kafka connector for Rabbitmq source
 
