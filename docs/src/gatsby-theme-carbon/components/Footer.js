@@ -17,7 +17,9 @@ const links = {
     { href: 'https://www.linkedin.com/in/jesus-almaraz-hernandez/', linkText: 'Jesus Almaraz' },
     { href: 'https://www.linkedin.com/in/another-dave-jones/', linkText: 'David R Jones' },
     { href: 'https://www.linkedin.com/in/johannasaladas/', linkText: 'Johanna Saladas' },
+    { href: 'https://www.linkedin.com/in/bikashmainali/', linkText: 'Bikash Mainali' },
     { href: 'https://www.linkedin.com/in/darneleadhemar/', linkText: 'Darnèle Adhemar' },
+    { href: 'https://www.linkedin.com/in/ritu-patel-63379798//', linkText: 'Ritu Patel' },
     { href: 'https://www.linkedin.com/in/hemankita-perabathini/', linkText: 'Hemankita Perabathini' }
   ],
 };
