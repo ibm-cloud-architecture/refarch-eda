@@ -40,6 +40,8 @@
       path: /patterns/data-pipeline/
     - title: Realtime Analytics
       path: /patterns/realtime-analytics/
+    - title: Situational decision
+      path: /patterns/cep/
 - title: Methodology
   pages:
     - title: Event Storming

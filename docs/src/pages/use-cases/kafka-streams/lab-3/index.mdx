@@ -329,16 +329,16 @@ We need to complete the configuration to connect to the remote Event Streams run
  cloudctl es topics
  ```
 
-* To connect from your computer to Event Streams running on OpenShift, we need to define a user with `scram-sha-512` password, as this is the mechanism for external to the cluster connection. [See product documentation](https://ibm.github.io/event-streams/getting-started/connecting/) on how to do it, or use our [quick summary here](http://localhost:8000/use-cases/overview/pre-requisites#get-shram-user).
+* To connect from your computer to Event Streams running on OpenShift, we need to define a user with `scram-sha-512` password, as this is the mechanism for external to the cluster connection. [See product documentation](https://ibm.github.io/event-streams/getting-started/connecting/) on how to do it, or use our [quick summary here](/use-cases/overview/pre-requisites#get-shram-user).
 
-* Get Server TLS certificate into the `certs` folder. See our [quick summary here](http://localhost:8000/use-cases/overview/pre-requisites#get-tls-server-public-certificate)
+* Get Server TLS certificate into the `certs` folder. See our [quick summary here](/use-cases/overview/pre-requisites#get-tls-server-public-certificate)
 
  ```shell
  oc get secret minimal-prod-cluster-ca-cert  -n eventstreams --export -o yaml | oc apply -f - 
 
  ```
 
-* Modify the `application.properties` file to define the kafka connection properties. We need two type of definitions, one for the kafka admin client so the kafka stream can create topics to backup state stores, and one for kafka streams consumer and producer tasks:
+* Modify the `application.properties` file to define the kafka connection properties. We need two type of definitions, one for the kafka admin client so the kafka streams can create topics to backup state stores, and one for kafka streams consumer and producer tasks:
 
 ```properties
 kafka.bootstrap.servers=${KAFKA_BROKERS}
