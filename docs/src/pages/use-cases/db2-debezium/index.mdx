@@ -108,9 +108,9 @@ And then start the five processes (one Kafka broker, one zookeeper, one DB2 cont
  ```shell
  cd environment
  # with the option to build the db2, and debezium cdc container images
- docker-compose up -d --build
+ docker-compose -f strimzi-docker-compose.yaml up -d --build
  # or with pre-existing images coming from dockerhub
- docker-compose up -d
+ docker-compose -f strimzi-docker-compose.yaml  up -d
  ```
 
 * Create the needed topics
@@ -192,7 +192,7 @@ You can use the User interface to get the current order loaded. At the starting 
 
 ## Define the CDC connector
 
-Deploy and start the Debezium DB2 connector. The connector definition is [register-db2.json](https://github.com/ibm-cloud-architecture/vaccine-order-mgr/blob/master/environment/cdc/register-db2.json). What is important to consider in this configuration are:
+Deploy and start the Debezium DB2 connector. The connector definition is in [register-db2.json](https://github.com/ibm-cloud-architecture/vaccine-order-mgr/blob/master/environment/cdc/register-db2.json). The important elements of this file are below:
 
 ```json
 # the namespace for the server that will be used in the topic created
@@ -204,6 +204,7 @@ Deploy and start the Debezium DB2 connector. The connector definition is [regist
  "database.history.kafka.topic": "db_history_vaccine_orders",  
 ```
 
+To deploy to the Kafka Connector instance , perform a POST with the previous configuration as:
 
  ```shell
  # under environment/cdc
@@ -212,7 +213,7 @@ Deploy and start the Debezium DB2 connector. The connector definition is [regist
 
 * Get the status of the Kafka connector at:  [http://localhost:8083/connectors/orderdb-connector/](http://localhost:8083/connectors/orderdb-connector/)
 
-* Verify Topics created by the connector:
+* Verify the newly created topics:
 
 ```shell
   ./listTopics.sh 
@@ -229,7 +230,7 @@ The connector is doing a snapshot of the `DB2INST1.ORDEREVENTS` table to send ex
 Start a Kafka consumer, using the console consumer tool: 
 
 ```shell
-docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh     --bootstrap-server kafka:9092     --from-beginning     --property print.key=true     --topic db2server.DB2INST1.ORDERS
+docker-compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh     --bootstrap-server kafka:9092     --from-beginning     --property print.key=true     --topic db2server.DB2INST1.ORDERS
 ```
 
 ## Create an order
