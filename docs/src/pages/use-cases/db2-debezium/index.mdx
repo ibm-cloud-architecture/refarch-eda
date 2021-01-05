@@ -9,7 +9,7 @@ What you will learn is:
 
 * DB2 settings for change data capture
 * Configuring Debezium DB2 connector to publish OrderEvents to Kafka topic
-* Validate the kafka topic content.
+* Validate the Kafka topic content.
 
 We expect existing knowledge of Kafka, and Kafka connector.
 
@@ -31,18 +31,18 @@ We expect existing knowledge of Kafka, and Kafka connector.
 
 ## Quick summary of Debezium
 
-[Debezium](https://debezium.io/) is an open source project, led by RedHat, to support capturing changes to a database and generate those changes to Kafka. It runs in Kafka Connect so support High availability and horizontal scaling. 
+[Debezium](https://debezium.io/) is an open source project, led by Red Hat, to support capturing changes to a database and generate those changes to Kafka. It runs in Kafka Connect so support High availability and horizontal scaling. 
 
 To get started we recommend going into [the tutorial](https://debezium.io/documentation/reference/tutorial.html), review the [product documentation](https://debezium.io/documentation/reference/index.html) and for deeper dive you can leverage the [Debezium examples](https://github.com/debezium/debezium-examples). 
 
 
 In an data pipeline architecture, Change Data Capture, helps to inject existing data from existing Database to Kafka and the event-driven microservice. It is important to note that the data generated will be close to what is in the data base, it is possible to do some data transformation to generate some 'business event' from the database updates. Or use raw data and add a Kafka Streams processing to do the data transformation. 
 
-Debezium supports DB2 as data source as [introduced by this project](https://github.com/debezium/debezium-incubator/tree/master/debezium-connector-db2). As part of the Debezium tutorial in the [Debezium examples](https://github.com/debezium/debezium-examples), you can find a docker compose to start DB2 and Debezium.
+Debezium supports DB2 as data source as [introduced by this project](https://github.com/debezium/debezium-connector-db2). As part of the Debezium tutorial in the [Debezium examples](https://github.com/debezium/debezium-examples), you can find a docker compose to start DB2 and Debezium.
 
-For most of development effort, we are using a docker-compose to run a basic infrastructure with kafka and kafka connect. 
+For most of development effort, we are using Docker Compose to run a basic infrastructure with Kafka and Kafka Connect. 
 
-Once DB server and the Kafka connect are started, the approach is to register the DB connector using a json file like below. CDC uses a specific schema to keep source table update. We will detail that in next section.
+Once DB server and Kafka Connect are started, the approach is to register the DB connector using a json file like below. CDC uses a specific schema to keep source table update. We will detail that in next section.
 
  ```json
   {
@@ -70,7 +70,7 @@ Once DB server and the Kafka connect are started, the approach is to register th
 
 ### DB2 connector
 
-The  [product documentation](https://debezium.io/documentation/reference/connectors/db2.html) presents in detail this connector, but below is a quick summary of the features:
+The  [project documentation](https://debezium.io/documentation/reference/connectors/db2.html) presents in detail this connector, but below is a quick summary of the features:
 
 * Tables to monitor are in capture mode, so they have associated chage data table. 
 * The Db2 connector reads change events from change-data tables and emits the events to Kafka topics.
@@ -91,7 +91,7 @@ The use case is part of a larger scenario about order vaccines management. Vacci
 
  ![0](./images/component-view.png)
 
-The simplementation of the outbox is done using Quarkus Debezium outbox extension and explained in [this separate note](https://ibm-cloud-architecture.github.io/vaccine-solution-main/solution/orderms/).
+The implementation of the outbox is done using Quarkus Debezium outbox extension and explained in [this separate note](https://ibm-cloud-architecture.github.io/vaccine-solution-main/solution/orderms/).
 
 In this lab, you will get the component running on you computer or on OpenShift.
 
@@ -103,7 +103,7 @@ Clone the order management service:
  git clone https://github.com/ibm-cloud-architecture/vaccine-order-mgr
  ```
 
-And then start the five processes (one Kafka broker, one zookeeper, one DB2 container for the persistence, one Kafka Connect with the Debezium code and DB2 Jdbc driver and one vaccine-order-service) with docker-compose.
+And then start the five processes (one Kafka broker, one ZooKeeper, one DB2 container for the persistence, one Kafka Connect with the Debezium code and DB2 JDBC driver and one vaccine-order-service) with Docker Compose.
 
  ```shell
  cd environment
@@ -204,7 +204,7 @@ Deploy and start the Debezium DB2 connector. The connector definition is in [reg
  "database.history.kafka.topic": "db_history_vaccine_orders",  
 ```
 
-To deploy to the Kafka Connector instance , perform a POST with the previous configuration as:
+To deploy to the Kafka Connector instance, perform a POST with the previous configuration as:
 
  ```shell
  # under environment/cdc
