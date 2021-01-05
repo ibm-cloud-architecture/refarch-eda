@@ -105,7 +105,7 @@
     - title: Overview
       path: /scenarios/overview/
     - title: Reefer Shipment Solution
-      path: /scenarios/reefer/
+      path: https://ibm-cloud-architecture.github.io/refarch-kc/
     - title: Real-time Inventory
       path: /scenarios/realtime-inventory/
 - title: Additional reading
