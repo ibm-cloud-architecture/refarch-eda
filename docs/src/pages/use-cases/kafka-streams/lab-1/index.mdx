@@ -38,10 +38,10 @@ our application.
 - We will bootstrap the Quarkus application with the following Maven command
 
 ```shell
-mvn io.quarkus:quarkus-maven-plugin:1.6.0.Final:create \
+mvn io.quarkus:quarkus-maven-plugin:1.10.5.Final:create \
     -DprojectGroupId=com.ibm \
     -DprojectArtifactId=quarkus-kstreams-lab-1 \
-    -Dextensions="kafka,kafka-streams,resteasy-jsonb,quarkus-kafka-streams"
+    -Dextensions="resteasy-jsonb,quarkus-kafka-streams"
 ```
 
 You can replace the fields within {} as you like.
@@ -56,9 +56,14 @@ the dependency to our project. Open `pom.xml` and add the following.
     <version>2.5.0</version>
     <scope>test</scope>
 </dependency>
+<dependency>
+	<groupId>org.hamcrest</groupId>
+	<artifactId>hamcrest</artifactId>
+	<version>2.2</version>
+</dependency>
 ```
 
-## Creating your first Test Class
+## Creating your Test Class
 
 - Now let's create our first Test Class.
 ```src/test/java/com/ibm/garage/cpat/TestLoadKtableFromTopic.java```

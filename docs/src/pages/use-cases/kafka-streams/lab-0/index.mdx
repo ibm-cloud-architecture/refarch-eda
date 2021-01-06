@@ -33,14 +33,14 @@ our application.
 - We will bootstrap the Quarkus application with the following Maven command
 
 ```shell
-mvn io.quarkus:quarkus-maven-plugin:1.6.0.Final:create \
+mvn io.quarkus:quarkus-maven-plugin:1.10.5.Final:create \
     -DprojectGroupId=com.ibm \
     -DprojectArtifactId=quarkus-kstreams-lab-zero \
-    -Dextensions="kafka,kafka-streams,resteasy-jsonb,quarkus-kafka-streams"
+    -Dextensions="resteasy-jsonb,quarkus-kafka-streams"
 ```
 
-- Since we will be using the Kafka Streams testing functionality we will need to edit the `pom.xml` to add
-the dependency to our project. Open `pom.xml` and add the following.
+- Since we will be using the Kafka Streams testing functionalit,y we will need to edit the `pom.xml` to add
+the dependency to our project. Open `pom.xml` and add the following:
 
 ```xml
 <dependency>
@@ -49,7 +49,14 @@ the dependency to our project. Open `pom.xml` and add the following.
     <version>2.5.0</version>
     <scope>test</scope>
 </dependency>
+<dependency>
+	<groupId>org.hamcrest</groupId>
+	<artifactId>hamcrest</artifactId>
+	<version>2.2</version>
+</dependency>
 ```
+
+The second dependency is for the hamcrest Domain Specific Language for test assertion.
 
 ## Creating your first Test Class
 
@@ -131,12 +138,12 @@ public class FirstKafkaStreamsTest {
 ```
 
 - The above code does a lot in a few lines, so we'll walk through some of that here.
-  - The `@BeforeEach` annotation on the `buildTopology` method means that it will be run each time before each test is run, while the `@AfterEach` annotation on the `teardown` method ensures that it will be run each time after each test is run. This allows us to spin up and tear down all the necessarry components to test in isolation with each test case.
+  - The `@BeforeEach` annotation on the `buildTopology` method means that it will be run each time before each test is executed, while the `@AfterEach` annotation on the `teardown` method ensures that it will be run each time after each test execution. This allows us to spin up and tear down all the necessary components to test in isolation with each test case.
   - The `buildTopology` method utilizes the `StreamsBuilder` class to construct a simple topology, reading from the input Kafka topic defined by the `inTopicName` String.
-  - The topology we build utilizes three of the stateless processors the Kafka Streams library provides:
-      - `peek` will allow us to look at the key and the value of the record passing through the stream and continue processing it unaffected _(so we leverage this before and after the next processor used to see what is making its way through the topology)_
+  - The topology, we build here, utilizes three of the stateless processors the Kafka Streams API:
+      - `peek` allows us to look at the key and the value of the record passing through the stream and continue processing it unaffected _(so we leverage this before and after the next processor used to see what is making its way through the topology)_
       - `filter` allows us to drop records that do not meet the criteria specified _(either for the key or the value)_. In this test class, we are filtering on any value that does not match the word `"BLUE"` _(using a case-insensitive search)_
-      - `to` is the final processor used and allows us to write the contents of the topology at that point to an output Kafka topic
+      - `to` is the final processor used and to write the contents of the topology at that point to an output Kafka topic
    - The Kafka Streams Test infrastructure provides us the capability to leverage driver classes that function as their own input and output topics, removing the need from connecting directly to a live Kafka instance. The `inTopic` and `outTopic` instantiation at the bottom of the `buildTopology` method hooks into this test infrastructure, so that our test methods can use them to write to and read from the topology.
   - The `teardown` method cleans up the topology and all the data that has been sent through it for any given test run, allowing us to reset and rerun test cases as needed.
 
