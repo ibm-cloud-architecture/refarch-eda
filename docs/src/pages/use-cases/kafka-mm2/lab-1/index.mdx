@@ -1,6 +1,6 @@
 ---
 title: Mirror Maker 2 - Event Streams Service to Local Kafka 
-description: Using MM2 from Event Streams on Cloud to local Kafka 2.5 cluster.
+description: Using MM2 from Event Streams on Cloud to local Kafka 2.6 cluster.
 ---
 
 <AnchorLinks>
@@ -28,9 +28,9 @@ As a pre-requisite you need to run your local cluster by using the docker compos
 
 If for security reason you are not able to install docker on your local workstation, but you have access to a kubernetes cluster, like OpenShift, see the [next section](#running-docker-in-kubernetes-pod).
 
-In this project main folder there is a [docker compose file](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-data-consistency/master/docker-compose.yml) to start a local two brokers cluster with one Zookeeper node.
+In this project main folder there is a [docker compose file](https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-data-consistency/master/docker-compose.yml) to start a local three brokers cluster with one Zookeeper node.
 
-1. In one Terminal window, start the local cluster using `docker-compose up &` command. The data are persisted on the local disk within this folder.
+1. In one Terminal window, start the local cluster using `docker-compose up -d` command. The data are persisted on the local disk within this folder.
 
 Your local environment is up and running.
 
@@ -58,7 +58,7 @@ Your local environment is up and running.
     target.bootstrap.servers=kafka1:9092,kafka2:9093
     # enable and configure individual replication flows
     source->target.enabled=true
-    source->target.topics=products
+    source->target.topics=metrics
     ```
   A lot of these properties are for the security settings. The `clusters` property defines the alias name for the source to target, and then `source->target.*` properties define the topic to replicate...
 

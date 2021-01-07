@@ -1,0 +1,31 @@
+---
+title: Fit to purposes
+description: Different fit to purpose evaluation and criteria for technologies involved in EDA
+---
+
+In this note we want to list some of the criterias to consider and assess during an architecture establishment work. This is not fully exhaustive, but give good foundation for analysis and study.
+
+## MQ Versus Kafka
+
+Consider queue system for:
+
+* Exactly once, and to participate into two phase commit transaction
+* Asynchronous request / reply communication
+* To implement operations/ commands to target a system to do something
+
+Consider Kafka as pub/sub and persistence system for:
+
+* Publish events as immutable facts of what happen in an application
+* Get continuous visibility of the data Streams
+* Keep data once consumed, for future consumers, for replayability
+* Scale horizontally the message consumption
+
+## Kafka Streams vs Apache Flink
+
+[Apache Flink]() supports doing stream processing in real time and / or in batch. 
+
+Apache Flink:
+
+* 
+
+See also [this article from Confluent]()

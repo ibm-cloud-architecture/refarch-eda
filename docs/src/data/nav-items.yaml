@@ -12,6 +12,8 @@
       path: /concepts/terms-and-definitions/
     - title: Events versus Messages
       path: /concepts/events-versus-messages/
+    - title: Fit to purposes
+      path: /concepts/fit-to-purpose/
 - title: Advantages of EDA
   pages:
     - title: Microservice decoupling

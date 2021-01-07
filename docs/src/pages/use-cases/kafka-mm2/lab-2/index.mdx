@@ -18,7 +18,7 @@ For this scenario the source cluster is an Event Streams on premise on OpenShift
  ![1](../images/mm2-lab2.png)
 
  1. Mirror Maker 2 runs on OpenShift as pod in the same namespace as Event Streams
- 2. A producer in python to send records to `products` topic, will run locally or could be deployed on OpenShift too as a job
+ 2. A producer in python to send records to `products` topic, will run locally or could be deployed on OpenShift as a **job**
  3. Event Streams on Cloud with replicated topic and Kafdrop to see the replicated messages.
 
 ## Pre-requisites
@@ -39,9 +39,9 @@ For this scenario the source cluster is an Event Streams on premise on OpenShift
 
 * As Event Streams on the Cloud does not authorize to create topic with the Kafka Admin API, we need to create the following topics with scripts or GUI. The naming convention respects the name of the source cluster as defined in the MirrorMaker2 manifest we will detail later.
 
-  * `es-1.products`   matches the partition allocated to the source topic
+  * `es-1.products`   matches the number of partition allocated in the source topic (1 for example)
   * `mirrormaker2-cluster-configs` one partition
-  * `mirrormaker2-cluster-offsets` 25 partitions
+  * `mirrormaker2-cluster-offsets` 25 partitions with cleanup policy set to compact
   * `mirrormaker2-cluster-status` 5 partitions.
 
 Use the default replication factor of 3.
@@ -50,8 +50,10 @@ Use the default replication factor of 3.
 
  ```shell
  # Go to the project where Event Streams is installed
- oc project integration
-oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-event-streams-on-cloud-apikey>
+ oc project eventstreams
+ oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-event-streams-on-cloud-apikey>
+ # Verify with 
+ oc describe secret es-oc-api-secret 
  ```
 
 * Verify the Event Streams on OpenShift service end point URL. This URL will be used to configure Mirror Maker 2. 
@@ -59,21 +61,21 @@ oc create secret generic es-oc-api-secret --from-literal=password=<replace-with-
  ```shell
  # Use the bootstrap internal URL
  oc get svc light-es-kafka-bootstrap
- # The URL is
- light-es-kafka-bootstrap.integration.svc:9093
+ # The URL is something like
+ light-es-kafka-bootstrap.integration.svc:9092
  ```
 
-* Verify the CA certificate secrets:
+* If the service was on 9093, this may mean eventstreams was configured with TLS security so, you need to verify the CA certificate secrets:
 
  ```shell
   oc describe secret light-es-cluster-ca-cert
  ```
 
-* Get a user with write access to topic, group and transactions. You can use the User Interface to do so with the Create TLS credential on the internal URL panel. See [those instructions if needed](http://localhost:8000/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift).
+* Get a user with write access to topic, group and transactions. You can use the User Interface to do so with the Create TLS credential on the internal URL panel. See [those instructions if needed](/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift).
 
 ## Start Mirror Maker 2
 
-In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace (e.g. integration). 
+In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within the same namespace (e.g. eventstreams). 
 
 * Define source and target cluster properties in a Mirror Maker 2 `es-ocp-to-es-oc.yml` descriptor file. There is one example of such file for the replication between Event Streams OCP to Event Streams on cloud [here: es-ocp-to-es-oc.yml](https://github.com/ibm-cloud-architecture/refarch-eda-data-consistency/blob/master/mirror-maker-2/es-ocp/es-ocp-to-es-oc.yml). We strongly recommend to study the schema definition of this [custom resource from this page](https://github.com/strimzi/strimzi-kafka-operator/blob/2d35bfcd99295bef8ee98de9d8b3c86cb33e5842/install/cluster-operator/048-Crd-kafkamirrormaker2.yaml#L648-L663). 
 
@@ -84,7 +86,7 @@ In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within
   kind: KafkaMirrorMaker2
   metadata:
     name: mm2
-    namespace: integration
+    namespace: eventstreams
   spec:
     template:
       pod:
@@ -93,14 +95,14 @@ In this lab, Mirror Maker 2 will run on the same cluster as Event Streams within
             eventstreams.production.type: CloudPakForIntegrationNonProduction
             productCloudpakRatio: "2:1"
             productChargedContainers: mm2-mirrormaker2
-            productVersion: 10.0.0
+            productVersion: 10.1.0
             productID: 2a79e49111f44ec3acd89608e56138f5
             cloudpakName: IBM Cloud Pak for Integration
             cloudpakId: c8b82d189e7545f0892db9ef2731b90d
             productName: IBM Event Streams for Non Production
-            cloudpakVersion: 2020.2.1
+            cloudpakVersion: 2020.3.1
             productMetric: VIRTUAL_PROCESSOR_CORE
-    version: 2.5.0
+    version: 2.6.0
     replicas: 1
     connectCluster: "es-ic"
   ```
