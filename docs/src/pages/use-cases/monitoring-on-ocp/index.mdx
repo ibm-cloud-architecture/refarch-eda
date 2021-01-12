@@ -97,7 +97,7 @@ An [alternative sample application](https://ibm.github.io/event-streams/getting-
 
 This section will walk through the default dashboard and user interface available on every IBM Event Streams deployment.
 
-- Access the Event Streams Dashboard via `https://es-1-ibm-es-ui-integration.apps.[cluster-name]` and login.
+- Access the Event Streams Dashboard via `https://es-1-ibm-es-ui-integration.[cluster-name]` and login.
 - Click the **Monitoring** tab from the primary navigation menu.
 - From here, you can view information on messages, partitions, and replicas for the past hour, day, week, or month.
 - Click the **Topics** tab from the primary navigation menu.
@@ -122,12 +122,12 @@ oc apply -f https://raw.githubusercontent.com/ibm-messaging/event-streams-operat
 
 To view the newly imported Event Streams Grafana dashboard for overall Kafka Health, follow these steps:
 
-- Navigate to the IBM Cloud Platform Common Services console homepage via `https://cp-console.apps.[cluster-name]`
+- Navigate to the IBM Cloud Platform Common Services console homepage via `https://cp-console.[cluster-name]`
 - Click the hamburger icon in the top left.
 - Expand **Monitor Health**.
 - Click the **Monitoring** in the expanded menu to open the Grafana homepage.
 - Click the user icon in the bottom left corner to open the user profile page.
-- In the **Organizations** table, find the namespace where you installed the Event Streams `monitoringdashboard` custom resource, and switch the user profile to that namespace.
+- In the **Organizations** table, find the namespace where you installed the Event Streams `monitoringdashboard` custom resource (most likely the eventstreams), and switch the user profile to that namespace.
 - Hover over the _Dashboards_ square on the left and click **Manage**.
 - Click on **IBM Event Streams Kafka** dashboard in the Dashboard table to view the newly imported resource.
 - Using the drop-down selectors at the top, select the following:
@@ -187,7 +187,7 @@ oc apply -f prom-rule-partitions.yaml
 oc get PrometheusRule demo-partition-count
 oc describe PrometheusRule demo-partition-count
 ```
-- Access the Prometheus monitoring backend that is provided in the IBM Cloud Pak Common Services via `https://cp-console.apps.[cluster-name]/prometheus`.
+- Access the Prometheus monitoring backend that is provided in the IBM Cloud Pak Common Services via `https://cp-console.[cluster-name]/prometheus`.
 - Click the **Alerts** button in the header.
 - You should see your new **PartitionCount** rule firing and highlighted in red.
   - _**NOTE:**_ If you do not see your PrometheusRule, you may need to create it in the `ibm-common-services` namespace depending upon your OpenShift cluster and Cloud Pak operator configuration. This can be done by supplying the `-n ibm-common-services` flag to the `oc apply -f prom-rule-partitions.yaml` command.
