@@ -12,15 +12,12 @@ description: Using Kafka Streams Test Suite to test Streams
     <AnchorLink>Next Steps</AnchorLink>
 </AnchorLinks>
 
-
 ## Overview
 - In this lab scenario we're going to use [Quarkus](https://quarkus.io) - a subatomic and supersonic framework for Java for
 the purposes of this lab.
 - We will be testing using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TestDriver to mimic a Topology, a Stream and Table.
 - While using the TestDriver we will perform operations such as groupBy, join with another Stream or Kafka Table.
 - Lastly and optionally (in Lab 2) we will use Kafka Streams to send events to a Kafka Topic on IBM Event Streams on Cloud Pak for Integration.
-
-
 
 ## Scenario Prerequisites
 **Java**
@@ -65,12 +62,14 @@ the dependency to our project. Open `pom.xml` and add the following.
 
 ## Creating your Test Class
 
-- Now let's create our first Test Class.
-```src/test/java/com/ibm/garage/cpat/TestLoadKtableFromTopic.java```
-You can customize this file path post `src/test/java/.../TestLoadKtableFromTopic.java` to however you see fit.
+- Create the directory structure you will need for your Java file. _(**NOTE:** If you are working in an IDE, this may be done for you when you create your package and classes.)_
 
+   ```mkdir -p src/test/java/com/ibm/garage/cpat```
+
+- Create a new file named `src/test/java/com/ibm/garage/cpat/TestLoadKtableFromTopic.java`.
 
 - Open the `TestLoadKtableFromTopic.java` file and paste the following content.
+
 ```java
 package com.ibm.garage.cpat.lab;
 
@@ -176,25 +175,48 @@ public class TestLoadKtableFromTopic {
 }
 ```
 
-- What the above code does is it uses TopologyTestDriver to mimic a Topology. A Topology is basically a graph of
-stream processors (nodes) and the edges between these nodes are the streams. In the first sectinon we instantiate
-our `TopologyTestDriver` named `testDriver`, as well as the topic name and store name.
+- What the above code does is it uses TopologyTestDriver to mimic a Topology. A Topology is basically a graph of stream processors (nodes) and the edges between these nodes are the streams. In the first section we instantiate our `TopologyTestDriver` named `testDriver`, as well as the topic name and store name.
 
-
-
-- Test the application by running the following
-*Note* You might need to comment out the Quarkus Kafka Streams dependency in `pom.xml` as that dependency requires some
-configration in a properties file to pass. This is configured in the `Producing and Consuming to a Kafka Topic on Event Streams` section
-further down in the lab.
+- Test the application by running the following:
 
 ```shell
 ./mvnw clean verify
 ```
 
-- Depending upon versions of the packages brought in, you may see an initial test failure due to needing to update the `src/main/resources/application.properties` file with the following properties: _(The values are insignifcant for the execution of our tests, but are existence of the property is required by the underlying Quarkus & Kafka Streams integration)_
+**Note:** Depending upon versions of the packages brought in, you may see an initial test failure due to needing to update the `src/main/resources/application.properties` file with the following properties: _(The values are insignifcant for the execution of our tests, but he existence of the property is required by the underlying Quarkus & Kafka Streams integration)_
+  
 ```properties
 quarkus.kafka-streams.application-id=my-kafka-streams
 quarkus.kafka-streams.topics=topic1
+```
+
+- You should see the tests pass with the following output:
+
+```shell
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ibm.GreetingResourceTest
+2021-01-16 14:20:26,488 INFO  [io.quarkus] (main) Quarkus 1.10.5.Final on JVM started in 2.089s. Listening on: http://localhost:8081
+2021-01-16 14:20:26,490 INFO  [io.quarkus] (main) Profile test activated. 
+2021-01-16 14:20:26,490 INFO  [io.quarkus] (main) Installed features: [cdi, kafka-streams, resteasy, resteasy-jsonb]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.096 s - in com.ibm.GreetingResourceTest
+[INFO] Running com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+C01:Health Care
+C02:Finance
+C03:Consumer Services
+C04:Transportation
+C05:Capital Goods
+C06:Public Utilities
+sector-types-store
+2021-01-16 14:20:28,253 WARN  [org.apa.kaf.str.sta.int.RocksDBStore] (main) Closing 1 open iterators for store sector-types-store
+2021-01-16 14:20:28,256 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.222 s - in com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+2021-01-16 14:20:28,292 INFO  [io.quarkus] (main) Quarkus stopped in 0.028s
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 ```
 
 - How this test topology creation flow works:
@@ -211,20 +233,18 @@ quarkus.kafka-streams.topics=topic1
 the Kafka Table is not null,the second makes sure that value retrieved from key `C02` is equal to `Finance` and lastly
 we make sure that the our state store (which was piped by ways of the Kafka Topic) indeed has six key-value pairs.
 
-
-
 ## More Robust Kafka Streams Testing
 
 - Now that we have tested some simple functionality by using the Kafka Streams API let's check out some other
 operators that we can use.
 
-- Let's create a new class for our Plain Old Java Object (POJO) named FinancialMessage. You can place this where you want
-but for simplicity's sake I will use this path. Make sure you remember the path for when you import this class
-`src/main/java/com/ibm/garage/cpat/Domain/FinancialMessage.java`
+- Let's create a new class for our Plain Old Java Object (POJO) named FinancialMessage: `src/main/java/com/ibm/garage/cpat/domain/FinancialMessage.java`
 
 Now copy and paste the following content into the newly created file.
 
 ```java
+package com.ibm.garage.cpat.domain;
+
 public class FinancialMessage {
 
     public String userId;
@@ -258,12 +278,12 @@ public class FinancialMessage {
 }
 ```
 
-**Note** - For brevity and simplicity's sake I did not provide any accessors (getters) or mutators (setters). You can
+**Note:** We have not provided any accessors (getters) or mutators (setters) for simplicity. You can
 set those at your own discretion.
 
-- Now that we have our Java class, let's create a new and separate Java Test class separate from the `TestLoadKtableFromTopic.java`
-for separation of logic. `src/test/java/com/ibm/garage/cpat/lab/TestFinancialMessage.java`. Again you may use your own
-filepath. Copy the contents below.
+- Now that we have our new Java class, let's create a new and separate Java Test class: `src/test/java/com/ibm/garage/cpat/lab/TestFinancialMessage.java`.
+
+Copy the contents below:
 
 ```java
 package com.ibm.garage.cpat.lab;
@@ -300,7 +320,7 @@ import io.quarkus.kafka.client.serialization.JsonbSerde;
 import io.quarkus.kafka.client.serialization.JsonbSerializer;
 import io.quarkus.test.junit.QuarkusTest;
 
-import com.ibm.garage.cpat.Domain.*;
+import com.ibm.garage.cpat.domain.*;
 
 
 @QuarkusTest
@@ -380,7 +400,7 @@ public class TestFinancialMessage {
 }
 ```
 
-- We have the setup for the TestTopology. Now we can add a test that will insert two events into the topic.
+- We have the setup for the TestTopology. Now, we can add a test that will insert two events into the topic. Add the following code to your test class:
 
 ```java
     @Test
@@ -406,11 +426,55 @@ public class TestFinancialMessage {
     }
 ```
 
-- The state store (storeSupplier) has two records input. We have a value count when a groupBy is performed. This particular
-test will fail of course, due to the fact that we inserted two records but our test expects one. To remedy this test we can change
-`Assertions.assertEquals(1, store.approximateNumEntries());` the 1 to a 2.
+- Test the application by running the following:
 
-- Next let's add another very simple test.
+```shell
+./mvnw clean verify
+```
+
+- You should see the following output:
+
+```shell
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ibm.GreetingResourceTest
+2021-01-16 17:21:37,836 INFO  [io.quarkus] (main) Quarkus 1.10.5.Final on JVM started in 1.996s. Listening on: http://localhost:8081
+2021-01-16 17:21:37,837 INFO  [io.quarkus] (main) Profile test activated. 
+2021-01-16 17:21:37,838 INFO  [io.quarkus] (main) Installed features: [cdi, kafka-streams, resteasy, resteasy-jsonb]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.234 s - in com.ibm.GreetingResourceTest
+[INFO] Running com.ibm.garage.cpat.lab.TestFinancialMessage
+2021-01-16 17:21:39,460 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.273 s <<< FAILURE! - in com.ibm.garage.cpat.lab.TestFinancialMessage
+[ERROR] shouldHaveOneTransaction  Time elapsed: 0.09 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <1> but was: <2>
+	at com.ibm.garage.cpat.lab.TestFinancialMessage.shouldHaveOneTransaction(TestFinancialMessage.java:132)
+
+[INFO] Running com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+C01:Health Care
+C02:Finance
+C03:Consumer Services
+C04:Transportation
+C05:Capital Goods
+C06:Public Utilities
+sector-types-store
+2021-01-16 17:21:39,505 WARN  [org.apa.kaf.str.sta.int.RocksDBStore] (main) Closing 1 open iterators for store sector-types-store
+2021-01-16 17:21:39,507 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s - in com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+2021-01-16 17:21:39,541 INFO  [io.quarkus] (main) Quarkus stopped in 0.028s
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   TestFinancialMessage.shouldHaveOneTransaction:132 expected: <1> but was: <2>
+[INFO] 
+[ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0
+```
+
+- We see that our recently added test **failed**. And this is expected due to the fact that we inserted two records but our test expects one. To remedy this test we must change
+`Assertions.assertEquals(1, store.approximateNumEntries());` Set to 2 the comparisson.
+
+- Next let's add another very simple test. Copy the following code to your Java test class:
 
 ```java
     @Test
@@ -423,20 +487,53 @@ test will fail of course, due to the fact that we inserted two records but our t
 
         Assertions.assertFalse(errorTopic.isEmpty());
     }
-}
 ```
 
-As you can see here our message payload is created with `null` for the userId field and the purpose of the test
-is to check if our `errorTopic` is empty. Since our `errorTopic.isEmpty()` resolves to false and our assertion
-is asserting that it is false as well, thus the test passes.
+- Test the application by running the following:
 
+```shell
+./mvnw clean verify
+```
+
+- You should see the following output:
+
+```shell
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ibm.GreetingResourceTest
+2021-01-16 17:29:34,258 INFO  [io.quarkus] (main) Quarkus 1.10.5.Final on JVM started in 2.470s. Listening on: http://localhost:8081
+2021-01-16 17:29:34,260 INFO  [io.quarkus] (main) Profile test activated. 
+2021-01-16 17:29:34,260 INFO  [io.quarkus] (main) Installed features: [cdi, kafka-streams, resteasy, resteasy-jsonb]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.694 s - in com.ibm.GreetingResourceTest
+[INFO] Running com.ibm.garage.cpat.lab.TestFinancialMessage
+2021-01-16 17:29:36,001 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.309 s - in com.ibm.garage.cpat.lab.TestFinancialMessage
+[INFO] Running com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+C01:Health Care
+C02:Finance
+C03:Consumer Services
+C04:Transportation
+C05:Capital Goods
+C06:Public Utilities
+sector-types-store
+2021-01-16 17:29:36,057 WARN  [org.apa.kaf.str.sta.int.RocksDBStore] (main) Closing 1 open iterators for store sector-types-store
+2021-01-16 17:29:36,059 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s - in com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+2021-01-16 17:29:36,099 INFO  [io.quarkus] (main) Quarkus stopped in 0.031s
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+```
+
+As you can see here, our message payload is created with `null` for the userId field which means this message will branch out to the `errorTopic`. The purpose of the test
+is to check if our `errorTopic` is empty, which should not be. Since our `errorTopic.isEmpty()` resolves to false and our assertion
+is asserting that it is false as well, thus the test passes.
 
 - Now that we have two simple tests, let's update our first branch to allow us to filter the stream on a condition
 that we want. Let's edit our `branches[1]` statement so that it will filter out and retain only the records where
 the `totalCost` is greater than 5000.
-
-*Note* Since we are changing the logic of how `branches[1]` functions the `shouldHaveOneTransaction` test function will no longer
-function as we intended. Comment out the `@Test` annotation or the whole function before proceeding.
 
 ```java
 branches[1].filter(
@@ -455,29 +552,52 @@ branches[1].filter(
         );
 ```
 
-- Now let's create a test that will insert two records and check if we have two records in the output topic.
+- Test the application by running the following:
 
-```java
-    @Test
-    public void filteredStreamHasTwoRecords() {
-
-        FinancialMessage mock = new FinancialMessage(
-            "1", "MET", "SWISS", 12, 1822.38, 21868.55, 94, 7, true
-        );
-        FinancialMessage mock2 = new FinancialMessage(
-            "2", "ASDF", "HELLO", 5, 1000.22, 4444.12, 38, 6, true
-        );
-        inTopic.pipeInput("T01", mock);
-        inTopic.pipeInput("T02", mock2);
-
-        KeyValueStore<String,ValueAndTimestamp<FinancialMessage>> store = testDriver.getTimestampedKeyValueStore(storeName);
-        Assertions.assertEquals(2, store.approximateNumEntries());
-    }
+```shell
+./mvnw clean verify
 ```
 
-This test fails. Why? The `mock2` message has a `totalCost` of `4444.12` which is less than the filter condition of
-`totalCost` being greater than 5000. To make this test pass change that value to something like `5001`.
+- You should see the following output:
 
+```shell
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ibm.GreetingResourceTest
+2021-01-16 17:40:50,765 INFO  [io.quarkus] (main) Quarkus 1.10.5.Final on JVM started in 2.102s. Listening on: http://localhost:8081
+2021-01-16 17:40:50,766 INFO  [io.quarkus] (main) Profile test activated. 
+2021-01-16 17:40:50,766 INFO  [io.quarkus] (main) Installed features: [cdi, kafka-streams, resteasy, resteasy-jsonb]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.474 s - in com.ibm.GreetingResourceTest
+[INFO] Running com.ibm.garage.cpat.lab.TestFinancialMessage
+2021-01-16 17:40:52,393 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[ERROR] Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.307 s <<< FAILURE! - in com.ibm.garage.cpat.lab.TestFinancialMessage
+[ERROR] shouldHaveOneTransaction  Time elapsed: 0.022 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <2> but was: <1>
+	at com.ibm.garage.cpat.lab.TestFinancialMessage.shouldHaveOneTransaction(TestFinancialMessage.java:135)
+
+[INFO] Running com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+C01:Health Care
+C02:Finance
+C03:Consumer Services
+C04:Transportation
+C05:Capital Goods
+C06:Public Utilities
+sector-types-store
+2021-01-16 17:40:52,445 WARN  [org.apa.kaf.str.sta.int.RocksDBStore] (main) Closing 1 open iterators for store sector-types-store
+2021-01-16 17:40:52,447 INFO  [org.apa.kaf.str.pro.int.StateDirectory] (main) stream-thread [main] Deleting state directory 0_0 for task 0_0 as user calling cleanup.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s - in com.ibm.garage.cpat.lab.TestLoadKtableFromTopic
+2021-01-16 17:40:52,487 INFO  [io.quarkus] (main) Quarkus stopped in 0.031s
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   TestFinancialMessage.shouldHaveOneTransaction:135 expected: <2> but was: <1>
+[INFO] 
+[ERROR] Tests run: 4, Failures: 1, Errors: 0, Skipped: 0
+```
+
+We see that our first tests is now **failing again**. And this is expected because we are changing the logic of how `branches[1]` works to filter out those transactions less than `5000`. This makes the second record we send in to get filtered out. In order to fix our test again, we either decrease the assertion for the expected entries in our store back to 1 or we modify the amount of the second transaction to be greater than `5000`. Once we do that, if we test the application again, we should get all tests passing.
 
 ## Next Steps
 

@@ -39,8 +39,7 @@ mvn io.quarkus:quarkus-maven-plugin:1.10.5.Final:create \
     -Dextensions="resteasy-jsonb,quarkus-kafka-streams"
 ```
 
-- Since we will be using the Kafka Streams testing functionalit,y we will need to edit the `pom.xml` to add
-the dependency to our project. Open `pom.xml` and add the following:
+- Since we will be using the Kafka Streams testing functionality, we will need to edit the `pom.xml` to add the dependency to our project. Open `pom.xml` and add the following:
 
 ```xml
 <dependency>
@@ -175,6 +174,13 @@ public class FirstKafkaStreamsTest {
 [INFO] ------------------------------------------------------------------------
 ```
 
+**Note:** Depending upon versions of the packages brought in, you may see an initial test failure due to needing to update the `src/main/resources/application.properties` file with the following properties: _(The values are insignifcant for the execution of our tests, but he existence of the property is required by the underlying Quarkus & Kafka Streams integration)_
+
+```properties
+quarkus.kafka-streams.application-id=my-kafka-streams
+quarkus.kafka-streams.topics=topic1
+```
+
 - The build compiled and the test topology was successfully created. But no tests were run, because no tests were written!
 
 ## Creating your first Tests
@@ -221,12 +227,6 @@ public class FirstKafkaStreamsTest {
   - The `isEmpty` test method checks to make sure the output topic is empty when nothing is sent through the topology
   - The `isNotEmpty` test method checks to make sure the output topic is not empty when an item matching our filters is sent through the topology
   - The `selectBlues` test method checks to make sure that our topology is filtering correctly when we send multiple items through the topology and the output topic empties correctly when the testing infrastructure reads from it.
-
-- Depending upon versions of the packages brought in, you may see an initial test failure due to needing to update the `src/main/resources/application.properties` file with the following properties: _(The values are insignifcant for the execution of our tests, but he existence of the property is required by the underlying Quarkus & Kafka Streams integration)_
-```properties
-quarkus.kafka-streams.application-id=my-kafka-streams
-quarkus.kafka-streams.topics=topic1
-```
 
 - You should see the tests pass with the following output:
 ```shell
