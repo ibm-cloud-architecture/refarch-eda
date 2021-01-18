@@ -6,10 +6,12 @@ description: Common pre-requisites for the different labs and use cases
 <AnchorLinks>
   <AnchorLink>IBM Cloud Shell</AnchorLink>
   <AnchorLink>Install Event Streams using operators</AnchorLink>
-  <AnchorLink>Creating Event Streams Topics</AnchorLink>
-  <AnchorLink>Getting scram authentication from Event Streams on OpenShift</AnchorLink>
-  <AnchorLink>Getting TLS authentication from Event Streams on OpenShift</AnchorLink>
+  <AnchorLink>Log into Event Streams</AnchorLink>
+  <AnchorLink>Create Event Streams Topics</AnchorLink>
+  <AnchorLink>Generate SCRAM Service Credentials</AnchorLink>
+  <AnchorLink>Get Event Streams TLS Certificates</AnchorLink>
   <AnchorLink>Using Kafdrop</AnchorLink>
+  <AnchorLink>Running docker in kubernetes pod</AnchorLink>
 </AnchorLinks>
 
 ## IBM Cloud Shell
@@ -113,180 +115,278 @@ https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-tools/maste
 https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-eda-tools/master/evenstreams-config/eventstreams-light-insecure.yaml
  ```
 
-## Creating Event Streams Topics
+## Log into Event Streams
 
-This section is a generic example of the steps to proceed to define a topic with Event Streams on OpenShift using the User Interface. The example is to define a topic named INBOUND with 1 partition and a replica set to 3. Change to any other topic you want to create.
+In this section we are going to see how to log into our IBM Event Streams console both through the UI and CLI.
 
-- Get the route for event streams. We assume the namespace is `eventstreams`
- 
- ```shell
-  oc get routes -n eventstreams | grep ui
-  ```
+#### UI
 
-- Navigate to the Event Streams Console using the exposed route URL.
+In order to log into the IBM Event Streams console:
 
-- Click the Topics option on the navigation bar on the left. Create the INBOUND topic.
+1. go to your OpenShift console and click on `Operators --> Installed Operators` in the left hand side bar menu. Then select the project where your IBM Event Streams instance was installed into.
 
-![Create Topic](./images/create-topic.png)
+  ![login1](./images/login1.png)
 
-![Topic Name](./images/inbound-topic-name.png)
+1. Click on the IBM Event Streams Operator and then on the `Event Streams` option listed at the top bar
 
-- Leave Partitions at 1.
+  ![login2](./images/login2.png)
 
-![Partition](./images/partitions.png)
+1. Click on the IBM Event Streams instance you want to access to its console and scroll down until you see the `Admin UI` attribute that displays the route to this IBM Event Streams instance's console.
 
-- Depending on how long you want messages to persist you can change this.
+  ![login3](./images/login3.png)
 
-![Message Retention](./images/message-retention.png)
+1. Click on the route link and enter your IBM Event Streams credentials.
 
-- You can leave Replication Factor at the default 3.
+#### CLI
 
-![Replication](./images/replicas.png)
+In order to log into IBM Event Streams console through the CLI, we are going to use the `oc` OpenShift CLI, the `clouctl` Cloud Pak CLI and the `es` Cloud Pak CLI plugin. You can check above in this readme how to get these installed. We assume you are already logged into your OpenShift cluster through the `oc` Openshift CLI (If not, log into your OpenShift cluster console using the user interface and click on `Copy Login Command` option displayed when you click on your user avatar on the top right corner).
 
-- Click Create.
-
-### Create topic using CLI
-
-You can do the samething using CLI, [see the product documentation](https://ibm.github.io/event-streams/getting-started/creating-topics/).
-
- ```shell
- cloudctl es topic-create --name INBOUND --partitions 1 --replication-factor 3
- ```
-
-## Getting scram authentication from Event Streams on OpenShift
-
-- To connect to an Event Streams Instance from an application running out side of the OpenShift cluster, we need to get external access credential. This is done by getting a scram user and TLS server certificate. 
-
-- While viewing our Event Streams Instance, navigate to the 'Connect to this cluster' menu from the left. Click Connect to this Cluster - 
-
-- Make sure that you're on **External Connection** as we will need to test/connect from an application not running on OCP cluster. Keep note of your **Bootstrap Server Address**. Save this somewhere as we will need this later to configure our application's connection to the Event Streams instance.
-
-![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
-
-- Generate your **SCRAM Credentials**. Click the `Generate SCRAM Credentials` button.
-
-![Generate SCRAM1 ](./images/esv10-generate-scram.png)
-
-- Select a name for your secret and make sure you remember it as this also represents the user identifier for the connection. Also choose the Produce, Consume, Create Topics and Schema Option.
-
-![Generate SCRAM 2](./images/esv10-scram-1.png)
-
-- Select `All Topics` and then click Next.
-
-![Generate SCRAM 3](./images/esv10-scram-2.png)
-
-- Leave it with `All Consumer Groups` and click Next.
-
-![Generate SCRAM 4](./images/esv10-scram-3.png)
-
-- Select all transaction IDs and then generate your **API Key**. Click the Generate API Key button.
-
-![Generate SCRAM 5](./images/esv10-scram-4.png)
-
-- Select a name for your application. It doesn't really matter too much what you name it. 
-
-- If the following error occurs, log into your OpenShift cluster and go to the project/namespace that your Event Streams v10 instance is installed in. If you run these commands you will see your user created.
-
-`oc get kafkauser`
-
-`oc get secrets`
-
-- Your `SCRAM Username` that we will need for later is the name of your secret. The `SCRAM Password` can be either obtained by going to your OpenShift Console Web UI and revealing the password through the secrets menu or through the CLI. Run the following commands to see the value of the password.
-
-`oc get secret your-secret -o jsonpath='{.data.password}' -n eventstreams | base64 --decode  && echo ""`
-
-- This will return you a base64 encoded value. Decode this like so
-
-`echo "dWpPN3ZSSEF1clRK" | base64 -d`
-
-![SCRAM Secret](./images/esv10-scram-secret.png)
-
-
-- Lastly download the PKCS12 truststore .pkcs12 certificate. Once you hit the Download button the password to the truststore will be revealed. **Copy this down** as we will need it.
-
-![PKCS12 Truststore](./images/esv10-pkcs12.png)
-
-
-**Summary** 
-
-We now have the bootstrap server address, SCRAM Username (also the name of the KafkaUser/Secret CRs) and Password, .pcks12 truststore certificate, and the truststore password associated with that certificate to allow us the ability to connect to our Event Streams instance.
-
-
-## Getting TLS authentication from Event Streams on OpenShift
-
-### Get TLS server public certificate
-
-The cluster public certificate is required for all external connections and is available to download from the Cluster connection panel under the Certificates heading. Upon downloading the PKCS12 certificate, the certificate password will also be displayed. We can also get those certificate and password via CLI:
-
-See [product documentation for detail](https://ibm.github.io/event-streams/getting-started/connecting/). A quick set of commands:
-
- ```shell
- oc get secret -n eventstreams | grep cluster-ca-cert
- # use the ca-cert for the instance you target 
- oc get secret minimal-prod-cluster-ca-cert  -n eventstreams -o jsonpath='{.data.ca\.p12}' | base64 --decode > es-cert.p12
- # or the command:
- oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.p12 -n eventstreams
- # and password
- oc get secret minimal-prod-cluster-ca-cert -n eventstreams -o jsonpath='{.data.ca\.password}' | base64 --decode  && echo ""
- # or the command
- oc extract secret/minimal-prod-cluster-ca-cert --keys=ca.password -n eventstreams
- ```
-
-Copy the server certificate into your OpenShift project where consumer and producer code will be deployed:
-
-```shell
- oc get secret minimal-prod-cluster-ca-cert  -n eventstreams --export -o yaml | oc apply -f - 
-```
-
-### Get Scram-sha-512 user 
-
-Select one of the Kafka users with Scram authentication defined or create a new one with the produce, consume messages and create topic and schemas authorizations, on all topics or topic with a specific prefix, on all consumer groups or again with a specific prefix, all transaction IDs.
+1. Get your Cloud Pak console route (you may need cluster wide admin permissions to do so as the Cloud Pak is usually installed in the `ibm-common-services` namespace by the cluster admins)
 
   ```shell
-  # if not logged yes to your openshift cluster where the docker private registry resides do:
-  oc login --token=... --server=https://c...
-  oc get kafkausers -n eventstreams
-
-  NAME                                     AUTHENTICATION   AUTHORIZATION
-  demo-app                                 scram-sha-512    simple
+  $ oc get routes -n ibm-common-services | grep console
+  cp-console                       cp-console.apps.eda-sandbox-delta.gse-ocp.net                                                  icp-management-ingress           https      reencrypt/Redirect     None
   ```
 
-  We use a user with scram-sha-512 authentication named: `demo-app`
-
-* Copy user's secret to the current project where the application will run
-
- ```shell
- oc get secret  demo-app -n eventstreams --export -o yaml | oc apply -f -
- ```
-
-* Get the user password:
-
- ```shell
- oc get secret demo-app -n eventstreams -o jsonpath='{.data.password}' | base64 --decode  && echo ""
- ```
-
-* Set the KAFKA_USER and KAFKA_PASSWORD, and SECURE_PROTOCOL=SASL_SSL environment variables for your application.
-
-### Get TLS user 
-
-If you want to use mutual authentication with client certificate, you need a tls user. And use the same commands as in previous section to get user name and user's password. The differences are in the password access and that you need to download client certificate as keystore to be integrated in the Java app.
-
- ```shell
- # password is in another key
- oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.password}' | base64 --decode && echo ""
- ```
-
-* Get the user client certificate and password
+1. Log into IBM Event Streams using the Cloud Pak console route from the previous step:
 
   ```shell
-  cd certs
-  oc get secret tls-user -n eventstreams -o jsonpath='{.data.user\.p12}' | base64 --decode > user.p12
+	$ cloudctl login -a https://cp-console.apps.eda-sandbox-delta.gse-ocp.net --skip-ssl-validation
+
+	Username> user50
+
+	Password>
+	Authenticating...
+	OK
+
+	Targeted account mycluster Account
+
+	Enter a namespace > integration
+	Targeted namespace integration
+
+	Configuring kubectl ...
+	Property "clusters.mycluster" unset.
+	Property "users.mycluster-user" unset.
+	Property "contexts.mycluster-context" unset.
+	Cluster "mycluster" set.
+	User "mycluster-user" set.
+	Context "mycluster-context" created.
+	Switched to context "mycluster-context".
+	OK
+
+	Configuring helm: /Users/user/.helm
+	OK
+	```
+
+1. Initialize the Event Streams CLI plugin (make sure you provide the namespace where your IBM Event Streams instance is installed on as the command will fail if you dont have cluster wide admin permissions)
+
+	```shell
+	$ cloudctl es init -n integration
+                                                  
+  IBM Cloud Platform Common Services endpoint:   https://cp-console.apps.eda-sandbox-delta.gse-ocp.net   
+  Namespace:                                     integration   
+  Name:                                          kafka   
+  IBM Cloud Pak for Integration UI address:      https://integration-navigator-pn-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Event Streams API endpoint:                    https://kafka-ibm-es-admapi-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Event Streams API status:                      OK   
+  Event Streams UI address:                      https://kafka-ibm-es-ui-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Apicurio Registry endpoint:                    https://kafka-ibm-es-ac-reg-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Event Streams bootstrap address:               kafka-kafka-bootstrap-integration.apps.eda-sandbox-delta.gse-ocp.net:443   
+  OK
+	``` 
+
+## Create Event Streams Topics
+
+This section is a generic example of the steps to proceed to define a topic with Event Streams on OpenShift. The example is to define a topic named INBOUND with 1 partition and a replica set to 3.
+
+#### UI
+
+1. Log into your IBM Event Streams instance through the UI as explained in the previous section.
+
+1. Click the Topics option on the navigation bar on the left. Create the INBOUND topic.
+
+  ![Create Topic](./images/create-topic.png)
+
+  ![Topic Name](./images/inbound-topic-name.png)
+
+1. Leave Partitions at 1.
+
+  ![Partition](./images/partitions.png)
+
+1. Depending on how long you want messages to persist you can change this.
+
+  ![Message Retention](./images/message-retention.png)
+
+1. You can leave Replication Factor at the default 3.
+
+  ![Replication](./images/replicas.png)
+
+1. Click Create.
+
+1. Make sure the topic has been created by navigating to the topics section on the IBM Event Streams user inteface you can find an option for in the left hand side menu bar. 
+
+#### CLI
+
+1. Log into your IBM Event Streams instance using the CLI as explained in the previous section.
+1. Create the topic with the desirec specification.
+
+   ```shell
+   cloudctl es topic-create --name INBOUND --partitions 1 --replication-factor 3
+   ```
+
+1. Make sure the topic has been created by listing the topics.
+
+  ```shell
+  $ cloudctl es topics
+  Topic name   
+  INBOUND   
+  OK
   ```
 
-Modify USER_CERT_PWD and USER_CERT_PATH=${PWD}/certs/user.p12 in the `.env` file
-While starting your application if you get an exception with message like: `Caused by: java.io.IOException: toDerInputStream rejects tag type 77`, this is due to keystore p12 file was not decoded with base64.  
+## Generate SCRAM Service Credentials
 
-Also set the env variable as SECURE_PROTOCOL=SSL
+For an application to connect to an Event Streams instance through the secured external listener, it needs SCRAM credentials to act as service credentials (as well as the TLS certificate we will talk about in the next section of this readme). 
+
+#### UI
+
+1. Log into the IBM Event Streams user interface as explained previously in this readme and click on the `Connect to this cluster` option displayed on the dashboard. This will display a menu. Make sure that you are on the **External Connection**.
+
+  ![Connect to this Cluster](./images/esv10-connect-to-cluster.png)
+
+1. Click on the `Generate SCRAM credentials` button.
+
+  ![Generate SCRAM1 ](./images/esv10-generate-scram.png)
+
+1. Introduce a name for your credentials and choose the option that better suits the needs of your applications (this will create RBAC permissions for you credentials so that a service credentials can do only what it needs to do). For this demo, select `Produce messages, consume messages and create topics and schemas` last option.
+
+  ![Generate SCRAM 2](./images/esv10-scram-1.png)
+
+1. Decide whether your service credentials need to have the ability to access all topics or certain topics only. For this demo, select `All Topics` and then click Next.
+
+  ![Generate SCRAM 3](./images/esv10-scram-2.png)
+
+1. Decide whether your service credentials need to have the ability to access all consumer groups or certain specific consumer groups only. For this demo, select `All Consumer Groups` and click Next.
+
+  ![Generate SCRAM 4](./images/esv10-scram-3.png)
+
+1. Decide whether your service credentials need to have the ability to access all transactional IDs or certain specific transactional IDs only. For this demo, select `All transaction IDs` and click on `Generate credentials`.
+
+  ![Generate SCRAM 5](./images/esv10-scram-4.png)
+
+1. **Take note** of the set of credentials displayed on screen. You will need to provide your applications with these in order to get authenticated and authorized with your IBM Event Streams instance.
+
+  ![Generate SCRAM 6](./images/esv10-scram-5.png)
+
+1. If you did not take note of your SCRAM credentials or you forgot these, the above will create a `KafkaUser` object in OpenShift that is interpreted by the IBM Event Streams Operator. You can see this `KafkaUser` if you go to the OpenShift console, click on `Operators --> Installed Operators` on the right hand side menu, then click on the `IBM Event Streams` operator and finally click on `Kafka Users` at the top bar menu.
+
+  ![Retrieve SCRAM 1](./images/esv10-retrieve-scram-1.png)
+
+1. If you click on your `Kafka User`, you will see what is the Kubernetes secret behind holding your SCRAM credentials details.
+
+  ![Retrieve SCRAM 2](./images/esv10-retrieve-scram-2.png)
+
+1. Click on that secret and you will be able to see again your `SCRAM password` (your `SCRAM username` is the same name as the `Kafka User` created or the secret holding your `SCRAM password`) 
+
+  ![Retrieve SCRAM 3](./images/esv10-retrieve-scram-3.png)
+
+
+#### CLI
+
+1. Log into your IBM Event Streams instance through the CLI as already explained before in this readme.
+
+1. Create your SCRAM service credentials with the following command (adjust the topics, consumer groups, transaction IDs, etc permissions your SCRAM service credentials should have in order to satisfy your application requirements):
+
+  ```shell
+  $ cloudctl es kafka-user-create --name test-credentials-cli --consumer --producer --schema-topic-create --all-topics --all-groups --all-txnids --auth-type scram-sha-512
+  
+  KafkaUser name         Authentication   Authorization   Username                                                Secret   
+  test-credentials-cli   scram-sha-512    simple          EntityOperator has not created corresponding username   EntityOperator has not created corresponding secret   
+  
+  Resource type     Name        Pattern type   Host   Operation   
+  topic             *           literal        *      Read   
+  topic             __schema_   prefix         *      Read   
+  topic             *           literal        *      Write   
+  topic             *           literal        *      Create   
+  topic             __schema_   prefix         *      Alter   
+  group             *           literal        *      Read   
+  transactionalId   *           literal        *      Write   
+  
+  Created KafkaUser test-credentials-cli.
+  OK
+  ```
+
+1. List the `KafkaUser` objects to make sure yours has been created:
+
+  ```shell
+  $ cloudctl es kafka-users
+  KafkaUser name                    Authentication   Authorization   
+  test-credentials                  scram-sha-512    simple   
+  test-credentials-cli              scram-sha-512    simple   
+  OK
+  ```
+
+1. To retrieve your credentials execute the following command:
+
+  ```shell
+  $ cloudctl es kafka-user test-credentials-cli 
+  KafkaUser name         Authentication   Authorization   Username               Secret   
+  test-credentials-cli   scram-sha-512    simple          test-credentials-cli   test-credentials-cli   
+
+  Resource type     Name        Pattern type   Host   Operation   
+  topic             *           literal        *      Read   
+  topic             __schema_   prefix         *      Read   
+  topic             *           literal        *      Write   
+  topic             *           literal        *      Create   
+  topic             __schema_   prefix         *      Alter   
+  group             *           literal        *      Read   
+  transactionalId   *           literal        *      Write   
+  OK
+  ```
+
+1. Above you can see your `SCRAM username` under `Username` and the secret holding your `SCRAM password` under `Secret`. In order to retrieve the password, execute the following command:
+
+  ```shell
+  $ oc get secret test-credentials-cli -o jsonpath='{.data.password}' | base64 --decode 
+  
+  *******
+  ```
+
+**NEXT:** For more information about how to connect to your cluste, read the [IBM Event Streams product documentation](https://ibm.github.io/event-streams/getting-started/connecting/)
+
+## Get Event Streams TLS Certificates
+
+In this section we are going to see how to download the TLS certificats to securely connect to our IBM Event Streams instance.
+
+#### UI
+
+1. Log into the IBM Event Streams console user interface as explained before in this readme.
+1. Click on the `Connect to this cluster` option displayed on the dashboard. This will display a menu where you will see a `Certificates` section:
+
+  ![PKCS12 Truststore](./images/esv10-pkcs12.png)
+
+1. Depending on what language your application is written into, you will need a `PKCS12 certificate` or a `PEM certificate`. Click on `Download certificate` for any of the options you need. If it is the `PKCS12 certificate` bear in mind it comes with a password for the truststore. You don't need to write this down as it will display any time you click on `Download certificate` button.
+
+#### CLI
+
+1. Log into IBM Event Streams through the CLI as already explained before in this readme.
+1. To retrieve the `PKCS12 certificate` execute the following command:
+
+  ```shell
+  $ cloudctl es certificates --format p12
+  Trustore password is ********
+  Certificate successfully written to /Users/testUser/Downloads/es-cert.p12.
+  OK
+  ```
+
+1. To retrieve the `PEM certificate` execute the following command:
+
+  ```shell
+  $ cloudctl es certificates --format pem
+  Certificate successfully written to /Users/testUser/Downloads/es-cert.pem.
+  OK
+  ```
+
+**NEXT:** For more information about how to connect to your cluste, read the [IBM Event Streams product documentation](https://ibm.github.io/event-streams/getting-started/connecting/)
 
 ## Using Kafdrop
 

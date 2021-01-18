@@ -845,13 +845,13 @@ kafka-streams.metrics.recording.level=DEBUG
 
 There are some environment variables our `application.properties` file depends on:
 
-- `START_TOPIC_NAME`: The Kafka topic the mock producer will produce `FinancialMessage` to and the topology consume messages from for processing. **IMPORTANT:** Use a topic name with some unique identifier if you are sharing the IBM Event Streams instance with other lab students. Also, you **must** create this topic in IBM Event Streams. See [here]((/use-cases/overview/pre-requisites) for more details as to how to create a topic.
+- `START_TOPIC_NAME`: The Kafka topic the mock producer will produce `FinancialMessage` to and the topology consume messages from for processing. **IMPORTANT:** Use a topic name with some unique identifier if you are sharing the IBM Event Streams instance with other lab students. Also, you **must** create this topic in IBM Event Streams. See [here](/use-cases/overview/pre-requisites) for more details as to how to create a topic.
 - `TARGET_TOPIC_NAME`: The Kafka topic the topology will produce the processed `FinancialMessage` to. **IMPORTANT:** Use a topic name with some unique identifier if you are sharing the IBM Event Streams instance with other lab students. Also, you **must** create this topic in IBM Event Streams. See [here]((/use-cases/overview/pre-requisites) for more details as to how to create a topic
-- `BOOTSTRAP_SERVERS`: Your IBM Event Streams bootstrap server. See [here]((/use-cases/overview/pre-requisites) for more details as to how to obtain these.
-- `CERT_LOCATION`: The location where the PKCS12 certificate for the SSL connection to the IBM Event Streams instance is. See [here]((/use-cases/overview/pre-requisites) for more details as to how to obtain these.
-- `CERT_PASSWORD`: The password of the PKCS12 certificate. See [here]((/use-cases/overview/pre-requisites) for more details as to how to obtain these.
+- `BOOTSTRAP_SERVERS`: Your IBM Event Streams bootstrap server. See [here](/use-cases/overview/pre-requisites) for more details as to how to obtain these.
+- `CERT_LOCATION`: The location where the PKCS12 certificate for the SSL connection to the IBM Event Streams instance is. See [here](/use-cases/overview/pre-requisites) for more details as to how to obtain these.
+- `CERT_PASSWORD`: The password of the PKCS12 certificate. See [here](/use-cases/overview/pre-requisites) for more details as to how to obtain these.
 - `API_KEY` if you are using an IBM Event Streams instance in IBM Cloud or
-- `SCRAM_USERNAME` and `SCRAM_PASSWORD`: The SCRAM credentials for your application to get authenticated and authorized to work with IBM Event Streams. See [here]((/use-cases/overview/pre-requisites) for more details as to how to obtain these.
+- `SCRAM_USERNAME` and `SCRAM_PASSWORD`: The SCRAM credentials for your application to get authenticated and authorized to work with IBM Event Streams. See [here](/use-cases/overview/pre-requisites) for more details as to how to obtain these.
 
 Export the variables and values on the terminal you will run the application from:
 
