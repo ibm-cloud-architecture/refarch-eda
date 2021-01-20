@@ -8,6 +8,7 @@ description: Common pre-requisites for the different labs and use cases
   <AnchorLink>Install Event Streams using operators</AnchorLink>
   <AnchorLink>Log into Event Streams</AnchorLink>
   <AnchorLink>Create Event Streams Topics</AnchorLink>
+  <AnchorLink>Get Kafka Bootstrap Url</AnchorLink>
   <AnchorLink>Generate SCRAM Service Credentials</AnchorLink>
   <AnchorLink>Get Event Streams TLS Certificates</AnchorLink>
   <AnchorLink>Using Kafdrop</AnchorLink>
@@ -248,6 +249,35 @@ This section is a generic example of the steps to proceed to define a topic with
   OK
   ```
 
+## Get Kafka Bootstrap Url
+
+In this section we are going to see where to find your IBM Event Streams and Kafka bootstrap url/address your applications will need in order to connect to IBM Event Streams to consume messages from and produce messages to.
+
+#### UI
+
+You can find your IBM Event Streams and Kakfa bootstrap url if you log into the IBM Event Streams user interface, as explained previously in this readme, and click on the `Connect to this cluster` option displayed on the dashboard. This will display a menu where you will see a url to the left of the `Generate SCAM credentials` button. Make sure that you are on the **External Connection**.
+
+![Connect to this Cluster bootstrap](./images/esv10-connect-to-cluster-bootstrap.png)
+
+#### CLI
+
+You can find your IBM Event Streams and Kakfa bootstrap url when you init the IBM Event Streams Cloud Pak CLI plugin on the last line:
+
+	```shell
+	$ cloudctl es init -n integration
+                                                  
+  IBM Cloud Platform Common Services endpoint:   https://cp-console.apps.eda-sandbox-delta.gse-ocp.net   
+  Namespace:                                     integration   
+  Name:                                          kafka   
+  IBM Cloud Pak for Integration UI address:      https://integration-navigator-pn-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Event Streams API endpoint:                    https://kafka-ibm-es-admapi-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Event Streams API status:                      OK   
+  Event Streams UI address:                      https://kafka-ibm-es-ui-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Apicurio Registry endpoint:                    https://kafka-ibm-es-ac-reg-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
+  Event Streams bootstrap address:               kafka-kafka-bootstrap-integration.apps.eda-sandbox-delta.gse-ocp.net:443   
+  OK
+	``` 
+  
 ## Generate SCRAM Service Credentials
 
 For an application to connect to an Event Streams instance through the secured external listener, it needs SCRAM credentials to act as service credentials (as well as the TLS certificate we will talk about in the next section of this readme). 

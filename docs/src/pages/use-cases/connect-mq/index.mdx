@@ -3,10 +3,6 @@ title: Kafka Connect to IBM MQ Sink Connector
 description: Apache Kafka to IBM MQ Sink Connector use case
 ---
 
-<InlineNotification kind="warning">
-<strong>Work in progress</strong> - MQ Sink Connector on virtual or baremetal server, MQ and Event Streams on IBM Cloud not completed...
-</InlineNotification>
-
 This scenario uses the [IBM Kafka Connect sink connector for IBM MQ](https://github.com/ibm-messaging/kafka-connect-mq-sink) to pull streaming data from Kafka topic into a MQ queue. We can have multiple deployment combinations but we will limit to two patterns:
 
 <AnchorLinks>
@@ -160,9 +156,6 @@ The [product documentation](https://ibm.github.io/event-streams/connecting/mq/) 
 or as an alternate, we [cloned the mq-sink code](https://github.com/ibm-messaging/kafka-connect-mq-sink.git), so a `mvn package` command under `kafka-connect-mq-sink` folder will build the jar. Copy this jar under `cp4i/my-plugins` folder. 
 * Build the connector with source to image component.
 
-```
-```
-
 
 With the correct credentials for IBM EventStreams and IBM MQ, Kafka Connect should connect to both services and pull data from the EventStreams topic configured to the MQ Queue configured.  You will see signs of success in the container output (via oc logs, or in the UI):
 
@@ -181,242 +174,382 @@ You should now have the Kafka Connector MQ Sink running on OpenShift.
 
 ## MQ Sink Connector on virtual or baremetal server, MQ and Event Streams on IBM Cloud
 
-We are using our own laptop for the baremetal dedployment, but the current solution will work the same on virtual server.
+In this second option, we are using our own laptop for the baremetal dedployment, but the current solution will work the same on virtual server.
 
  ![2](./images/hybrid.png)
 
 ### Pre-requisites
 
-We assume that you have an instance of Event Streams already running on IBM Cloud with at least on manager-level credentials created.  The credentials will come in the form of a JSON document as seen in the previous section.
-You will need the `kafka_brokers_sasl` and `password` atribute to configure the sink connector.
-
-This scenario uses the `inventory` topic created in the Scenario Setup in previous section.
+We assume that you have an instance of IBM Event Streams already running on IBM Cloud or on OpenShift with at least administrator credentials created. The credentials will be needed later on for configuring the Kafka Connect framework to be able to connect and work with your IBM Event Streams instance. Also, this scenario requires a topic called `inventory` in your IBM Event Streams instance. For gathering the credentials and creating the topic required for this scenario, please review the [Common pre-requisites](/use-cases/overview/pre-requisites/). **IMPORTANT:** if you are sharing your IBM Event Streams instance, append some unique identifier to the topic you create in IBM Event Streams.
 
 ### Create Local IBM MQ Instance
 
-Here we will use Docker to create a local MQ instance.  First create a data directory to mount in the container.
+In this section we are going to use Docker to create a local IBM MQ instance to simulate an IBM MQ instance somewhere in our datacenter.
 
-`mkdir qm1data`
+1. Create a data directory to mount onto the container.
 
-Then create the container.
+  ```shell
+  mkdir qm1data
+  ```
+
+1. Run the IBM MQ official Docker image by execting the following command.
+
+  ```shell
+  docker run                     \
+    --name mq                    \
+    --detach                     \
+    --publish 1414:1414          \
+    --publish 9443:9443          \
+    --publish 9157:9157          \
+    --volume qm1data:/mnt/mqm    \
+    --env LICENSE=accept         \
+    --env MQ_QMGR_NAME=QM1       \
+    --env MQ_APP_PASSWORD=admin  \
+    --env MQ_ENABLE_METRICS=true \
+    ibmcom/mq
+  ```
+  where we can see that out container will be called `mq`, it will run in `detached` mode (i.e. in the background), it will expose the ports IBM MQ uses for communication and the image we are actually running `ibmcom/mq`.
+
+1. You could make sure your IBM MQ Docker image is running by listing the Docker containers in your workstation.
+
+  ```shell
+  $ docker ps
+  CONTAINER ID   IMAGE       COMMAND            CREATED         STATUS         PORTS                                                                    NAMES
+  a7b2a115a3c6   ibmcom/mq   "runmqdevserver"   6 minutes ago   Up 6 minutes   0.0.0.0:1414->1414/tcp, 0.0.0.0:9157->9157/tcp, 0.0.0.0:9443->9443/tcp   mq
+  ```
+
+1. You should also be able to log into the MQ server on port 9443 (<https://localhost:9443>) with default user `admin` and password `passw0rd`.
+
+  ![login](./images/login.png)
+
+Now, we need to configure our local IBM MQ instance Queue Manager in order to define a server connection (`KAFKA.CHANNEL`) with authentication (user `admin`, password `admin`) and the queue (`INVENTORY`) where our messages from Kafka will be sinked to. And we are going to so it using the IBM MQ CLI.
+
+1. Get into the IBM MQ Docker container we have started above by executing the following command that will give us a `bash` interactive terminal:
+
+  ```shell
+  docker exec -ti mq bash
+  ```
+
+1. Now that we are in the container, start the queue manager `QM1` by executing:
+
+  ```shell
+  strmqm QM1
+  ```
+
+1. Start the `runmqsc` tool to configure the queue manager by executing:
+
+  ```shell
+  runmqsc QM1
+  ```
+
+1. Create a server-connection channel called `KAFKA.CHANNEL` by executing:
+
+  ```shell
+  DEFINE CHANNEL(KAFKA.CHANNEL) CHLTYPE(SVRCONN)
+  ```
+
+1. Set the channel authentication rules to accept connections requiring userid and password by executing:
+
+  ```shell
+  SET CHLAUTH(KAFKA.CHANNEL) TYPE(BLOCKUSER) USERLIST('nobody')
+  SET CHLAUTH('*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS)
+  SET CHLAUTH(KAFKA.CHANNEL) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
+  ```
+
+1. Set the identity of the client connections based on the supplied context, the user ID by executing:
+
+  ```shell
+  ALTER AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS) AUTHTYPE(IDPWOS) ADOPTCTX(YES)
+  ```
+
+1. Refresh the connection authentication information by executing:
+
+  ```shell
+  REFRESH SECURITY TYPE(CONNAUTH)
+  ```
+
+1. Create the `INVENTORY` queue for the connector to use by executing:
+
+  ```shell
+  DEFINE QLOCAL(INVENTORY)
+  ```
+
+1. Authorize `admin` to connect to and inquire the queue manager by executing:
+
+  ```shell
+  SET AUTHREC OBJTYPE(QMGR) PRINCIPAL('admin') AUTHADD(CONNECT,INQ)
+  ```
+
+1. Finally authorize `admin` to use the queue by executing:
+
+  ```shell
+  SET AUTHREC PROFILE(INVENTORY) OBJTYPE(QUEUE) PRINCIPAL('admin') AUTHADD(ALLMQI)
+  ```
+
+1. End `runmqsc` by executing:
+
+  ```shell
+  END
+  ```
+
+You should see the following output:
 
 ```shell
-docker run                     \
-  --name mq                    \
-  --detach                     \
-  --publish 1414:1414          \
-  --publish 9443:9443          \
-  --publish 9157:9157          \
-  --volume qm1data:/mnt/mqm    \
-  --env LICENSE=accept         \
-  --env MQ_QMGR_NAME=QM1       \
-  --env MQ_APP_PASSWORD=admin  \
-  --env MQ_ENABLE_METRICS=true \
-  ibmcom/mq
+9 MQSC commands read.
+No commands have a syntax error.
+One valid MQSC command could not be processed.
 ```
 
-You should be able to log into the MQ server on port 9443 with default user `admin` and password `passw0rd`.
-
-Connect to the running MQ instance to create a Channel and Queue as described on the [Using IBM MQ with Kafka Connect](https://github.com/ibm-messaging/kafka-connect-mq-sink/blob/master/UsingMQwithKafkaConnect.md) page.
+Exit the container by executing:
 
 ```shell
-docker exec -ti mq bash
-strmqm QM1
-runmqsc QM1
-DEFINE CHANNEL(KAFKA.CHANNEL) CHLTYPE(SVRCONN)
-SET CHLAUTH(KAFKA.CHANNEL) TYPE(BLOCKUSER) USERLIST('nobody')
-SET CHLAUTH('*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS)
-SET CHLAUTH(KAFKA.CHANNEL) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
-ALTER AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS) AUTHTYPE(IDPWOS) ADOPTCTX(YES)
-REFRESH SECURITY TYPE(CONNAUTH)
-DEFINE QLOCAL(INVENTORY)
-SET AUTHREC OBJTYPE(QMGR) PRINCIPAL('admin') AUTHADD(CONNECT,INQ)
-SET AUTHREC PROFILE(INVENTORY) OBJTYPE(QUEUE) PRINCIPAL('admin') AUTHADD(ALLMQI)
-END
+exit
 ```
 
-Exit the session and continue on to create the MQ Connector Sink.
+If you check your IBM MQ dashboard you should see your newly created `INVENTORY` queue:
+
+  ![inventory](./images/inventory_queue.png)
 
 ### Create MQ Kafka Connector Sink
 
-The MQ Connector Sink can be downloaded from [Github](https://github.com/ibm-messaging/kafka-connect-mq-sink).  The Github site includes exhaustive instructions and an abridged version follows.
+The MQ Connector Sink can be downloaded from this [Github](https://github.com/ibm-messaging/kafka-connect-mq-sink). The Github site includes exhaustive instructions for further detail on this connector and its usage.
 
-Clone the repository with the following command:
+1. Clone the repository with the following command:
 
-`git clone https://github.com/ibm-messaging/kafka-connect-mq-sink.git`
+  ```shell
+  git clone https://github.com/ibm-messaging/kafka-connect-mq-sink.git
+  ```
 
-Change directory into the kafka-connect-mq-sink directory:
+1. Change directory into the `kafka-connect-mq-sink` directory:
 
-`cd kafka-connect-mq-sink`
+  ```shell
+  cd kafka-connect-mq-sink
+  ```
 
-Build the connector using Maven:
+1. Build the connector using Maven:
 
-`mvn clean package`
+  ```shell
+  mvn clean package
+  ```
 
-Next, create a directory to contain the Kafka Connector configuration.
+1. Create a directory (if it does not exist yet) to contain the Kafka Connect framework configuration and cd into it.
 
-`mkdir config && cd config`
+  ```shell
+  mkdir config
+  cd config
+  ```
 
-Create a configuration file called `connect-distributed.properties` for Kafka Connect based on the template below.
+1. Create a configuration file called `connect-distributed.properties` for the Kafka Connect framework with the following properties in it:
 
-```properties
-# A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
-bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
-ssl.enabled.protocols=TLSv1.2
-ssl.protocol=TLS
-security.protocol=SASL_SSL
-sasl.mechanism=PLAIN
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="bA ... Qp";
+  ```properties
+  # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+  bootstrap.servers=REPLACE_WITH_YOUR_BOOTSTRAP_URL
+  ssl.enabled.protocols=TLSv1.2
+  ssl.protocol=TLS
+  ssl.truststore.location=/opt/kafka/config/es-cert.p12
+  ssl.truststore.password=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD
+  ssl.truststore.type=PKCS12
+  security.protocol=SASL_SSL
+  sasl.mechanism=SCRAM-SHA-512
+  sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="REPLACE_WITH_YOUR_SCRAM_USERNAME" password="REPLACE_WITH_YOUR_SCRAM_PASSWORD";
 
-# Consumer side configuration
-consumer.bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
-consumer.security.protocol=SASL_SSL
-consumer.ssl.protocol=TLSv1.2
-consumer.sasl.mechanism=PLAIN
-consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="bA ... Qp";
+  # Consumer side configuration
+  consumer.bootstrap.servers=REPLACE_WITH_YOUR_BOOTSTRAP_URL
+  consumer.security.protocol=SASL_SSL
+  consumer.ssl.protocol=TLSv1.2
+  consumer.ssl.truststore.location=/opt/kafka/config/es-cert.p12
+  consumer.ssl.truststore.password=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD
+  consumer.ssl.truststore.type=PKCS12
+  consumer.sasl.mechanism=SCRAM-SHA-512
+  consumer.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="REPLACE_WITH_YOUR_SCRAM_USERNAME" password="REPLACE_WITH_YOUR_SCRAM_PASSWORD";
 
-# Producer Side
-producer.security.protocol=SASL_SSL
-producer.ssl.protocol=TLSv1.2
-producer.sasl.mechanism=PLAIN
-producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="token" password="bA ... Qp";
-producer.bootstrap.servers=broker-1- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-0- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-4- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-2- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-5- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093,broker-3- ... kafka.svc01.us-east.eventstreams.cloud.ibm.com:9093
+  # Producer Side
+  producer.bootstrap.servers=REPLACE_WITH_YOUR_BOOTSTRAP_URL
+  producer.security.protocol=SASL_SSL
+  producer.ssl.protocol=TLSv1.2
+  producer.ssl.truststore.location=/opt/kafka/config/es-cert.p12
+  producer.ssl.truststore.password=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD
+  producer.ssl.truststore.type=PKCS12
+  producer.sasl.mechanism=SCRAM-SHA-512
+  producer.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="REPLACE_WITH_YOUR_SCRAM_USERNAME" password="REPLACE_WITH_YOUR_SCRAM_PASSWORD";
+
+  plugin.path=/opt/kafka/libs
+
+  # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
+  group.id=mq-sink-cluster
+
+  # The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
+  # need to configure these based on the format they want their data in when loaded from or stored into Kafka
+  key.converter=org.apache.kafka.connect.json.JsonConverter
+  value.converter=org.apache.kafka.connect.json.JsonConverter
+  # Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply
+  # it to
+  key.converter.schemas.enable=true
+  value.converter.schemas.enable=true
+
+  # Topic to use for storing offsets. T
+  offset.storage.topic=connect-offsets
+  offset.storage.replication.factor=3
+  #offset.storage.partitions=25
+
+  # Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated, and compacted topic.
+  config.storage.topic=connect-configs
+  config.storage.replication.factor=3
+
+  # Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
+  status.storage.topic=connect-status
+  status.storage.replication.factor=3
+  status.storage.partitions=5
+
+  # Flush much faster than normal, which is useful for testing/debugging
+  offset.flush.interval.ms=10000
+  ```
+
+  **IMPORTANT:** You must replace **all occurences** of the following placeholders in the properties file above with the appropriate values for the Kafka Connect framework to work with your IBM Event Streams instance:
+    * `REPLACE_WITH_YOUR_BOOTSTRAP_URL`: Your IBM Event Streams bootstrap url.
+    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD`: Your PCKS12 TLS certificate password.
+    * `REPLACE_WITH_YOUR_SCRAM_USERNAME`: Your SCRAM service credentials username.
+    * `REPLACE_WITH_YOUR_SCRAM_PASSWORD`: Your SCRAM service credentials password.
+  
+  Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
+
+1. Download the IBM Event Streams TLS certificate so that your Kafka Connect framework local instance can establish secure communication with your IBM Event Streams instance. **IMPORTANT:** download the PKCS12 certificate. How to get the certificate in the [Common pre-requisites](/use-cases/overview/pre-requisites/) section. 
+
+1. Create a log4j configuration file named `connect-log4j.properties` based on the template below.
+
+  ```properties
+  log4j.rootLogger=DEBUG, stdout
+
+  log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+  log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+  log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c:%L)%n
+
+  log4j.logger.org.apache.kafka=INFO
+  ```
+
+1. Back out of the `config` directory to the `kafka-connect-mq-sink` directory:
+
+  ```shell
+  cd ..
+  ```
+
+2. Build the Docker image for your Kafka Connect framework that will contain the IBM MQ Sink connector and all the properties files you have created and tailored earlier so that your Kafka Connect framework can work with your IBM Event Streams instance we have set up previously in this exercise (_mind the dot at the end of the command. It is necessary_):
+
+  ```shell
+  docker build -t kafkaconnect-with-mq-sink:1.3.0 .
+  ```
+
+1. Run the Kafka Connect MQ Sink container.
+
+  ```
+  docker run                                 \
+    --name mq-sink                           \
+    --detach                                 \
+    --volume $(pwd)/config:/opt/kafka/config \
+    --publish 8083:8083                      \
+    --link mq:mq                             \
+    kafkaconnect-with-mq-sink:1.3.0
+  ```
+
+1. Now that we have a Kafka Connect framework running with the configuration to connect to our IBM Event Streams instance and the IBM MQ Sink Connector jar file in it, is to create a JSON file called `mq-sink.json` to startup an instance of the IBM MQ Sink connector in our Kafka Connect framework with the appropriate config to work read messages from the IBM Event Streams topic we desire and sink those to the IBM MQ instance we have running locally. **IMPORTANT:** If you are sharing your IBM Event Streams instance and followed the instructions on this readme, you should have appended a unique identifier to the name of the topic (`inventory`) that you are meant to create in IBM Event Streams. As a result, modify the line `"topics": "inventory"` in the following JSON object accordignly.
+
+   ```json
+   {
+      "name": "mq-sink",
+      "config":
+      {
+          "connector.class": "com.ibm.eventstreams.connect.mqsink.MQSinkConnector",
+          "tasks.max": "1",
+          "topics": "inventory",
+
+          "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+          "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+
+          "mq.queue.manager": "QM1",
+          "mq.connection.name.list": "mq(1414)",
+          "mq.user.name": "admin",
+          "mq.password": "passw0rd",
+          "mq.user.authentication.mqcsp": true,
+          "mq.channel.name": "KAFKA.CHANNEL",
+          "mq.queue": "INVENTORY",
+          "mq.message.builder": "com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder"
+      }
+   }
+   ```
+
+1. Last piece of the puzzle is to tell our Kafka Connect framework to create and startup the IBM MQ Sink connector based on the configuration we have in the previous json file. To do so, execute the following `POST` request.
+
+  ```Shell
+  curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors   --data "@./mq-sink.json"
+
+  # The response returns the metadata about the connector
+  {"name":"mq-sink","config":{"connector.class":"com.ibm.eventstreams.connect.mqsink.MQSinkConnector","tasks.max":"1","topics":"inventory","key.converter":"org.apache.kafka.connect.storage.StringConverter","value.converter":"org.apache.kafka.connect.storage.StringConverter","mq.queue.manager":"QM1","mq.connection.name.list":"ibmmq(1414)","mq.user.name":"admin","mq.password":"passw0rd","mq.user.authentication.mqcsp":"true","mq.channel.name":"KAFKA.CHANNEL","mq.queue":"INVENTORY","mq.message.builder":"com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder","name":"mq-sink"},"tasks":[{"connector":"mq-sink","task":0}],"type":"sink"}
+  ```
+
+1. You can query your Kafka Connect framework to make sure of this. Execute the following command that should return all the connectors up and running in your Kafka Connect cluster.
+
+  ```shell
+  curl localhost:8083/connectors
+  ["mq-sink"]
+  ```
+
+You should now have a working MQ Sink connector getting messages from your topic in IBM Event Streams and sending these to your local IBM MQ instance. In order to check that out working, we first need to send few messages to that IBM Event Streams topic and then check out our `INVENTORY` queue in our local IBM MQ instance.
+
+1. In order to send messages to IBM Event Streams, we are going to use the IBM Event Streams Starter application. You can find the instruction either in the IBM Event Streams official documentation [here] or on the IBM Event Streams dashboard:
+
+  ![starter](./images/starter-app.png)
+
+1. Follow the instructions to run the IBM Event Streams starter application from your workstation. **IMPORTANT:** When generating the properties for your IBM Event Streams starter application, please choose to connect to an existing topic and select the topic you created previously as part of this exercise so that the messages we send into IBM Event Streams end up in the appropriate topic that is being monitored by your IBM MQ Sink connector runnning on the Kafka Connect framework.
+
+  ![starter-config](./images/starter-config.png)
+
+1. Once you have your application running, open it up in your web browser, click on `Start producing`, let the application produce a couple of messages and then click on `Stop producing`
+
+  ![starter-messages](./images/starter-messages.png)
+
+1. Check out your those messages got into the Kafka topic
+
+  ![kafka-messages](./images/kafka-messages.png)
+
+1. Check out your messages in the Kafka topic have already reached your `INVENTORY` queue in your local IBM MQ instance
+
+  ![mq-messages](./images/mq-message.png)
 
 
-plugin.path=/opt/kafka/libs
+1. You could also inspect the logs of your Kafka Connect Docker container running on your workstation:
 
-# unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
-group.id=mq-sink-cluster
+  ```shell
+  docker logs mq-sink
+  ...
+  [2021-01-19 19:44:17,110] DEBUG Putting record for topic inventory, partition 0 and offset 0 (com.ibm.eventstreams.connect.mqsink.MQSinkTask:89)
+  [2021-01-19 19:44:17,110] DEBUG Value schema Schema{STRING} (com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder:60)
+  [2021-01-19 19:44:18,292] DEBUG Flushing up to topic inventory, partition 0 and offset 1 (com.ibm.eventstreams.connect.mqsink.MQSinkTask:110)
+  [2021-01-19 19:44:18,292] INFO WorkerSinkTask{id=mq-sink-0} Committing offsets asynchronously using sequence number 636: {inventory-0=OffsetAndMetadata{offset=1, leaderEpoch=null, metadata=''}} (org.apache.kafka.connect.runtime.WorkerSinkTask:346)
+  [2021-01-19 19:44:18,711] DEBUG Putting record for topic inventory, partition 0 and offset 1 (com.ibm.eventstreams.connect.mqsink.MQSinkTask:89)
+  [2021-01-19 19:44:18,711] DEBUG Value schema Schema{STRING} (com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder:60)
+  [2021-01-19 19:44:20,674] DEBUG Putting record for topic inventory, partition 0 and offset 2 (com.ibm.eventstreams.connect.mqsink.MQSinkTask:89)
+  [2021-01-19 19:44:20,675] DEBUG Value schema Schema{STRING} (com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder:60)
+  [2021-01-19 19:44:28,293] DEBUG Flushing up to topic inventory, partition 0 and offset 3 (com.ibm.eventstreams.connect.mqsink.MQSinkTask:110)
+  [2021-01-19 19:44:28,293] INFO WorkerSinkTask{id=mq-sink-0} Committing offsets asynchronously using sequence number 637: {inventory-0=OffsetAndMetadata{offset=3, leaderEpoch=null, metadata=''}} (org.apache.kafka.connect.runtime.WorkerSinkTask:346)
+  [2021-01-19 19:44:38,296] DEBUG Flushing up to topic inventory, partition 0 and offset 3 (com.ibm.eventstreams.connect.mqsink.MQSinkTask:110)
+  ```
 
-# The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
-# need to configure these based on the format they want their data in when loaded from or stored into Kafka
-key.converter=org.apache.kafka.connect.json.JsonConverter
-value.converter=org.apache.kafka.connect.json.JsonConverter
-# Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply
-# it to
-key.converter.schemas.enable=true
-value.converter.schemas.enable=true
+To cleanup your environment, you can do
 
-# Topic to use for storing offsets. T
-offset.storage.topic=connect-offsets
-offset.storage.replication.factor=3
-#offset.storage.partitions=25
+1. Remove the connector from your Kafka Connect framework instance (this isn't really needed if you are going to stop and remove the Kafka Connect Docker container)
 
-# Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated, and compacted topic.
-config.storage.topic=connect-configs
-config.storage.replication.factor=3
+  ```shell
+  curl -X DELETE http://localhost:8083/connectors/mq-sink
+  ```
 
-# Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
-status.storage.topic=connect-status
-status.storage.replication.factor=3
-status.storage.partitions=5
+1. Stop both IBM MQ and Kakfa Connect Docker containers running on your workstation
 
-# Flush much faster than normal, which is useful for testing/debugging
-offset.flush.interval.ms=10000
-```
+  ```shell
+  docker stop mq mq-sink
+  ```
 
-Save this file in the `config` directory.
+1. Remove both IBM MQ and Kakfa Connect Docker containers from your workstation
 
-Next, create a log4j configuration file named `connect-log4j.properties` based on the template below.
-
-```properties
-log4j.rootLogger=DEBUG, stdout
-
-log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
-log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c:%L)%n
-
-log4j.logger.org.apache.kafka=INFO
-```
-
-Save this file to the `config` directory as well.
-
-Finally, create a JSON configuraiton file for the MQ sink.  This can be stored anywhere but it can be conveniently created in the `config` directory.  We name this file `mq-sink.json`.
-
-```json
-{
-    "name": "mq-sink",
-    "config":
-    {
-        "connector.class": "com.ibm.eventstreams.connect.mqsink.MQSinkConnector",
-        "tasks.max": "1",
-        "topics": "inventory",
-
-        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-        "value.converter": "org.apache.kafka.connect.storage.StringConverter",
-
-        "mq.queue.manager": "QM1",
-        "mq.connection.name.list": "mq(1414)",
-        "mq.user.name": "admin",
-        "mq.password": "passw0rd",
-        "mq.user.authentication.mqcsp": true,
-        "mq.channel.name": "KAFKA.CHANNEL",
-        "mq.queue": "INVENTORY",
-        "mq.message.builder": "com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder"
-    }
-}
-```
-
-Back out one directory to the `kafka-connect-mq-sink` directory.
-
-`cd ..`
-
-Build docker image
-`docker build -t kafkaconnect-with-mq-sink:1.3.0 .`
-
-Finally, run the Kafka Connect MQ Sink container.
-
-```
-docker run                                 \
-  --name mq-sink                           \
-  --detach                                 \
-  --volume $(pwd)/config:/opt/kafka/config \
-  --publish 8083:8083                      \
-  --link mq:mq                             \
-  kafkaconnect-with-mq-sink:1.3.0
-```
-
-You should now have a working MQ sink.
-
-As an alternate approach, when you have a Kafka Connect isntance up and running, with the dependant jar files, it is possible to configure the connector with a POST operation like:
-
-```Shell
-curl -X POST -H "Content-Type: application/json" http://localhost:8083/connectors   --data "@./mq-sink.json"
-
-# The response returns the metadata about the connector
-{"name":"mq-sink","config":{"connector.class":"com.ibm.eventstreams.connect.mqsink.MQSinkConnector","tasks.max":"1","topics":"inventory","key.converter":"org.apache.kafka.connect.storage.StringConverter","value.converter":"org.apache.kafka.connect.storage.StringConverter","mq.queue.manager":"QM1","mq.connection.name.list":"ibmmq(1414)","mq.user.name":"admin","mq.password":"passw0rd","mq.user.authentication.mqcsp":"true","mq.channel.name":"KAFKA.CHANNEL","mq.queue":"INVENTORY","mq.message.builder":"com.ibm.eventstreams.connect.mqsink.builders.DefaultMessageBuilder","name":"mq-sink"},"tasks":[{"connector":"mq-sink","task":0}],"type":"sink"}
-```
-
-Once the connector is up and running, we can use some tool to send inventory message. In the `integration-tests` folder we have some python code to produce message. If you have a python environment with kafka api you can use yours, or we have also provided a Dockerfile to prepare a local python environment, which will not impact yours.
-
-```shell
-# if you change the name of the image
-docker build -t ibmcase/python37 .
-# ... then update the script ./startPython.sh
-./startPython.sh
-# Now in the new bash session you should see ProduceInventoryEvent.py,... start it by sending 2 events
-python ProduceInventoryEvent.py --size 2
-# Events are random but use stores and items known by the database downstream.
- sending -> {'storeName': 'NYC01', 'itemCode': 'IT06', 'quantity': 15, 'price': 163, 'id': 1, 'timestamp': '23-Jun-2020 04:32:38'}
-# the following trace demonstrates Kafka received the message
-[KafkaProducer] - Message delivered to inventory [0]
-sending -> {'storeName': 'SC01', 'itemCode': 'IT06', 'quantity': 15, 'price': 178, 'id': 2, 'timestamp': '23-Jun-2020 04:32:38'}
-[KafkaProducer] - Message delivered to inventory [0]
-```
-
-In the Kafka Connect trace we can see:
-
-```shell
-kconnect_1  | [2020-06-23 04:23:16,270] INFO WorkerSinkTask{id=mq-sink-0} Committing offsets asynchronously using sequence number 26: {inventory-0=OffsetAndMetadata{offset=44, leaderEpoch=null, metadata=''}} (org.apache.kafka.connect.runtime.WorkerSinkTask:349)
-kconnect_1  | [2020-06-23 04:32:46,382] INFO WorkerSinkTask{id=mq-sink-0} Committing offsets asynchronously using sequence number 83: {inventory-0=OffsetAndMetadata{offset=48, leaderEpoch=null, metadata=''}} (org.apache.kafka.connect.runtime.WorkerSinkTask:349)
-```
-
-And in the IBM MQ Console, under the Local Queue: Inventory we can see the messages:
-
-![](./images/ibmq-q-inventory.png)
-
-To remove the connector do the following command. Do this specially if you go to scenario 2 next.
-
-```shell
-curl -X DELETE http://localhost:8083/connectors/mq-sink
-```
+  ```shell
+  docker rm mq mq-sink
+  ```
