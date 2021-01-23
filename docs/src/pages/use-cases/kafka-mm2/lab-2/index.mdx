@@ -4,150 +4,201 @@ description: Using Mirror Maker 2 from Event Streams on OpenShift to local clust
 ---
 
 <AnchorLinks>
+  <AnchorLink>Scenario Prerequisites</AnchorLink>
   <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Pre-requisites</AnchorLink>
+  <AnchorLink>Start Strimzi Kafka Cluster</AnchorLink>
   <AnchorLink>Start Mirror Maker 2</AnchorLink>
   <AnchorLink>Start Consumer from target cluster</AnchorLink>
   <AnchorLink>Start Producer to source cluster</AnchorLink>
   <AnchorLink>Clean up</AnchorLink>
 </AnchorLinks>
 
-Updated 01/08/2021
+Updated 01/22/2021
 
 ## Overview
 
-For this scenario the source cluster is an Event Streams on OpenShift, and the target cluster is another Kafka cluster (using strimzi) running locally. Mirror Maker 2 runs on local server in same data center as target cluster. (Your laptop is promoted as data center). This lab is similar to the lab 1, but it instead uses the Event Streams within Cloud Pak for Integration as illustrated in the figure below:
+For this scenario, the source cluster will be an IBM Event Streams instance on OpenShift and the target cluster will be another Kafka cluster (using [Strimzi](https://strimzi.io/)) running locally on your workstation. Mirror Maker 2 will also run locally on your workstation. This lab is similar to the previous [Lab 1](/use-cases/kafka-mm2/lab-1/), but instead it uses IBM Event Streams within the Cloud Pak for Integration as illustrated in the figure below:
 
  ![1](../images/mm2-lab2.png)
 
- 1. Mirror Maker 2 runs on local server.
- 2. A producer in python to send records to `products` topic, will run locally or could be deployed on OpenShift as a **job**
- 3. Local Kafka cluster with replicated topic and Kafka console consumer to see the replicated messages.
+ 1. Mirror Maker 2 runs locally on your workstation.
+ 2. A producer to send records to the `products` topic that also runs locally although it could be deployed on OpenShift as a **job** as well.
+ 3. A Kafka cluster running locally on your workstation that will contain the replicated topic and a Kafka console consumer to see the replicated messages.
 
-## Pre-requisites
+## Scenario Prerequisites
 
-You need to have one instance of Event Streams installed and configured using Cloud Pak for Integration. See the [product documentation for installation](https://ibm.github.io/event-streams/installing/installing/)
+* An IBM Event Streams instance running on OpenShift. See [here](https://ibm.github.io/event-streams/installing/installing/) for more detail about installing IBM Event Streams.
+* Docker Compose
+* Git CLI
 
-We need to define the `products` topic on the source cluster (Event Streams on CP4I) and get the authentication credentials and TLS certificates.
+Complete the following steps in order to get ready for executing this lab scenario
 
-* Login to the OpenShift cluster using the console and get the API token
+1. Create the `products` topic in your IBM Event Streams instance running on OpenShift. **IMPORTANT:** Create the topic with just **1 partition**. To do so, please review the instructions in the Common pre-requisites of this website [here](/use-cases/overview/pre-requisites#create-event-streams-topics). **IMPORTANT:** If you are sharing the IBM Event Streams instance, append a unique identifier to the `products` topic name so that you don't collide with anyone else.
 
- ```shell
- oc login --token=L0.... --server=https://api.eda-solutions.gse-ocp.net:6443
- ```
+1. If you did not complete [Lab 1](/use-cases/kafka-mm2/lab-1/), clone the following GitHub repository to your local workstation to get the Mirror Maker 2 configuration files for this lab:
 
-* If not done from lab 1, clone the github to get access to the Mirror Maker 2 configuration we are using:
+  ```shell
+  git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
+  ```
 
- ```shell
- git clone https://github.com/ibm-cloud-architecture/refarch-eda-tools
- ```
+1. Change directory into `refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local`
 
-* Verify the Event Streams on OpenShift service external end point URL. This URL will be used to configure Mirror Maker 2. 
+  ```shell
+  cd refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local
+  ```
 
- ```shell
- # Be sure to be in the project where eventstreams runs. The following command may be different.
- oc project eventstreams
- # Use the bootstrap internal URL: light-es is the name of the cluster
- oc get route | grep bootstrap
+1. Rename the `.env-tmpl` properties file to `.env`
 
- # The URL is something like
- light-es-kafka-bootstrap-eventstreams.gse-eda-2020-10-3-0143c5dd31acd8e030a1d6e0ab1380e3-0000.us-east.containers.appdomain.cloud 
- ```
+  ```shell
+  mv .env-tmpl .env
+  ```
 
-* Rename the `.env-tmpl` file to `.env`. Then edit this `.env` file, with the bootstrap URL and the port 443 at the end: `light-es-kafka-bootstrap-eventstreams.gse-eda-2020-10-3-0143c5dd31acd8e030a1d6e0ab1380e3-0000.us-east.containers.appdomain.cloud:443`.
-* Get a user with write access to topic, group and transactions. You can use the Event Streams Console User Interface to define this user,  with the `Create SCRAM credential` on the internal URL panel. See [this section](/use-cases/overview/pre-requisites#getting-scram-authentication-from-event-streams-on-openshift) for detail.
+1. Download the IBM Event Streams TLS certificate so that your Kafka Connect framework local instance can establish secure communication with your IBM Event Streams instance. **IMPORTANT:** download the PKCS12 certificate. How to get the certificate in the [Common pre-requisites](/use-cases/overview/pre-requisites/) section. 
 
- ```shell
-  oc get kafkausers
+1. The `.env` properties file will contain the properties needed for Mirror Maker 2 to be able to connect with your IBM Event Streams instance running on Openshift. Therefore, replace the following placeholder in the properties file:
 
- # NAME                                    CLUSTER       AUTHENTICATION   AUTHORIZATION
- # light-es-ibm-es-ac-reg                  light-es      scram-sha-512    
- # light-es-ibm-es-georep-source-user      light-es      scram-sha-512    simple
- # light-es-ibm-es-kafka-user              light-es      tls   
- # starter                                 light-es      scram-sha-512           
- ```
+    * `REPLACE_WITH_YOUR_BOOTSTRAP_URL`: Your IBM Event Streams bootstrap url.
+    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD`: Your PCKS12 TLS certificate password.
+    * `REPLACE_WITH_YOUR_SCRAM_USERNAME`: Your SCRAM service credentials username.
+    * `REPLACE_WITH_YOUR_SCRAM_PASSWORD`: Your SCRAM service credentials password.
+    * `REPLACE_WITH_YOUR_TOPIC`: Name of the topic you created above.
+  
+  Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
 
-Modify the `.env` file to set the `ES_OCP_USER` variable with your selected user.
 
-## Start the local Kafka cluster
+## Start Strimzi Kafka Cluster
 
-In the `refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local` folder there is a [docker compose file](https://raw.githubusercontent.com/refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local/master/docker-compose.yml) to start a local three brokers cluster with one Zookeeper node.
+In this section, we are going to deploy and start a local [Strimzi Kafka cluster](https://strimzi.io/) which will act as your target cluster for Mirror Maker 2 to mirror the messages getting into the `products` topic in your IBM Event Streams instance to. In order to deploy this local Strimzi Kafka cluster, we are providing a [Docker Compose](https://docs.docker.com/compose/) file that will coordinate the startup of all the components in this Strimzi Kafka cluster.
 
-1. In one Terminal window, start the local cluster using the command:
+1. Make sure you are in `refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local`.
 
-```shell
-docker-compose up -d
-```
+1. Execute the following command
 
-The data are persisted on the local disk within the folder named `kafka-data`.
+  ```shell
+  docker-compose up -d
+  ```
 
-Your local environment is up and running.
+1. The above command should start all the components in `detached` mode (`-d`) and you should see the following output:
+
+  ```shell
+  Creating zookeeper1 ... done
+  Creating kafka1     ... done
+  Creating kafka2     ... done
+  Creating kafka3     ... done
+  ```
+
+1. You should see the following Docker containers running on your workstation at the moment
+
+  ```shell
+  docker ps
+  CONTAINER ID   IMAGE                              COMMAND                  CREATED         STATUS         PORTS                                              NAMES
+  1981f1913ab6   strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/kafka-se…"   2 minutes ago   Up 2 minutes   0.0.0.0:9093->9093/tcp, 0.0.0.0:29093->29093/tcp   kafka3
+  5f8fd3e80406   strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/kafka-se…"   2 minutes ago   Up 2 minutes   0.0.0.0:9091->9091/tcp, 0.0.0.0:29091->29091/tcp   kafka1
+  b19a05bd74dd   strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/kafka-se…"   2 minutes ago   Up 2 minutes   0.0.0.0:9092->9092/tcp, 0.0.0.0:29092->29092/tcp   kafka2
+  93f500c8517a   strimzi/kafka:latest-kafka-2.6.0   "sh -c 'bin/zookeepe…"   2 minutes ago   Up 2 minutes   0.0.0.0:2181->2181/tcp                             zookeeper1
+  ```
 
 ## Start Mirror Maker 2
 
-* If not done already, create a `products` topic (with one partition) in the EventStreams cluster using the management console. See [this note](/use-cases/overview/pre-requisites#creating-event-streams-topics) to see how to do this operation.
-* As done in lab_1 the launch script will configure Mirror Maker 2 in standalone mode with the properties specific to the SCRAM authentication with TLS certificates.
+In this section we are going to go through the steps to get Mirror Maker 2 running locally on your workstation and configure it so that it replicates the messages from the `products` topic in your IBM Event Streams instance running on OpenShift to the local Strimzi Kafka cluster you deployed in the previous section as the target for those messages.
 
-    ```properties
-    es-cp4i.ssl.protocol=TLSv1.2
-    es-cp4i.ssl.truststore.password=<>
-    es-cp4i.ssl.truststore.location=/home/es-cert.p12
-    es-cp4i.ssl.truststore.type=PKCS12
-    es-cp4i.security.protocol=SASL_SSL
-    es-cp4i.ssl.endpoint.identification.algorithm=https
-    es-cp4i.sasl.mechanism=SCRAM-SHA-512
-    es-cp4i.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username=starter password=<>;
+1. Make sure you are in `refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local` and you have done all steps in the [Scenario Prerequisites](#scenario-prerequisites) section.
 
-    ```
- 
-* Start Mirror Maker2 using the launch script:
+1. Start your local Mirror Maker 2 instance by executing the following bash script.
 
-    ```shell
-    # In the  es-ic-to-local folder
-    ./launchMM2.sh
-    ```
+  ```shell
+  ./launchMM2.sh
+  ```
 
+1. After quite some long output on your screen, you should see the following messages with the name of your topic.
+
+  ```shell
+  INFO [Consumer clientId=consumer-null-14, groupId=null] Subscribed to partition(s): products-0 (org.apache.kafka.clients.consumer.KafkaConsumer:1120)
+  INFO Starting with 1 previously uncommitted partitions. (org.apache.kafka.connect.mirror.MirrorSourceTask:94)
+  INFO [Consumer clientId=consumer-null-14, groupId=null] Seeking to offset 0 for partition products-0 (org.apache.kafka.clients.consumer.KafkaConsumer:1596)
+  INFO [Consumer clientId=consumer-null-15, groupId=null] Subscribed to partition(s): heartbeats-0 (org.apache.kafka.clients.consumer.KafkaConsumer:1120)
+  INFO task-thread-MirrorSourceConnector-0 replicating 1 topic-partitions es-cp4i->target: [products-0]. (org.apache.kafka.connect.mirror.MirrorSourceTask:98)
+  INFO WorkerSourceTask{id=MirrorSourceConnector-0} Source task finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:233)
+  INFO Starting with 1 previously uncommitted partitions. (org.apache.kafka.connect.mirror.MirrorSourceTask:94)
+  INFO [Consumer clientId=consumer-null-15, groupId=null] Seeking to offset 0 for partition heartbeats-0 (org.apache.kafka.clients.consumer.KafkaConsumer:1596)
+  INFO task-thread-MirrorSourceConnector-1 replicating 1 topic-partitions es-cp4i->target: [heartbeats-0]. (org.apache.kafka.connect.mirror.MirrorSourceTask:98)
+  INFO WorkerSourceTask{id=MirrorSourceConnector-1} Source task finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:233)
+  ```
 
 ## Start consumer from target cluster
 
-Use Apache Kafka tool like Console consumer to trace the message received on a topic
+In this section, we are going to start a consumer to consume messages from the target cluster (your local Strimzi Kafka cluster) to make sure we receive mirrored messages from your source cluster (your IBM Event Streams instance running on OpenShift). We are going to use a couple of Apache Kafka tools comming with the open source Strimzi Kafka Docker image you already have running.
 
-```shell
-docker exec -ti kafka2 bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka1:9091 --topic es-cp4i.products --from-beginning" 
-```
+1. Make sure your target mirrored topic has been created executing the following command on a new terminal window.
 
+  ```shell
+  docker exec kafka2 bash -c "/opt/kafka/bin/kafka-topics.sh --list --bootstrap-server kafka1:9091" 
+
+  __consumer_offsets
+  es-cp4i.checkpoints.internal
+  es-cp4i.heartbeats
+  es-cp4i.products
+  heartbeats
+  mm2-configs.es-cp4i.internal
+  mm2-offsets.es-cp4i.internal
+  mm2-status.es-cp4i.internal
+  ```
+
+  You should see a topic called `es-cp4i.YOUR_TOPIC` where `YOUR_TOPIC` should be the name of the topic you created before in the [Scenario Prerequisites](#scenario-prerequisites) section.
+
+1. Now, execute the following command replacing the `TOPIC_NAME` placeholder with the name of the topic you verified above (`ex-cp4i.YOUR_TOPIC`)
+
+  ```shell
+  docker exec -ti kafka2 bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka1:9091 --topic TOPIC_NAME --from-beginning" 
+  ```
 
 ## Start Producer to source cluster
 
-As seen in lab 1, we will use the same python script to create products records. This time the script is producing products data to Event Streams on OpenShift. So we need the URL, pem, and user to access this cluster.
+In this section we are going to finally send events to the `products` topic in your IBM Event streams instance which is our source cluster and then verify those messages get mirrored by Mirror Maker 2 into your local Strimzi Kafka cluster which is the target cluster. We are going to use a shell script which will riun a python application to send the messages to the source cluster.
 
+1. Since the application sending the messages to the source cluster is not a Java application, we will first need to download the `PEM` TLS certificate to allow the secure connection from the python application sending the messages to IBM Event Streams. Make sure you are in the `refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local` directory.  Download the `PEM` TLS certificate there. Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't remember how to download the certificate.
 
-* If not done before download the pem file using the following CLI commands:
-
- ```shell
- cloudctl login -a https://cp-console.apps.eda-solutions.gse-ocp.net --skip-ssl-validation
- cloudctl es init
- # select the event stream cluster
- cloudctl es certificates --format pem
- ```
-
- save this `.pem` file under `mirror-maker2/es-cpri-to-local` folder.
-
- Now send five records:
+1. Now we are going to send five records. In a new terminal window, make sure you are in the `refarch-eda-tools/labs/mirror-maker2/es-cp4i-to-local` directory and execute the following bash script.
  
- ```shell
- 
- ./sendProductRecords.sh
- ```
+  ```shell
+  ./sendProductRecords.sh
+  ```
 
- * Going to the Event Streams Console we can see the message in the `products` topic.
+1. You should see the following output indicating your messages have been delivered to the source cluster topic
 
-![](../images/es-products-topic.png)
+  ```shell
+  --- This is the configuration for the producer: ---
+  [KafkaProducer] - {'bootstrap.servers': 'kafka-bootstrap-integration.apps.net:443', 'group.id': 'ProductsProducer', 'delivery.timeout.ms': 15000, 'request.timeout.ms': 15000, 'security.protocol': 'SASL_SSL', 'sasl.mechanisms': 'SCRAM-SHA-512', 'sasl.username': 'test_user', 'sasl.password': '******', 'ssl.ca.location': '/home/es-cp4i-to-local/es-cert.pem'}
+  ---------------------------------------------------
+  {'product_id': 'P01', 'description': 'Carrots', 'target_temperature': 4, 'target_humidity_level': 0.4, 'content_type': 1}
+  {'product_id': 'P02', 'description': 'Banana', 'target_temperature': 6, 'target_humidity_level': 0.6, 'content_type': 2}
+  {'product_id': 'P03', 'description': 'Salad', 'target_temperature': 4, 'target_humidity_level': 0.4, 'content_type': 1}
+  {'product_id': 'P04', 'description': 'Avocado', 'target_temperature': 6, 'target_humidity_level': 0.4, 'content_type': 1}
+  {'product_id': 'P05', 'description': 'Tomato', 'target_temperature': 4, 'target_humidity_level': 0.4, 'content_type': 2}
+  [KafkaProducer] - Message delivered to products [0]
+  [KafkaProducer] - Message delivered to products [0]
+  [KafkaProducer] - Message delivered to products [0]
+  [KafkaProducer] - Message delivered to products [0]
+  [KafkaProducer] - Message delivered to products [0]
+  ```
 
+1. If you go to the IBM Event Streams console, you should also see those messages in the topic
+
+  ![](../images/es-products-topic.png)
+
+1. Finally, you should see the mirrored messages in the consumer you started to monitor the replicated topic in the target local Strimzi cluster
+
+  ```shell
+  {"product_id": "P01", "description": "Carrots", "target_temperature": 4, "target_humidity_level": 0.4, "content_type": 1}
+  {"product_id": "P02", "description": "Banana", "target_temperature": 6, "target_humidity_level": 0.6, "content_type": 2}
+  {"product_id": "P03", "description": "Salad", "target_temperature": 4, "target_humidity_level": 0.4, "content_type": 1}
+  {"product_id": "P04", "description": "Avocado", "target_temperature": 6, "target_humidity_level": 0.4, "content_type": 1}
+  {"product_id": "P05", "description": "Tomato", "target_temperature": 4, "target_humidity_level": 0.4, "content_type": 2}
+  ```
 
 ## Clean up
 
-You are done with the lab, to stop everything:
+You have now successfully finished the lab. You can stop the consumer using `ctrl+c`. You can also stop and remove the Docker containers for both the Mirror Maker 2 and Strimzi Kafka clusters running on your workstation by executing the following script:
 
 ```shell
 ./cleanLab.sh
