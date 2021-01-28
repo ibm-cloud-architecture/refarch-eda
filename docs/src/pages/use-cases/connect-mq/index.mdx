@@ -376,7 +376,7 @@ The MQ Connector Sink can be downloaded from this [Github](https://github.com/ib
   plugin.path=/opt/kafka/libs
 
   # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
-  group.id=mq-sink-cluster
+  group.id=mq-sink-cluster-REPLACE_WITH_UNIQUE_IDENTIFIER
 
   # The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
   # need to configure these based on the format they want their data in when loaded from or stored into Kafka
@@ -387,17 +387,17 @@ The MQ Connector Sink can be downloaded from this [Github](https://github.com/ib
   key.converter.schemas.enable=true
   value.converter.schemas.enable=true
 
-  # Topic to use for storing offsets. T
-  offset.storage.topic=connect-offsets
+  # Topic to use for storing offsets.
+  offset.storage.topic=connect-offsets-REPLACE_WITH_UNIQUE_IDENTIFIER
   offset.storage.replication.factor=3
   #offset.storage.partitions=25
 
   # Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated, and compacted topic.
-  config.storage.topic=connect-configs
+  config.storage.topic=connect-configs-REPLACE_WITH_UNIQUE_IDENTIFIER
   config.storage.replication.factor=3
 
   # Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
-  status.storage.topic=connect-status
+  status.storage.topic=connect-status-REPLACE_WITH_UNIQUE_IDENTIFIER
   status.storage.replication.factor=3
   status.storage.partitions=5
 
@@ -410,6 +410,8 @@ The MQ Connector Sink can be downloaded from this [Github](https://github.com/ib
     * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD`: Your PCKS12 TLS certificate password.
     * `REPLACE_WITH_YOUR_SCRAM_USERNAME`: Your SCRAM service credentials username.
     * `REPLACE_WITH_YOUR_SCRAM_PASSWORD`: Your SCRAM service credentials password.
+    * `REPLACE_WITH_UNIQUE_IDENTIFIER`: A unique identifier so that the resources your kafka connect cluster will create on your IBM Event Streams instance don't collide with other users' resources _(Note: there are 4 placeholders of this type. Replace them all)._ 
+    
   
   Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
 
