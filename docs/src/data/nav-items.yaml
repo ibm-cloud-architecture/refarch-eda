@@ -50,6 +50,8 @@
       path: /methodology/event-storming/
     - title: Domain-Driven Design
       path: /methodology/domain-driven-design/
+    - title: Data Intensive App Development
+      path: /methodology/data-intensive
 - title: Technology
   pages:
     - title: Kafka Overview
