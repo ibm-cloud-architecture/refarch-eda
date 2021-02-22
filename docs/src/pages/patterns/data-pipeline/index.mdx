@@ -5,7 +5,7 @@ description: Data Intensive Application
 
 <InlineNotification kind="warning"><strong>Update 02/09/21</strong> - UNDER CONSTRUCTION</InlineNotification>
 
-In this article we are highlighting some practices to design and develop data intensive application and microservice solution. This is strongly linked to the adoption of event-driven microservices, but addresses the data consistency and eventual data consistency discussions, as well as the establishment of a data services.
+In this article we are highlighting some practices to design and develop data intensive application in the context of microservice solution. This is strongly linked to the adoption of event-driven microservices, but addresses the data consistency and eventual data consistency discussions, as well as the establishment of a data services.
 
 ## Context
 
@@ -22,13 +22,23 @@ The services involved include:
 * Caches to speed up retrieving data from expensive queries
 * Search indexes to support search on a corpus
 * Stream processing to pub/sub messages, which are now also considered as long duration datastore (Kafka).
-* Unified ata services which includes big data storage, but also queries on data at rest.
+* Interactive queries on top of data streaming
+* Message contract and schemas
+* Unified data service which includes big data storage, but also data catalog and queries on data at rest.
 
 When designing such application we need to address a set of important subjects:
 
+* What is the type of workload on the database? Read heavy, global access query, write heavy or balanced. 
+* Expected throughtput? Is there any fluctuation during the day? does it need to scale over time?
+* How much data to store? what will be the pattern for this size (Always grow)? How content is access via which expected security and access control?
+* What will be the expected durability? Week or forever?
+* Expected latency and number of concurrent users?
+* How the data model is modeled, does it need to support relationship integrity? Join queries? Structured or semi-structured content?
+* Do we need strong schema, or more flexible one?
+* Do we need search on unstructured data? NoSql?
 * How to ensure data correctness and completeness?
 * How to address good performance when exposing data, even when app is running slowly?
-* How to scale and address increase in transaction volume and data size increase?
+* How to scale and address increase in transaction volume and data size?
 * What data to expose to other services via messaging ? Which formats?
 * What data to expose to other services via APIs ?
 * How to support application reliability when some components are not performing within their SLA? How to be fault-tolerant?
