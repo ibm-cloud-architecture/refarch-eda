@@ -12,7 +12,7 @@
       path: /concepts/terms-and-definitions/
     - title: Events versus Messages
       path: /concepts/events-versus-messages/
-    - title: Fit to purposes
+    - title: Fit for purpose
       path: /concepts/fit-to-purpose/
 - title: Advantages of EDA
   pages:
@@ -110,6 +110,8 @@
       path: /scenarios/overview/
     - title: Reefer Shipment Solution
       path: https://ibm-cloud-architecture.github.io/refarch-kc/
+    - title: Vaccine at Scale
+      path: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
     - title: Real-time Inventory
       path: /scenarios/realtime-inventory/
 - title: Additional reading

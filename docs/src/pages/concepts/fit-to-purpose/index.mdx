@@ -22,10 +22,12 @@ Consider Kafka as pub/sub and persistence system for:
 
 ## Kafka Streams vs Apache Flink
 
-[Apache Flink]() supports doing stream processing in real time and / or in batch. 
+[Apache Flink](https://flink.apache.org) (2016) is a framework and **distributed processing** engine for stateful computations over unbounded and bounded data streams. It is considered to be superior to spark and hadoop. It supports batch and graph processing. 
 
-Apache Flink:
+Here is simple diagram of Flink architecture.
 
-* 
+ ![Flink components](./images/arch.png)
 
-See also [this article from Confluent]()
+The run time can run on any common resource manager like Hadoop Yarn, Mesos, or kubernetes. It can run on its own with two majors cluster types: Job manager and task manager. Two types of processing: data set or data stream. For development purpose we can use the docker images to deploy a **Session** or **Job cluster** in a containerized environment. 
+
+See also [this article from Confluent](https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users)
