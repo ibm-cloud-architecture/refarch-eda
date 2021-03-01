@@ -104,6 +104,8 @@
       path: /use-cases/schema-registry-on-cloud/
     - title: DB2 - CDC Debezium - Outbox
       path: /use-cases/db2-debezium/
+    - title: Product to product migration
+      path: /use-cases/overview/product-migration
 - title: Scenarios
   pages:
     - title: Overview
