@@ -4,16 +4,16 @@ title: IBM MQ in the context of EDA
 
 
 <InlineNotification kind="warning">
-<strong>TODO</strong> - Work in progress
+<strong>Updated 3//4/2021- Work in progress</strong>
 </InlineNotification>
 
 
 [IBM MQ](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.2.0/com.ibm.mq.pro.doc/q001020_.htm) is the enterprise solution to exchange message over queues. 
 As it supports loosely coupling communication between applications, via asynchronous protocol, it is part of the event driven architecture product portfolio and makes senses to continue to include it as part of modern cloud native solutions. 
 
-This note is to summarize for architect the technology fits into EDA and gives pointers to important documentations, articles, and code repositories for using MQ.
+This note is to summarize, for architect, the technology as it fits into EDA and gives pointers to important documentations, articles, and code repositories for using MQ.
 
-We already addressed the [difference between event and messaging](../../concepts/events-versus-messages) systems, and we can affirm that real production plaform needs to include both. This site includes a lot on Kafka as the backbone to support EDA, but MQ delivers a very important missing element is the transactional support to write message to queue to ensure message delivery. 
+We already addressed the [difference between event and messaging](../../concepts/events-versus-messages) systems, and we can affirm that real production plaform needs to include both. This site includes a lot on Kafka as the backbone to support EDA, but MQ delivers a very important missing element for Kafka, is the transactional support to write message to queue for ensuring message delivery. 
 
 MQ queue managers are the main component to define queue and where applications connect to. They can be organized in network to deliver messages between applications and locations. Managers can be organized in cluster to increase high availability and scaling.
 
@@ -28,6 +28,31 @@ We encourage to read the [article from Richard Coppen's: 'IBM MQ fundamentals'](
 * **Highly available**
 * Integrate well with Mainframe to propagate transaction to eventual consistenty world of cloud native distributed applications. Writing to database and MQ queue is part of the same transaction, which simplifies the injection into event backbone like Kafka, via MQ connector.
 * Containerized to run on modern kubernetes platform.
+
+### Decentralized architecture
+
+The figure below illustrates the different ways to organize the MQ brokers according to the applications' needs.
+
+![](./images/decentralized.png)
+
+* On the top row applications have decoupled queue managers, with independent availability / scalability. The ownership is decentralized, as each application owner also own the broker configuration and deployment. Such cloud native application may adopt the [Command Query Responsability Seggregation](/patterns/cqrs/) pattern and use queues to propagage information between the microservices. The deploy of both broker and microservices follow the same CI/CD pipeline, with a kustomize to describe the broker configuration. See the [CQRS with MQ implementation](https://github.com/ibm-cloud-architecture/vaccine-reefer-mgr-cmd) we did for the Reefer manager service in the vaccine solution.  
+* A central MQ broker can still be part of the architecture to support legacy application and federated queues. 
+
+This type of deployment supports heterogenous operational procedures across technologies. 
+
+### Scaling and High availability
+
+A set of topology can be defined to support HA:
+
+![topology](./images/mq-topologies.png)
+
+1. Single resilient queue manager: MQ broker runs in a VM or a single container, and if it stops the VM or pod scheduler will restart it. This is using the platform resynch capability combined with HA storage. IP Address is kept between the instance. The queue content is saved to a storage supporting HA. In the case of container, new restarted pod will connect to existing storage, and the IP gateway routes traffic to the active instance via service and app selector.
+1. Multi-instance queue manager: active - standby topology - Failover is triggered on failure of the active instance. IP Address is also kept. When using k8s, the stand-by broker is on a separate node, ready to be activated.
+1. replicated data queue manager: this is an extension of the previous pattern where data saved locally is replicated to other sites. Not supported in the k8s.
+
+The deployed MQ broker is defined in k8s as a `StatefulSet` which may not restart automatically in case of node failure. So there is a time to fail over, which is not the case with the full replication mechanism of Kafka.
+
+### Disaster recovery
 
 ## Installation with Cloud Pak for Integration
 
@@ -60,7 +85,7 @@ Then update the Yaml file for name, license and persistence.
 
  <img src="./images/mq-yaml.png" width="200px"></img>
 
-As an alternate define a QueueManager manifest / yaml file.
+As an alternate, define a QueueManager manifest yaml file as:
 
  ```yaml
 apiVersion: mq.ibm.com/v1beta1
@@ -119,9 +144,13 @@ One queue is created DEV.QUEUE.1 and a channel: DEV.APP.SRVCONN.
 
 Then `docker exec` on the docker container and use the `mqsc` CLI.
 
+The [ibm-messaging/mq-container](https://github.com/ibm-messaging/mq-container) github repository describes properties and different configurations.
+
 ## Getting access to the MQ manager
 
 The MQ Console is a web browser based interface for interacting with MQ objects. It comes pre-configured inside the developer version of MQ in a container. On localhost deployment the URL is [ https://localhost:9443/ibmmq/console/]( https://localhost:9443/ibmmq/console/) while on OpenShift it depends of the Route created.
+
+
 
 ## Important readings
 
