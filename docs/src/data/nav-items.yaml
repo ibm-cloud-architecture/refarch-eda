@@ -52,6 +52,8 @@
       path: /methodology/domain-driven-design/
     - title: Data Intensive App Development
       path: /methodology/data-intensive
+    - title: Governance
+      path: /methodology/governance
 - title: Technology
   pages:
     - title: Kafka Overview

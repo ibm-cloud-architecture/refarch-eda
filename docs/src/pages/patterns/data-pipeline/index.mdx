@@ -9,7 +9,7 @@ In this article we are highlighting some practices to design and develop data in
 
 ## Context
 
-A typical modern business solution will include a set of microservices working together in choreography to exchange data. The adoption of event-driven microservice, with all the related design patterns, is described in separate articles that you can read [here](/patterns/). 
+A typical modern business solution will include a set of microservices working together in choreography to exchange data. The adoption of event-driven microservices, with all the related design patterns, is described in separate articles that you can read [here](/patterns/). 
 
 When zooming to a particular data intensive microservice we will find a set of important data centric features that may look like in the diagram below, which presents one component of a bigger distributed system.
 
@@ -17,12 +17,12 @@ When zooming to a particular data intensive microservice we will find a set of i
 
 The services involved include:
 
-* API to define the service contract
+* API to define the service contract: [OpenAPI](https://www.openapis.org/) or [AsynchAPI](https://www.asyncapi.com/)
 * Databases to store data for long term - document oriented or SQL based
-* Caches to speed up retrieving data from expensive queries
+* Caches to speed up retrieving data for expensive queries
 * Search indexes to support search on a corpus
 * Stream processing to pub/sub messages, which are now also considered as long duration datastore (Kafka).
-* Interactive queries on top of data streaming
+* Interactive queries on top of data streams, and aggregates.
 * Message contract and schemas
 * Unified data service which includes big data storage, but also data catalog and queries on data at rest.
 

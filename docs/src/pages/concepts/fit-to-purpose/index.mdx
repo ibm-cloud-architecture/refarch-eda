@@ -1,17 +1,50 @@
 ---
-title: Fit to purposes
-description: Different fit to purpose evaluation and criteria for technologies involved in EDA
+title: Fit for purpose
+description: Different fit for purpose evaluation and criteria for technologies involved in EDA
 ---
 
-In this note we want to list some of the criterias to consider and assess during an architecture establishment work. This is not fully exhaustive, but give good foundation for analysis and study.
+In this note we want to list some of the criterias to consider and assess during an event-driven architecture establishment work and as part of a continuous application governance. This is not fully exhaustive, but give good foundations for analysis and study.
+Fit for purpose practices should be done under a bigger program about application development governance and data governance. 
+We can look at least to the following major subject:
+
+<AnchorLinks>
+  <AnchorLink>Cloud native applications</AnchorLink>
+  <AnchorLink>Modern data pipeline</AnchorLink>
+  <AnchorLink>MQ Versus Kafka</AnchorLink>
+  <AnchorLink>Kafka Streams vs Apache Flink</AnchorLink>
+</AnchorLinks>
+
+## Cloud native applications
+
+With the adoption of cloud native and microservice applications (12 factors app), the following needs to be addressed:
+
+* Responsiveness with elastic scaling and resilience to failure. Which leads to adopt the '[reactive](/advantages/reactive/) manifesto' and consider messaging as a way to communicate between apps. Elastic also may lead to multi cloud deployment practice.
+* Address data sharing using a push model to improve decoupling, and performance. Instead of having each service using REST end point to pull the data from other services, each service push the change to their main business entity to a event backbone. Each future service which needs those data, pull from the messaging system.
+* Adopting common pattern like [command query responsibility seggregation](/patterns/cqrs/) to help implementing complex queries, joining different business entities owned by different microservices, [event sourcing](/patterns/event-sourcing/), [transactional outbox](/patterns/intro/#transactional-outbox) and [SAGA](/patterns/saga/).
+* Addressing data eventual consistency to propagate change to other components versus ACID transaction.
+* Support always-on approach with the deployment to multiple data centers (at least three) being active/active and being able to propagate data in all data centers.
+
+So the net: **do we need to implement event-driven microservices because of those needs?**
+
+## Modern data pipeline
+
+As new business applications need to react to events in real time, the adoption of [event backbone](/concepts/terms-and-definitions/#event-backbone) is really part of the IT toolbox. Some existing deployment consider this to be their new data hub, where all the data about the 'customer' is accessible. Therefore, it is natural to assess the data movement strategy and offload some of those ETL jobs running at night, as most of those works are done already inside of the applications generating those data, but not those data are visible inside the backbone.
+
+We detailed the new architecture in [this modern data lake](introduction/reference-architecture/#modern-data-lake) discussion, so from a *fit for purpose* point of view, we need to assess what those ETL jobs were doing and how much of those data is now visible to other to consume.
+
+With Event Backbone like Kafka, any consumer can join the consumption at any point of time, within the retention period. So if new data is kept like 10 days, within those 10 days a consumer can continuously get the data, no more wait for the next morning, just connected to the topic you need to.
+
+## Integrated governance
+
+
 
 ## MQ Versus Kafka
 
-Consider queue system for:
+Consider queue system. like IBM MQ, for:
 
-* Exactly once, and to participate into two phase commit transaction
-* Asynchronous request / reply communication
-* To implement operations/ commands to target a system to do something
+* Exactly once delivery, and to participate into two phase commit transaction
+* Asynchronous request / reply communication: the semantic of the communication is for one component to ask a second command to do something on its data. This is a command pattern with delay on the response.
+* Recall messages in queue are kept until consumer(s) got them.
 
 Consider Kafka as pub/sub and persistence system for:
 
@@ -22,7 +55,10 @@ Consider Kafka as pub/sub and persistence system for:
 
 ## Kafka Streams vs Apache Flink
 
-[Apache Flink](https://flink.apache.org) (2016) is a framework and **distributed processing** engine for stateful computations over unbounded and bounded data streams. It is considered to be superior to spark and hadoop. It supports batch and graph processing. 
+Once we have setup data streams, we need technology to support real-time analytics and complex event processing. Historically, analytics performed on static data was done using batch reporting techniques. However, if
+insights have to be derived in real-time, event-driven architectures help to analyse and look for patterns within events.
+
+[Apache Flink](https://flink.apache.org) (2016) is a framework and **distributed processing** engine for stateful computations over unbounded and bounded data streams. It is considered to be superior to Apache Spark and Hadoop. It supports batch and graph processing and complex event processing. 
 
 Here is simple diagram of Flink architecture.
 
