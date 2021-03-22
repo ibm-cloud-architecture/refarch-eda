@@ -153,37 +153,37 @@ In order to log into IBM Event Streams console through the CLI, we are going to 
 1. Log into IBM Event Streams using the Cloud Pak console route from the previous step:
 
   ```shell
-	$ cloudctl login -a https://cp-console.apps.eda-sandbox-delta.gse-ocp.net --skip-ssl-validation
+  $ cloudctl login -a https://cp-console.apps.eda-sandbox-delta.gse-ocp.net --skip-ssl-validation
 
-	Username> user50
+  Username> user50
 
-	Password>
-	Authenticating...
-	OK
+  Password>
+  Authenticating...
+  OK
 
-	Targeted account mycluster Account
+  Targeted account mycluster Account
 
-	Enter a namespace > integration
-	Targeted namespace integration
+  Enter a namespace > integration
+  Targeted namespace integration
 
-	Configuring kubectl ...
-	Property "clusters.mycluster" unset.
-	Property "users.mycluster-user" unset.
-	Property "contexts.mycluster-context" unset.
-	Cluster "mycluster" set.
-	User "mycluster-user" set.
-	Context "mycluster-context" created.
-	Switched to context "mycluster-context".
-	OK
+  Configuring kubectl ...
+  Property "clusters.mycluster" unset.
+  Property "users.mycluster-user" unset.
+  Property "contexts.mycluster-context" unset.
+  Cluster "mycluster" set.
+  User "mycluster-user" set.
+  Context "mycluster-context" created.
+  Switched to context "mycluster-context".
+  OK
 
-	Configuring helm: /Users/user/.helm
-	OK
-	```
+  Configuring helm: /Users/user/.helm
+  OK
+  ```
 
 1. Initialize the Event Streams CLI plugin (make sure you provide the namespace where your IBM Event Streams instance is installed on as the command will fail if you dont have cluster wide admin permissions)
 
-	```shell
-	$ cloudctl es init -n integration
+  ```shell
+  $ cloudctl es init -n integration
                                                   
   IBM Cloud Platform Common Services endpoint:   https://cp-console.apps.eda-sandbox-delta.gse-ocp.net   
   Namespace:                                     integration   
@@ -195,7 +195,7 @@ In order to log into IBM Event Streams console through the CLI, we are going to 
   Apicurio Registry endpoint:                    https://kafka-ibm-es-ac-reg-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
   Event Streams bootstrap address:               kafka-kafka-bootstrap-integration.apps.eda-sandbox-delta.gse-ocp.net:443   
   OK
-	``` 
+  ``` 
 
 ## Create Event Streams Topics
 
@@ -264,20 +264,20 @@ You can find your IBM Event Streams and Kakfa bootstrap url if you log into the 
 
 You can find your IBM Event Streams and Kakfa bootstrap url when you init the IBM Event Streams Cloud Pak CLI plugin on the last line:
 
-	```shell
-	$ cloudctl es init -n integration
+```shell
+$ cloudctl es init -n integration
                                                   
-  IBM Cloud Platform Common Services endpoint:   https://cp-console.apps.eda-sandbox-delta.gse-ocp.net   
-  Namespace:                                     integration   
-  Name:                                          kafka   
-  IBM Cloud Pak for Integration UI address:      https://integration-navigator-pn-integration.apps.eda-sandbox-delta.gse-ocp.net   
-  Event Streams API endpoint:                    https://kafka-ibm-es-admapi-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
-  Event Streams API status:                      OK   
-  Event Streams UI address:                      https://kafka-ibm-es-ui-integration.apps.eda-sandbox-delta.gse-ocp.net   
-  Apicurio Registry endpoint:                    https://kafka-ibm-es-ac-reg-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
-  Event Streams bootstrap address:               kafka-kafka-bootstrap-integration.apps.eda-sandbox-delta.gse-ocp.net:443   
-  OK
-	``` 
+IBM Cloud Platform Common Services endpoint:   https://cp-console.apps.eda-sandbox-delta.gse-ocp.net   
+Namespace:                                     integration   
+Name:                                          kafka   
+IBM Cloud Pak for Integration UI address:      https://integration-navigator-pn-integration.apps.eda-sandbox-delta.gse-ocp.net   
+Event Streams API endpoint:                    https://kafka-ibm-es-admapi-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
+Event Streams API status:                      OK   
+Event Streams UI address:                      https://kafka-ibm-es-ui-integration.apps.eda-sandbox-delta.gse-ocp.net   
+Apicurio Registry endpoint:                    https://kafka-ibm-es-ac-reg-external-integration.apps.eda-sandbox-delta.gse-ocp.net   
+Event Streams bootstrap address:               kafka-kafka-bootstrap-integration.apps.eda-sandbox-delta.gse-ocp.net:443   
+OK
+``` 
   
 ## Generate SCRAM Service Credentials
 
