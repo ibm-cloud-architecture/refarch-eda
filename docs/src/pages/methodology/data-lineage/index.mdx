@@ -26,19 +26,28 @@ As more data is injected into the data platform, the more you need to be able to
 
 ## Data lineage requirements
 
-Data lineage describes data origins, movements, characteristics, ownership and quality. 
+Data lineage describes data origins, movements, characteristics, ownership and quality. As part of larger data governance initiative, it may encompass data security, access control, encryption and confidentiality. 
 
 ## Contracts
 
 In the REST APIs, or even SOA, worlds request/response are defined via standards like OpenAPI or WSDL. In the event and streaming processing the [AsynchAPI](https://www.asyncapi.com/) is the specification to define schema and middleware binding.
 
+### OpenAPI
+
+We do not need to present [OpenAPI](https://www.openapis.org/) but just the fact that those APIs represent request/response communication and may be managed and integrated with the development life cycle. Modern API management platform should support their life cycle end to end but also support new specifications like GraphQL and AsynchAPI.
+
 ### AsynchAPI
 
-Without duplicating the [specification](https://www.asyncapi.com/) is the specification to define schema and middleware binding. we want to highlight here what are the important part to consider in the data goverance:
+Without duplicating the [specification](https://www.asyncapi.com/) is the specification to define schema and middleware binding. we want to highlight here what are the important parts to consider in the data goverance:
 
-* The Asynch API documentation
+* The Asynch API documentation which includes:
+    * The server definition to address the broker binding, with URL and protocol to be used. (http, kafka, mqtt, amqp, ws)
+    * The channel definition which represents how to reach the brokers. It looks like a Path definition in OpenAPI
+    * The message definition which could be of any value. Apache Avro is one way to present message but it does not have to be.
+    * Security to access the server via user / password, TLS certificates, API keys, OAuth2...
 * The message schema
 
+The format of the file describing the API can be Yaml or Json. 
 
 ## Schema
 
@@ -85,9 +94,11 @@ The classical integration with schema registry is presented in the figure below:
 
 ![](../../technology/avro-schemas/images/schema-registry.png)
 
-Schema registry can be deployed in different data center and serves multi Kafka clusters.
+Schema registry can be deployed in different data centers and serves multi Kafka clusters. For DR, you need to use a 'primary' server and one secondary in different data center. Both will receive schema update via DevOps pipeline. One of the main open source Schema Registry is [Apicurio](https://www.apicur.io/), which is integrated with Event Streams and in most of our implementation. Apicurio can persist schema definition inside Kafka Topic and so schema replication can also being synchronize via Mirror Maker 2 replication. If Postgresql is used for persistence then postgresql can be used for replicating schemas.
 
 We recommend reading our [schema registry summary](/technology/avro-schemas/) and [our OpenShift lab](/use-cases/schema-registry-on-ocp/) or [Event Streams on Cloud schema registry lab](/use-cases/schema-registry-on-cloud/).
+
+Integrating schema management with code generation and devOps pipeline is addressed in this repository.
 
 ## Data discovery
 

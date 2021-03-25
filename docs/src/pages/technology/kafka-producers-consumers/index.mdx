@@ -18,9 +18,9 @@ We recommend reading [IBM Event streams producer guidelines](https://ibm.github.
 
 When developing a record producer you need to assess the followings:
 
-* What is the event payload to send? Is is an root aggregate, as domain driven design concept, with value objects that needs to be kept in sequence to be used as event sourcing? or order does not matter? Remember that when order is important, messages need to go to the same topic. When multiple partitions are used, the messages with the same key will go to the same partition to guaranty the order. See related discussions [from Martin Kleppmann on confluent web site](https://www.confluent.io/blog/put-several-event-types-kafka-topic/). Also to be exhaustive, it is possible to get a producer doing retries that could generate duplicate records as acknowledges may take time to come: within a batch of n records, if the producer did not get all the n acknowledges on time, it may resend the batch. This is where 'idempotence' becomes important (see later section).
+* What is the event payload to send? Is is a root aggregate, as defined in domain driven design, with value objects?  Does it need to be kept in sequence to be used as event sourcing? or order does not matter? Remember that when order is important, messages need to go to the same topic. When multiple partitions are used, the messages with the same key will go to the same partition to guaranty the order. See related discussions [from Martin Kleppmann on confluent web site](https://www.confluent.io/blog/put-several-event-types-kafka-topic/). Also to be exhaustive, it is possible to get a producer doing retries that could generate duplicate records as acknowledges may take time to come: within a batch of n records, if the producer did not get all the n acknowledges on time, it may resend the batch. This is where 'idempotence' becomes important (see later section).
 * Is there a strong requirement to manage the schema definition? If using one topic to manage all events about a business entity, then be sure to support a flexible [avro schema](https://avro.apache.org/docs/1.8.1/spec.html).
-* What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size. By default, the buffer size is set at 32Mb, but can be configured with `buffer.memory` property. (See [producer configuration API](https://kafka.apache.org/10/javadoc/org/apache/kafka/clients/producer/ProducerConfig.html)
+* What is the expected throughput to send events? Event size * average throughput combined with the expected latency help to compute buffer size. By default, the buffer size is set at 32Mb, but can be configured with `buffer.memory` property. (See [producer configuration API](https://kafka.apache.org/27/javadoc/org/apache/kafka/clients/producer/ProducerConfig.html)
 * Can the producer batches events together to send them in batch over one send operation? By design kafka producers batch events.
 * Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size, and ensure to have at least 3 or even better 5, brokers within the cluster to maintain quorum in case of one failure. The client API is implemented to support reconnection.
 * When deploying kafka on Kubernetes, it is important to proxy the broker URLs with a proxy server outside of kubernetes. The HAProxy needs to scale, and as the kafka traffic may be important, it may make sense to have a dedicated HAProxy for clients to brokers traffic.
@@ -35,11 +35,12 @@ The producer code, using java or python API, does the following steps:
 
 * define producer properties
 * create a producer instance
+* Connect to the bootstrap URL, get a broker leader
 * send event records and get resulting metadata.
 
-Producers are thread safe. The send() operation is asynchronous and returns immediately once record has been stored in the buffer of records, and it is possible to add a callback to process the broker acknowledgement.
+Producers are thread safe. The send() operation is asynchronous and returns immediately once record has been stored in the buffer of records, and it is possible to add a callback to process the broker acknowledgements.
 
-[Here is an example of producer code.](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/de10317023c1dee9fbf1e948d1389472db32ce1a/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderEventProducer.java#L58-L82)
+[Here is an example of producer code from the quick start.](https://github.com/ibm-cloud-architecture/eda-quickstarts/tree/main/quarkus-kafka-producer)
 
 ## Kafka useful Producer APIs
 
@@ -60,6 +61,7 @@ The following properties are helpful to tune at each topic and producer and will
  | ACKS_CONFIG | specifies the minimum number of acknowledgments from a broker that the producer will wait for before considering a record send completed. Values = all, 0, and 1. 0 is for fire and forget. |
  | RETRIES_CONFIG | specifies the number of times to attempt to resend a batch of events. |
  | ENABLE_IDEMPOTENCE_CONFIG | Set to true, the number of retries will be maximized, and the acks will be set to `All`.|  
+ | TRANSACTION_ID | A unique identifier for a producer. In case of multiple producer instances, a same ID will mean a second producers can commit the transaction. Epoch number, linked to the process ID, avoid having two producers doing this commit. If no transaction ID is specified, the transaction will be valid within a single session.|
 
 ## How to support exactly once delivery
 
@@ -79,7 +81,7 @@ Sometime the brokers will not send acknowledge in expected time, and the produce
 
 ![](../images/exactly-one-1.png)
 
-To avoid duplicate message at the broker level, when acknowledge is set to ALL, the producer can also set idempotence flag: ENABLE_IDEMPOTENCE_CONFIG = true. With the idempotence property, the record sent, has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. If a message is received with a lower sequence number, it means a producer is doing some retries on record already processed, so the broker will drop it, to avoid having duplicate records per partition.
+To avoid duplicate message at the broker level, when acknowledge is set to ALL, the producer can also set idempotence flag: ENABLE_IDEMPOTENCE_CONFIG = true. With the idempotence property, the record sent, has a sequence number and a producer id, so that the broker keeps the last sequence number per producer and per partition. If a message is received with a lower sequence number, it means a producer is doing some retries on record already processed, so the broker will drop it, to avoid having duplicate records per partition. If the id is greater than current id known by the broker, the broker will create an OutOfSequence exception, which may be fatal as records may have been lost.
 
 ![Exactly once](../images/exactly-one-2.png)
 
@@ -88,7 +90,7 @@ The sequence number is persisted in a log so even in case of broker leader failu
 > The replication mechanism guarantees that, when a message is written to the leader replica, it will be replicated to all available replicas.
 > As soon as you want to get acknowledge of all replicates, it is obvious to set idempotence to true. It does not impact performance.
 
-To add to this discussion, as topic may have multiple partitions, kafka supports atomic writes to all partitions, so that all records are saved or none of them are visible to consumers. This transaction control is done by using the producer transactional API, and a unique transaction identifier is added to the message sent to keep integrated state. Here is an example of such configuration that can be done in a producer constructor method:
+To add to this discussion, as topic may have multiple partitions, idempotent producers do not provide guarantees for writes across multiple Topic-Partition. For that Kafka supports atomic writes to all partitions, so that all records are saved or none of them are visible to consumers. This transaction control is done by using the producer transactional API, and a transacitional protocol with coordinator and control message. Here is an example of such configuration that can be done in a producer constructor method:
 
 ```java
 producerProps.put("enable.idempotence", "true");
@@ -96,9 +98,15 @@ producerProps.put("transactional.id", "prod-1");
 kafkaProducer.initTransactions()
 ```
 
-`initTransactions()` registers the producer with the broker as one that can use transaction, identifying it by its `transactional.id` and a sequence number, or epoch.
+`initTransactions()` registers the producer with the broker as one that can use transaction, identifying it by its `transactional.id` and a sequence number, or epoch. Epoch is used to avoid an old producer to commit a transaction while a new producer instance was created for that and continues its work.
+
+Kafka streams with consume-process-produce loop requires transaction and exactly once. Even commiting its read offset is part of the transaction. So Producer API has a [sendOffsetsToTransaction method](https://kafka.apache.org/27/javadoc/org/apache/kafka/clients/producer/KafkaProducer.html#sendOffsetsToTransaction-java.util.Map-org.apache.kafka.clients.consumer.ConsumerGroupMetadata-).
+
+See the [KIP 98 for details.](https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging)
 
 In case of multiple partitions, the broker will store a list of all updated partitions for a given transaction.
+
+To support transaction a transaction coordinator keeps its states into an internal topic (TransactionLog). Control messages are added to the main topic but never exposed to the 'user', so that consumers have the knowledge if a transaction is committed or not. 
 
 See the [code in order command](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/53bbb8cdeac413883ca2ccf521eb0797a43f45a3/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderCommandProducer.java#L46) microservice.
 
@@ -111,11 +119,11 @@ consumerProps.put("isolation.level", "read_committed");
 
 With `read_committed`, no message that was written to the input topic in the same transaction will be read by this consumer until message replicas are all written.
 
-The consumer commits its offset with code, and specifies the last offset to read.
+In consume-process-produce loop, producer commits its offset with code, and specifies the last offset to read.
 
 ```java
 offsetsToCommit.put(partition, new OffsetAndMetadata(offset + 1))
-producer.sendOffsetsToTransaction(offsetsToCommit, "order-group-id");
+producer.sendOffsetsToTransaction(offsetsToCommit, "consumer-group-id");
 ```
 
 The producer then commits the transaction.
@@ -124,19 +132,20 @@ The producer then commits the transaction.
 try {
     kafkaProducer.beginTransaction();
     ProducerRecord<String, String> record = new ProducerRecord<>(ApplicationConfig.ORDER_COMMAND_TOPIC, key, value);
-    Future<RecordMetadata> send = kafkaProducer.send(record);
-    send.get(ApplicationConfig.PRODUCER_TIMEOUT_SECS, TimeUnit.SECONDS);
+    Future<RecordMetadata> send = kafkaProducer.send(record, callBackFunction);
+
     kafkaProducer.commitTransaction();
 } catch (KafkaException e){
     kafkaProducer.abortTransaction();
 }
 ```
 
-There is an interesting [article](https://www.baeldung.com/kafka-exactly-once) from the Baeldung team about exactly once processing in kafka with code example which we have used to implement the order processing in our [Reefer Container Shipment reference application](https://ibm-cloud-architecture.github.io/refarch-kc/) and explained [here](https://ibm-cloud-architecture.github.io/refarch-kc/orders/order/)
+There is an interesting [article](https://www.baeldung.com/kafka-exactly-once) from the Baeldung team about exactly once processing in kafka with code example which we have re-used to implement the order processing in our [Reefer Container Shipment reference application](https://ibm-cloud-architecture.github.io/refarch-kc/) and explained [here](https://ibm-cloud-architecture.github.io/refarch-kc/orders/order/)
 
 ## Code Examples
 
 * [Order management with CQRS in Java](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms)
+* [EDA quickstart Quarkus Producer API](https://github.com/ibm-cloud-architecture/eda-quickstart)
 * [Springboot with kafka template](https://github.com/ibm-cloud-architecture/refarch-kc-container-ms)
 * [Event driven microservice template](https://github.com/jbcodeforce/microprofile-event-driven-microservice-template/)
 
@@ -161,7 +170,7 @@ Consumer groups are grouping consumers to cooperate to consume messages from one
 
 ![consumer group](../images/consumer-group.png)
 
-When a consumer is unique in a group it will get data from all partitions. There is always at least one consumer per partition.
+When a consumer is unique in a group, it will get data from all partitions. There is always at least one consumer per partition.
 
 One broker is responsible to be the consumer group coordinator which is responsible for assigning partitions to the consumers in the group. The first consumer to join the group will be the group leader. It will get the list of consumers and it is responsible for assigning a subset of partitions to each consumer
 
@@ -182,8 +191,8 @@ It is interesting to note that:
 The implementation is simple for a single thread consumer, and the code structure looks like:
 
 * prepare the consumer properties
-* create an instance of KafkaConsumer to connect to a topic
-* loop on polling events: the consumer subscribes to a set of topics and ensures its liveness with the broker via the poll API
+* create an instance of KafkaConsumer to subscribe to at least one topic
+* loop on polling events: the consumer ensures its liveness with the broker via the poll API. It will get n records per poll.
 * process the ConsumerRecords and commit the offset by code or use the autocommit attribute of the consumer
 
 As long as the consumer continues to call poll(), it will stay in the group and continue to receive messages from the partitions it was assigned. When the consumer does not send heartbeats for a duration of `session.timeout.ms`, then it is considered dead and its partitions will be reassigned.
