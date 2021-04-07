@@ -20,19 +20,19 @@ This Lab focuses on using Strimzi 2.7. To run the same Lab with Kafka Confluent 
  ```shell
  git clone https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka
  ```
-* Get access to a Cloud Pak for Integration installation, with MQ deployed.
+* Get access to a Cloud Pak for Integration installation, MQ deployed.
 * Get access to the OpenShift Console
 
 
 ## Lab 1: MQ source to Kafka
 
-The following figure illustrates what we will deploy:
+The following figure illustrates what we will do:
 
 ![](./images/mq-kafka-lab1.png)
 
-* The Sell Store simulator is a separate application available in [the refarch-eda-store-simulator public github](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and the docker image is accessible from the [quay.io registry](https://quay.io/repository/ibmcase/eda-store-simulator) or the [docker hub one](https://hub.docker.com/repository/docker/ibmcase/eda-store-simulator).
+* The Sell Store simulator is a separate application available in [public github](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and in the [quay.io registry](https://quay.io/repository/ibmcase/eda-store-simulator) or the [docker hub one]().
 
-* Login to the OpenShift Console and get the `access token` to use `oc cli`.
+* Login to the OpenShift Console and get access token to use `oc cli`
 * Create new project with a command like: `oc new-project mq-to-k-lab`
 * Deploy Strimzi operator and create one Strimzi cluster. This is done by using the following commands under the `eda-lab-mq-to-kafka` folder:
 
@@ -41,7 +41,7 @@ The following figure illustrates what we will deploy:
 # Wait one or two minutes to get an lab-kafka-entity-operator- pod running.
 ```
 
-* Deploy a simple Kafka cluster with the name `lab-kafka` (see the yaml file: `kafka-cluster.yaml`). 
+* Deploy a sinple Kafka cluster with the name `lab-kafka`. 
 
 ```shell
 oc apply -k kustomize/environment/strimzi
@@ -60,8 +60,7 @@ lab-kafka-zookeeper-1                        1/1     Running   0          3m24s
 lab-kafka-zookeeper-2                        1/1     Running   0          3m24s
 ```
 
-* Get MQ connection characteristics, like service name and port number
-* Define the Kafka MQ connector configuration
+* Get MQ connection characteristics
 
 ## Lab 2: MQ Sink from Kafka
 
@@ -70,6 +69,12 @@ The target deployment looks like in the following diagram:
  ![1](./images/all-ocp.png)
 
 Kafka is runnning in its own namespace, and we are using Event Streams from Cloud Pack for Integration.
+
+### Pre-requisites
+
+We assume that you have an instance of Event Streams already running on OpenShift, with a TLS authentication user type. See [those instructions](../../use-cases/overview/pre-requisites#getting-scram-authentication-from-event-streams-on-openshift) to get those credentials.
+
+The MQ broker is running on OpenShift and was created using kubernetes operators: we have documented a simple how to guide in [this MQ summary](../../technology/mq#installation-with-cloud-pak-for-integration). The instance is exposed via a Route so we can access the administration console using the admin credentials of Cloud Pak for Integration.
 
 ### Setup MQ Channel
 
@@ -105,7 +110,11 @@ TBD
 
 ### Setup Kafka Connect Cluster
 
-Connectors can be added to a Kafka Connect environment using OpenShift CLI commands and the source to image customer resource. We will use the Strimzi operator console to setup kafka connect environment. 
+Connectors can be added to a Kafka Connect environment using OpenShift CLI commands and the source to image customer resource. We will use the Event Streams admin console to setup kafka connect environment which is based on OpenShift operator. The [Event Streams product documentation](https://ibm.github.io/event-streams/connecting/connectors/) presents the deployment process within the admin console, the `Setup a kafka connect environment` tile guides developer thru those steps:
+
+ ![4](./images/es-kconnect.png)
+
+ ![5](./images/es-kconn-setup.png)
 
 Once you downloaded the zip file, which is a yaml manifest, define the configuration for a KafkaConnectS2I instance. The major configuration settings are the server certificate settings and the authentication using Mutual TLS authentication, something like:
 

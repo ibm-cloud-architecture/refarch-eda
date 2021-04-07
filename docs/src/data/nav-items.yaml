@@ -10,6 +10,8 @@
   pages:
     - title: Terms & Definitions
       path: /concepts/terms-and-definitions/
+    - title: Agile Integration
+      path: /concepts/integration/
     - title: Events versus Messages
       path: /concepts/events-versus-messages/
     - title: Fit for purpose
