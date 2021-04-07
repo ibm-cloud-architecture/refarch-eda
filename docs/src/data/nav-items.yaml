@@ -12,7 +12,7 @@
       path: /concepts/terms-and-definitions/
     - title: Agile Integration
       path: /concepts/integration/
-    - title: Events versus Messages
+    - title: Event streaming versus Queuing
       path: /concepts/events-versus-messages/
     - title: Fit for purpose
       path: /concepts/fit-to-purpose/

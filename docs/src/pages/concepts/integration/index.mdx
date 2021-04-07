@@ -3,30 +3,36 @@ title: Integration reference architecture
 description: Working notes for agile integration reference architecture
 ---
 
-Event driven architecture is a complement of integration reference architecture as [presented in IBM Cloud architecture center](https://www.ibm.com/cloud/architecture/architectures/modern-integration/overview).
+Event driven architecture is a complement of the overall integration reference architecture as [presented in IBM Cloud architecture center](https://www.ibm.com/cloud/architecture/architectures/modern-integration/overview).
 
-In this note we want to summarize some of the important aspects of agile integration and how some of the technologies delivered as part of IBM Cloud Pak for Integration are used in our different labs and reference implementations.
+In this note we want to summarize some of the important aspects of agile integration and how some of the technologies delivered as part of IBM Cloud Pak for Integration are used when doing application modernization with event-driven microservice. Some of our labs and reference implementation code, use API management, MQ and APP Connect.
 
 First let do a quick review of the major concept for agile integration.
 
 ## Agile integration concepts
 
-This section presents the key points developed in detail in the [IBM cloud on agile integration article](https://www.ibm.com/cloud/integration/agile-integration):
+The main agile integration concepts as presented in detail in the [IBM cloud on agile integration article](https://www.ibm.com/cloud/integration/agile-integration) can be summarized as:
 
-* empower extended teams to create integrations, leverages a complete set of integration styles and capabilities, and increases overall productivity.
-* agile integration—a container-based, decentralized, microservices-aligned approach for integrating solutions
-* centralized integration architectures cannot support the demand
-* ESB pattern provides standardized synchronous connectivity to back-end systems typically over web services. ESB formed a single infrastructure for the whole enterprise, with tens or hundreds of integrations installed on a production server cluster.
+* Empower extended teams to create integrations, leveraging a complete set of integration styles and capabilities to increase overall team productivity.
+* Agile integration includes container-based, decentralized, microservices-aligned approach for integrating solutions
+* Existing centralized integration architectures, based on ESB pattern, cannot support the demand, in term of team reactivity and scalability at the internet level.
+* ESB pattern provides standardized synchronous connectivity to back-end systems typically over web services (SOAP based). ESB formed a single infrastructure for the whole enterprise, with tens or hundreds of integrations installed on a production server cluster.
 * A single, centralized ESB certainly simplifies consistency and governance of implementation.
 * Interface maintenance is expensive.
 * Any deployment to the shared servers runs the risk of destabilizing existing critical interfaces.
-* SOA encounters the issue of who to fund enterprise wide program interface.
-* Integration teams are the bottleneck instead of being enabler.
+* SOA encounters the issue of getting the funding at the enterprise wide program to maintain reusable interface.
+* Integration teams are becoming the bottleneck instead of being enabler.
 * SOA is about real-time integration between applications, whereas a microservices architecture is about how the applications are built internally.
-* microservice enables greater agility:
+* Microservice enables greater agility by being:
    * small enough to be understood completely by their owning team and changed independently
-   * Elastic scalability
-   * Discrete resilience: changes to one microservice will not affect others at runtime
+   * elastic to scale horizontally
+   * resilient with changes to one microservice will not affect others at runtime
+
+The following diagram illustrates the agile integration modernization transition from a centralized ESB type of architecture, and breaking integration into smaller  pieces to make them more agile and more scalable.
+
+![](./images/agile_integration.png)
+
+In this modernization process, development team can introduce API Management to improve decoupling between consumers and providers ultimately moving to a decentralized approach where each team can manage their own integration.
 
 * Three aspects to agile integration:
 
@@ -38,21 +44,23 @@ This section presents the key points developed in detail in the [IBM cloud on ag
 
 ### API management
 
-* easier to discover new business assets (APIs and events) in current enterprise systems
-* existing enterprise assets are made available to new channels and new audiences, with enriched customer experience in integrated omnichannel interactions
+* Easier to discover new business assets (APIs and events) in current enterprise systems
+* Existing enterprise assets are made available to new channels and new audiences, with enriched customer experience in integrated omnichannel interactions
+* Support asynchAPI.
 
 ### App connect
 
 Connect applications and data sources on premises or in the cloud to coordinate the exchange of business information so that data is available when and where it’s needed.
 
-Capabilities:
+[App Connect](https://www.ibm.com/docs/en/app-connect/11.0.0?topic=app-connect-enterprise-software) capabilities:
 
 * Low-code/no-code integration tooling leverages natural language processing (NLP) and AI to offer custom mapping suggestions when building integration flows.
 * Pre-built smart connectors and a common, shareable asset repository increases speed of delivery and eliminates concerns about mismatched sources, formats, or standards
 
 #### Labs
 
-* [Secure API, App connect and MQ](https://www.ibm.com/cloud/garage/dte/tutorial/unlock-your-enterprise-data-using-secure-apis-app-integration-flows-and-reliable-messaging): older version of the UI in screen shots
+* [Secure API, App connect and MQ](https://www.ibm.com/cloud/garage/dte/tutorial/unlock-your-enterprise-data-using-secure-apis-app-integration-flows-and-reliable-messaging): older version of the UI in screen shots but still relevant use case.
+
 
 ### Messaging
 
@@ -104,3 +112,18 @@ As shown in the diagram below, the integration platform must accommodate many in
 * File transfer enables batch integration between SORs that involves the movement of large data files for content across vast physical distances within short time windows.
 
 The integration platform must provide a unified framework for security, management operations, and resiliency. The container orchestration platform provides resiliency through the elasticity of container clusters and platform-level security. The unified management component provides ease of operations with a single view across all integration components within the platform. The gateway services provide runtime-level security and enforce access control policies to integration services.
+
+## API lifecycle management architecture
+
+The API lifecycle management reference architecture bridges the gap between cloud and on-premises applications quickly and easily. It allows customers to securely unlock IT assets and to deliver innovative applications with modern architectures.
+
+![](./images/api-mgt-ra.png)
+
+An international bank develops a new business model in a new ecosystem. This model exposes their rewards enterprise application program with a retail partner's online and mobile applications via self-service access to the program APIs. The bank's objective is to leverage the hybrid cloud capability to manage a comprehensive end-to-end integrated experience across the API lifecycle: create, run, manage, secure, socialize, and analyze APIs.
+
+1. An API developer signs on to the API management cloud services account and accesses the API developer User interface or CLI toolkit. The developer creates the synch API and implements business logic. He maps and integrates the API data model to the back-end schema through the transformation and connectivity service. He tests and deploys the API to the runtime and publishes to API management. He can also create Asynch APIs from a messaging system by binding channels to topic or queue and define message payload definition.
+1. API owner signs on to the API management cloud services account and accesses the API management component. She includes the synch API endpoint to existing API products, and plans and specifies access control. She publishes the API to the developer portal for external discovery by application developers.
+1. An application developer accesses the developer portal, uses search, and discovers the API.
+1. The application developer uses the API in an application and deploys that application to the device.
+1. The device user opens the application that issues the API request. The request is handled by the API gateway, which performs load balancing and security validation for all API requests. The API gateway validates access policies with API management and invokes the API. The API polyglot runtime executes the API and obtains the data payload from the back end. The API response is sent back to the API gateway. Alternatively, APIs exposed by enterprise applications can be executed on that enterprise application runtime. The API gateway forwards the response to the calling application. The API gateway reports usage metrics and analytics to the API management.
+1. API developers and API owners can log on to the API analytics visualization component to view dashboards on API usage metrics and other analytics.
