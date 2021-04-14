@@ -4,23 +4,21 @@ description: Using Kafka Streams to compute real time inventory stock
 ---
 
 <InlineNotification kind="warning">
-<strong>Work in progress</strong> Updated 09/23/2020 - End to end testing could be better
+<strong>Work in progress</strong> Updated 04/13/2020 - End to end testing could be better
 </InlineNotification>
 
 <AnchorLinks>
     <AnchorLink>Overview</AnchorLink>
-    <AnchorLink>Scenario Prerequisites</AnchorLink>
-    <AnchorLink>Develop the application</AnchorLink>
+    <AnchorLink>Pre-requisites</AnchorLink>
+    <AnchorLink>Deploy to OpenShift</AnchorLink>
     <AnchorLink>Interactive queries</AnchorLink>
     <AnchorLink>Integration Tests</AnchorLink>
-    <AnchorLink>Deploy to OpenShift</AnchorLink>
-    <AnchorLink>Another item producer</AnchorLink>
 </AnchorLinks>
 
 
 ## Overview
 
-In this lab, we're going to use [Quarkus](https://quarkus.io) to develop the logic with Kafka streams api and microprofile reactive messaging.
+In this lab, we're going to use [Quarkus](https://quarkus.io) to develop the real time inventory logic using Kafka Streams APIs and microprofile reactive messaging.
 
 The requirements to address are:
 
@@ -34,288 +32,37 @@ Here is a simple diagram to illustrate the components used:
 
  ![1](./images/item-aggregator-ctx.png)
 
-The goal of this lab, is to develop the green component which exposes an API to support Kafka stream interactive queries on top of the aggregates to compute inventory views and saved in state store (light blue storage/per service deployed and persisted in kafka as topic).
+The goal of this lab, is to develop the green component which exposes an API to support Kafka Streams interactive query on top of the aggregate to compute inventory views and saved in state store (light blue storage/per service deployed and persisted in Kafka as topic).
 
-We will be testing using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TopologyTestDriver to mimic a Topology, a Stream and Table. 
+We will be unit testing the stream logic using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TopologyTestDriver class. 
 
-This application is deployed to OpenShift cluster with Event Streams running. We use the quarkus kubernetes plugin with all the needed definitions in the `application.properties`.
+This application is deployed to OpenShift cluster with Event Streams or Strimzi running in the same cluster. We use the Quarkus Kubernetes plugin to build the yaml manifests for deployment. 
 
-## Scenario Pre-requisites
+This application needs the [Item Store sell simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) to perform the end to end testing and to demonstrate the end to end scenario.
 
-**Java**
-- For the purposes of this lab we suggest Java 11+
-- Quarkus 1.8.1
-
-**Git client**
-
-**Maven**
-- Maven will be needed for bootstrapping our application from the command-line and running
-our application.
-
-**An IDE of your choice**
-- Ideally an IDE that supports Quarkus (such as Visual Studio Code)
+## Pre-requisites
 
 **OpenShift Container Platform**
-- v4.4.x
+- v4.6.x
 
 **IBM Cloud Pak for Integration**
-- CP4I2020.2
+- CP4I2021.4
 
-**IBM Event Streams**
-- The lab uses Event Streams v10.x on Cloud Pack for Integration. If using a previous version such as ESv2019.4.2, there are some differences to how to establish connection to the Kafka brokers.
+**Kafka**
+- The lab uses Event Streams v10.x on Cloud Pack for Integration or Kafka Strimzi.
 
 **Code Source**: clone the following git repository: `git clone https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory`.
 
-The final source code is in this Git repository: [https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory).
 
 ## Use application as-is
 
-If you do not want to develop the application, you can deploy the existing final app on OpenShift using our [docker image](https://hub.docker.com/r/ibmcase/item-aggregator). See the [repository readme](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory) to do so.
+If you do not want to develop the application, you can deploy the existing final app to your OpenShift clustr using our [docker image](https://hub.docker.com/r/ibmcase/item-aggregator) and the following steps:
 
-## Develop the application
+1. Get the Kafka streams credentials and Bootstrap URL
 
-You can use the code of the cloned repository as source for your development.
-
-### Setting up the Quarkus Application
-
-- We will bootstrap the Quarkus application with the following Maven command (See [Quarkus maven tooling guide](https://quarkus.io/guides/maven-tooling#project-creation) for more information):
-
-```shell
-mvn io.quarkus:quarkus-maven-plugin:1.8.1.Final:create \
-    -DprojectGroupId=ibm.garage \
-    -DprojectArtifactId=quarkus-kstreams-lab3 \
-    -Dextensions="resteasy-jsonb, quarkus-resteasy-mutiny,smallrye-health,quarkus-smallrye-openapi,openshift,kubernetes-config"
-```
-
-You can replace the `projectGroupId, projectArtifactId` fields as you like.
-
-*Recall that is if you want to add a quarkus extension do something like: `./mvnw quarkus:add-extension -Dextensions="kafka"`*
-
-### Start the dev mode 
-
-```shell
-./mvnw quarkus:dev
-```
-
-Going to the URL [http://localhost:8080/swagger](http://localhost:8080/swagger-ui). The API is empty but health and open API are predefined due to Quarkus plugins. Health works too: [http://localhost:8080/health](http://localhost:8080/health)
-
-* Let add a simple resource `InventoryResource.java` under `src/main/java` folder.
-
-```java
-package ibm.garage.lab3.api;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.JsonObject;
-
-@ApplicationScoped
-@Path("/inventory")
-public class InventoryResource {
-    
-    @GET
-    @Path("/store/{storeID}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public  Uni<JsonObject> getStock(@PathParam("storeID") String storeID) {
-            JsonObject stock = new JsonObject("{\"name\": \"hello you\", \"id\": \"" + storeID + "\"}");
-            return Uni.createFrom().item( stock);
-    }
-}
-```
-
-A refresh on [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui) should bring you a working API.
-
-Let add a minimum of configuration to the `application.properties` file
-
-```properties
-quarkus.log.console.format=%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n
-quarkus.log.console.level=INFO
-quarkus.log.console.enable=true
-quarkus.http.port=8080
-quarkus.swagger-ui.always-include=true
-quarkus.openshift.expose=true
-```
-
-To move from imperative programming to a more reactive approach, we are using Uni class from [Mutiny](https://smallrye.io/smallrye-mutiny/) to get our API being asynchronous non-blocking: Quarkus uses [Vert.x](https://vertx.io/) to support non-blocking IO programming model and Mutiny is another abstraction to manage mono or multi elements in a reactive way.
-
-### Deploy to OpenShift using s2i
-
-Before going too far in the development, let deploy this simple app to OpenShift using the source to image capability. We assume you are logged to the cluster via `oc login...`, and that you have created a project: `oc new-project kstreams-labs`.
-
-The following command should package the application and create OpenShift manifests, build a docker images and push it to OpenShift Private registry.
-
-```shell
-./mvnw package -Dquarkus.kubernetes.deploy=true
-```
-
-It can take some seconds to build and deploy: `oc get pods -w` lets you see the build pods and the running app once the build is done. As we expose the application an OpenShift route was created. The url is visible at the end of the build output, something like:
-
-`...The deployed application can be accessed at: http://quarkus-kstreams-lab3...`
-
-For example this was the URL to access the swagger:
-
-[http://quarkus-kstreams-lab3-jbsandbox.gse-eda-demo-2020-08-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud/swagger-ui/](http://quarkus-kstreams-lab3-jbsandbox.gse-eda-demo-2020-08-fa9ee67c9ab6a7791435450358e564cc-0000.us-south.containers.appdomain.cloud/swagger-ui/)
+ As the application is deployed in the same cluster as the Kafka cluster we will use internal route.
 
 
-### Define the domain entities
-
-Under the `src/main/java/../domain` folder add the two classes representing the business entities we will be using:
-
-```Java
-package ibm.gse.eda.inventory.domain;
-import java.time.LocalDateTime;
-
-public class Item {
-    public static String RESTOCK = "RESTOCK";
-    public static String SALE = "SALE";
-    public String storeName;
-    public String sku;
-    public int quantity;
-    public String type;
-    public Double price;
-    public String timestamp;
-
-    public Item(){}
-}
-```
-
-This item will also being used for event structure on `items` topic. The type attribute is to specify if this is a sale event or a restock event.
-
-The inventory per store includes a map of item.sku and quantity.
-
-```Java
-package ibm.gse.eda.inventory.domain;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public class Inventory {
-    public String storeName;
-    public HashMap<String,Long> stock = new HashMap<String,Long>();
-    public Inventory(){}
-}
-```
-
-As part of the logic we want to add methods in the Inventory class to update the quantity given an item. So the two following methods are added
-
-```Java
-public Inventory updateStockQuantity(String k, Item newValue) {
-        this.storeName = k;
-        if (newValue.type.equals("SALE")) 
-            newValue.quantity=-newValue.quantity;
-        return this.updateStock(newValue.sku,newValue.quantity);
-    }
-
-    public Inventory updateStock(String sku, long newV) {
-        if (stock.get(sku) == null) {
-            stock.put(sku, Long.valueOf(newV));
-        } else {
-            Long currentValue = stock.get(sku);
-            stock.put(sku, Long.valueOf(newV) + currentValue );
-        }
-        return this;
-    }
-```
-
-Modify the InventoryResource to return the inventory instead of JsonObject (we will connect interactive query later in this lab).
-
-```java
-public  Uni<Inventory> getStock(@PathParam("storeID") String storeID) {
-        Inventory stock = new Inventory();
-        stock.storeName = storeID;
-        Item newItem = new Item();
-        newItem.quantity = 10;
-        newItem.sku="item-01";
-        newItem.type = Item.RESTOCK;
-        stock.updateStockQuantity(storeID, newItem);
-            return Uni.createFrom().item( stock);
-    }
-```
-
-You should get a json document like the following:
-
-```json
-{"stock": {
-    "item-01": 10
-  },
-  "storeName": "Store-A"
-}
-```
-
-Now we are good with the REST end point. Lets add Kafka-streams to connect to Event Streams.
-
-### Add Kafka streams
-
-We need Kafka and Kafka streams plugins use the following commands to add extension:
-
-```shell
-./mvnw quarkus:add-extension -Dextensions="kafka-streams"
-```
-
-Since we will be using the Kafka Streams testing functionality we will need to edit the `pom.xml` to add
-the dependency to our project. Open `pom.xml` and add the following.
-
-```xml
-<dependency>
-    <groupId>org.apache.kafka</groupId>
-    <artifactId>kafka-streams-test-utils</artifactId>
-    <version>2.5.0</version>
-    <scope>test</scope>
-</dependency>
-```
-
-Modify the properties to add kafka, kafka-streams and reactive messaging parameters like
-
-```properties
-quarkus.kafka-streams.auto.offset.reset=latest
-quarkus.kafka-streams.health.enabled=true
-quarkus.kafka-streams.consumer.session.timeout.ms=7000
-quarkus.kafka-streams.consumer.heartbeat.interval.ms=200
-quarkus.kafka-streams.application-id=item-aggregator
-quarkus.kafka-streams.topics=items,inventory
-
-mp.messaging.incoming.item-channel.connector=smallrye-kafka
-mp.messaging.incoming.item-channel.topic=items
-mp.messaging.incoming.item-channel.group.id=item-aggregator
-```
-
-### Define an item deserializer
-
-The item needs to be deserialized to a Item bean, so we add a new class `ItemDeserializer` under :
-ibm.gse.eda.inventory.infrastructure folder. 
-
-```java
-package ibm.gse.eda.inventory.infrastructure;
-
-import ibm.gse.eda.inventory.domain.Item;
-import io.quarkus.kafka.client.serialization.JsonbDeserializer;
-
-public class ItemDeserializer extends JsonbDeserializer<Item> {
-    public ItemDeserializer(){
-        // pass the class to the parent.
-        super(Item.class);
-    }
-}
-```
-
-and a declaration in the properties file (change the class name if needed):
-
-```properties
-mp.messaging.incoming.item-channel.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
-mp.messaging.incoming.item-channel.value.deserializer=ibm.gse.eda.inventory.infrastructure.ItemDeserializer
-```
-
-Now restart in dev mode: `mvn quarkus:dev`.... it should compile, and starts running... but could not connect... to kafka. You may see this message:
-
-```logs
-WARN  [or.ap.ka.cl.NetworkClient] (kafka-admin-client-thread | adminclient-1) [AdminClient clientId=adminclient-1] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
-```
-
-We could use a docker-compose and strimzi kafka image to run a local cluster, but we will use directly Event Streams deployed on OpenShift for as our development kafka cluster.
 
 ### Connect to Event Streams
 
@@ -410,231 +157,7 @@ SECURE_PROTOCOL=SASL_SSL
     INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, kafka-streams, kubernetes, kubernetes-client, mutiny, resteasy, resteasy-jsonb, resteasy-mutiny, smallrye-context-propagation, smallrye-health, smallrye-openapi, smallrye-reactive-messaging, smallrye-reactive-messaging-kafka, swagger-ui, vertx]
  ```
 
-### Define the kafka streams topology
 
-While in dev mode, we can add the `StoreInventoryAgent` class under the domain folder. We want to apply a domain driven design implementation approach using domain classes to represent the business logic and code expressed with ubiquituous language. The proposed implementation almost reach this language, adding only into the vocabulary the concept of streams and table in the form of KStream and KTable. We could have avoid that but it will not bring that much value for the implementation. Stream and tables are clear enought terms to be understood by business analysts.
-
-The requirements can be bullet listed as:
-
-* out-topic: inventory: contains the inventory stock events.
-* Keep a table view in the form: <storeID, <itemID, count>
-* Add query to get inventory snapshot for store. Expose the result as API. 
-
-The `StoreInventoryAgent` class processes items to generate inventory view per store. To separate the Kafka plumbing from the business methods the code for Kafka is in the infrastructure package. 
-
-```Java
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
-@ApplicationScoped
-public class StoreInventoryAgent {
-    @Inject
-    public ItemStream itemStream;
-
-    @Inject
-    public InventoryAggregate inventoryAggregate;
-
-    @Produces
-    public Topology processItemStream(){
-        KStream<String,Item> items = itemStream.getItemStreams();     
-        // process items and aggregate at the store level 
-        KTable<String,Inventory> inventory = items
-            // use store name as key
-            .groupByKey(ItemStream.buildGroupDefinition())
-            // update the current stock for this store - item pair
-            // change the value type
-            .aggregate(
-                () ->  new Inventory(), // initializer
-                (k , newItem, existingInventory) 
-                    -> existingInventory.updateStockQuantity(k,newItem), 
-                    InventoryAggregate.materializeAsInventoryStore());       
-        inventoryAggregate.produceInventoryStockStream(inventory);
-        return itemStream.run();
-    }
-}
-```
-
-1. process item sale or restock events from the items stream. Should be clear.
-2. build an inventory per store and items. So after explaining the Inventory class it should not be not that complex to see what the aggregate method does: it gets a new item, and is not present yet in the table, then it create a new Inventory entry, and then take existing inventory to update with the new item event.
-3. aggregate is a Ktable that we want to persist in state store, a distributed storage, so we use a materialize as a store.
-4. the last step is to produce an inventory event as output stream  
-
-### Add kafka related infrastructure code 
-
-* The item stream define lower level method to get access to kafka records from Kafka topic.
-
-```Java
-@ApplicationScoped
-package ibm.gse.eda.inventory.infrastructure;
-
-public class ItemStream {
-
-    @Inject
-    @ConfigProperty(name="mp.messaging.incoming.item-channel.topic")
-    public String itemSoldInputStreamName;
-    
-    private JsonbSerde<Item> itemSerde = new JsonbSerde<>(Item.class);
-    public StreamsBuilder builder;
-      
-    public ItemStream(){
-        builder = new StreamsBuilder();
-    }
-
-    public KStream<String,Item> getItemStreams(){
-        return builder.stream(itemSoldInputStreamName, 
-                        Consumed.with(Serdes.String(), itemSerde));
-    }
-
-	public Topology run() {
-		return builder.build();
-	}
-
-	public static Grouped<String, Item> buildGroupDefinition() {
-		return Grouped.with(Serdes.String(),itemSerde);
-    }
-    
-   
-}       
-```
-
-* Add the inventory aggregate to generate events: InventoryAggregate.
-
-```Java
-package ibm.gse.eda.inventory.infrastructure;
-@ApplicationScoped
-public class InventoryAggregate {
-
-    public InventoryAggregate() {
-    }
-
-
-    // store to keep stock per store-id
-    public static String INVENTORY_STORE_NAME = "StoreInventoryStock";
-
-    @Inject
-    @ConfigProperty(name = "mp.messaging.outgoing.inventory-channel.topic")
-    public String inventoryStockOutputStreamName;
-
-    private static JsonbSerde<Inventory> inventorySerde = new JsonbSerde<>(Inventory.class);
-    KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(INVENTORY_STORE_NAME);
-
-    public static Materialized<String, Inventory, KeyValueStore<Bytes, byte[]>> materializeAsInventoryStore() {
-        return Materialized.<String, Inventory, KeyValueStore<Bytes, byte[]>>as(INVENTORY_STORE_NAME)
-                .withKeySerde(Serdes.String()).withValueSerde(inventorySerde);
-    }
-
-    public void produceInventoryStockStream(KTable<String, Inventory> inventory) {
-        KStream<String, Inventory> inventories = inventory.toStream();
-        inventories.print(Printed.toSysOut());
-
-        inventories.to(inventoryStockOutputStreamName, Produced.with(Serdes.String(), inventorySerde));
-    }
-
-```
-
-And define the out going channel:
-
-```properties
-mp.messaging.outgoing.inventory-channel.connector=smallrye-kafka
-mp.messaging.outgoing.inventory-channel.topic=inventory
-mp.messaging.outgoing.inventory-channel.key.serializer=org.apache.kafka.common.serialization.StringSerializer
-mp.messaging.outgoing.inventory-channel.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
-```
-
-
-## Topology test
-
-We already presented how to use the TopologyTestDriver in previous labs. The class for testing is [ut.TestInventory.java](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory/blob/master/src/test/java/ut/TestInventory.java) and used the agent class, but inject the bean manually.
-
-```java
-public void setup() {
-        // as no CDI is used set the topic names
-        agent.itemStream = new ItemStream();
-        agent.itemStream.itemSoldInputStreamName="itemSold";
-        agent.inventoryAggregate = new InventoryAggregate();
-        agent.inventoryAggregate.inventoryStockOutputStreamName = "inventory";
-        
-        Topology topology = agent.processItemStream();
-        testDriver = new TopologyTestDriver(topology, getStreamsConfig());
-}
-```
-
-Do not use `@QuarkusTest` in the test class to avoid loading the application.properties. 
-
-
-## Interactive queries
-
-Now as presented in [this note](../../../technology/kafka-streams/#interactive-queries), as soon as we use KTable materialized with state store we can use query to get the last state of the records saved. 
-The API returns a query result on the inventory. We can define such bean as:
-
-```Java
-public class InventoryQueryResult {
-    private static InventoryQueryResult NOT_FOUND = new InventoryQueryResult(null, null, null);
-    private final Inventory result;
-    private final String host;
-    private final Integer port;
-
-    public static InventoryQueryResult notFound() {
-        return NOT_FOUND;
-    }
-
-    public Optional<Inventory> getResult() {
-        return Optional.ofNullable(result);
-    }
-}
-```
-
-So the Resource class is not
-
-```java
-@GET
-@Path("/store/{storeID}")
-@Produces(MediaType.APPLICATION_JSON)
-public Uni<InventoryQueryResult> getStock(@PathParam("storeID") String storeID) {
-    InventoryQueryResult result = queries.getStoreStock(storeID);
-    if (result.getResult().isPresent()) {
-        return Uni.createFrom().item(result);
-    } else {
-        return  Uni.createFrom().item(InventoryQueryResult.notFound());
-    }
-}
-```
-
-The queries is the new class to support interactive query. The principle is simple, we need to access the store that has the storeID key we search for. But there is a small problem, due to the fact that the input topic may be partitioned so the local store may not have the data for the given key. Therefore Kafka streams offers an API to get metadata of the store allocation between nodes for the Kafka Streams.
-
-```Java
- @Inject
-KafkaStreams streams;
-
-metadata = streams.queryMetadataForKey(
-    StoreInventoryAgent.STOCKS_STORE_NAME,
-        storeID,
-        Serdes.String().serializer());
-    ...
-    if (metadata.getActiveHost().host().equals(host)) {
-        Inventory result = getStockStore().get(storeID);
-        return InventoryQueryResult.found(result);
-    } else {
-        // call remote or propagate to ask the client to call the other host
-        return InventoryQueryResult.foundRemotely(metadata.getActiveHost());
-    }
-```
-
-### API 
-
-Now we want to complete our APIs by adding information on the store metadata from URL `/meta-data`. The method to add to the Resource class is:
-
-```java
-@GET
-@Path("/meta-data")
-@Produces(MediaType.APPLICATION_JSON)
-public Multi<PipelineMetadata> getMetaData() {
-    return Multi.createFrom().items(queries.getStockStoreMetaData().stream());
-}
-```
-
-*It is possible, while testing the API, to get a 404 response. The execption may be linked to the state of the kafka stream processing: for example something like: `java.lang.IllegalStateException: KafkaStreams is not running. State is CREATED.`. This may be due to the test data we have, as once kafka stream for a specific group-id has consumed the records then the offsets are committed, and a new start will not process the old records. Changing the application-id properties can re-read all the records from offset 0.* 
 
 ## Integration tests
 
