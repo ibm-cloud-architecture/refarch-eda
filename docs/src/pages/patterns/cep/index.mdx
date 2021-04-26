@@ -5,7 +5,7 @@ description: Complex event processing and situational decision
 
 Enterprises need to identify and act on event streams to address specific business situations. The processing logic groups complex combinations of business events that have or have not occurred in a time frame and at runtime, recognize those situations and react to them with prescribed business actions. Situation detection is an asynchronous, near real-time, and uses temporal and geospatial characteristics of the events to take action. 
 
-As an example, in account hijacking use case, the processing will involve consuming events from  user_login, password_changed, address_changed, new beneficiary added, money_transfert_initiated, in this order and with time windows contraints. The action will be to be freeze the money transfert, alert the account owner, identify the IP address of the logged person, add more data for investigation, alert operation...  
+As an example, in account hijacking use case, the processing will involve consuming events from  user_login, password_changed, address_changed, new beneficiary added, money_transfert_initiated, in this order and with time windows contraints. The action will freeze the money transfert, alert the account owner, identify the IP address of the logged person, add more data for investigation, or alert operation team...  
 
 ## React to multiple complex events with prescribed business actions
 
@@ -26,6 +26,7 @@ By adopting decision automation for events, you can optimize your business proce
 
 ## The reference architecture
 
-To make it simple, situational decision acts on event streams, so needs to be connected to event backbones. The reference architecture may look like in the following diagram:
+To make it simple, situational decision acts on event streams, so needs to be connected to event backbones. The reference architecture may look like in the following figure where complex event processing component like Apache Flink will continuously process data streams and generate synthetic events a separate service can act on:
 
 ![](./images/cep-ra.png)
+

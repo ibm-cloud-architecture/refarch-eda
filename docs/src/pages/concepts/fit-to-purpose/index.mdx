@@ -3,9 +3,9 @@ title: Fit for purpose
 description: Different fit for purpose evaluation and criteria for technologies involved in EDA
 ---
 
-In this note we want to list some of the criterias to consider and assess during an event-driven architecture establishment work and as part of a continuous application governance. This is not fully exhaustive, but give good foundations for analysis and study.
-Fit for purpose practices should be done under a bigger program about application development governance and data governance. 
-We can look at least to the following major subject:
+In this note we want to list some of the criteria to consider and assess during an event-driven architecture establishment work and as part of a continuous application governance. This is not fully exhaustive, but give good foundations for analysis and study.
+Fit for purpose practices should be done under a bigger program about application development governance and data governance.
+We can look at least to the following major subjects:
 
 <AnchorLinks>
   <AnchorLink>Cloud native applications</AnchorLink>
@@ -15,6 +15,7 @@ We can look at least to the following major subject:
 </AnchorLinks>
 
 ## Cloud native applications
+
 
 With the adoption of cloud native and microservice applications (12 factors app), the following needs to be addressed:
 
@@ -33,10 +34,6 @@ As new business applications need to react to events in real time, the adoption 
 We detailed the new architecture in [this modern data lake](introduction/reference-architecture/#modern-data-lake) discussion, so from a *fit for purpose* point of view, we need to assess what those ETL jobs were doing and how much of those data is now visible to other to consume.
 
 With Event Backbone like Kafka, any consumer can join the consumption at any point of time, within the retention period. So if new data is kept like 10 days, within those 10 days a consumer can continuously get the data, no more wait for the next morning, just connected to the topic you need to.
-
-## Integrated governance
-
-
 
 ## MQ Versus Kafka
 
@@ -59,11 +56,22 @@ Once we have setup data streams, we need technology to support real-time analyti
 insights have to be derived in real-time, event-driven architectures help to analyse and look for patterns within events.
 
 [Apache Flink](https://flink.apache.org) (2016) is a framework and **distributed processing** engine for stateful computations over unbounded and bounded data streams. It is considered to be superior to Apache Spark and Hadoop. It supports batch and graph processing and complex event processing. 
+The major stream processing features offered by Flink are:
 
-Here is simple diagram of Flink architecture.
+* Support for event time and out of order streams: use event time for consistent results
+* Consistency, fault tolerance, and high availability: guarantees consistent state updates in the presence of failures and consistent data movement between selected sources and sinks
+* Low latency and high throughput: tune the latency-throughput trade off, making the system suitable for both high-throughput data ingestion and transformations, as well as ultra low latency (millisecond range) applications.
+* Expressive and easy-to-use APIs in Scala and Java: map, reduce, join, with window, split,... Easy to implement the business logic using Function.
+* Support for sessions and unaligned windows: Flink completely decouples windowing from fault tolerance, allowing for richer forms of windows, such as sessions.
+* Connectors and integration points: Kafka, Kinesis, Queue, Database, Devices...
+* Developer productivity and operational simplicity: Start in IDE to develop and deploy and deploy to Kubernetes, [Yarn](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html), [Mesos](http://mesos.apache.org/) or containerized
+* Support batch processing
 
- ![Flink components](./images/arch.png)
+Here is simple diagram of Flink architecture from the Flink web site:
 
-The run time can run on any common resource manager like Hadoop Yarn, Mesos, or kubernetes. It can run on its own with two majors cluster types: Job manager and task manager. Two types of processing: data set or data stream. For development purpose we can use the docker images to deploy a **Session** or **Job cluster** in a containerized environment. 
+ ![Flink components](https://ci.apache.org/projects/flink/flink-docs-release-1.12/fig/distributed-runtime.svg)
+
+
+See this [technology summary](https://jbcodeforce.github.io/flink-studies/) and samples.
 
 See also [this article from Confluent](https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users)
