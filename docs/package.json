@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "eda",
   "private": true,
   "version": "1.22.1",
   "license": "Apache 2.0",
@@ -17,7 +17,6 @@
     "test:prefix": "yarn build:prefix && yarn serve:prefix"
   },
   "dependencies": {
-    "gatsby": "^2.24.9",
     "gatsby-plugin-google-analytics": "^2.3.13",
     "gatsby-remark-autolink-headers": "^2.3.11",
     "gatsby-remark-check-links": "^2.1.0",
@@ -25,6 +24,8 @@
     "gatsby-transformer-remark": "^2.8.27",
     "gh-pages": "^3.1.0",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "signal-exit": "^3.0.3",
+    "signals": "^1.0.0"
   }
 }

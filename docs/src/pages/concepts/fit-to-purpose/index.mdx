@@ -3,7 +3,7 @@ title: Fit for purpose
 description: Different fit for purpose evaluation and criteria for technologies involved in EDA
 ---
 
-In this note we want to list some of the criteria to consider and assess during an event-driven architecture establishment work and as part of a continuous application governance. This is not fully exhaustive, but give good foundations for analysis and study.
+In this note we want to list some of the main criteria to consider and assess during an event-driven architecture establishment work and as part of a continuous application governance. This is not fully exhaustive, but give good foundations for analysis and study.
 Fit for purpose practices should be done under a bigger program about application development governance and data governance.
 We can look at least to the following major subjects:
 
@@ -16,24 +16,27 @@ We can look at least to the following major subjects:
 
 ## Cloud native applications
 
-
-With the adoption of cloud native and microservice applications (12 factors app), the following needs to be addressed:
+With the adoption of cloud native and microservice applications (the [12 factors](https://12factor.net/) app), the following needs to be addressed:
 
 * Responsiveness with elastic scaling and resilience to failure. Which leads to adopt the '[reactive](/advantages/reactive/) manifesto' and consider messaging as a way to communicate between apps. Elastic also may lead to multi cloud deployment practice.
-* Address data sharing using a push model to improve decoupling, and performance. Instead of having each service using REST end point to pull the data from other services, each service push the change to their main business entity to a event backbone. Each future service which needs those data, pull from the messaging system.
-* Adopting common pattern like [command query responsibility seggregation](/patterns/cqrs/) to help implementing complex queries, joining different business entities owned by different microservices, [event sourcing](/patterns/event-sourcing/), [transactional outbox](/patterns/intro/#transactional-outbox) and [SAGA](/patterns/saga/).
+* Address data sharing using a push model to improve decoupling, and performance. Instead of having each service using REST end points to pull the data from other services, each service pushes the change to their main business entity to a event backbone. Each future service which needs those data, pulls from the messaging system.
+* Adopting common patterns like [command query responsibility seggregation](/patterns/cqrs/) to help implementing complex queries, joining different business entities owned by different microservices, [event sourcing](/patterns/event-sourcing/), [transactional outbox](/patterns/intro/#transactional-outbox) and [SAGA](/patterns/saga/) for long running transaction.
 * Addressing data eventual consistency to propagate change to other components versus ACID transaction.
-* Support always-on approach with the deployment to multiple data centers (at least three) being active/active and being able to propagate data in all data centers.
+* Support "always-on" approach with the deployment to multiple data centers (at least three) being active/active and being able to propagate data in all data centers.
 
-So the net: **do we need to implement event-driven microservices because of those needs?**
+Supporting all or part of those requirements will lead to the adoption of event-driven microservices and architecture.
 
 ## Modern data pipeline
 
-As new business applications need to react to events in real time, the adoption of [event backbone](/concepts/terms-and-definitions/#event-backbone) is really part of the IT toolbox. Some existing deployment consider this to be their new data hub, where all the data about the 'customer' is accessible. Therefore, it is natural to assess the data movement strategy and offload some of those ETL jobs running at night, as most of those works are done already inside of the applications generating those data, but not those data are visible inside the backbone.
+As new business applications need to react to events in real time, the adoption of [event backbone](/concepts/terms-and-definitions/#event-backbone) is really part of the IT toolbox. 
+Modern IT architecture encompasses the adoption of new data hub, where all the data about a 'customer', for example, is accessible in one event backbone. 
+Therefore, it is natural to assess the data movement strategy and assess how to offload some of those ETL jobs running at night, 
+by adopting real time data ingestion. 
 
-We detailed the new architecture in [this modern data lake](introduction/reference-architecture/#modern-data-lake) discussion, so from a *fit for purpose* point of view, we need to assess what those ETL jobs were doing and how much of those data is now visible to other to consume.
-
-With Event Backbone like Kafka, any consumer can join the consumption at any point of time, within the retention period. So if new data is kept like 10 days, within those 10 days a consumer can continuously get the data, no more wait for the next morning, just connected to the topic you need to.
+We detailed the new architecture in [this modern data lake](introduction/reference-architecture/#modern-data-lake) article, so from a *fit for purpose* point of view, 
+we need to assess the scope of existing ETL jobs, and refector to streaming logic that can be incorporated into different logs/ topics.
+With Event Backbone like Kafka, any consumer can join the data log consumption at any point of time, within the retention period. 
+By moving the ETL logic to a streaming application, we do not need to wait for the next morning to get important metrics.
 
 ## MQ Versus Kafka
 
@@ -66,6 +69,7 @@ The major stream processing features offered by Flink are:
 * Connectors and integration points: Kafka, Kinesis, Queue, Database, Devices...
 * Developer productivity and operational simplicity: Start in IDE to develop and deploy and deploy to Kubernetes, [Yarn](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html), [Mesos](http://mesos.apache.org/) or containerized
 * Support batch processing
+* Includes Complex Event Processing capabilities
 
 Here is simple diagram of Flink architecture from the Flink web site:
 

@@ -41,13 +41,13 @@ The following figure illustrates what we will deploy:
 # Wait one or two minutes to get an lab-kafka-entity-operator- pod running.
 ```
 
-* Deploy a simple Kafka cluster with the name `lab-kafka` (see the yaml file: `kafka-cluster.yaml`). 
+* Deploy a simple Kafka cluster with the name `lab-kafka` (see the yaml file: [kustomize/environment/strimzi/base/kafka-cluster.yaml](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka/blob/main/kustomize/environment/strimzi/base/kafka-cluster.yaml)). 
 
 ```shell
 oc apply -k kustomize/environment/strimzi
 ```
 
-At this stage a `oc get pods` should return 3 zookeepers and 3 kafka broker pods:
+It may take one minute to get Kafka deploy, but a `oc get pods` should return 3 zookeepers and 3 kafka broker pods:
 
 ```
 lab-kafka-cruise-control-d94ffbcb5-7g7h2     2/2     Running   0          75s
@@ -60,7 +60,9 @@ lab-kafka-zookeeper-1                        1/1     Running   0          3m24s
 lab-kafka-zookeeper-2                        1/1     Running   0          3m24s
 ```
 
-* Get MQ connection characteristics, like service name and port number
+* Deploy MQ queue manager:
+  IBM MQ queue managers that are exposed by a Route on OpenShift require TLS-enabled security, so we will first create a SSL certificate pair and truststore for both queue manager and client use, respectively.
+* Get MQ connection characteristics, like service name and port number using the MQ console
 * Define the Kafka MQ connector configuration
 
 To run this lab with Kafka Confluent see the [eda-lab-mq-to-kafka readme file](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka).

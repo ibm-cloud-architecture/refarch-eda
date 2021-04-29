@@ -7,18 +7,11 @@ The content of this repository was the source of the event-driven reference arch
 
 ### Building this booklet locally
 
-### Pushing the book to GitHub Pages
-
-1. Ensure that all your local changes to the `master` branch have been committed and pushed to the remote repository.
-   1. `git push origin master`
-2. Ensure that you have the latest commits to the `gh-pages` branch, so you can get others' updates.
-	```bash
-	git checkout gh-pages
-	git pull origin gh-pages
-	
-	git checkout master
-	```
-3. Run `mkdocs gh-deploy` from the root refarch-eda directory.
+```
+cd docs
+npm install
+npm run dev
+```
 
 --- 
 
@@ -38,6 +31,7 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 * [03/2019] Work on event-driven pattern and skill journey
 * [06/2019] Minikube deployment
 * [07/2019] Labs skill journey
+* [q1/2021] MQ content and labs, EDA governance started, updated to Kafka technology content. 
 
 ## Contributors
 
