@@ -1,3 +1,5 @@
-FROM node:15-alpine
-RUN apk add --no-cache python2 make build-base
+FROM node:14.16
+RUN yarn global add gatsby-cli gatsby gatsby-theme-carbon
+EXPOSE 8000
+WORKDIR /home
 CMD ["bash"]
