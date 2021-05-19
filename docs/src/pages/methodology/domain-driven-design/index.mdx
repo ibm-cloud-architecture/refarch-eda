@@ -14,31 +14,37 @@ This section describes how to apply domain driven design with event based applic
 
 ## Overview 
 
-[Event storming](/methodology/event-storming/) is part of the domain-driven design methodology. And domain-driven design was deeply described in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215/?tag=hyprod-20&linkCode=df0&hvadid=312118197030&hvpos=1o1&hvnetw=g&hvrand=3363692763187919455&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032152&hvtargid=pla-449269547899&psc=1) from 2004. At IBM, we also summarized the concepts needed for implementing microservice in [Kyle Brown's DDD article](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview).
+[Event storming](/methodology/event-storming/) is part of the domain-driven design methodology. And domain-driven design was deeply described in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215) from 2004. At IBM, we also summarized the concepts needed for implementing microservice in [Kyle Brown's DDD article](https://www.ibm.com/cloud/garage/practices/code/domain-driven-design/overview).
 
 From this body of knowledge we can derive the following important elements:
 
 * Domain Driven Design is about understanding the business domain in which the solution has to be developed
-* Context is important to define the business term definitions within a context
-* For microservice we need to find the boundary of responsability to be able to apply clear separation of concern pattern. 
+* Context is important to define the business term definitions within it
+* For microservice we need to find the boundary of responsability to be able to apply the clear separation of concern pattern. 
 
 The goals for the design step are:
 
+* Improve communication between subject matter experts and developer, make the code readable by human and long term maintanable 
 * To support highly modular cloud native microservices.
 * To adopt event coupled microservices - facilitating independent modification and evolution of each microservice separately.
 * To allow applying event-driven patterns such as event sourcing, CQRS and SAGA to address some of the challenges of distributed system implementation: data consitency, transaction cross domains, and complex queries between aggregates managed by different services.
 
+DDD suits better long term project, where the domain of knowledge is important and complex, and may be less appropriate for small projects.
+
 ## Starting materials
 
-At IBM garage we start with a design thinking workshop enhanced with event storming to model the to-be scenario when end to end business process visibility is needed. Discovering events using event storming simplifies the process discovery and sequencing of tasks. BPMN modeling may also being use to model a process but it has the tendency to lock the thinking in a flow, while event storming focuses on what happened as facts, and so it easier to get events sequencing. Also events coming from no-where could still be discovered and have their value. Event storming workshop starts some domain driven design analysis by getting some of the following materials:
+At IBM garage, we start with a design thinking workshop enhanced with event storming to model the to-be scenario with an end-to-end business process discovery as needed. 
+Discovering events using event storming simplifies the process discovery and sequencing of tasks. BPMN modeling may also being used to model a process but it has
+ the tendency to lock the thinking in a flow, while event storming focuses on what happened as facts, and so it easier to get events sequencing. 
+Also events coming from no-where could still be discovered and have their value. Event storming workshop starts some domain driven design analysis by getting some of the following materials:
 
 * Domains - sub domains
 * Event Sequence flow.
 * Events – business term definition: the start of ubiquitous language.
 * Critical events.
-* Business entities, aggregates
+* Business entities, aggregates, value objects
 * Commands
-* Actores - Users – role based on Empathy maps and stakeholders list.
+* Actors - Users – based on Empathy maps and stakeholders list.
 * Event linkages.
 * Business Policies.
 * Event prediction and probability flows.
@@ -55,9 +61,17 @@ From there we complement this analysis by extending it with the domain driven de
 
 ### Step 1: Assess domains and sub-domains
 
-Domain is what an organization does, and it includes the "how to", it performs its operations.  Domain may be composed of sub-domains. A "Core" domain is a part of the business domain that is of primary importance to the success of the organization, the organization needs to excel at it to make business impact and difference.
+**Domain** is what an organization does, and it includes the "how to", it performs its operations.  
+Domain may be composed of sub-domains. A "Core" domain is a part of the business domain that is of primary importance to
+ the success of the organization, the organization needs to excel at it to make business impact and difference.
+The application to be built is within a domain.
 
-During the event storming analysis, you define the domains and groups a set of sub-domains together. In the following figure, the container shipping domain is what the application we have to develop belongs to, and is composed of sub-domains like orders, shipping, inventory, .... Other domains like weather, CRM, invoice, are supporting the shipping domain but are not the focus of the design. Here is an example of such domain and subdomains:
+**Domain model** is a conceptual object model representing part of the domain to be used in the solution. It includes behavior and data. 
+
+During the event storming analysis, you define the domains and groups a set of sub-domains together. 
+In the following figure, the container shipping domain is what the application we have to develop belongs to, 
+and is composed of sub-domains like orders, shipping, inventory, .... Other domains like weather, CRM, invoice, 
+are supporting the shipping domain but are not the focus of the design. Here is an example of such domain and subdomains:
 
 ![DDD Subdomains](./images/domain-subdomains.png)
 
@@ -66,7 +80,10 @@ We have three core sub-domains and the rest are supports. Shipping over seas com
 
 ### Step 2: Define the application context
 
-At the high level, when doing the analysis, you should have some insight decisions of the top level application to develop, with some ideas of the other systems to interact with. A classical "system context diagram" is a efficient tool to represent the application high level context. The external systems to integrate with, are strongly correlated to the domains discovered from previous step. 
+At the high level, when doing the analysis, you should have some insight decisions of the top level application to develop, 
+with some ideas of the other systems to interact with. A classical "system context diagram" is a efficient tool 
+to represent the application high level context. The external systems to integrate with, are strongly correlated
+ to the domains discovered from previous step. 
 
 For the EDA reference implementation solution the [system context diagram is visible here](https://ibm-cloud-architecture.github.io/refarch-kc/design/architecture/#system-context).
 
@@ -125,7 +142,8 @@ The full set of interface characteristics to consider for each system to integra
     * Known exception conditions
     * Unexpected error presentation
 
-So with a system context diagram and interface characteristics to external system we have a good undestanding of the application context and interaction with external domains.
+So with a system context diagram and interface characteristics to external system we have a good undestanding of the 
+application context and interaction with external domains.
 
 
 ### Step 3: Define the ubiquitous language
@@ -140,11 +158,13 @@ Play with the model as you talk about the system. Describe scenarios out loud us
 
 #### Entities and Value Objects
 
-Entities are part of the ubiquitous language, and represent business concepts that can be uniquely identified by some attributes. They have a life cycle that is important to model, specially in the context of an event driven solution.
+**Entities** are part of the ubiquitous language, and represent business concepts that can be uniquely identified by some attributes. 
+They have a life cycle that is important to model, specially in the context of an event-driven solution.
 
-Value Objects represent things in the domain but without identity, and they are frequently transient, created for an operation and then discarded.
+**Value Objects** represent things in the domain but without identity, and they are frequently transient, created for an operation and then discarded.
 
-Some time, in a certain context, a value object could become an entity. As an example, an Order will be a value object in the context of a fullfilment sub-domain, while a core entity in order management service.
+Some time, in a certain context, a value object could become an entity. As an example, an Order will be a value object in the 
+context of a fullfilment domain, while a core entity in order management domain.
 
 Below is an example of entities (Customer and Shipping Order) and value objects (delivery history and delivery specification):
 
@@ -153,13 +173,48 @@ Below is an example of entities (Customer and Shipping Order) and value objects 
 
 #### Aggregate boundaries
 
-An aggregate is a cluster of associated objects that we treat as a unit for the purpose of data changes. An entity is most likely an aggregate and every things related to it define its boundaries.
+An **aggregate** is a cluster of associated objects that we treat as a unit for the purpose of data changes. 
+It is a collection of values and entities which are bound together by a root entity (the *aggregate root*).
+An entity is most likely an aggregate and every things related to it define its boundaries.
+External client consider the aggregate as a all. It guaranteees the consistency of changes made within the aggregate.
 
 #### Bounded Contexts
 
-Bounded Context explicitly defines the boundaries of your model. This concept is critical in large software projects. A Bounded Context sets the limits around what a specific team works on and helps them to define their own vocabulary within that particular context. When you define a bounded context, you define who uses it, how they use it, where it applies within a larger application context, and what it consists of, in terms of things like OpenAPI documentation and code repositories.
+**Bounded Context** explicitly defines the boundaries of your model. A language in one bounded context can model 
+the business domain for the solving of a particular problem. 
+This concept is critical in large software projects. 
+A Bounded Context sets the limits around what a specific team works on and helps them to define their own vocabulary within 
+that particular context. When you define a bounded context, you define who uses it, how they use it, where it applies within
+ a larger application context, and what it consists of, in terms of things like OpenAPI documentation and code repositories.
 
-Within a business context every use of a given domain term, phrase, or sentence, **the Ubiquitous Language**, inside the boundary has a specific contextual meaning. So order context is a bounded context and groups order, ordered product type, pickup and shipping addresses, delivery specifications, delivery history....
+Within a business context every use of a given domain terms, phrases, or sentences, **the Ubiquitous Language**, inside
+ the boundary has a specific contextual meaning. So *order context* is a bounded context and groups order, ordered product type, 
+ pickup and shipping addresses, delivery specifications, delivery history....
+
+#### Context maps
+
+Bounded contexts are not independent, a solution uses multiple bounded contexts, which are interacting with each others.
+The touchpoint between business contexts is a **contract**.
+
+To define relationships and integrations between bounded contexts we can consider the nature of the collaboration between teams, which can 
+be grouped as:
+
+* *Cooperation*: Uses well established communication and control. Change to the APIs are immediately communicated, the integration is both ways and teams solve together integration issues. 
+If more formal cooperation is needed, the *shared kernel* pattern can be used and technic like contract testing is used. Sometime
+the shared kernel can be deployed a mediation flow, canonical model in enterprise service bus. But the scope has to be small anyway.
+* *Customer-supplier*: the supplier context provides a service to its customers. Upstream or the downstream team can dictate the integration contract.
+With *conformist* supplier defines the contract based on its model and domain, and customer conforms to it. 
+When the customer needs to translate the upstream bounded context model into its own model, it uses *anticorruption layer*. 
+Anticorruption layer helps to isolate from messy model, model with high velocity of changes, or when the consumer model is core to its operations.
+When power is on the consumer side, then the supplier uses *open-host service* by decoupling its interface from the implementation, and design it
+for the consumer. This is the *published language*.
+* *Separate ways*: no collaboration at all. Which leads to duplicate functionality in multiple bounded contexts. 
+Avoid this solution when integrating sub-domains.
+
+The context map illustrates the integration between bounded contexts. It is the first high level design of the system components and the models they implements.
+The diagram below represents a simple view of e-commerce domain with the sub domains and bounded contexts
+
+![](./images/context-map.png)
 
 #### Business operation API
 
@@ -178,8 +233,10 @@ For an implementation point of view, when mapping API to RESTful resource the da
 
 #### Repositories
 
-Repository represents the infrastructure service to persist the root aggregate during its full life cycle.
-Client applications request objects from the repository using query methods that select objects based on criteria specified by the client, typically the value of certain attributes.
+**Repository** represents the infrastructure service to persist the root aggregate during its full life cycle.
+Client applications request objects from the repository using query methods that select objects based on criteria specified 
+by the client, typically the value of certain attributes. Application logic never accesses storage implementation directly, only
+via the repository.
 
 #### Event linked microservices design - structure
 
@@ -207,9 +264,10 @@ A complete event driven microservice specification (the target of this design st
 ### Step 4: Define modules
 
 * Each aggregate will be implemented as some composition of:
-    (1) a command microservice managing state changes to the entities in this aggregate
-    (2) possibly one or more separate (CQRS) query services providing internal or external API query capabilities
-    (3) additional simulation, predictive analytics or User Interface microservices
+
+    1. a command microservice managing state changes to the entities in this aggregate
+    2. possibly one or more separate (CQRS) query services providing internal or external API query capabilities
+    3. additional simulation, predictive analytics or User Interface microservices
 * The command microservice will be built around a collection of active entites for the aggregate, keyed by some primary key.
 * The separation of each aggregate into specific component microservices as outlined above, will be a complete list of microservices for the build / sprint.
 * Identify the data collections, and collection organization (keying structure) in each command and query microservice for this build.

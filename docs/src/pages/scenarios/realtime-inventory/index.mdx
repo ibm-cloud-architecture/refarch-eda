@@ -4,27 +4,51 @@ description: An end-to-end data pipeline lab scenario, connecting multiple compo
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 11/03/2020</strong> - Work in progress
+<strong>Updated 05/18/2021</strong> - Work in progress
 </InlineNotification>
 
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>What you will learn</AnchorLink>
   <AnchorLink>Solution anatomy</AnchorLink>
   <AnchorLink>General pre-requisites</AnchorLink>
-  <AnchorLink>Lab 1: RabbitMQ Source Connector to Kafka items topic [A]</AnchorLink>
-  <AnchorLink>Lab 2: Deploy the MQ Sink Connector [B]</AnchorLink>
-  <AnchorLink>Lab 3: Deploy the JDBC Sink Connector [C]</AnchorLink>
+  <AnchorLink>Lab 1: Kafka only solution to demonstrate real-time inventory</AnchorLink>
+  <AnchorLink>Lab 2: Deploy the MQ Source Connector</AnchorLink>
+  <AnchorLink>Lab 3: Deploy the MQ Sink Connector [B]</AnchorLink>
+  <AnchorLink>Lab 4: Deploy the JDBC Sink Connector</AnchorLink>
  </AnchorLinks>
 
 ## Overview
 
-This lab addresses multiple use cases that aim to build an end to end data pipeline solution, as depicted by the following figure, using Event Streams / Kafka on Premise and Kafka Connect cluster. At the high level Kafka Connect is used to integrate external systems into Kafka. For example external systems can inject item sale messages to queue manager, from which a first Kafka source connector publishes the messages to a Kafka topic, which then will be processed by a series of event driven microservices down to a final topic, which will be used by Sink connectors to send records to other external systems.
+This scenario implements a simple real time inventory management solution based on real life MVPs we developed in 2020. 
+Stores are sending their sale transactions to a central messaging platform, based on queues or topics, and with the adoption of loosely coupled microservices, 
+real time analytics Kafka is part of the architecture. Adopting Kafka Connect helps to integrate with existing applications 
+without any changes to their base code.
+
+![](./images/hl-view.png)
+
+This scenario addresses multiple use cases that aim to build an end to end data pipeline solution from source to different potential sinks:
+
+* The store simulator inject directly sell events to Kafka to the `items` topic
+* The store simulator can also generate message to IBM MQ using JMS API or to RabbitMQ using AMQP protocol
+* When messages are sourced to Queues, then a Kafka Source Connector is used to propagate message to `items` topics.
+* The Inventory computation is done using Kafka Stream component which produces inventory items and keep, in-memory a stock per store. 
+This inventory is exposed by API and used the interactive query capability of Kafka Streams.
+* Different sink connectors can be plugged into this `inventory` topic to move data to DB2, Elastic Search, Cloud Object Storage...
+
+We try to make the business scenario, easily demonstrable by running locally with docker or on an OpenShift Cluster.
+
+### Component view
+
+At the high level Kafka Connect is used to integrate external systems into Kafka. For example external systems can inject item sale messages to queue, from which a first Kafka source connector 
+publishes the messages to a Kafka topic, which then will be processed by a series of event-driven microservices down to a final topic, which will be used by Sink connectors
+ to send records to other external systems.
 
  ![1](./images/kconnect-overview.png)
 
-To support this scenario we are reusing a classical business use case around `real time inventory processing` where stores are sending their sale transactions to a central messaging platform, based on queues, and with the adoption of loosely coupled microservices, real time analytics and complex event processing, Kafka is added to the architecture. Adopting Kafka Connect helps to integrate with existing applications without any changes.
 
-All the components of this scenario are ready to run on OpenShift, but we are also providing different docker compose files to run all of those components on your local computer. The important body of knowledge of this scenario is related to the programming model we used, and the Kafka Connect configuration and code.
+All the components of this scenario are ready to run on OpenShift, but we are also providing different docker compose files to run all of those components on your local computer. 
+The important body of knowledge of this scenario is related to the programming model we used, and the Kafka Connect configuration and code.
 
 ## What you will learn
 
@@ -39,18 +63,12 @@ All the components of this scenario are ready to run on OpenShift, but we are al
 
 ## Solution anatomy
 
-This end to end scenario is divided into smaller labs that can be combined to support the real time inventory data pipeline as illustrated in the figure below:
-
- ![2](./images/kconnect-scenario-components.png)
-
-1. The store simulator application is a Quarkus based app, which generates item sales to different possible messaging middlewares ( RabbitMQ, MQ or event directly to Kafka). The code of this application is in this [ refarch-eda-store-simulator repository](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator). If you want to browse the code, the main readme of this project includes how to package and run this app, and explains how the code works. The docker image is [ibmcase/eda-store-simulator/](https://hub.docker.com/r/ibmcase/eda-store-simulator)
-
-    * RabbitMQ runs in docker image started locally via docker compose. The messages are in the `items` queue.
-    * The first lab consists of setting up the Rabbit MQ source Kafka connector to get items from the queue to the `items` topic in Kafka.  focusing on the injection to Kafka, is documented in the [use case: Kafka connect - Rabbit MQ](../../use-cases/connect-rabbitmq/).
-    * [A] The Sink connector description is in the [real time inventory lab](https://github.com/ibm-cloud-architecture/refarch-eda-tools) folder. The Kafka connector source is in [this project.](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source)
-    
-2. The inventory MS is a Kafka Stream application, done with Kafka Stream API. The source code is in [this project](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory). Consider this more as a black box in the context of the scenario, it consumes items events, aggregate them, expose API on top of Kafka Streams interactive queries and publish inventory events on `inventory` topic. The code is also used in the [Kafka Streams lab 3](../../use-cases/kafka-streams/lab-3/)
-3. The mock up Inventory mainframe application is not implemented and we will use the MQ tools to view the message in the `inventory` MQ queue.
+1. The [store simulator application](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) is a Quarkus based app, which generates item sales to different possible messaging middlewares ( RabbitMQ, MQ or event directly to Kafka). 
+The code of this application is in this https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator. If you want to browse the code, the main readme of this project includes how to package and run this app with docker compose, and explains how the code works. 
+The docker image is [quay.io/ibmcase/eda-store-simulator/](https://quay.io/ibmcase/eda-store-simulator)
+1. The inventory aggregator is a Kafka Stream Quarkus application, done with Kafka Stream API. The source code is in [the refarch-eda-item-inventory project](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory). 
+Consider this more as a black box in the context of the scenario, it consumes items events, aggregate them, expose APIs on top of Kafka Streams interactive queries and publish inventory events on `inventory` topic. 
+2. The mock up Inventory mainframe application is not implemented and we will use the MQ tools to view the message in the `inventory` MQ queue.
 
     * The MQ Sink connector [B] configuration is defined in the [real time inventory lab](https://github.com/ibm-cloud-architecture/refarch-eda-tools) folder, `mq-sink.json` file.
     * MQ broker runs in docker container started with docker-compose
@@ -61,7 +79,58 @@ This end to end scenario is divided into smaller labs that can be combined to su
     * The [Connect JDBC use case](../../use-cases/connect-jdbc/) lab goes over how the Kafka Connect JDBC sink works.
 1. The [last scenario](#scenario-4:-run-the-solution-components-end-to-end-on-kubernetes) addresses the end to end solution, which is basically an end to end demonstration of a simple data pipeline for a real time view of an inventory solution.
 
-## Demonstration Script 
+### Pre-requisites for all labs
+
+
+* [Docker](https://docs.docker.com/) and docker compose to run the solution locally.
+* You need to get [docker compose](https://docs.docker.com/compose/).
+* [git CLI](https://git-scm.com/downloads).
+* Get access to an OpenShift Cluster
+* [OpenShift CLI]() on your local environment.
+* [jq]() on your local environment.
+* Clone the Inventory lab repository: 
+
+```sh
+oc clone  https://github.com/ibm-cloud-architecture/eda-lab-inventory.git
+```
+
+
+## Lab 1: Kafka only solution to demonstrate real-time inventory
+
+In this lab we will deploy the solution using Strimzi on OpenShift. The diagram looks like the following:
+
+![](/images/lab1-ctx.png)
+
+The Kafka version is Strimzi 2.7.
+
+Here are the simplest steps to deploy the solution in minimum configuration:
+
+1. Login to the OpenShift cluster (4.6 version): `oc login --token=sha256~d... --server=https://....containers.cloud.ibm.com...`
+1. Work from the clone repository: `cd eda-lab-inventory`
+1. Define the environment variables for your deployment in the: `scripts/env-strimzi.sh`
+1. Start the deploy with one script `./scripts/deployInventorySolutionWithStrimzi.sh --skip-login`
+
+The following pods should be up and running:
+
+```sh
+NAME                                            READY   STATUS      RESTARTS   AGE
+apicurio-registry-operator-5d6fc6ccb5-s9mfd     1/1     Running     0          94m
+my-apicurioregistry-deployment-qq6zz-1-deploy   0/1     Completed   0          84m
+my-apicurioregistry-deployment-qq6zz-1-rfbcn    1/1     Running     0          84m
+my-kafka-cruise-control-5866484456-nb8jl        2/2     Running     0          117m
+my-kafka-entity-operator-6c88b5c68c-62fhf       3/3     Running     0          117m
+my-kafka-kafka-0                                1/1     Running     0          118m
+my-kafka-kafka-1                                1/1     Running     0          118m
+my-kafka-kafka-2                                1/1     Running     0          118m
+my-kafka-zookeeper-0                            1/1     Running     0          118m
+my-kafka-zookeeper-1                            1/1     Running     0          118m
+my-kafka-zookeeper-2                            1/1     Running     0          118m
+store-simulator-2-deploy                        0/1     Completed   0          35m
+store-simulator-2-hh5st                         1/1     Running     0          35m
+```
+
+
+### Demonstration Script 
 
 For an end-to-end demonstration the following steps can be demonstrated once the environment is up and running.
 
@@ -86,66 +155,34 @@ docker exec -ti real-time-inventory_kafka_1  bash -c "/opt/kafka/bin/kafka-conso
 
 ## General pre-requisites
 
-<InlineNotification kind="info">You need to decide what your 'on-premise' environment is for this scenario. You can run with docker compose locally on your laptop, or deploy the component to an OpenShift cluster. For quick demonstration purpose, each of the labs / use cases have docker compose file to test them in isolation. If you do not want to build all the components, we have each of them available in Docker Hub.
-</InlineNotification>
 
 We need the following tools to run the different labs. We try to use docker images as much as possible to do not impact your local laptop with tools you may not want python for example.
 
-* [Docker](https://docs.docker.com/) and docker compose to run the solution locally.
-* You need to get [docker compose](https://docs.docker.com/compose/).
-* [git CLI](https://git-scm.com/downloads).
-* [Maven](https://maven.apache.org/install.html).
 
-Clone the labs repository: [refarch-eda-tools](https://github.com/ibm-cloud-architecture/refarch-eda-tools)
+## Lab 2: Deploy the MQ Source Connector
 
-### OpenShift specific setup
+The lab context is outlined in the following figure:
 
-If you choose to use OpenShift as target environment to run the lab at least address the following items:
+![](/images/lab2-mq-kafka.png)
 
-1. Connect to your OpenShift cluster using 'oc' cli
-1. Create a new project `oc new-project eda-inventory`
-1. If not done yet, deploy Event Streams using the [instructions from this note](/use-cases/overview/pre-requisites#install-event-streams-using-operators).
-1. Get secrets and users to access topics and cluster as described in [this note](/use-cases/overview/pre-requisites#getting-scram-authentication-from-event-streams-on-openshift)
-1. Get [TLS certificates](/use-cases/overview/pre-requisites#getting-tls-authentication-from-event-streams-on-openshift) if your cluster was setup with TLS.
-1. Deploy the Store simulator app as Knative serving app. 
+See [the EDA Lab MQ to Kafka repository](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka) for instructions to run locally or on OpenShift
 
-## Lab 1: RabbitMQ Source Connector to Kafka items topic [A]
+## Lab 3: Deploy the MQ Sink Connector
 
-Follow the [RabbitMQ Source Connector lab](/use-cases/connect-rabbitmq/) to deploy the Kafka connector runtime, and deploy the RabbitMQ source connector configuration so it can get messages from RabbitMQ `items` queue to the target Kafka `items` topic.
-
- ![2](../../use-cases/connect-rabbitmq/images/comp-view.png)
-
-### Store simulator app
-
-The [refarch-eda-store-simulator repository](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) containts the Quarkus app to integrate with RabbitMQ using AMQP protocol.
-
-[The start method](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator/blob/79fcb162ca2f4837df5cd73ac0f346af4d767f18/src/main/java/ibm/gse/eda/stores/infrastructure/rabbitmq/RabbitMQItemGenerator.java#L57-L67) create n records and send message on the channel.
-
-```Java
-  private Channel channel;
-  private Connection connection;
-  private ConnectionFactory factory;
-
-  ...
-  public void sendMessage(Item item) {
-        String messageToSend = parser.toJson(item);
-        this.channel.basicPublish("", queueName, null, messageToSend.getBytes());
-```
-
-## Lab 2: Deploy the MQ Sink Connector [B]
-
-Follow the [MQ Sink Connector](/use-cases/connect-mq/) use case to deploy the connector runtime to OpenShift, connecting your source Kafka environment and topic to the target MQ queue manager.
+Follow the [MQ Sink Connector](/use-cases/connect-mq/#lab-2:-mq-sink-from-kafka) use case to deploy the connector runtime to OpenShift, connecting your source Kafka environment and topic to the target MQ queue manager.
 
 
-## Lab 3: Deploy the JDBC Sink Connector [C]
+## Lab 4: Deploy the JDBC Sink Connector
 
 Follow the [JDBC Sink Connector](/use-cases/connect-jdbc/) use case to deploy the JDBC sink connector runtime, connecting your source Kafka environment and topic to the target DB2 database. This project uses a simple Inventory App to present the content of the DB2 tables. The component view looks like in the following diagram:
 
  ![4](../../use-cases/connect-jdbc/images/comp-view.png)
 
-The inventory application is in [this repository](https://github.com/ibm-cloud-architecture/refarch-eda-inventory-app) but a docker image is ready to run.
+## Lab 5: RabbitMQ Source Connector to Kafka items topic
 
-## Lab 4: Run the solution components end to end
+Follow the [RabbitMQ Source Connector lab](/use-cases/connect-rabbitmq/) to deploy the Kafka connector runtime, and deploy the RabbitMQ source connector configuration so it can get messages from RabbitMQ `items` queue to the target Kafka `items` topic.
 
-This solution covers all the components of the data pipeline. 
+ ![2](../../use-cases/connect-rabbitmq/images/comp-view.png)
+
+
 

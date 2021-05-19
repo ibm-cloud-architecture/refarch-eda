@@ -44,6 +44,8 @@
       path: /patterns/data-pipeline/
     - title: Realtime Analytics
       path: /patterns/realtime-analytics/
+    - title: API management
+      path: /patterns/api-mgt/
     - title: Situational decision
       path: /patterns/cep/
 - title: Methodology
@@ -80,6 +82,8 @@
       path: /technology/avro-schemas/
     - title: Development Environment
       path: /technology/
+    - title: Spring cloud Stream
+      path: /technology/spring/
 - title: Use Cases
   pages:
     - title: Overview

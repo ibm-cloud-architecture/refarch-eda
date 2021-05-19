@@ -49,9 +49,22 @@ You can also review the other [microservice patterns in this note](/patterns).
 
 ## Data lineage
 
-Data governance is a well established practices in most companies. In the context of event-driven architecture, one focus will be to ensure re-use of event topics, control the schema definition, have a consistent and governed ways to manage topic as service, domain and event data model definition, access control, encryption and traceability. As the subject is important we have started to address it in a [separate note](/methodology/data-lineage/).
+Data governance is a well established practices in most companies. Solutions need to address the following needs:
+
+* Which sources/producers are feeding data?
+* What is the data schema?
+* How to classify data
+* Which process reads the data and how is it transformed?
+* When was the data last updated?
+* Which apps/ users access private data?
+
+In the context of event-driven architecture, one focus will be to ensure re-use of event topics, 
+control the schema definition, have a consistent and governed ways to manage topic as service, 
+domain and event data model definition, access control, encryption and traceability. 
+As this subject is very important, we have started to address it in a [separate 'data lineage' note](/methodology/data-lineage/).
 
 ## Deployment Strategy
+
 Hybrid cloud, Containerized
 
 
