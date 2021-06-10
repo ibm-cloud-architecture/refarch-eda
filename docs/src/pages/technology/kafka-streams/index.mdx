@@ -27,7 +27,7 @@ The business logic is implemented via **topology** that represents a graph of pr
 
 To summarize, **Kafka Streams** has the following capabilities:
 
-* Kafka Streams applications are build on top of producer and consumer APIs and are leveraging Kafka capabilities to do data parallelism processing, support distributed coordination of partition to task assignment, and being fault tolerant.
+* Kafka Streams applications are built on top of producer and consumer APIs and are leveraging Kafka capabilities to do data parallelism processing, support distributed coordination of partition to task assignment, and being fault tolerant.
 * Streams processing is helpful for handling out-of-order data, *reprocessing* input as code changes, and performing stateful computations, like real time analytics. It uses producer / consumer APIs, stateful storage and consumer groups. It treats both past and future data the same way.
 * Kafka Streams is an embedded library to integrate in your Java application. No need for separate processing cluster. As deployable container it can scale horizontally easily within Kubernetes platform. It does not run in Kafka cluster.
 * Topology consumes continuous real time flows of records and publishes new flows to one or more topics.
@@ -87,8 +87,7 @@ Programming with KStream and Ktable is not easy at first, as there are a lot of 
 
 A stateful operator uses the streaming Domain Specific Language, with constructs for aggregation, join and time window operations. Stateful transformations require a state store associated with the stream processor.
 
-We recommend at this stage to do our [lab 0 tutorial](../../use-cases/kafka-streams/lab-0) to develop a first simple topology and test it without Kafka cluster using Topology test driver.
-
+We recommend at this stage to do our [lab 0 tutorial](../../use-cases/kafka-streams/lab-0) to develop a first simple topology and test it without any Kafka cluster using the `Topology test driver`.
 
 The following code extract, is part of the Apache Kafka Word count example and is used to illustrate the programming model used: 
 
@@ -120,7 +119,6 @@ streams.start();
 * KTable is an abstraction of a changelog stream from a primary-keyed table.
 
 Important: map, flatMapValues and mapValues ... functions don’t modify the object or value presented as a parameter.
-
 
 ## Available tutorials
 
@@ -243,3 +241,4 @@ Multiple instances of a Faust worker can be started independently to distribute 
 * [Distributed, Real-time Joins and Aggregations using Kafka Stream, from Michael Noll at Confluent](https://www.confluent.io/blog/distributed-real-time-joins-and-aggregations-on-user-activity-events-using-kafka-streams/)
 * [Confluent Kafka Streams documentation](https://docs.confluent.io/current/streams/index.html#kafka-streams)
 * [Kafka Streams architecture article from Confluent](https://docs.confluent.io/current/streams/architecture.html).
+* [Andy Bryant's article on kafka stream work allocation and sub-topologies](https://medium.com/@andy.bryant/kafka-streams-work-allocation-4f31c24753cc)

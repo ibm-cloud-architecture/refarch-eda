@@ -7,10 +7,19 @@ The content of this repository was the source of the event-driven reference arch
 
 ### Building this booklet locally
 
-```
+```sh
 cd docs
 npm install
 npm run dev
+```
+
+If you do not want to update your computer or if gatsby is not compatible with the nodes environment use the dockerfile:
+
+```sh
+# Build the image
+docker build -f scripts/Dockerfile -t eda-nodes-env .
+# Then under the docs folder
+docker run -ti  -v $(pwd):/home -p 8000:8000 eda-nodes-env bash
 ```
 
 --- 
