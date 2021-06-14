@@ -237,7 +237,8 @@ Increase and decrease the number of Kafka connect workers based upon current app
 
 ## Competitors to Kafka
 
-* [NATS]()
+* [NATS](https://nats.io/)
+* [AMQ Streams](https://access.redhat.com/documentation/en-us/red_hat_amq/2021.q2/html/amq_streams_on_openshift_overview/index)
 * [Redpanda](https://vectorized.io/) a Modern streaming platform for mission critical workloads, and is compatible with Kafka API. It is a cluster of brokers without any zookeepers. It also leverage the SSD technology to improve I/O operations.
 * [AWS Kinesis](https://jbcodeforce.github.io/architecture/aws/#kinesis)
 	* Cloud service, managed by AWS staff, paid as you go, proportional to the shard (like partition) used.
@@ -262,6 +263,35 @@ Increase and decrease the number of Kafka connect workers based upon current app
 	* Support JMS, AMQP protocols, and participation to transaction
 	* Smart broker / dumb consumer model that focuses on consistently delivering messages to consumers.
 
+
+## Differences between AMQ Streams and Confluent
+
+Both are based on the open source Kafka, but Confluent as the main contributer to Kafka, is adding proprietary features to make the product more marketable, 
+so we will not do a pure features comparison a generic features comparison:
+
+ | Feature | Confluent | AMQ Streams | 
+ | --- | --- | --- |
+ | Kafka open source| Aligned within a month to the Kafka release | Within 2 months after Kafka release |
+ | Kafka API | Same | Same |
+ | k8s / OpenShift deployment | Helm "operator" | Real Kubernetes Operator based on open source Strimzi |
+ | Kafka Connectors | Connectors hub to reference any connectors on the market, with some certified for Confluent. | Open source connectors supported + Apache Camel ones |
+ | Schema registry | Proprietary API and schema | Leverage open source [Apicur.io](https://apicur.io) | 
+ | Cruise control for auto cluster balancing| Adds on | Available via Operator |
+ | Mirroring between clusters | Replicator tool | Mirror Maker 2 deployable and managed by Strimzi operator |
+ | Multi region cluster | Supported | Supported |
+ | Role Based access control | Supported | Supported with explicit user manifest, integrated with GitOps |
+ | ksql | Open sourced by licensed by Confluent | Not available due to license restriction. But can do SQL processing on Kafka Records with Apache Flink |
+ | Kafka Streams | Supported from Kafka Open Source |  Supported from Kafka Open Source. Also moving CEP, Streams processing in an external tools make a lot more sense. Apache Flink should be considered |
+ | Storage | NFS and tiered storage | Block storage with replication to s3 buckets for long persisence using Kafka connector |
+ | As a managed service | Proprietary solution | Same with: IBM Event Streams and Red Hat AMQ streams as a service |
+ | Integration with IBM mainframe | Not strategic - Weak | Strong with IBM connector and deployment on Z and P |
+ | Admin User Interface | Control center | Operator in OpenShift and open source user interface |
+
+As Kafka adoption is a strategic investment, it is important to grow the competency and skill set to manage kafka clusters. 
+Zookeeper was an important element to complexify the cluster management, as 2.8 it is removed, so it should be simpler to manage cluster.
+
+With customers cann influence the product roadmap, but it will kill the open source approach if only Confluent committers prioritize the feature requets. 
+It is important to keep competitions and multi committers.
 
 ## Differences between Akka and Kafka?
 
@@ -300,7 +330,7 @@ If no authentication property is specified then the listener does not authentica
 To connect any app (producer, consumer) we need a TLS user like:
 
 ```yaml
-piVersion: kafka.strimzi.io/v1beta1
+piVersion: kafka.strimzi.io/v1beta2
 kind: KafkaUser
 metadata:
   name: tls-user
@@ -353,7 +383,8 @@ Mutual TLS authentication is always used for the communication between Kafka bro
 
 * SCRAM: (Salted Challenge Response Authentication Mechanism) is an authentication protocol that can establish mutual authentication using passwords. Strimzi can configure Kafka to use SASL (Simple Authentication and Security Layer) SCRAM-SHA-512 to provide authentication on both unencrypted and encrypted client connections.
     * The listener declaration:
-    ```yaml
+    
+	```yaml
     - name: external
     port: 9094
     type: route
@@ -361,10 +392,11 @@ Mutual TLS authentication is always used for the communication between Kafka bro
     authentication:
       type: scram-sha-512
     ```
+
     * Need a scram-user:
 
     ```yaml
-    apiVersion: kafka.strimzi.io/v1beta1
+    apiVersion: kafka.strimzi.io/v1beta2
     kind: KafkaUser
     metadata:
     name: scram-user
@@ -375,7 +407,7 @@ Mutual TLS authentication is always used for the communication between Kafka bro
         type: scram-sha-512
     ```
 
-Then the app properties need:
+Then the app properties need to have:
 
 ```shell
 security.protocol=SASL_SSL

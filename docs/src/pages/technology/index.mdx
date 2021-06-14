@@ -3,7 +3,11 @@ title: Getting a starting environment to develop EDA solution
 description:  Getting a starting environment to develop EDA solution
 ---
 
-We are presenting in this note how to get development and deployment environments to start developing Event Driven microservice solution. We assume OpensShift deployment and at first Java as the main programming language.
+We are presenting in this note how to get development and deployment environments to start developing Event Driven microservice solution. 
+We assume OpensShift deployment and Java as the main programming language.
+
+For Kafka deployment Cloud Pak for integration offers choices, from proprietary solution like Confluent, to open source real Kubernetes Operator like Strimzi or AMQ Streams.
+
 
 ## Infrastructure for dev Integration test
 
@@ -20,9 +24,6 @@ We are presenting in this note how to get development and deployment environment
     * Install Cloud Pak for Integration platform navigator from the operator hub catalog
     * The previous steps should have installed the common services if they were not installed before. So get the admin password via the `platform-auth-idp-credentials` secret in the `ibm-common-services` project. ` oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 --decode`
     * More information on [CP4I Installation](https://www.ibm.com/support/knowledgecenter/SSGT7J_20.2/install/install.html)
-* Cloud Pak for Application
-  * You can either install Cloud Pak for Applications via the [CLI](https://www.ibm.com/support/knowledgecenter/SSCSJL_4.1.x/install-icpa-cli.html) or the [cloudctl CASE launcher](https://www.ibm.com/support/knowledgecenter/en/SSCSJL_4.2.x/install-icpa-case.html)
-  * Like the Cloud Pak for Integration you will need a key for the entitled registry.
   
 
 ### Deploying Event Streams
