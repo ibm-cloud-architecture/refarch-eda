@@ -3,7 +3,7 @@ title: Event Streaming versus Queuing
 description: Comparing and contrasting events and messages as communication artifacts in distributed systems.
 ---
 
-## MQ Versus Kafka
+## Queueing Versus Streaming
 
 Consider queue system. like IBM MQ, for:
 
@@ -11,36 +11,17 @@ Consider queue system. like IBM MQ, for:
 * Asynchronous request / reply communication: the semantic of the communication is for one component to ask a second command to do something on its data. This is a command pattern with delay on the response.
 * Recall messages in queue are kept until consumer(s) got them.
 
-Consider Kafka as pub/sub and persistence system for:
+Consider streaming system, like Kafka, as pub/sub and persistence system for:
 
 * Publish events as immutable facts of what happened in an application
 * Get continuous visibility of the data Streams
 * Keep data once consumed, for future consumers, for replay-ability
 * Scale horizontally the message consumption
 
-### Direct product feature comparison
-
-| Kafka | IBM MQ | 
-| --- | --- |
-| Kafka is a pub/sub engine with streams and connectors | MQ is a queue, pub/sub engine with file transfer, MQTT, AMQP and other capabilities |
-| All topics are persistent  | Queues and topics can be persistent or non persistent |
-| All subscribers are durable | Subscribers can be durable or non durable |
-| Adding brokers to requires little work (changing a configuration file)| Adding QMGRs requires some work (Add the QMGRs to the cluster, add cluster channels.  Queues and Topics need to be added to the cluster.) |
-| Topics can be spread across brokers (partitions) with a command | Queues and topics can be spread across a cluster by adding them to clustered QMGRs |
-| Producers and Consumers are aware of changes made to the cluster | All MQ clients require a CCDT file to know of changes if not using a gateway QMGR |
-| Can have n number of replication partitions | Can have 2 replicas (RDQM) of a QMGR, Multi Instance QMGRs |
-| Simple load balancing | Load balancing can be simple or more complex using weights and affinity |
-| Can reread messages | Cannot reread messages that have been already processed | 
-| All clients connect using a single connection method | MQ has Channels which allow different clients to connect, each having the ability to have different security requirements | 
-| Data Streams processing built in, using Kafka topic for efficiency| Stream processing is not built in, but using third party libraries, like MicroProfile Reactive Messaging, ReactiveX, etc. |
-| Has connection security, authentication security, and ACLs (read/write to Topic) | Has connection security, channel security, authentication security, message security/encryption, ACLs for each Object, third party plugins (Channel Exits) |
-| Built on Java, so can run on any platform that support Java 8+ | Latest native on AIX, IBM i, Linux systems, Solaris, Windows, z/OS, run as Container | 
-| Monitoring by using statistics provided by Kafka CLI, open source tools, Prometheus | Monitoring using PCF API, MQ Explorer, MQ CLI (runmqsc), Third Party Tools (Tivoli, CA APM, Help Systems, Open Source, etc) |
-
 
 ## Events and Messages
 
-There is a long history of *messaging* in IT systems.  You can easily see an event driven solution and events in the context of messaging systems and messages. However, there are different characteristics that are worth considering:
+There is a long history of *messaging* in IT systems.  You can easily see an event-driven solution and events in the context of messaging systems and messages. However, there are different characteristics that are worth considering:
 
 * **Messaging:** Messages transport a payload and messages are persisted until consumed. Message consumers are typically directly targeted and related to the producer who cares that the message has been delivered and processed.
 * **Events:** Events are persisted as a replayable stream history. Event consumers are not tied to the producer. An event is a record of something that has happened and so can't be changed. (You can't change history.)
@@ -65,6 +46,6 @@ For events:
 * **Immutable Data**
 * **Loosely coupled / decoupled** producers and consumers
 
-See also the [MQ in Event Driven Solution context](/technology/mq/)
+See also the [MQ in an event-driven solution context article](/technology/mq/)
 
 See [this code (Store sale simulator)](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) to produce to different middleware: RabbitMQ, IBM MQ or Kafka.

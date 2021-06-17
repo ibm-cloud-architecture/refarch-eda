@@ -40,18 +40,72 @@ By moving the ETL logic to a streaming application, we do not need to wait for t
 
 ## MQ Versus Kafka
 
-Consider queue system. like IBM MQ, for:
+We already addressed the differences between Queueing and Streaming in [this chapter](/concepts/events-versus-messages/).
 
-* Exactly once delivery, and to participate into two phase commit transaction
-* Asynchronous request / reply communication: the semantic of the communication is for one component to ask a second command to do something on its data. This is a command pattern with delay on the response.
-* Recall messages in queue are kept until consumer(s) got them.
+Now in term of technologies we can quickly highlight the following:
 
-Consider Kafka as pub/sub and persistence system for:
+### Kafka characteristics
 
-* Publish events as immutable facts of what happen in an application
-* Get continuous visibility of the data Streams
-* Keep data once consumed, for future consumers, for replayability
-* Scale horizontally the message consumption
+* Keep message for long period of time, messages are not deleted once consumed
+* Suited for high volume and low latency processing
+* Support pub/sub model only
+* Messages are ordered in a topic/partition
+* Stores and replicate events published to a topic, remove on expire period or on disk space constraint
+* Messages are removed from file system independent of applications 
+* Topic can have multiple partitions to make consumer processing parallel.
+* Not supporting two phase commits / XA transaction, but message can be produced with local transaction
+* Multi-region architecture requires data replication across regions
+* Cluster can support multi availability zones
+* But also support extended cluster to go over different regions if those regions have low latency network
+* Scales horizontally, by adding more nodes
+* non-standard API but rich library to support the main programming language.
+* But support also HTTP bridge or proxy to get message sent via HTTP
+* Kafka is easy to setup with kubernetes deployment with real operator, is more difficult to manage with bare metal deployment.
+* Cluster and topics definition can be managed with Gitops and automatically instantiated in new k8s cluster
+* Consumer and producers are build and deployed with simple CI/CD pipeline
+
+### MQ characteristics
+
+* Best suited for point-to-point communication 
+* Support horizontal scaling and high volume processing
+* Participate to XA transactionals
+* Exactly one delivery
+* Integrate with Mainframe
+* Support JMS for JEE applications
+* Messages are removed after consumption, they stayed persisted until consumed by all subscribers
+* Strong coupling with subscribers
+* Support MQ brokers cluster with leader and followers
+* Support replication between brokers
+* Support message priority
+* Easily containerized and managed with Kubernetes operators. 
+* Support AMQP protocol
+
+### Direct product feature comparison
+
+| Kafka | IBM MQ | 
+| --- | --- |
+| Kafka is a pub/sub engine with streams and connectors | MQ is a queue,or pub/sub engine |
+| All topics are persistent  | Queues and topics can be persistent or non persistent |
+| All subscribers are durable | Subscribers can be durable or non durable |
+| Adding brokers to requires little work (changing a configuration file)| Adding QMGRs requires some work (Add the QMGRs to the cluster, add cluster channels.  Queues and Topics need to be added to the cluster.) |
+| Topics can be spread across brokers (partitions) with a command | Queues and topics can be spread across a cluster by adding them to clustered QMGRs |
+| Producers and Consumers are aware of changes made to the cluster | All MQ clients require a CCDT file to know of changes if not using a gateway QMGR |
+| Can have n number of replication partitions | Can have 2 replicas (RDQM) of a QMGR, Multi Instance QMGRs |
+| Simple load balancing | Load balancing can be simple or more complex using weights and affinity |
+| Can reread messages | Cannot reread messages that have been already processed | 
+| All clients connect using a single connection method | MQ has Channels which allow different clients to connect, each having the ability to have different security requirements | 
+| Data Streams processing built in, using Kafka topic for efficiency| Stream processing is not built in, but using third party libraries, like MicroProfile Reactive Messaging, ReactiveX, etc. |
+| Has connection security, authentication security, and ACLs (read/write to Topic) | Has connection security, channel security, authentication security, message security/encryption, ACLs for each Object, third party plugins (Channel Exits) |
+| Built on Java, so can run on any platform that support Java 8+ | Latest native on AIX, IBM i, Linux systems, Solaris, Windows, z/OS, run as Container | 
+| Monitoring by using statistics provided by Kafka CLI, open source tools, Prometheus | Monitoring using PCF API, MQ Explorer, MQ CLI (runmqsc), Third Party Tools (Tivoli, CA APM, Help Systems, Open Source, etc) |
+
+### Migrating from MQ to Kafka
+
+When the real conditions as listed above are met, architects may assess if it makes sense to migrate application using MQ to Kafka. 
+Most of the time the investment is not justified. Modern MQ supports the same DevOps and deployment pattern as cloud native application.
+
+JEE or mainframe applications use MQ in transaction to avoid duplicate messages or loss of messages. Supporting exactly once delivery in Kafka
+needs some configuration and participation of producer and consumers: far more complex to implement.
 
 ## Kafka Streams vs Apache Flink
 
