@@ -1,5 +1,5 @@
 ---
-title: Real-time Inventory, powered by Kafka
+title: Real-time Inventory, powered by AMQ Streams
 description: An end-to-end data pipeline lab scenario, connecting multiple components of a realtime inventory system via Kafka Connect.
 ---
 
@@ -97,20 +97,20 @@ oc clone  https://github.com/ibm-cloud-architecture/eda-lab-inventory.git
 
 ## Lab 1: Kafka only solution to demonstrate real-time inventory with Kafka Streams
 
-In this lab we will deploy the solution using Strimzi on OpenShift. The diagram looks like the following:
+In this lab we will deploy the solution using AMQ Streams on OpenShift. The diagram looks like the following:
 
 ![](/images/inventory-components.png)
 
-The Kafka version is Strimzi 2.7.
+The Kafka version is AMQ Streams 2.7.
 
-The deployment to OpenShift using Kafka Strimzi operator, and gitops approach is described in dedicated lab you can read the details in the [Kafka Stream use case section](/use-cases/kafka-streams/lab-3/).
+The deployment to OpenShift using Kafka AMQ Streams operator, and gitops approach is described in dedicated lab you can read the details in the [Kafka Stream use case section](/use-cases/kafka-streams/lab-3/).
 
 Here are the simplest steps to deploy the solution in minimum configuration:
 
 1. Login to the OpenShift cluster (4.6 version): `oc login --token=sha256~d... --server=https://....containers.cloud.ibm.com...`
 1. Work from the clone repository: `cd eda-lab-inventory`
-1. Define the environment variables for your deployment in the: `scripts/env-strimzi.sh`
-1. Start the deploy with one script `./scripts/deployInventorySolutionWithStrimzi.sh --skip-login`
+1. Define the environment variables for your deployment in the: `scripts/env-AMQStreams.sh`. you mostly want to change 
+1. Start the deploy with one script `./scripts/deployInventorySolutionWithAMQStreams.sh --skip-login`
 
 
 ## Lab 2: Deploy the MQ Source Connector

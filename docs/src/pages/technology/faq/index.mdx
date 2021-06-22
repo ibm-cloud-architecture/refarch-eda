@@ -274,18 +274,18 @@ so we will not do a pure features comparison a generic features comparison:
  | Kafka open source| Aligned within a month to the Kafka release | Within 2 months after Kafka release |
  | Kafka API | Same | Same |
  | k8s / OpenShift deployment | Helm "operator" | Real Kubernetes Operator based on open source Strimzi |
- | Kafka Connectors | Connectors hub to reference any connectors on the market, with some certified for Confluent. | Open source connectors supported + Apache Camel ones |
- | Schema registry | Proprietary API and schema | Leverage open source [Apicur.io](https://apicur.io) | 
+ | Kafka Connectors | Connectors hub to reference any connectors on the market, with some certified for Confluent. | Open source connectors supported. Apache Camel offers a set of connectors not directly supported by Red Hat but useful in a BYO connectors. Fuse and Debezium can be used. |
+ | Schema registry | Proprietary API and schema |Solution may leverage open source [Apicur.io](https://apicur.io) schema registry which is compatible with Confluent API.| 
  | Cruise control for auto cluster balancing| Adds on | Available via Operator |
  | Mirroring between clusters | Replicator tool | Mirror Maker 2 deployable and managed by Strimzi operator |
  | Multi region cluster | Supported | Supported |
- | Role Based access control | Supported | Supported with explicit user manifest, integrated with GitOps |
- | ksql | Open sourced by licensed by Confluent | Not available due to license restriction. But can do SQL processing on Kafka Records with Apache Flink |
- | Kafka Streams | Supported from Kafka Open Source |  Supported from Kafka Open Source. Also moving CEP, Streams processing in an external tools make a lot more sense. Apache Flink should be considered |
- | Storage | NFS and tiered storage | Block storage with replication to s3 buckets for long persisence using Kafka connector |
+ | Role Based access control | Supported | Supported with explicit user manifest, integrated with Red Hat SSO and OPA. |
+ | ksql | Open sourced licensed by Confluent | Customer can use open source version of kSQL but meed to verify licensing for cloud deployment. SQL processing on Kafka Records may also being done with Apache Flink |
+ | Kafka Streams | Supported from Kafka Open Source |  Supported from Kafka Open Source. Also moving CEP and Streams processing to an external tool makes a lot more sense. Apache Flink should be considered. Not directly supported by Red Hat |
+ | Storage | NFS and tiered storage | Block storage with replication to s3 buckets for long persisence using Kafka connector. S3 Connector is not supported by Red Hat. |
  | As a managed service | Proprietary solution | Same with: IBM Event Streams and Red Hat AMQ streams as a service |
  | Integration with IBM mainframe | Not strategic - Weak | Strong with IBM connector and deployment on Z and P |
- | Admin User Interface | Control center | Operator in OpenShift and open source user interface |
+ | Admin User Interface | Control center | Operator in OpenShift and 3nd party open-source user interface like Kafdrop, Kowl, work with AMQ Streams but without direct support from Red Hat|
 
 As Kafka adoption is a strategic investment, it is important to grow the competency and skill set to manage kafka clusters. 
 Zookeeper was an important element to complexify the cluster management, as 2.8 it is removed, so it should be simpler to manage cluster.
