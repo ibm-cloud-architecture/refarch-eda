@@ -90,6 +90,8 @@
       path: /use-cases/overview/
     - title: Common pre-requisites
       path: /use-cases/overview/pre-requisites
+    - title: Deploy Confluent on OCP
+      path: /use-cases/confluent
     - title: Kafka Connect - S3
       path: /use-cases/connect-s3/
     - title: Kafka Connect - COS

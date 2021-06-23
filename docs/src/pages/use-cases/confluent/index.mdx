@@ -1,0 +1,321 @@
+---
+title: Getting started with Confluent Kafka with OpenShift
+description: Getting started with Confluent Kafka with OpenShift
+---
+
+In this scenario we're going to do a development deployment of Confluent platform using the Confluent for Kubernetes Operator.
+We are using TLS encryption between each components, and configuring different listeners for authentication. We are using
+
+To validate the deployment we will use two simple applications to produce and consume order message.
+
+The integration is using exposing the Kafka bootstrap server with OpenShift routes.
+
+
+## Prerequisites 
+
+- OC CLI
+- helm CLI
+- Cluster administrator access to OCP Cluster
+- You can clone the eda-lab-inventory repository
+ 
+  ```sh
+    git clone https://github.com/ibm-cloud-architecture/eda-lab-inventory
+  ```
+
+## For sizing 
+
+For production deployment you can use the [eventsizer website](https://eventsizer.io/) to assess the cluster sizing for VM, bare metal or Kubernetes deployment. 
+
+## Installing Confluent for Kubernetes operator
+
+1. Log in to the OpenShift cluster via the CLI first: `oc login ...`
+2. Create a new project/namespace to encapsulate the Confluent for Kubernetes resources.
+
+    ```shell
+    oc new-project confluent
+    ```
+
+> If you change this project name then you need to update the yaml file to define the plaform (See [this example file](https://raw.githubusercontent.com/ibm-cloud-architecture/eda-lab-inventory/master/environments/confluent/platform.yaml)).
+
+3. Add the necessary Confluent for Kubernetes helm repository artifacts and update.
+
+    ```shell
+    helm repo add confluentinc https://packages.confluent.io/helm
+    helm repo update
+    ```
+
+4. Install the Operator.
+
+    ```shell
+    helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes
+    ```
+
+5. You can wait for the status with the following command
+
+    ```shell
+    oc wait deployment confluent-operator --for=condition=Available
+    ```
+
+6. Authorize service account to get privileged security context
+
+    **Note** - You should see an error with insufficient security context and that your deployment cannot create a pod. The reason for this is because the associated service account does not have the sufficient permissions to create the pod. Run the following command to get a list of the Service Accounts in the current namespace.
+
+    ```shell
+    oc get sa
+
+    NAME                       SECRETS   AGE
+    builder                    2         4m11s
+    confluent-for-kubernetes   2         3m4s
+    default                    2         4m11s
+    deployer                   2         4m11s
+    pipeline                   2         4m11s
+    ```
+
+   As you can see there's the `confluent-for-kubernetes` service account that was automatically created. Run the following command to give that service account the sufficient constraints.
+
+    ```sh
+    oc adm policy add-scc-to-user privileged -z confluent-for-kubernetes
+    ```
+    
+    **Note** - Instead of adding the `privileged` security context constraint to the `confluent-for-kubernetes` service account, you may fancy to change the UID (1001) in the Confluent for Kubernetes operator `values.yaml` files instead and applying those custom helm charts.
+
+7. You might need to start a new rollout manually.
+
+   ```shell
+   oc rollout latest deployment confluent-operator
+   ```
+
+
+## Deploying Confluent Platform
+
+### Security settings
+
+We're going to be exposing the Kafka service using OpenShift routes which requires TLS configurations for Confluent Platform.
+
+* First of all, we will need to update the `default` Service Account so that the resources can be brought up.
+
+    ```shell
+    oc adm policy add-scc-to-user privileged -z default
+    ```
+
+> **Note** Similar to deploying the Confluent for Kubernetes operator, instead of adding the `privileged` security context constraint to the `default` 
+service account, you may fancy to change the UID (1001) required in the helm chart yaml files instead and applying those.
+
+* In the root of [one of our lab repository]() is a folder named `environment/confluent/certs/`. We have defined some sample configurations to use to 
+generate our Certificate Authority (CA) keys. **IMPORTANT** - If using another namespace name, the `certs/server-domain.json` file may need to be modified. 
+You can replace the `confluen` value with the project/namespace that you have your Confluent for Kubernetes resources located in.
+
+    ```
+    "*.confluent.svc.cluster.local",
+    "*.zookeeper.confluent.svc.cluster.local",
+    "*.kafka.confluent.svc.cluster.local"
+    ```
+
+* We will need the [cfssl](https://github.com/cloudflare/cfssl) CLI tool to sign, vereify and bundle TLS certificates. On MacOS you can use brew to install it.
+
+    ```sh
+    brew install cfssl
+    ```
+
+* We'll create a new folder `certs/generated/` to keep the CA generated files.
+
+ ```sh
+    # under environments/confluent
+    mkdir ./certs/generated
+    cfssl gencert -initca ./certs/ca-csr.json | cfssljson -bare ./certs/generated/ca -
+ ```
+
+this should creates:
+
+```sh
+  ├── generated
+  │   ├── ca-key.pem
+  │   ├── ca.csr
+  │   └── ca.pem
+```
+
+* We can validate the CA file with the following.
+
+    ```sh
+    openssl x509 -in ./certs/generated/ca.pem -text -noout
+    ```
+
+* Now to create server certificates with the appropriate SANs (SANs listed in server-domain.json) we do:
+
+    ```sh
+    cfssl gencert -ca=./certs/generated/ca.pem \
+    -ca-key=./certs/generated/ca-key.pem \
+    -config=./certs/ca-config.json \
+    -profile=server ./certs/server-domain.json | cfssljson -bare ./certs/generated/server
+    ```
+
+  This should add:
+
+```sh
+    ├── generated
+    |  ├── server-key.pem
+    |  ├── server.csr
+    |  └── server.pem
+```
+
+* Again, we can validate the server certificate and SANs
+
+    ```sh
+    openssl x509 -in ./certs/generated/server.pem -text -noout
+    ```
+
+* We're going to create eight OpenShift secrets which will all use the same CA files for the sake of simplicity. In production we may is differnet certificate
+for each component. They will all be named differently as the TLS configurations within the various Custom Resources expect different TLS secrets. 
+
+    ```sh
+    oc create secret generic generic-tls \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem &&
+    oc create secret generic kafka-tls-internal \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem &&
+    oc create secret generic kafka-tls-external \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem && 
+    oc create secret generic zk-tls \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem && 
+    oc create secret generic connect-tls \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem &&
+    oc create secret generic ksqldb-tls \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem &&
+    oc create secret generic controlcenter-tls \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem &&
+    oc create secret generic schemaregistry-tls \
+    --from-file=fullchain.pem=./certs/generated/server.pem \
+    --from-file=cacerts.pem=./certs/generated/ca.pem \
+    --from-file=privkey.pem=./certs/generated/server-key.pem 
+    ```
+
+* We need to create another secret for the internal Kafka listener so that the other Confluent Platform resources can connect to the Kafka cluster
+ over PLAINTEXT.
+
+    ```sh
+    oc create secret generic internal-plain-credential \
+    --from-file=plain-users.json=./certs/creds-kafka-sasl-users.json \
+    --from-file=plain.txt=./certs/creds-client-kafka-sasl-user.txt
+    ```
+
+ 
+### Deploy the platform components form one descriptor
+
+
+* Get the Openshift ingress subdomain name: 
+
+![Ingress Subdomain](./images/cluster-subdomain.png)
+
+ and update the `environments/confluent/platform.yaml` file to reflect this domain for the route elements:
+
+  ```yaml
+  apiVersion: platform.confluent.io/v1beta1
+  kind: Kafka 
+  spec:
+    listeners: 
+        external:
+            externalAccess:
+                type: route
+                route:
+                    domain: <tochange>.....
+
+  # control center
+  apiVersion: platform.confluent.io/v1beta1
+  kind: ControlCenter
+  spec:
+    externalAccess:
+        type: route
+        route:
+            domain: <tochange>.
+  ```
+
+* Apply the minimum custom resources to get 3 zookeepers, 3 Kafka Broker, 1 Kafka connector, ksqlDB, ControlCenter and schema registry:
+
+    ```shell
+    oc apply -f environments/confluent/platform.yaml
+    ```
+
+> **Note** - If you created a namespace with a name other than `confluent` you will need to create a local yaml file and you can either remove `metadata.namespace: confluent` 
+in each of the Custom Resource YAMLs and apply that file in your created namespace or edit `metadata.namespace: ` value to your created one. 
+You can also customize the settings in these YAMLs as you see fit. 
+In [this repository](https://github.com/ibm-cloud-architecture/eda-lab-inventory) you will find [such a file](https://github.com/ibm-cloud-architecture/eda-lab-inventory/tree/master/environments/confluent/platform.yaml).
+
+* Now wait a few minutes for all the resources to come up.
+
+    ```shell
+    oc get pods -w
+
+    NAME                                  READY   STATUS    RESTARTS   AGE
+    confluent-operator-5b4fb58d99-vbnsn   1/1     Running   0          29m
+    connect-0                             1/1     Running   2          5m44s
+    controlcenter-0                       0/1     Pending   0          108s
+    kafka-0                               1/1     Running   0          4m9s
+    kafka-1                               1/1     Running   0          4m9s
+    kafka-2                               1/1     Running   0          4m9s
+    ksqldb-0                              0/1     Pending   0          109s
+    schemaregistry-0                      1/1     Running   0          109s
+    zookeeper-0                           1/1     Running   0          5m44s
+    zookeeper-1                           1/1     Running   0          5m44s
+    zookeeper-2                           1/1     Running   0          5m44s
+    ```
+
+* Once everything is ready you can test by port-forwarding to `controlcenter-0` pod.
+
+    ```shell
+    oc port-forward controlcenter-0 9021:9021
+    ```
+
+    Forwarding from 127.0.0.1:9021 -> 9021
+    Forwarding from [::1]:9021 -> 9021
+    Handling connection for 9021
+
+* In your browser go to `localhost:9021`.
+
+    ![Confluent Control Center](./images/confluent-control-center.png)
+
+
+## Add topics
+
+Create the `KafkaTopic` custom resource anemd `orders`.
+
+```sh
+cat << EOF | oc apply -f -
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: orders
+  namespace: confluent
+spec:
+  replicas: 3
+  partitionCount: 1
+  configs:
+    cleanup.policy: "delete"
+EOF
+
+```
+
+## Validate deployment by access control center user interface
+
+Once everything is up and running you can verify the Control center using a port forward like before.
+
+```shell
+oc port-forward control-center-0 9021:9021
+```
+
+* Go to `https://localhost:9021`. The `https` is important unlike previously as it's now secured.
+
+You can also view the Control Center UI from the enabled route which will be in the form of something like the following
+`cc-route......containers.appdomain.cloud`

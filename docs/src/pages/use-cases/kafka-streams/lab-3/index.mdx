@@ -171,43 +171,7 @@ The script performs the following steps:
 
 ## Testing the solution
 
-We will first go over the demonstration using the store simulator then using and end to end test script
-
-1. Go to the Simulator user interface using the route like: `https://store-simulator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud`
-
-  ![](./images/simulator-home.png)
-
-  The simulator will send random sell events for the stores as listed in the Stores table (the content may change in future release):
-
-  ![](./images/stores-view.png)
-
-1. Send some events by selecting the toggle Kafka and then the number of records to send:
-
-  ![](./images/run-simulation.png)
-
-  once started a table should be displayed to present the records sent. 
-
-1. Let assess if we can see the stock cross store: use the item-aggregator route, something like ` item-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` but completed with '/q/swagger-ui' as we want to access the API
-  
-   Select the get `/api/v1/items/{itemID}` operation:
-
-  ![](./images/items-stock-req.png)
-
-  Use one of the following item id: [Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7]. You should get 
-  the current stock cross stores
-
-  ![](./images/item-stock-response.png)
-
-1. Let assess a store stock with all the items, for that we access the store aggregator URL: `store-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` with the `/q/swagger-ui` suffix.
-
-  Then use the GET on the `api/v1/stores/inventory/{storeID}`, and enter one of the available store: `[Store_1, Store_2, Store_3, Store_4, Store_5]`
-
-  ![](./images/store-stock-req.png)
-
-  The response should look like:
-
-  ![](./images/store-stock-response.png)
-
+We have moved the demonstration script to the [scenario chapter](/scenarios/realtime-inventory/#demonstration-script-for-the-solution).
 
 
 ## Understanding the Kafka Streams implementation

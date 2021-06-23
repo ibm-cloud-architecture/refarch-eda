@@ -4,47 +4,60 @@ description: An end-to-end data pipeline lab scenario, connecting multiple compo
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 06/09/2021</strong> - Work in progress
+<strong>Updated 06/22/2021</strong> - Work in progress
 </InlineNotification>
 
 <AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
   <AnchorLink>What you will learn</AnchorLink>
+  <AnchorLink>Overview</AnchorLink>
+ 
   <AnchorLink>Solution anatomy</AnchorLink>
   <AnchorLink>General pre-requisites</AnchorLink>
-  <AnchorLink>Lab 1: Kafka only solution to demonstrate real-time inventory</AnchorLink>
+  <AnchorLink>Lab 1: Demonstrate real-time inventory with AMQ Streams</AnchorLink>
   <AnchorLink>Lab 2: Deploy the MQ Source Connector</AnchorLink>
   <AnchorLink>Lab 3: Deploy the MQ Sink Connector [B]</AnchorLink>
   <AnchorLink>Lab 4: Deploy the JDBC Sink Connector</AnchorLink>
  </AnchorLinks>
 
+## What you will learn
+
+* Use Quarkus, with reactive programming API like Mutiny, with Kafka API to produce message to Kafka
+* Same Quarkus app can generate messages to RabbitMQ using the AMQP API
+* Same Quarkus app can generate mesasges to IBM MQ using JMS
+* Use Quarkus and Kafka streams to compute aggregates to build an inventory view from the stream of sale order events
+* Use the RabbitMQ source connector from IBM Event messaging open source contribution
+* Use the IBM MQ sink connector from IBM Event messaging open source contribution
+* Use the JDBC sink connector from IBM Event messaging open source contribution
+* Use Tekton to build each service
+
 ## Overview
 
 This scenario implements a simple real time inventory management solution based on real life MVPs we developed in 2020. 
 Stores are sending their sale transactions to a central messaging platform, based on queues or topics, and with the adoption
-of loosely coupled microservices, real time analytics Kafka is part of the architecture. A
-dopting Kafka Connect helps to integrate with existing applications without any changes to their base code.
+of loosely coupled microservices, real time analytics Kafka is part of the architecture. Adopting Kafka Connect helps to integrate with existing applications without any changes to their base code.
 
 ![](./images/hl-view.png)
 
-This scenario addresses multiple use cases that aim to build an end to end data pipeline solution from source to different potential sinks:
+This scenario addresses multiple use cases which build an end-to-end modern data pipeline solution from source to different potential sinks:
 
 * The store simulator injects directly sell events to Kafka to the `items` topic
 * The store simulator can also generate message to IBM MQ using JMS API or to RabbitMQ using AMQP protocol. So we can demonstrate Kafka connectors with RabbitMQ source or IBM MQ source.
 * When messages are sourced to Queues, then a Kafka Source Connector is used to propagate message to `items` topics.
 * The Inventory computation is done using Kafka Stream component which produces inventory items and keep, in-memory a stock per items. 
-This inventory is exposed by API and used the interactive query capability of Kafka Streams.
-* Different sink connectors can be plugged into this `inventory` topic to move data to DB2, Elastic Search, Cloud Object Storage...
+This item inventory aggregator is exposed by API and uses the interactive query capability of Kafka Streams to get item stock via HTTP.
+* Different sink connectors can be plugged into this `item.inventory` topic to move data to DB2, Elastic Search, Cloud Object Storage...
+* To compute store inventory, another aggregator is developed to generate aggregates per store on the `store.inventory` topic.
 
-We try to make the business scenario, easily demonstrable by running locally with docker or on an OpenShift Cluster.
+We try to make the business scenario, easily demonstrable by enablind developer's laptop execution with docker compose or use a simple free OpenShift Cluster on IBM cloud.
 
 In real life, an as-is solution will include backend applications to manage the warehouses inventory, connected to a fulfillment home build application,
-combined with store application and servers, e-commerce suite, and a set of SOA services acting as modern backend system.
+combined with store application and servers, e-commerce suite, and a set of SOA services acting as backend systems.
 
  ![](./images/as-is-soa.png)
 
 We may have integration flows to do data mapping, most of those calls are synchronous and to get one item availability, a lot of SOAP calls are done, 
-increasing latency, and risk of failure.
+increasing latency, and risk of failure. There is [an interesting video](https://www.youtube.com/watch?v=FskIb9SariI) from Scott Havens explaining the needs 
+from transitioning from a synchronous architecture to an event driven asynchronous one when scaling is a must. This lab reflects this approach.
 
 ### Component view
 
@@ -58,16 +71,7 @@ publishes the messages to a Kafka topic, which then will be processed by a serie
 All the components of this scenario are ready to run on OpenShift, but we are also providing different docker compose files to run all of those components on your local computer. 
 The important body of knowledge of this scenario is related to the programming model we used, and the Kafka Connect configuration and code.
 
-## What you will learn
 
-* Use Quarkus, with reactive programming API like Mutiny, with Kafka API to produce message to Kafka
-* Same Quarkus app can generate messages to RabbitMQ using the AMQP API
-* Same Quarkus app can generate mesasges to IBM MQ using JMS
-* Use Kafka Connect to get source and sink cluster to get date from the RabbitMQ queue and to IBM MQ queue or DB2
-* Use Quarkus and Kafka streams to compute aggregates to build an inventory view from the stream of events
-* Use the RabbitMQ source connector from IBM Event messaging open source contribution
-* Use the IBM MQ sink connector from IBM Event messaging open source contribution
-* Use the JDBC sink connector from IBM Event messaging open source contribution
 
 ## Solution anatomy
 
@@ -95,7 +99,7 @@ oc clone  https://github.com/ibm-cloud-architecture/eda-lab-inventory.git
 ```
 
 
-## Lab 1: Kafka only solution to demonstrate real-time inventory with Kafka Streams
+## Lab 1: Demonstrate real-time inventory with AMQ Streams
 
 In this lab we will deploy the solution using AMQ Streams on OpenShift. The diagram looks like the following:
 
@@ -109,8 +113,94 @@ Here are the simplest steps to deploy the solution in minimum configuration:
 
 1. Login to the OpenShift cluster (4.6 version): `oc login --token=sha256~d... --server=https://....containers.cloud.ibm.com...`
 1. Work from the clone repository: `cd eda-lab-inventory`
-1. Define the environment variables for your deployment in the: `scripts/env-AMQStreams.sh`. you mostly want to change 
-1. Start the deploy with one script `./scripts/deployInventorySolutionWithAMQStreams.sh --skip-login`
+1. Define the environment variables for your deployment in the: `scripts/env-AMQStreams.sh`. you mostly want to change the following variables or use our settings:
+
+  ```
+  YOUR_PROJECT_NAME=rt-inventory
+  ```
+
+  > as of now the admin user and password are not used... may be in the future.
+
+1. Start the deploy with one script `./scripts/deployInventorySolutionWithAMQStreams.sh --skip-login`. This should create AMQ streams cluster, and deploy the 4 applications.
+
+  ```sh
+  oc project rt-inventory
+  oc get pods
+
+  NAME                                         READY   STATUS    RESTARTS   AGE
+  amq-kafka-cruise-control-6d6bf8b774-99rwl    2/2     Running   0          4d
+  amq-kafka-entity-operator-75f7bc8f5c-x4vkt   3/3     Running   0          4d
+  amq-kafka-kafka-0                            1/1     Running   0          4d
+  amq-kafka-kafka-1                            1/1     Running   0          4d
+  amq-kafka-kafka-2                            1/1     Running   0          4d
+  amq-kafka-zookeeper-0                        1/1     Running   0          4d
+  amq-kafka-zookeeper-1                        1/1     Running   0          4d
+  amq-kafka-zookeeper-2                        1/1     Running   0          4d
+  item-aggregator-669fd4fffc-4fvhk             1/1     Running   0          30h
+  item-aggregator-669fd4fffc-gtvls             1/1     Running   0          30h
+  item-aggregator-669fd4fffc-kxvfh             1/1     Running   0          30h
+  store-aggregator-7df98556ff-cxjz5            1/1     Running   0          29h
+  store-aggregator-7df98556ff-dl9wz            1/1     Running   0          29h
+  store-aggregator-7df98556ff-f2ndq            1/1     Running   0          29h
+  store-simulator-56f8958498-mvhp9             1/1     Running   0          4d
+  ```
+
+### Demonstration script for the Solution
+
+We will first go over the demonstration using the store simulator then using and end to end test script
+
+1. Go to the Simulator user interface using the route like: `https://store-simulator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud`
+
+  To get this route use the following command:
+
+  ```sh
+  oc get routes store-simulator  -o jsonpath="{.spec.host}" && echo
+  ```
+
+  ![](./images/simulator-home.png)
+
+  The simulator will send random sell events for the stores as listed in the Stores table (the content may change in future release):
+
+  ![](./images/stores-view.png)
+
+1. Send some events by selecting the toggle Kafka and then the number of records to send:
+
+  ![](./images/run-simulation.png)
+
+  once started a table should be displayed to present the records sent to Kafka. 
+
+1. Let assess if we can see the item stock cross stores: use the item-aggregator route, something like ` item-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` but completed with '/q/swagger-ui' as we want to access the API
+  
+  To get this route use the following command:
+
+  ```sh
+  oc get routes item-aggregator -o jsonpath="{.spec.host}" && echo
+  ```
+
+   Select the get `/api/v1/items/{itemID}` operation:
+
+  ![](./images/items-stock-req.png)
+
+  Use one of the following item id: [Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7]. You should get 
+  the current stock cross stores
+
+  ![](./images/item-stock-response.png)
+
+1. Let assess a store stock, for that we access the store aggregator URL: `store-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` with the `/q/swagger-ui` suffix.
+
+  To get this route use the following command:
+
+  ```sh
+  oc get routes store-aggregator -o jsonpath="{.spec.host}" && echo
+  ```
+
+  Then use the GET on the `api/v1/stores/inventory/{storeID}`, and enter one of the available store: `[Store_1, Store_2, Store_3, Store_4, Store_5]`
+
+  ![](./images/store-stock-req.png)
+
+  The response should look like:
+
+  ![](./images/store-stock-response.png)
 
 
 ## Lab 2: Deploy the MQ Source Connector
