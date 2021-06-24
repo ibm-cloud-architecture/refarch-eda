@@ -5,7 +5,13 @@ description: Kafka Producers & Consumers
 
 <AnchorLinks>
   <AnchorLink>Kafka Producers</AnchorLink>
+  <AnchorLink>Design considerations</AnchorLink>
+  <AnchorLink>Typical producer code structure</AnchorLink>
+  <AnchorLink>How to support exactly once delivery</AnchorLink>
   <AnchorLink>Kafka Consumers</AnchorLink>
+   <AnchorLink>Consumer group</AnchorLink>
+  <AnchorLink>Assess number of consumers needed</AnchorLink>
+  <AnchorLink>Offset management</AnchorLink>
 </AnchorLinks>
 
 # Kafka Producers
@@ -50,7 +56,7 @@ Here is a list of common API to use in your producer and consumer code.
 * [ProducerRecord](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/producer/ProducerRecord.html) to be published to a topic
 * [RecordMetadata](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/producer/RecordMetadata.html) metadata for a record that has been acknowledged by the server.
 
-## Properties to consider
+### Properties to consider
 
 The following properties are helpful to tune at each topic and producer and will vary depending on the requirements:  
 
@@ -158,7 +164,7 @@ There is an interesting [article](https://www.baeldung.com/kafka-exactly-once) f
 
 This note includes some quick summary of different practices we discovered and studied over time. It may be useful for beginner or seasoned developers who want a refresh after some time far away from Kafka...
 
-## Important concepts
+## Consumer group
 
 Consumers belong to **consumer groups**. You specify the group name as part of the consumer connection parameters using the `group.id` configuration:
 
@@ -277,11 +283,6 @@ The risk, is that slow consumer may fall behind, and when partition management m
 
 You can use the kafka-consumer-groups tool to see the consumer lag.
 
-## Repositories with consumer code
-
-* Within the Reefer ontainer shipment solution we have a order events consumer: [order event agent](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/master/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderEventAgent.java)
-* [Nodejs kafka consumers and producers](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/voyages-ms/server/utils/kafka.js)
-* [A lot of python consumer codes in the integration tests, with or without Avro schema](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/itg-tests/kafka)
 
 ## Kafka useful Consumer APIs
 
@@ -295,6 +296,13 @@ You can use the kafka-consumer-groups tool to see the consumer lag.
   * if a process fails, the partitions assigned to it will be reassigned to other consumers in the same group
 * [ConsumerRecords](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecords.html) holds the list ConsumerRecord per partition for a particular topic.
 * [ConsumerRecord](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecord.html) A key/value pair to be received from Kafka. This also consists of a topic name and a partition number from which the record is being received, an offset that points to the record in a Kafka partition, and a timestamp
+
+### Repositories with consumer code
+
+* Within the Reefer ontainer shipment solution we have a order events consumer: [order event agent](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms/blob/master/order-command-ms/src/main/java/ibm/gse/orderms/infrastructure/kafka/OrderEventAgent.java)
+* [Quarkus app with Kafka streams](https://github.com/ibm-cloud-architecture/refarch-eda-store-inventory)
+* [Nodejs kafka consumers and producers](https://github.com/ibm-cloud-architecture/refarch-kc-ms/blob/master/voyages-ms/server/utils/kafka.js)
+* [A lot of python consumer codes in the integration tests, with or without Avro schema](https://github.com/ibm-cloud-architecture/refarch-kc/tree/master/itg-tests/kafka)
 
 ## References
 
