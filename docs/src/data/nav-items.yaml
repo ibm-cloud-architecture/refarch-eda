@@ -88,7 +88,7 @@
   pages:
     - title: Overview
       path: /use-cases/overview/
-    - title: Common pre-requisites
+    - title: Event Streams CP4I
       path: /use-cases/overview/pre-requisites
     - title: Deploy Confluent on OCP
       path: /use-cases/confluent

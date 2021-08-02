@@ -3,41 +3,48 @@ title: Getting started with Confluent Kafka with OpenShift
 description: Getting started with Confluent Kafka with OpenShift
 ---
 
-In this scenario we're going to do a development deployment of Confluent platform using the Confluent for Kubernetes Operator.
-We are using TLS encryption between each components, and configuring different listeners for authentication. We are using
+In this scenario, we're going to do a development deployment of Confluent platform using the Confluent for Kubernetes Operator.
+We are using TLS encryption between each components, and configuring different listeners for authentication, and 
+expose the Kafka bootstrap server with OpenShift routes.
 
-To validate the deployment we will use two simple applications to produce and consume order message.
+To validate the deployment we will use two simple applications to produce and consume order messages.
 
-The integration is using exposing the Kafka bootstrap server with OpenShift routes.
-
+Confluent has worked on the development of new operator. The current product documentation can be found [in Confluent for kubernetes](https://docs.confluent.io/operator/current/overview.html).
+Some examples of cluster configuration are in [the confluent-kubernetes-examples github repo](https://github.com/confluentinc/confluent-kubernetes-examples).
 
 ## Prerequisites 
 
 - OC CLI
-- helm CLI
+- Helm CLI
+- Helm 3 on OCP deployed
 - Cluster administrator access to OCP Cluster
+- Be sure clock synchronization is setup using Network Time Protocol between worker node (`ps -ef | grep ntpd`).
 - You can clone the eda-lab-inventory repository
  
   ```sh
     git clone https://github.com/ibm-cloud-architecture/eda-lab-inventory
   ```
 
-## For sizing 
+## Assess platform sizing 
 
-For production deployment you can use the [eventsizer website](https://eventsizer.io/) to assess the cluster sizing for VM, bare metal or Kubernetes deployment. 
+For production deployment you can use the [eventsizer website](https://eventsizer.io/) to assess the cluster sizing for VM, 
+bare metal or Kubernetes deployment. The [Confluent System requirements](https://docs.confluent.io/platform/current/installation/system-requirements.html#system-requirements) is also 
+giving guidelines for the different Confluent components in term of physical resources and supported OS.
+
+The important considerations for the broker are the disk, RAM and CPUs. Dedicating one to one k8s worker node to Kafka broker node is a safe decision.
 
 ## Installing Confluent for Kubernetes operator
 
 1. Log in to the OpenShift cluster via the CLI first: `oc login ...`
 2. Create a new project/namespace to encapsulate the Confluent for Kubernetes resources.
 
-    ```shell
+    ```sh
     oc new-project confluent
     ```
 
 > If you change this project name then you need to update the yaml file to define the plaform (See [this example file](https://raw.githubusercontent.com/ibm-cloud-architecture/eda-lab-inventory/master/environments/confluent/platform.yaml)).
 
-3. Add the necessary Confluent for Kubernetes helm repository artifacts and update.
+3. Add the necessary Confluent for Kubernetes **Helm** repository artifacts and update.
 
     ```shell
     helm repo add confluentinc https://packages.confluent.io/helm
@@ -101,17 +108,22 @@ We're going to be exposing the Kafka service using OpenShift routes which requir
 > **Note** Similar to deploying the Confluent for Kubernetes operator, instead of adding the `privileged` security context constraint to the `default` 
 service account, you may fancy to change the UID (1001) required in the helm chart yaml files instead and applying those.
 
-* In the root of [one of our lab repository]() is a folder named `environment/confluent/certs/`. We have defined some sample configurations to use to 
-generate our Certificate Authority (CA) keys. **IMPORTANT** - If using another namespace name, the `certs/server-domain.json` file may need to be modified. 
-You can replace the `confluen` value with the project/namespace that you have your Confluent for Kubernetes resources located in.
+* In the root of [one of our lab repository](https://github.com/ibm-cloud-architecture/eda-lab-inventory) is a folder named `environment/confluent/certs/`. 
+We have defined some sample configurations to use to 
+generate our Certificate Authority (CA) keys. 
 
-    ```
-    "*.confluent.svc.cluster.local",
-    "*.zookeeper.confluent.svc.cluster.local",
-    "*.kafka.confluent.svc.cluster.local"
-    ```
+> **IMPORTANT** - If using another namespace name, the `certs/server-domain.json` file may need to be modified. 
 
-* We will need the [cfssl](https://github.com/cloudflare/cfssl) CLI tool to sign, vereify and bundle TLS certificates. On MacOS you can use brew to install it.
+You can replace the `confluent` value with the project/namespace that you have your Confluent for Kubernetes resources located in.
+Below is an example of 
+
+```shell
+    *.confluent.svc.cluster.local,
+    *.zookeeper.confluent.svc.cluster.local,
+    *.kafka.confluent.svc.cluster.local
+```
+
+* We will need the [cfssl](https://github.com/cloudflare/cfssl) CLI tool to sign, verify and bundle TLS certificates. On MacOS you can use brew to install it.
 
     ```sh
     brew install cfssl
@@ -125,49 +137,49 @@ You can replace the `confluen` value with the project/namespace that you have yo
     cfssl gencert -initca ./certs/ca-csr.json | cfssljson -bare ./certs/generated/ca -
  ```
 
-this should creates:
+ this should creates the following files:
 
-```sh
-  ├── generated
+ ```sh
+   ├── generated
   │   ├── ca-key.pem
   │   ├── ca.csr
-  │   └── ca.pem
-```
+   │   └── ca.pem
+ ```
 
 * We can validate the CA file with the following.
 
-    ```sh
+ ```sh
     openssl x509 -in ./certs/generated/ca.pem -text -noout
-    ```
+ ```
 
 * Now to create server certificates with the appropriate SANs (SANs listed in server-domain.json) we do:
 
-    ```sh
+ ```sh
     cfssl gencert -ca=./certs/generated/ca.pem \
     -ca-key=./certs/generated/ca-key.pem \
     -config=./certs/ca-config.json \
-    -profile=server ./certs/server-domain.json | cfssljson -bare ./certs/generated/server
-    ```
+    -profile=server ./certs/server-domain.json | cfssljson -bare ./certs/generated/server 
+ ```
 
   This should add:
 
-```sh
+  ```sh
     ├── generated
     |  ├── server-key.pem
-    |  ├── server.csr
-    |  └── server.pem
-```
+  |  ├── server.csr
+    |  └── server.pem 
+  ```
 
 * Again, we can validate the server certificate and SANs
 
-    ```sh
+ ```sh
     openssl x509 -in ./certs/generated/server.pem -text -noout
-    ```
+ ```
 
 * We're going to create eight OpenShift secrets which will all use the same CA files for the sake of simplicity. In production we may is differnet certificate
 for each component. They will all be named differently as the TLS configurations within the various Custom Resources expect different TLS secrets. 
 
-    ```sh
+ ```sh
     oc create secret generic generic-tls \
     --from-file=fullchain.pem=./certs/generated/server.pem \
     --from-file=cacerts.pem=./certs/generated/ca.pem \
@@ -200,7 +212,7 @@ for each component. They will all be named differently as the TLS configurations
     --from-file=fullchain.pem=./certs/generated/server.pem \
     --from-file=cacerts.pem=./certs/generated/ca.pem \
     --from-file=privkey.pem=./certs/generated/server-key.pem 
-    ```
+ ```
 
 * We need to create another secret for the internal Kafka listener so that the other Confluent Platform resources can connect to the Kafka cluster
  over PLAINTEXT.
@@ -217,11 +229,11 @@ for each component. They will all be named differently as the TLS configurations
 
 * Get the Openshift ingress subdomain name: 
 
-![Ingress Subdomain](./images/cluster-subdomain.png)
+ ![Ingress Subdomain](./images/cluster-subdomain.png)
 
  and update the `environments/confluent/platform.yaml` file to reflect this domain for the route elements:
 
-  ```yaml
+ ```yaml
   apiVersion: platform.confluent.io/v1beta1
   kind: Kafka 
   spec:
@@ -240,7 +252,7 @@ for each component. They will all be named differently as the TLS configurations
         type: route
         route:
             domain: <tochange>.
-  ```
+ ```
 
 * Apply the minimum custom resources to get 3 zookeepers, 3 Kafka Broker, 1 Kafka connector, ksqlDB, ControlCenter and schema registry:
 
@@ -251,7 +263,7 @@ for each component. They will all be named differently as the TLS configurations
 > **Note** - If you created a namespace with a name other than `confluent` you will need to create a local yaml file and you can either remove `metadata.namespace: confluent` 
 in each of the Custom Resource YAMLs and apply that file in your created namespace or edit `metadata.namespace: ` value to your created one. 
 You can also customize the settings in these YAMLs as you see fit. 
-In [this repository](https://github.com/ibm-cloud-architecture/eda-lab-inventory) you will find [such a file](https://github.com/ibm-cloud-architecture/eda-lab-inventory/tree/master/environments/confluent/platform.yaml).
+In the [eda-lab-inventory repository](https://github.com/ibm-cloud-architecture/eda-lab-inventory) you will find [such a file](https://github.com/ibm-cloud-architecture/eda-lab-inventory/tree/master/environments/confluent/platform.yaml).
 
 * Now wait a few minutes for all the resources to come up.
 
@@ -289,9 +301,9 @@ In [this repository](https://github.com/ibm-cloud-architecture/eda-lab-inventory
 
 ## Add topics
 
-Create the `KafkaTopic` custom resource anemd `orders`.
+Create the `KafkaTopic` custom resource named `orders`.
 
-```sh
+ ```sh
 cat << EOF | oc apply -f -
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaTopic
@@ -305,7 +317,7 @@ spec:
     cleanup.policy: "delete"
 EOF
 
-```
+ ```
 
 ## Validate deployment by access control center user interface
 
