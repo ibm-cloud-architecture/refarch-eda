@@ -317,12 +317,63 @@ The IBM COS Sink Connector source code is availabe at this repository [here](htt
 
 **IMPORTANT:** Make sure you have **Java 8** installed on your workstation and that is the default Java version of your system since the IBM COS Sink Connector can only be built with that version of Java.
 
+
 1. Clone the Kafka Connect IBM COS Source Connector repository and then change your folder.
 
   ```shell
   git clone https://github.com/ibm-messaging/kafka-connect-ibmcos-sink.git
   cd kafka-connect-ibmcos-sink/
   ```
+  
+**IMPORTANT Part Two:** Depending on your Gradle version you have installed on your machine you will need to update the connector's gradle build file. For example Gradle v7.x the `build.gradle` file should look something like this as the `compile()` method is deprecated in newer versions. You can downgrade your Gradle version if you so choose. This is the [shadowJar repository](https://github.com/johnrengelman/shadow) for versioning information.
+
+```
+/*
+ * Copyright 2019 IBM Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+plugins {
+  id 'com.github.johnrengelman.shadow' version '4.0.3'
+  id 'java'
+  id 'eclipse'
+}
+
+repositories {
+   mavenCentral()
+}
+
+dependencies {
+  implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+  implementation 'com.ibm.cos:ibm-cos-java-sdk:2.4.5'
+  implementation 'org.apache.kafka:connect-api:2.2.1'
+
+  testImplementation 'org.mockito:mockito-all:1.10.19'
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.+'
+}
+
+eclipse.project {
+  natures 'org.springsource.ide.eclipse.gradle.core.nature'
+}
+
+shadowJar {
+   classifier = 'all'
+   version = '7.0.0'
+}
+
+```
+
 
 1. Build the connect using `Gradle`.
 
