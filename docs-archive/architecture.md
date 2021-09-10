@@ -26,7 +26,7 @@ Where:
 The event-driven reference architecture provides the framework to support event-driven applications and solutions. The extended architecture provides the connections for:
 
   * Integration with legacy apps and data resources
-  * Integration with analytics or machine learning to derive real-time insights
+  * Integration with analytics or machine learning to derive near real-time insights
 
 The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
 
@@ -43,7 +43,7 @@ The starting point for data scientists to be able to derive machine learning mod
 
 ### Getting the data for the data scientist:
 
-With real-time event streams, the challenge is in handling unbounded data or a continuous flow of events. To make this consumable for the data scientist you need to capture the relevant data and store it so that it can be pulled into the analysis and model-building process as required.
+With near real-time event streams, the challenge is in handling unbounded data or a continuous flow of events. To make this consumable for the data scientist you need to capture the relevant data and store it so that it can be pulled into the analysis and model-building process as required.
 
 Following our event-driven reference architecture the event stream would be a Kafka topic on the event backbone.  From here there are two possibilities for making that event data available and consumable to the data scientist:
 
@@ -59,12 +59,12 @@ Both approaches are valid, pre-processing through streaming analytics provides o
 * A model trained in this way includes some “scoring” API that can be invoked with fresh event data to generate a model-based prediction for future behavior and event properties of that specific context.
 * The scoring function is then easily reincorporated into the streaming analytics processing to generate predictions and insights.
 
-These combined techniques can lead to the creation of real-time intelligent applications:
+These combined techniques can lead to the creation of near real-time intelligent applications:
 
 1. Event-driven architecture
 2. Identification of predictive insights using event storming methodology
 3. Developing models for these insights using machine learning
-4. Real-time scoring of the insight models using a streaming analytics processing framework
+4. Near real-time scoring of the insight models using a streaming analytics processing framework
 
 These are scalable easily extensible, and adaptable applications responding in near real time to new situations. There are easily extended to build out and evolve from an initial minimal viable product (MVP) because of the loose coupling in the event-driven architecture, , and streams process domains.
 

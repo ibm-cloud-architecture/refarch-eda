@@ -4,7 +4,7 @@ title: IBM MQ in the context of EDA
 
 
 <InlineNotification kind="warning">
-<strong>Updated 4/27/2021- Work in progress</strong>
+<strong>Updated 8/18/2021- Work in progress</strong>
 </InlineNotification>
 
 <AnchorLinks>
@@ -15,30 +15,43 @@ title: IBM MQ in the context of EDA
 
 
 [IBM MQ](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.2.0/com.ibm.mq.pro.doc/q001020_.htm) is the enterprise solution to exchange message over queues. 
-As it supports loosely coupling communication between applications, via asynchronous protocol, it is part of the event driven architecture product portfolio and makes senses to continue to include it as part of modern cloud native solutions. 
+As it supports loosely coupling communication between applications, via asynchronous protocol, and message exchange it has to be part of any modern digital solutions, and
+so it makes senses to write about it in the context of EDA. 
 
 This note is to summarize, for architect, the technology as it fits into EDA and gives pointers to important documentations, articles, and code repositories for using MQ.
 
-We already addressed the [difference between event and messaging](../../concepts/events-versus-messages) systems, and we can affirm that real production plaform needs to include both. This site includes a lot on Kafka as the backbone to support EDA, but MQ delivers a very important missing element for Kafka, is the transactional support to write message to queue for ensuring message delivery. 
+We already addressed the [difference between event and messaging](../../concepts/events-versus-messages) systems, and we can affirm that real production plaform needs to include both. 
 
-MQ queue managers are the main component to define queue and where applications connect to. They can be organized in network to deliver messages between applications and locations. Managers can be organized in cluster to increase high availability and scaling.
+This site includes a lot of content around Kafka as the backbone to support EDA, but EDA is not just Kafka.
+I will prefer to mention that EDA is about modern asynchronous microservice based solution, that need to exchange messages. 
+Messages can be sent to MQ or Kafka or both. 
+IBM MQ delivers different features than Kafka and it is important to assess the fit for purpose. 
+
+MQ queue managers are the main component to define queues and where applications connect to. 
+They can be organized in network to deliver messages between applications and locations. 
+Queue Managers can be organized in cluster to increase high availability and scaling.
 
  ![1](./images/Picture1.png)
 
-We encourage to read the [article from Richard Coppen's: 'IBM MQ fundamentals'](https://developer.ibm.com/articles/mq-fundamentals).
 
 ## Concepts to keep in mind 
 
-* **Queues** are addressable locations to deliver messages to and store them reliably until they need to be consumed.
+We encourage to read the [article from Richard Coppen's: 'IBM MQ fundamentals'](https://developer.ibm.com/articles/mq-fundamentals).
+
+
+* **Queues** are addressable locations to deliver messages to and store them reliably until they need to be consumed. 
+We can have many queues and topics on one queue manager
 * **Queue managers** are the MQ servers that host the queues. They can be interconnected via MQ network.
 * **Channels** are the way queue managers communicate with each other and with the applications.
+* **MQ networks** are loose collections of interconnected queue managers, all working together to deliver messages between applications and locations.
 * **MQ clusters** are tight couplings of queue managers, enabling higher levels of scaling and availability
+* **Publish/subscribe** is supported via topic and subscription, and MQ sends copies of the message to those subscribing applications
 
 ## Major MQ benefits in EDA
 
 * **MQ provides assured delivery of data**: No data loss and no duplication, strong support of exactly once.
 * **MQ is horizontally scalable**: As the workload for a single queue manager increases, it is easy to add more queue managers to share tasks and distribute the messages across them. 
-* **Highly available** (See [below section](#high-availability))
+* **Highly available** (See [ section below](#high-availability)) and scalable architecture with different topologies
 * Integrate well with Mainframe to propagate transaction to eventual consistenty world of cloud native distributed applications. Writing to database and MQ queue is part of the same transaction, which simplifies the injection into event backbone like Kafka, via MQ connector.
 * Containerized to run on modern kubernetes platform.
 
@@ -204,7 +217,7 @@ The [following recent article](https://developer.ibm.com/tutorials/mq-connect-ap
 # Use Docker to create a volume:
 docker volume create qm1data
 # Start queue manager: QM1
-docker run --env LICENSE=accept --env MQ_QMGR_NAME=QM1 --volume qm1data:/mnt/mqm --publish 1414:1414 --publish 9443:9443 --detach --env MQ_APP_PASSWORD=passw0rd ibmcom/mq:latest
+docker run --env LICENSE=accept --env MQ_QMGR_NAME=QM1 --volume qm1data:/mnt/mqm --name mq --rm --publish 1414:1414 --publish 9443:9443 --detach --env MQ_APP_PASSWORD=passw0rd ibmcom/mq:latest
 # The queue manager’s listener listens on port 1414 for incoming connections and port 9443 is used by MQ console
 ```
 
@@ -239,9 +252,10 @@ services:
 
 ### Getting access to the MQ Console
 
-The MQ Console is a web browser based interface for interacting with MQ objects. It comes pre-configured inside the developer version of MQ in a container. On localhost deployment the URL is [ https://localhost:9443/ibmmq/console/]( https://localhost:9443/ibmmq/console/) (user admin) while on OpenShift it depends of the Route created.
+The MQ Console is a web browser based interface for interacting with MQ objects. It comes pre-configured inside the 
+developer version of MQ in a container. On localhost deployment the URL is [ https://localhost:9443/ibmmq/console/]( https://localhost:9443/ibmmq/console/) (user admin) while on OpenShift it depends of the Route created.
 
-See [this article](https://developer.ibm.com/tutorials/mq-setting-up-using-ibm-mq-console/) to a very good overview and getting started.
+See [this article](https://developer.ibm.com/tutorials/mq-setting-up-using-ibm-mq-console/) for a very good overview and getting started tutorial.
 
 From the console we can define access and configuration
 
@@ -271,7 +285,9 @@ cat AMQERR01.LOG
 
 ## Connecting your application
 
-JMS should be your first choice to integrate a Java application to MQ. The [mq-dev-patterns](https://github.com/ibm-messaging/mq-dev-patterns/tree/master/JMS) includes JMS code samples for inspiration. See also [this IBM developer tutorial](https://developer.ibm.com/tutorials/mq-develop-mq-jms/) and [our code example from the store simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator/blob/master/src/main/java/ibm/gse/eda/stores/infrastructure/mq/MQItemGenerator.java) used in different MQ to Kafka labs.
+JMS should be your first choice to integrate a Java application to MQ. The [mq-dev-patterns](https://github.com/ibm-messaging/mq-dev-patterns/tree/master/JMS) includes JMS code samples for inspiration. 
+See also [this IBM developer tutorial](https://developer.ibm.com/tutorials/mq-develop-mq-jms/) 
+and [our code example from the store simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator/blob/master/src/main/java/ibm/gse/eda/stores/infrastructure/mq/MQItemGenerator.java) used in different MQ to Kafka labs.
 
 *The article seems to have issue in links and syntax, below is the updated steps:*
 
@@ -287,9 +303,9 @@ javac -cp com.ibm.mq.allclient-9.2.1.0.jar:javax.jms-api-2.0.1.jar com/ibm/mq/sa
 java -cp com.ibm.mq.allclient-9.2.1.0.jar:javax.jms-api-2.0.1.jar:. com.ibm.mq.samples.jms.JmsPutGet
 ```
 
-To connect you need to get the hostname for the Queue manager, the port number, the channel and the queue to access.
+To connect to MQ server, you need to get the hostname for the Queue manager, the port number, the channel and the queue name to access.
 
-For Quarkus and maven use the following:
+For Quarkus and Maven use the following dependencies:
 
 ```xml
 <dependency>

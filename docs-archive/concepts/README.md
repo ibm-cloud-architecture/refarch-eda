@@ -20,7 +20,7 @@ An event stream is a continuous unbounded series of events.
 When developing event driven solutions, you will typically see two types of event streams:
 
 * Event streams whose events are defined and published into a stream as part of a solution.
-* Event streams that connect to a real-time event stream, for example from an IOT device, a voice stream from a telephone system, a video stream, or ship or plane locations from global positioning systems.
+* Event streams that connect to a near real-time event stream, for example from an IOT device, a voice stream from a telephone system, a video stream, or ship or plane locations from global positioning systems.
 
 
 ## Command

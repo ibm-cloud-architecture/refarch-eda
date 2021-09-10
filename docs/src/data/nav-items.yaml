@@ -126,7 +126,7 @@
       path: https://ibm-cloud-architecture.github.io/refarch-kc/
     - title: Vaccine at Scale
       path: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
-    - title: Real-time Inventory
+    - title: Near real-time Inventory
       path: /scenarios/realtime-inventory/
 - title: Additional reading
   pages:

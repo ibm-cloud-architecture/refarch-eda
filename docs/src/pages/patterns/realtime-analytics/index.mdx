@@ -9,7 +9,7 @@ One of the essential elements of modern event-driven solutions is the ability to
 
 In this section we will take more detailed look at what this means in terms of required capabilities and the technology choices that are available to provide these as part of the Event Driven Architecture.
 
-## Streaming analytics (real-time analytics)
+## Streaming analytics (near real-time analytics)
 
 [Streaming analytics](https://cloud.ibm.com/catalog/services/streaming-analytics) provides the capabilities to look into and understand the events flowing through unbounded real-time event streams. Streaming applications process the event flow and allow data and analytical functions to be applied to information in the stream. Streaming applications are written as multistep flows across the following capabilities:
 
@@ -23,7 +23,7 @@ In this section we will take more detailed look at what this means in terms of r
 
 ### Basic streaming analytics capabilities
 
-To support the real-time analytical processing of the unbounded event streams, the following capabilities are essential to the event stream processing component:
+To support the near real-time analytical processing of the unbounded event streams, the following capabilities are essential to the event stream processing component:
 
 * Continuous event ingestion and analytical processing.
 * Processing across multiple event streams.
@@ -35,9 +35,9 @@ To support the real-time analytical processing of the unbounded event streams, t
 * Query and analysis of stored data.
 * Development and execution of data pipelines.
 * Development and execution of analytics pipelines.
-* Scoring of machine learning models in line in the real-time event stream processing.
+* Scoring of machine learning models in line in the near real-time event stream processing.
 
-### Support for real-time analytics and decision-making
+### Support for near real-time analytics and decision-making
 
 Beyond the basic capabilities, consider supporting other frequently-seen event stream types and processing capabilities in your event stream processing component. By creating functions for these stream types and processes in the streaming application code, you can simplify the problem and reduce the development time.
 
@@ -71,7 +71,7 @@ Few standards exist for event stream applications and languages. Typically, stre
 * Java is the pervasive application development language. Kafka Streams offers a DSL to support most of the event streaming processing implementation.
 * Scala adds functional programming and immutable objects to Java.
 
-Other platform specific languages have emerged when real-time processing demands stringent performance requirements real time processing performance is required.
+Other platform specific languages have emerged when near real-time processing demands stringent performance requirements real time processing performance is required.
 
 More recently Google initiated the Apache Beam project https://beam.apache.org/ to provide a unified programming model for streaming analytics applications.
 
