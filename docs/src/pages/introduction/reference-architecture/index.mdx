@@ -13,32 +13,60 @@ description: What is the purpose of the event-driven reference architecture?
 
 We defined the starting point for a cloud-native event-driven architecture to be that it supports at least the following important capabilities:
 
-* Being able to communicate and persist events.
-* Being able to take direct action on events.
+* Being able to communicate asynchronously between components to improve elasticity, resilience and responsiveness. 
+* Support exactly one delivery of messages in a asynchronous request/response interactions
+* Publish messages as facts or events as immutable records to an append log so subscribers can consume them at any point of time.
 * Processing streams of events to derive real time insight/intelligence.
-* Providing communication mechanism between event driven microservices and functions.
+* Providing communication mechanism between event-driven microservices and functions.
 
 ## Event Driven Architecture
 
-With an event backbone providing the connectivity between the capabilities, we can visualize a reference event-driven architecture as follows:
+Event-driven architecture is not something new, and it is not just about Kafka. As listed in previous section EDA at the core has to support 
+asynchronous communication between application in two major semantics:
 
+* request/response with exactly one delivery with no data lost, when a component is asking another component to do something for him. This approach
+is to address long running transaction or business process and enforce using queuing technology.
+* deliver facts about its own data to an immutable log so other components can derive something about it. This is a pub/sub model with strong time decoupling.
+
+To support these EDA has a message as a service capability as cluster of message brokers. The brokers
+provides the connectivity between the other components: 
 
 ![hl-arch-ra](../../images/hl-arch-ra.png)
 
 Where:
 
-1. [Event sources](../../concepts/terms-and-definitions/#event-sources): generates events and event streams from sources such as IoT devices, web app, mobile app, microservices…
-2. [IBM Event Streams](https://www.ibm.com/cloud/event-streams): Provides an Event Backbone supporting Pub/Sub communication, an event log, and simple event stream processing based on [Apache Kafka](https://kafka.apache.org/).
-3. [IBM Cloud Functions](https://cloud.ibm.com/functions): Provides a simplified programming model to take action on an event through a "serverless" function-based compute model.
-4. [Streaming Analytics](https://cloud.ibm.com/catalog/services/streaming-analytics): Provides continuous ingest and analytical processing across multiple event streams. Decision Server Insights: Provides the means to take action on events and event streams through business rules.
-5. Event Stores: Provide optimized persistence (data stores), for event sourcing, Command Query Response Separation (CQRS) and analytical use cases.
-6. [Event-Driven Microservices](../../concepts/terms-and-definitions/#microservices): Applications that run as serverless functions or containerized workloads which are connected via pub/sub event communication through the event backbone.
+* [Event sources](../../concepts/terms-and-definitions/#event-sources): generates events from sources such as IoT devices, web apps, mobile apps, mainframe applications, change data capture agents...
+* **Mainframe queuing apps** are source for messages using the IBM MQ replication feature to expose mainframe messages to the cloud native MQ broker and so to the cloud native microservices. The strong consistency
+is kept but facts about the business transactions are propagated to the eventual consistency world.
+* **Messaging as a service** is the core backbone of the architecture to support  any type of asynchronous communication:
 
-The reference architecture is illustrated in the [EDA reference implementation solution](https://ibm-cloud-architecture.github.io/refarch-kc/).
+    * [IBM MQ](https://www.ibm.com/cloud/mq): delivers the exatly one delivery, strong consistency and support queuing and pub/sub protocol. MQ brokers in cluster support high availability cross data centers to build event-mesh. IBM MQ will be the unique technology to guarantee the end to end message availability.
+    * [IBM Event Streams](https://www.ibm.com/cloud/event-streams): provides an event backbone supporting Pub/Sub protocol only, with immutable append log. Event Streams is based on [Apache Kafka](https://kafka.apache.org/) and can run on-premise or as [managed services](https://cloud.ibm.com/catalog/services/event-streams)
+
+* **Reactive cloud native applications**: The top row represents modern applications which adopt the [reactive manifesto](https://www.reactivemanifesto.org/) as a way to be resilient, elastic and message driven. To reduce microservice to microservice dependency and reduce coupling, modern microservices are 
+[event-driven](../../concepts/terms-and-definitions/#microservices) and 
+implemented with reactive framework (e.g. vert.x )and reactive messaging (e.g. microprofile 3.0 reactive messaging). Some of those applications can be function and serverless apps, meaning scaling to zero and being
+able to wake-up on event arrival. Finally it is important to note that business process applications running in BPM can be triggered
+by event arrival, can generate intermediate events, and can generate events at the process completion. Those business events are important to shared
+with other applications to being expose to event backbone.
+* The adoption of Kafka as a way to support event backbone capability, also means that records can be saved for a long period of time, but it is relevant to be able to persist those records
+or an aggregate view of those records to a data lake or a set of s3 buckets. So most of EDA has sink connectors to data lake. 
+* The governance of these asynchronous applications is becoming a major requirement when the adoption of such architecture grows. AsyncAPI, combined with schema registry
+helps defining the intercommunication contracts. While most of the event-driven microservices are exposing Open APIs, enforced by API gateway, it is now 
+possible to do the same enforcement and monitoring with the [event endpoint gateway](https://community.ibm.com/community/user/integration/blogs/dale-lane1/2021/04/12/a-demo-of-event-endpoint-management).
+* The bottom row supports new types of application for **data streaming**: the first set of applications 
+are for getting business insight of the event sequencing by looking at event patterns as supported
+by the complex event processing engine (Apache Flink), and the second type are to process near-real time analytics to 
+compute analytical processing across multiple event streams. The technologies of choice are [Apache Flink](/technology/flink) and [IBM SQL query](https://www.ibm.com/cloud/sql-query).
+Those applications are also cloud native, and run in container deployable inside Kubernetes clusters.
+
+This reference architecture is illustrated in the implementation of two solutions: [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) and the [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
 
 ## Extended Architecture
 
-The event-driven reference architecture provides the framework to support event-driven applications and solutions. The extended architecture provides the connections for:
+The architecture  presented in previous section, supports new data ingestion capability and new data sharing plaform.
+
+event-driven reference architecture provides the framework to support event-driven applications and solutions. The extended architecture provides the connections for:
 
   * Integration with legacy apps and data resources
   * Integration with analytics or machine learning to derive near real-time insights

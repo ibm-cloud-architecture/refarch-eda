@@ -68,6 +68,8 @@
       path: /technology/mq/
     - title: Kafka Producers & Consumers
       path: /technology/kafka-producers-consumers/
+    - title: Flink
+      path: /technology/flink/
     - title: Kafka Streams
       path: /technology/kafka-streams/
     - title: IBM Event Streams
