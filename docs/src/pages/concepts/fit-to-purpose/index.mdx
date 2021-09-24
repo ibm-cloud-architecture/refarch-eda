@@ -42,7 +42,7 @@ By moving the ETL logic to a streaming application, we do not need to wait for t
 
 We already addressed the differences between Queueing and Streaming in [this chapter](/concepts/events-versus-messages/).
 
-Now in term of technologies we can quickly highlight the following:
+Now in term of technologies we can quickly highlight the followings:
 
 ### Kafka characteristics
 
@@ -69,16 +69,16 @@ Now in term of technologies we can quickly highlight the following:
 * Best suited for point-to-point communication 
 * Support horizontal scaling and high volume processing
 * Participate to XA transactionals
-* Exactly one delivery
-* Integrate with Mainframe
+* Exactly one delivery with strong consistency
+* Integrate with Mainframes
 * Support JMS for JEE applications
+* Support AMQP for lighter protocol
 * Messages are removed after consumption, they stayed persisted until consumed by all subscribers
 * Strong coupling with subscribers
 * Support MQ brokers cluster with leader and followers
 * Support replication between brokers
 * Support message priority
 * Easily containerized and managed with Kubernetes operators. 
-* Support AMQP protocol
 
 ### Direct product feature comparison
 
@@ -101,7 +101,7 @@ Now in term of technologies we can quickly highlight the following:
 
 ### Migrating from MQ to Kafka
 
-When the real conditions as listed above are met, architects may assess if it makes sense to migrate application using MQ to Kafka. 
+When the real conditions as listed above are met, architects may assess if it makes sense to migrate MQ application to Kafka. 
 Most of the time the investment is not justified. Modern MQ supports the same DevOps and deployment pattern as cloud native application.
 
 JEE or mainframe applications use MQ in transaction to avoid duplicate messages or loss of messages. Supporting exactly once delivery in Kafka
@@ -130,6 +130,6 @@ Here is simple diagram of Flink architecture from the Flink web site:
  ![Flink components](https://ci.apache.org/projects/flink/flink-docs-release-1.12/fig/distributed-runtime.svg)
 
 
-See this [technology summary](https://jbcodeforce.github.io/flink-studies/) and samples.
+See this [technology summary](/technology/flink/).
 
 See also [this article from Confluent](https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users)
