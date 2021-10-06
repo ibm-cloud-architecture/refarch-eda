@@ -1,0 +1,34 @@
+---
+title: Use Cases
+description: EDA Classical Technical Use Cases
+---
+
+The adoption of event-driven architecture is based four main technical drivers:
+
+![](./images/4-usecases.png)
+
+* Communication layer:  
+
+  * Adopt messaging and asynchronous communication between applications and 
+microservices for loosely coupled services (See [this note](https://ibm-cloud-architecture.github.io/refarch-integration/service-mesh/readme/#asynchronous-loosely-coupled-solution-using-events) where we present a way to support a service mesh solution using asynchronous event).
+The data are pushed as immutables record, or commands are sent with exactly once delivery. Reducing pull data approach. 
+  * Pub/sub messaging for cloud native applications to improve communication inter microservices.
+  * Support Always-on services with asynchronous data replication.
+  * Expose data to any application to consume.
+
+* Reactive systems: to support reactive, responsive applications for addressing
+resiliency, scaling so adopting message buses.
+
+* Data Agility:
+
+  * Centralize online data pipeline to decouple applications and microservices.
+  * Monitor distributed applications to produce centralized feed of operational data.
+  * Logs collector from multiple services.
+  * Implement [event sourcing pattern](/patterns/event-sourcing/) out of the box, using configuration to keep message for a long time period. Data are replicated between brokers within the cluster and cross availability zones if needed.
+
+* Near real-time analytics insights:
+  * Aggregation of event coming from multiple producers.
+  * Look at event sequencing patterns
+  * Compute next best action from event streams
+
+

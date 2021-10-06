@@ -1,19 +1,18 @@
 ---
-title: Near real-time Inventory, powered by AMQ Streams
+title: Near real-time Inventory, powered by IBM Event Streams
 description: An end-to-end data pipeline lab scenario, connecting multiple components of a realtime inventory system via Kafka Connect.
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 06/22/2021</strong> - Work in progress
+<strong>Updated 09/30/2021</strong> - Work in progress
 </InlineNotification>
 
 <AnchorLinks>
   <AnchorLink>What you will learn</AnchorLink>
   <AnchorLink>Overview</AnchorLink>
- 
   <AnchorLink>Solution anatomy</AnchorLink>
   <AnchorLink>General pre-requisites</AnchorLink>
-  <AnchorLink>Lab 1: Demonstrate near real-time inventory with AMQ Streams</AnchorLink>
+  <AnchorLink>Lab 1: Demonstrate near real-time inventory with IBM Event Streams</AnchorLink>
   <AnchorLink>Lab 2: Deploy the MQ Source Connector</AnchorLink>
   <AnchorLink>Lab 3: Deploy the MQ Sink Connector [B]</AnchorLink>
   <AnchorLink>Lab 4: Deploy the JDBC Sink Connector</AnchorLink>
@@ -21,7 +20,7 @@ description: An end-to-end data pipeline lab scenario, connecting multiple compo
 
 ## What you will learn
 
-* Use Quarkus, with reactive programming API like Mutiny, with Kafka API to produce messages to Kafka
+* Use Quarkus, with reactive programming API like Mutiny, and Kafka API to produce messages to Kafka
 * Same Quarkus app can generate messages to RabbitMQ using the AMQP API
 * Same Quarkus app can generate messages to IBM MQ using JMS
 * Use Quarkus and Kafka Streams to compute aggregates to build an inventory view from the stream of sale order events
@@ -30,12 +29,14 @@ description: An end-to-end data pipeline lab scenario, connecting multiple compo
 * Use the IBM MQ sink connector from IBM Event messaging open source contribution
 * Use the JDBC sink connector from IBM Event messaging open source contribution
 
-
 ## Overview
 
-This scenario implements a simple real time inventory management solution based on real life MVPs we developed in 2020. 
-Stores are sending their sale transactions to a central messaging platform, based on queues or topics, and with the adoption
-of loosely coupled microservices, real time analytics Kafka is part of the architecture. Adopting Kafka Connect helps to integrate with existing applications without any changes to their base code.
+This scenario implements a simple near real-time inventory management solution based on real life MVPs we developed in 2020. 
+Stores are sending their sale transactions to a central messaging platform, based on queues or topics.
+
+
+ and with the adoption
+of loosely coupled microservices, real-time analytics Kafka is part of the architecture. Adopting Kafka Connect helps to integrate with existing applications without any changes to their base code.
 
 ![](./images/hl-view.png)
 
@@ -96,24 +97,24 @@ Consider this more as a black box in the context of the scenario, it consumes it
 * Clone the Inventory lab repository: 
 
 ```sh
-oc clone  https://github.com/ibm-cloud-architecture/eda-lab-inventory.git
+oc clone  https://github.com/ibm-cloud-architecture/rt-inventory-gitops.git
 ```
 
 
-## Lab 1: Demonstrate near real-time inventory with AMQ Streams
+## Lab 1: Demonstrate near real-time inventory with IBM Event Streams
 
-In this lab we will deploy the solution using AMQ Streams on OpenShift. The diagram looks like the following:
+In this lab we will deploy the solution using IBM Event Streams on OpenShift. The diagram looks like the following:
 
 ![](/images/inventory-components.png)
 
-The Kafka version is AMQ Streams 2.7.
+The Kafka version in IBM Event Streams is 2.7.
 
-The deployment to OpenShift using Kafka AMQ Streams operator, and gitops approach is described in dedicated lab you can read the details in the [Kafka Stream use case section](/use-cases/kafka-streams/lab-3/).
+The deployment to OpenShift using IBM Event Streams operator, and gitops approach is described in dedicated lab you can read the details in the [Kafka Stream use case section](/use-cases/kafka-streams/lab-3/).
 
 Here are the simplest steps to deploy the solution in minimum configuration:
 
-1. Login to the OpenShift cluster (4.6 version): `oc login --token=sha256~d... --server=https://....containers.cloud.ibm.com...`
-1. Work from the cloned repository: `cd eda-lab-inventory`
+1. Login to the OpenShift cluster (4.7 version): `oc login --token=sha256~d... --server=https://....containers.cloud.ibm.com...`
+1. Work from the cloned repository: `cd rt-inventory-gitops`
 1. Define the environment variables for your deployment in the: `scripts/env-AMQStreams.sh`. You mostly want to change the following variables or use our default settings:
 
   ```
@@ -129,14 +130,14 @@ Here are the simplest steps to deploy the solution in minimum configuration:
   oc get pods
 
   NAME                                         READY   STATUS    RESTARTS   AGE
-  amq-kafka-cruise-control-6d6bf8b774-99rwl    2/2     Running   0          4d
-  amq-kafka-entity-operator-75f7bc8f5c-x4vkt   3/3     Running   0          4d
-  amq-kafka-kafka-0                            1/1     Running   0          4d
-  amq-kafka-kafka-1                            1/1     Running   0          4d
-  amq-kafka-kafka-2                            1/1     Running   0          4d
-  amq-kafka-zookeeper-0                        1/1     Running   0          4d
-  amq-kafka-zookeeper-1                        1/1     Running   0          4d
-  amq-kafka-zookeeper-2                        1/1     Running   0          4d
+  dev-kafka-cruise-control-6d6bf8b774-99rwl    2/2     Running   0          4d
+  dev-kafka-entity-operator-75f7bc8f5c-x4vkt   3/3     Running   0          4d
+  dev-kafka-kafka-0                            1/1     Running   0          4d
+  dev-kafka-kafka-1                            1/1     Running   0          4d
+  dev-kafka-kafka-2                            1/1     Running   0          4d
+  dev-kafka-zookeeper-0                        1/1     Running   0          4d
+  dev-kafka-zookeeper-1                        1/1     Running   0          4d
+  dev-kafka-zookeeper-2                        1/1     Running   0          4d
   item-aggregator-669fd4fffc-4fvhk             1/1     Running   0          30h
   item-aggregator-669fd4fffc-gtvls             1/1     Running   0          30h
   item-aggregator-669fd4fffc-kxvfh             1/1     Running   0          30h

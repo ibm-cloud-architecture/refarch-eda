@@ -67,12 +67,14 @@ description:  Kafka Frequently Asked Questions from different sources and meetin
 
 ### What are the major components?
 
-* Topic, consumer, producer, brokers, cluster [see this note for deeep dive](/kafka-overview/)
+* Topic, consumer, producer, brokers, cluster [see this note for deep dive](/kafka-overview/)
 * Rich API to control the producer semantic, and consumer
 * Consumer groups. [See this note for detail](/technology/kafka-producers-consumers/#consumer-group)
 * Kafka streams API to support data streaming with stateful operations and stream processing topology
 * Kafka connect for source and sink connection to external systems
 * Topic replication with Mirror Maker 2
+
+![](../images/kafka-components.png)
 
 ### What are major use cases?
 
@@ -161,6 +163,7 @@ The consumer needs to always read from its last committed offset.
 Also it is important to note that the Kafka Stream API supports exactly once semantics with the config: `processing.guarantee=exactly_once`. Each task within a read-process-write flow may fail so this setting is important to be sure the right answer is delivered, even in case of task failure, and the process is executed exactly once.
 
 Exactly-once delivery for other destination systems generally requires cooperation with such systems which may be possible by using the offset processing.
+
 
 ### Retention time for topic what does it mean?
 
@@ -461,7 +464,6 @@ With partition leader and replication to the followers, the number of in-synch r
 So out-of-synch will happen if the followers are not able to send their acknowledge to the replica leader as quickly as expected.
 
 
-
 ### Run Kafka Test Container with TopologyTestDriver
 
 Topology Test Driver is used without kafka, so there is no real need to use test container. 
@@ -547,9 +549,6 @@ See the [detailed tables](https://ibm.github.io/event-streams/installing/prerequ
 Kafka is part of the architecture, while Akka is an implementation choice for one of the component of the business application deployed inside the architecture.
 
 [vert.x](https://vertx.io/) is another open source implementation of such internal messaging mechanism but supporting more language:  Java, Groovy, Ruby, JavaScript, Ceylon, Scala, and Kotlin.
-
-
-
 
 ## Other FAQs
 
