@@ -2,7 +2,7 @@
   pages:
     - title: Overview
       path: /introduction/overview/
-    - title: Reference Architecture
+    - title: Reference Architectures
       path: /introduction/reference-architecture/
     - title: Use Cases
       path: /introduction/usecases/
@@ -54,7 +54,7 @@
       path: /patterns/topic-replication/
     - title: Data Pipeline
       path: /patterns/data-pipeline/
-    - title: Realtime Analytics
+    - title: Near real-time analytics
       path: /patterns/realtime-analytics/
     - title: API management
       path: /patterns/api-mgt/

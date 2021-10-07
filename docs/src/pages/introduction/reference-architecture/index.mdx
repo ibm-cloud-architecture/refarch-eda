@@ -1,11 +1,11 @@
 ---
-title: Reference Architecture
+title: Reference Architectures
 description: What is the purpose of the event-driven reference architecture?
 ---
 
 <AnchorLinks>
   <AnchorLink>Event Driven Architecture</AnchorLink>
-  <AnchorLink>Extended Architecture</AnchorLink>
+  <AnchorLink>Integrating with automation products</AnchorLink>
   <AnchorLink>Integration with analytics and machine learning</AnchorLink>
   <AnchorLink>Modern Data Lake</AnchorLink>
   <AnchorLink>Legacy Integration</AnchorLink>
@@ -31,7 +31,7 @@ is to address long running transaction or business process and enforce using que
 To support these EDA has a message as a service capability as cluster of message brokers. The brokers
 provides the connectivity between the other components: 
 
-![hl-arch-ra](../../images/hl-arch-ra.png)
+![hl-arch-ra](./images/hl-arch-ra.png)
 
 Where:
 
@@ -62,20 +62,46 @@ Those applications are also cloud native, and run in container deployable inside
 
 This reference architecture is illustrated in the implementation of two solutions: [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) and the [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
 
-## Extended Architecture
+## Integrating with automation products
 
-The architecture  presented in previous section, supports new data ingestion capability and new data sharing plaform.
+EDA is becoming the new Service Oriented Architecture as a foundation to expose business service, and business entity states.
 
-event-driven reference architecture provides the framework to support event-driven applications and solutions. The extended architecture provides the connections for:
+A new set of automation products like Robot Process Automation bots, Process Mining, Chat Bots, and more traditional workflow and decision engines
+are leveraging the messaging as a service as presented in previous section.
 
-  * Integration with legacy apps and data resources
-  * Integration with analytics or machine learning to derive near real-time insights
+So these lead to a new digital automation reference architecture, based on event-driven and messaging communication:
 
-The diagram below shows how these capabilities fit together to form an extended event-driven architecture.
+![](./images/automation-eda.png)
 
-![hl-arch-ra-adv](../../images/hl-arch-ra-adv.png)
+On the top row the capabilities are:
 
- In 7. the AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular Event Store, and develop models. Models are pushed to streaming analytics component.
+*  Existing business applications, and SOA services: most of them are J2EE applications running on application servers, 
+some are legacy based using transactions. It will be easy for those applications to integrate new microservices, or webapp
+exposing JSON / RESTful resources via an API Gateway.
+* New single page applications are also accessing business services via gateway, and use HTTP (RESTful) protocol. Those single page applications 
+can be developed using IBM 
+* Existing business process applications may have been designed to be triggered by message arrival, and may be able to emit intermediate
+events. IBM BPM, for example, has JMS queue integration to consume and publish messages.
+
+> A business process is the set of combined activities defined as an orchestrated workflow
+ within the business to achieve a business goal which uses system services or refers work to process workers
+
+* New workflow can be entirely event-driven, and designed to act on event arrival to trigger process instances or task instances. 
+They are also supported by Case management products which are well suited to address unstructured execution path, where next steps are not pre-determined.
+* As stated above, new microservices are becoming message driven and are using queues for async request / response communication, 
+they ask someone to participate into their business process. And they publish states change via events to pub/sub topics.
+* Consumers can use Event Gateway to access to topics and process the data, do data mapping and data transformation for long persistence into data lake.
+* The key integration between EDA and automation is by adding stateful agents that are aggregating, correlating, 
+and computing the next best actions. Those actions can be to trigger a workflow, initiate a RPA bot, call
+one or more decision services. Those stateful agents can use complex event processing engines, rule engines, and 
+integrate with predictive scoring.
+* The predictive scoring models are defined in AI workbench tool, like Watson Studio or Cloud Pak for Data. 
+The data used to develop the model come from data lake, existing datawarehouse but also the messaging service, like Kafka topics.
+* The AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular topics, and develop models. Models are integrated to streaming analytics component.
+* With this extended architecture, most of business applications are generating events, 
+directly by code, or by adopting less intruisive techniques like change data capture agents. Those events
+are representing facts about the busienss entities and the processes implemented cross microservices and applications. 
+This is were Process Mining product are very important to plug into this data stream.   
 
 
 ## Integration with analytics and machine learning

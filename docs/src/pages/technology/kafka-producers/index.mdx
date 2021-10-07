@@ -7,7 +7,7 @@ description: Kafka Producers
   <AnchorLink>Understanding Kafka Producers</AnchorLink>
   <AnchorLink>Design considerations</AnchorLink>
   <AnchorLink>Typical producer code structure</AnchorLink>
-  <AnchorLink>How to support exactly once delivery</AnchorLink>
+  <AnchorLink>Advanced producer guidances</AnchorLink>
 </AnchorLinks>
 
 ## Understanding Kafka Producers
@@ -72,7 +72,7 @@ The following properties are helpful to tune at each topic and producer and will
  | ENABLE_IDEMPOTENCE_CONFIG | Set to true, the number of retries will be maximized, and the acks will be set to `All`.|  
  | TRANSACTION_ID | A unique identifier for a producer. In case of multiple producer instances, a same ID will mean a second producers can commit the transaction. Epoch number, linked to the process ID, avoid having two producers doing this commit. If no transaction ID is specified, the transaction will be valid within a single session.|
 
-## Advanced Producer discussion
+## Advanced producer guidances
 
 ### How to support exactly once delivery
 

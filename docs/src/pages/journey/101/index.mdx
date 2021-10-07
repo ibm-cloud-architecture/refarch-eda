@@ -35,6 +35,16 @@ We have different level of use cases in this repository:
 
 The generic use cases which are the main drivers for EDA adoption are [summarized here](/introduction/usecases/). 
 
+Architects need to identify a set of key requirements to address:
+
+* get visibility of the new data created by existing applications in near real-time to get better business insights and propose new business opportunities to the end-users / customers. 
+This means adopting data streaming, and intelligent query solutions.
+* integrate with existing transactional systems, and continue to do transaction processing while adopting eventual data consistency, characteristics of distributed systems. (Cloud-native serverless or microservices are distributed systems)
+* move to asynchronous communication between serverless and microservices, so they become more responsive, resilient, and scalable (characteristics of ‘Reactive applications’).
+* get loosely coupled but still understand the API contracts. API being synchronous (RES, SOAP) or async (queue and topic).
+* get clear visibility of data governance, with cataloging applications to be able to continuously assess which apps securely access what, with what intent.
+
+
 And some reference implementations to illustrate the major EDA design patterns:
 
 | Scenario                           | Description         | Link        |
@@ -43,10 +53,9 @@ And some reference implementations to illustrate the major EDA design patterns:
 | Vaccine delivery at scale _(external)_ | An EDA and cross cloud pak solution | [Vaccine delivery at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/)
 | Real time anomaly detection _(external)_ | Develop and apply machine learning predictive model on event streams | [Refrigerator container anomaly detection solution](https://ibm-cloud-architecture.github.io/refarch-reefer-ml/)|
 
-
 ## Why microservices are becoming event-driven and why we should care?
 
-There is a section to explain why microservices are becoming event-driven. 
+There is [a section to explain]() why microservices are becoming event-driven. 
 
 ## Messaging as a service? 
 
@@ -67,7 +76,7 @@ The major building blocks are summarized in this diagram:
 To learn more about:
 
 * Kafka Cluster see [this 101 content](/technology/kafka-overview/#kafka-components)
-* For Producer introduction [see this section]()
+* For Producer introduction [see this section](http://localhost:8000/technology/kafka-producers/#understanding-kafka-producers)
 * For Consumer introduction with consumer group concepts [see this section]()
 * For [Kafka Connector framework introduction]()
 
@@ -76,7 +85,7 @@ To learn more about:
 Event Streams is IBM packaging of Kafka with some enhanced features, and available as [Managed Service](https://www.ibm.com/cloud/event-streams)
 or as part of Cloud Pak for integration. [Here is a developer.ibm.com article for Event Streams on Cloud](https://developer.ibm.com/articles/event-streams-fundamentals/?mhsrc=ibmsearch_a&mhq=ibm%20event%20streams).
 
-The product documentation as part of cloud pak for integration is [here]().
+The product documentation as part of cloud pak for integration is [here](https://ibm.github.io/event-streams/about/overview/).
 
 ### Event streams resource requirements
 
@@ -84,7 +93,7 @@ See the [detailed tables](https://ibm.github.io/event-streams/installing/prerequ
 
 ## Fit for purpose
 
-We have a [general fit for purpose document](/concepts/fit-to-purpose/) that can help you reviewing message versus events,
+We have a [general fit for purpose document](/concepts/fit-to-purpose/) that can help you reviewing messaging versus eventing,
 MQ versus Kafka, but also Kafka Streams versus Apache Flink.
 
 ## Getting Started With Event Streams
@@ -100,13 +109,14 @@ the `RunLocally` folder.
 Finally if you have access to an OpenShift Cluster, version 4.7 + we can deploy 
 Event Streams as part of IBM Cloud Pak for Integration very easily using the
 OpenShift Admin console, and we did a simple [step by step tutorial here]() 
-or use our gitops catalog and the following procedure.
+or use our [EDA gitops catalog repository]() to get the operator declaration 
+and some simple development deployment examples.
+
+Once you have deployed a cluster access the administration console and use the
+very good [getting started application](https://ibm.github.io/event-streams/getting-started/generating-starter-app/).
 
 If you want to adopt an pure GitOps approach we have demonstrated how to use
-ArgoCD (OpenShift GitOps) to deploy an Event Streams cluster and maintain it states.  
-
-
-
+ArgoCD (OpenShift GitOps) to deploy an Event Streams cluster and maintain it states.   
 
 ## Frequently asked questions
 
