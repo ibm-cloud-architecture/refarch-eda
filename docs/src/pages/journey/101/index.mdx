@@ -109,12 +109,15 @@ MQ versus Kafka, but also Kafka Streams versus Apache Flink.
 
 ## Getting Started With Event Streams
 
+### With IBM Cloud
+
 The most easy way to start is to create one `Event Streams on IBM Cloud` service instance,
-and then connect a starter application.
+and then connect a starter application. See this [service at this URL](https://cloud.ibm.com/catalog/services/event-streams).
+
+### Running on you laptop
 
 As a **developer**, you may want to start quickly playing with a local Kafka Broker and MQ Broker 
-on you own laptop. We have developed such compose file in different project
-but we have centralize it in [this gitops project](https://github.com/ibm-cloud-architecture/eda-gitops-catalog) under
+on you own laptop. We have developed such compose files in [this gitops project](https://github.com/ibm-cloud-architecture/eda-gitops-catalog) under
 the `RunLocally` folder.
 
   ```sh
@@ -123,20 +126,29 @@ the `RunLocally` folder.
   # Kafka only
   docker-compose -f kafka-compose.yaml up &
   ```
+The kafka images are based on Strimzi images, but act as Event Streams one. So any code developed and configured
+on this image will run the same when deployed on OpenShift using Event Streams.
 
-Finally if you have access to an OpenShift Cluster, version 4.7 + we can deploy 
+### Running on OpenShift
+
+Finally if you have access to an OpenShift Cluster, version 4.7 +, you can deploy 
 Event Streams as part of IBM Cloud Pak for Integration very easily using the
-OpenShift Admin console, and we did a simple [step by step tutorial here](/technology/event-streams/es-cp4i/) to cover
-deployment and cluster configuration using Admin Console or CLI.
-or use our [EDA gitops catalog repository](https://github.com/ibm-cloud-architecture/eda-gitops-catalog) to get the operator declaration 
-and some simple development deployment examples.
+OpenShift Admin console.
+
+See this simple [step by step tutorial here](/technology/event-streams/es-cp4i/) which covers
+how to deployment and configuration an Event Streams cluster using the OpenShift Admin
+ Console or the `oc CLI` and our manifest from our [EDA gitops catalog repository](https://github.com/ibm-cloud-architecture/eda-gitops-catalog).
+
+### Show and tell 
 
 Once you have deployed a cluster, access the administration console and use the
 very good [getting started application](https://ibm.github.io/event-streams/getting-started/generating-starter-app/).
 
+### Automate everything with GitOps 
 
-If you want to adopt an pure GitOps approach we have demonstrated how to use
-ArgoCD (OpenShift GitOps) to deploy an Event Streams cluster and maintain it states.   
+If you want to adopt a pure GitOps approach we have demonstrated how to use
+ArgoCD (OpenShift GitOps) to deploy an Event Streams cluster and maintain it states
+in a simple real time inventory demonstration in [this repository](https://github.com/ibm-cloud-architecture/rt-inventory-gitops).   
 
 ## Frequently asked questions
 

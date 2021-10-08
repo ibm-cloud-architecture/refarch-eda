@@ -16,6 +16,13 @@ The Kafka Cluster configuration is for a development or staging environment with
 Once the installation is successful, the final pods running in the `eventstreams` project are:
 
  ```sh
+dev-entity-operator-69c6b7cf87-bfxbw   2/2     Running   0          43s
+dev-kafka-0                            1/1     Running   0          2m
+dev-kafka-1                            1/1     Running   0          2m
+dev-kafka-2                            1/1     Running   0          2m
+dev-zookeeper-0                        1/1     Running   0          2m46s
+dev-zookeeper-1                        1/1     Running   0          3h23m
+dev-zookeeper-2                        1/1     Running   0          3h23m
  ```
 
 **Updated October 07/2021 - Operator Release 2.4 - Product Release 10.4 - Kafka 2.8**
@@ -90,6 +97,11 @@ oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-
 ### Get IBM Software entitlement key and create a secret
 
 * Obtain [IBM license entitlement key](https://github.com/IBM/cloudpak-gitops/blob/main/docs/install.md#obtain-an-entitlement-key).
+* Verify you can access the IBM Image repository with
+
+```sh
+docker login cp.icr.io --username cp --password <key-copied>
+```
 
 * Create a OpenShift secret in the `openshift-operator` project 
 
@@ -113,7 +125,7 @@ automatically if you install the operator at the cluster level.
 In case you need to control the deployment and if Cloud Pak for integration is not installed yet, you need to install the IBM foundational services operator
 for that follow the simple [instructions here](https://www.ibm.com/docs/en/cpfs?topic=311-installing-foundational-services-by-using-console).
 
-Create also the ibm-entitlement-key in the `ibm-common-services`  namespace.
+Create the same ibm-entitlement-key in the `ibm-common-services`  namespace.
 
 ```sh
 # verify operator installed
@@ -201,9 +213,7 @@ the one namespace only, the version v2.4. The Opertor monitors all namespaces.
     ```
 
 The first deployment of Event Streams, there may be creation of new deployments into the `ibm-common-services` if
-those services were not present before.
-
-Here is the updated list of deployments:
+those services were not present before. Here is the updated list of `ibm-common-services` deployments:
 
 ```
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
@@ -239,19 +249,47 @@ secretshare                            1/1     1            1           3h12m
 
 So it could take some time to get this up and running.
 
-It may take some time to start all needed dependencies and Event Stream pods. The result of this cluster creation should looks like: 
+The result of this cluster creation should looks like: 
 
-with the list of pod as illustrated in first.
+![](./images/es-created.png)
 
-[Cloud Pak for integration documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=installing-overview-installation)
+with the list of pod as illustrated at the top of this article.
+
+See also [Cloud Pak for integration documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=installing-overview-installation) for other
+deployment configuration.
+
+### Adding user and team 
+
+You need to be a platform administrator to create users and teams in IAM.
+
+To get the admin user credential use
+
+```sh
+oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' -n ibm-common-services | base64 && echo ""
+```
 
 ### Log into Event Streams
 
-1. From the project where your IBM Event Streams instance was installed (e.g. `eventstreams`) go to `Operators --> Installed Operators`.
-1. Click on the IBM Event Streams Operator and then on the `Event Streams` option listed at the top bar
-1. Click on the IBM Event Streams instance you want to access to its console and scroll down until you see the `Admin UI` attribute that displays the route to this IBM Event Streams instance's console.
-  ![login3](./images/login3.png)
+You can get the User Interface end point by doing the following command.
+
+```sh
+oc get route dev-ibm-es-ui -o jsonpath='{.spec.host}'
+```
+
+> Change `dev` prefix with the name of your kafka cluster you defined earlier.
+
+Or using the Admin Console 
+
+* Select the Event Streams Operator in the project where you install it
+* Select Click on the IBM Event Streams Operator and then on the `Event Streams` option listed at the top bar
+1. Click on the IBM Event Streams cluster instance you want to access to its console and see the `Admin UI` attribute that displays the route to this IBM Event Streams instance's console.
+  ![log](./images/admin-ui-url.png)
 1. Click on the route link and enter your IBM Event Streams credentials.
+
+Here is the Console:
+
+![](./images/es-console.png)
+
 
 ### Create Event Streams Topics
 
