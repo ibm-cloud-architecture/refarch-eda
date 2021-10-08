@@ -20,23 +20,26 @@ const FirstRightText = () => (
   </p>
 );
 
-const SecondLeftText = () => <p>Garage</p>;
+const SecondLeftText = () => <p>IBM Automation Client Engineering</p>;
 
 const SecondRightText = () => (
   <p>
-    IBM Garage™ is a bold, comprehensive approach to innovation and transformation that brings designers and developers together with your business and IT stakeholders to quickly create and scale new ideas that can dramatically impact your business.
+    IBM™ is a bold, comprehensive approach to innovation and transformation 
+    that brings designers and developers together with your business and 
+    IT stakeholders to quickly create and scale new ideas that can dramatically
+     impact your business.
     <a
       className={calloutLink}
       href="https://www.ibm.com/garage"
       target="_blank"
       rel="noopener noreferrer"
     >
-      IBM Garage →
+      IBM Automation →
     </a>
   </p>
 );
 
-const BannerText = () => <h1>IBM Garage for Cloud Event-Driven Reference Architecture</h1>;
+const BannerText = () => <h1>IBM Automation for Cloud Event-Driven Reference Architecture</h1>;
 
 const customProps = {
   Banner: <HomepageBanner renderText={BannerText} image={Carbon} />,

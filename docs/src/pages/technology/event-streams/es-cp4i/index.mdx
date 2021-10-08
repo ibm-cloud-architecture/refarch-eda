@@ -36,17 +36,22 @@ In this tutorial we select to deploy Event Streams in one namespace.
 This CLI will allow us to manage Cloud Pak related components as well as software, like IBM Event Streams, installed through any IBM Cloud Pak. In order to install it, execute the following commands in your IBM Cloud Shell:
 
   * Download the IBM Cloud Pak CLI: 
-```
+
+```sh
 curl -L https://github.com/IBM/cloud-pak-cli/releases/latest/download/cloudctl-linux-amd64.tar.gz -o cloudctl-linux-amd64.tar.gz
 ```
   * Untar it
-```
+
+```sh
 tar -xvf cloudctl-linux-amd64.tar.gz
 ```
+
   * Rename it as cloudctl and move to a folder within your PATH:
-```
+
+```sh
 mv cloudctl-linux-amd64 cloudctl
 ```
+
   * Make sure your IBM Cloud Pak CLI is in the path: `which cloudctl`
   * Make sure your IBM Cloud Pak CLI works: `cloudctl help`
 
@@ -54,13 +59,16 @@ mv cloudctl-linux-amd64 cloudctl
 
 * Get Event Streams plugin for IBM Cloud Pak CLI: This plugin will allow us to manage IBM Event Streams. In order to install it, execute the following commands in your IBM Cloud Shell:
 
-```
+```sh
 curl -L http://ibm.biz/es-cli-linux -o es-plugin
 ```
+
    * Install it: 
-```
+
+```sh
 cloudctl plugin install es-plugin
 ```
+
    * Make sure it works: `cloudctl es help`
 
 ![shell3](./images/shell3-v10.png)
@@ -72,12 +80,12 @@ See also the product documentation for [prerequisites details](https://ibm.githu
 Use the EDA Gitops project with the different operator subscriptions and IBM catalog to define
 the IBM Operator catalog.
 
-    ```sh
-    # List existing catalog
-    oc get catalogsource -n openshift-marketplace
-    # Add IBM catalog if needed   
-    oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-catalog/main/ibm-catalog/catalog_source.yaml
-    ```
+```sh
+# List existing catalog
+oc get catalogsource -n openshift-marketplace
+# Add IBM catalog if needed   
+oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-catalog/main/ibm-catalog/catalog_source.yaml
+```
 
 ### Get IBM Software entitlement key and create a secret
 
@@ -98,7 +106,37 @@ the IBM Operator catalog.
         --docker-password=your_entitlement_key 
     ```
 
-### Plaform sizing
+### Install IBM foundational services
+
+When using security with IAM and other services, Event Streams needs IBM foundations services. It will install it
+automatically if you install the operator at the cluster level. 
+In case you need to control the deployment and if Cloud Pak for integration is not installed yet, you need to install the IBM foundational services operator
+for that follow the simple [instructions here](https://www.ibm.com/docs/en/cpfs?topic=311-installing-foundational-services-by-using-console).
+
+Create also the ibm-entitlement-key in the `ibm-common-services`  namespace.
+
+```sh
+# verify operator installed
+oc get operators -n ibm-common-services
+# -> response:
+ibm-common-service-operator.openshift-operators    
+ibm-namespace-scope-operator.ibm-common-services   
+ibm-odlm.ibm-common-services                       
+```
+
+Those are the deployment the foundational services are creating:
+
+```
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+ibm-common-service-webhook             1/1     1            1           68m
+ibm-namespace-scope-operator           1/1     1            1           69m
+operand-deployment-lifecycle-manager   1/1     1            1           68m
+secretshare                            1/1     1            1           68m
+```
+
+Recalls that operands are what operators managed. 
+
+### Event Streams environment sizing
 
 A lot of information is available for sizing:
 
@@ -162,7 +200,46 @@ the one namespace only, the version v2.4. The Opertor monitors all namespaces.
             type: tls
     ```
 
-It may take some time to start all the event streams pods. The result of this cluster creation should looks like: 
+The first deployment of Event Streams, there may be creation of new deployments into the `ibm-common-services` if
+those services were not present before.
+
+Here is the updated list of deployments:
+
+```
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+auth-idp                               1/1     1            1           27m
+auth-pap                               1/1     1            1           32m
+auth-pdp                               1/1     1            1           32m
+cert-manager-cainjector                1/1     1            1           31m
+cert-manager-controller                1/1     1            1           31m
+cert-manager-webhook                   1/1     1            1           30m
+common-web-ui                          1/1     1            1           20m
+configmap-watcher                      1/1     1            1           31m
+default-http-backend                   1/1     1            1           31m
+iam-policy-controller                  1/1     1            1           32m
+ibm-cert-manager-operator              1/1     1            1           32m
+ibm-common-service-webhook             1/1     1            1           3h12m
+ibm-commonui-operator                  1/1     1            1           32m
+ibm-iam-operator                       1/1     1            1           33m
+ibm-ingress-nginx-operator             1/1     1            1           32m
+ibm-management-ingress-operator        1/1     1            1           33m
+ibm-mongodb-operator                   1/1     1            1           32m
+ibm-monitoring-grafana                 1/1     1            1           32m
+ibm-monitoring-grafana-operator        1/1     1            1           33m
+ibm-namespace-scope-operator           1/1     1            1           3h12m
+ibm-platform-api-operator              1/1     1            1           31m
+management-ingress                     1/1     1            1           23m
+nginx-ingress-controller               1/1     1            1           31m
+oidcclient-watcher                     1/1     1            1           32m
+operand-deployment-lifecycle-manager   1/1     1            1           3h11m
+platform-api                           1/1     1            1           31m
+secret-watcher                         1/1     1            1           32m
+secretshare                            1/1     1            1           3h12m
+```
+
+So it could take some time to get this up and running.
+
+It may take some time to start all needed dependencies and Event Stream pods. The result of this cluster creation should looks like: 
 
 with the list of pod as illustrated in first.
 

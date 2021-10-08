@@ -275,7 +275,7 @@ When developing a record producer you need to assess the following:
 * Is there a risk for loosing communication? Tune the RETRIES_CONFIG and buffer size
 * Assess *once to exactly once* delivery requirement. Look at idempotent producer.
 
-See [implementation considerations discussion](../kafka-producers-consumers/#kafka-producers)
+See [implementation considerations discussion](../../kafka-producers/)
 
 ## Consumers
 
@@ -288,21 +288,4 @@ From the consumer point of view a set of items need to be addressed during desig
 * Does record time sensitive, and it is possible that consumers fall behind, so when a consumer restarts he can bypass missed records?
 * Do the consumer needs to perform joins, aggregations between multiple partitions?
 
-See [implementation considerations discussion](../kafka-producers-consumers/#kafka-consumers)
-
-See [also the compendium note](../../additional-reading/) for more readings.
-
-# Deployment
-
-In this section we provide the instructions for getting kafka deployed in your vanilla kubernetes environment through the Strimzi kubernetes operator or getting the IBM Event Streams product (based on Kafka) deployed on your IBM Cloud Private/OpenShift cluster or in your IBM Cloud account as a managed service.
-
-## Kubernetes Operator
-
-It is important to note that the deployment and management of stateful application in Kubernetes should, now, use the proposed [Operator Framework](https://github.com/operator-framework) introduced by Red Hat and Google. One important contribution is the [Strimzi Kafka operator](https://github.com/strimzi/strimzi-kafka-operator) that simplifies the deployment of Kafka within k8s by adding a set of operators to deploy and manage Kafka clusters, topics, users and more.
-
-## IBM Event Streams
-
-IBM Event Streams is an event-streaming platform based on the open-source Apache Kafka® project. It can be installed on IBM Cloud Private (ICP) cluster, OpenShift cluster or as a hosted service in IBM Cloud.
-
-Instructions for installing IBM Event Streams on your cluster as well as getting an instance as a hosted service in IBM Cloud can be found [here](https://ibm.github.io/event-streams/)
-
+See [implementation considerations discussion](../../kafka-consumers/)
