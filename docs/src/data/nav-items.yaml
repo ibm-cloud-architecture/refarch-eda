@@ -84,6 +84,8 @@
       path: /technology/kafka-consumers/
     - title: Kafka Advanced Concepts
       path: /technology/kafka-overview/advance/
+    - title: Kafka security
+      path: /technology/security/
     - title: Flink
       path: /technology/flink/
     - title: Kafka Streams
@@ -107,7 +109,7 @@
     - title: Overview
       path: /use-cases/overview/
     - title: Event Streams CP4I
-      path: /use-cases/overview/pre-requisites
+      path: /technology/event-streams/es-cp4i
     - title: Deploy Confluent on OCP
       path: /use-cases/confluent
     - title: Kafka Connect - S3
