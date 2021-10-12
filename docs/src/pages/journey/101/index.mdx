@@ -19,6 +19,8 @@ event-driven solution, and getting started on IBM Event Streams and IBM MQ.
   <AnchorLink>Why microservices are becoming event-driven and why we should care?</AnchorLink>
   <AnchorLink>Messaging as a service?</AnchorLink>
   <AnchorLink>Fit for purpose</AnchorLink>
+  <AnchorLink>Event Streams environment sizing</AnchorLink>
+  <AnchorLink>Getting Started With Event Streams</AnchorLink>
   <AnchorLink>Frequently asked questions</AnchorLink>
 </AnchorLinks>
 
@@ -66,6 +68,19 @@ The product documentation as part of cloud pak for integration is [here](https:/
 
 See the [detailed tables](https://ibm.github.io/event-streams/installing/prerequisites/#helm-resource-requirements) in the product documentation.
 
+### Event Streams environment sizing
+
+A lot of information is available for sizing:
+
+* [Cloud Pak for integration system requirements](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=installation-system-requirements)
+* [Foundational service specifics](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=requirements-sizing-foundational-services)
+* [Event Streams resource requirements](https://ibm.github.io/event-streams/installing/prerequisites/)
+* Kafka has a [sizing tool (eventsizer)](https://eventsizer.io/) that may be questionable but some people are using it.
+
+But in general starts small and then increase the number of nodes over time.
+
+Minimum for production is 5 brokers and 3 zookeepers.
+ 
 
 ## Use Cases
 
@@ -106,6 +121,7 @@ the [messaging versus eventing presentation](/concepts/events-versus-messages/).
 
 We have a [general fit for purpose document](/concepts/fit-to-purpose/) that can help you reviewing messaging versus eventing,
 MQ versus Kafka, but also Kafka Streams versus Apache Flink.
+
 
 ## Getting Started With Event Streams
 
