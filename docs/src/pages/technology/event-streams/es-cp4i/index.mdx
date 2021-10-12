@@ -358,7 +358,15 @@ via scripts. All can be automatized with ArgoCD / OpenShift GitOps.
   ```sh
   git clone https://github.com/ibm-cloud-architecture/eda-gitops-catalog.git
   ```
-* Create the `ibm-entitlement-key` secret in this project
+* Create the `ibm-entitlement-key` secret in this project.
+
+  ```sh
+  oc create secret docker-registry ibm-entitlement-key \
+        --docker-username=cp \
+        --docker-server=cp.icr.io \
+        --namespace=eventstreams \
+        --docker-password=your_entitlement_key 
+  ```
 
 * Install Event Streams Operator subscriptions
 
@@ -370,9 +378,14 @@ via scripts. All can be automatized with ArgoCD / OpenShift GitOps.
 You can use te OpenShift console or our predefined cluster definition:
 
   ```shell
-  oc apply -k cp4i-operators/event-streams/instance/dev-cluster/
+  oc apply -k cp4i-operators/event-streams/instances/dev/
   ```
 
+  If you want to do the same thing for a production cluster
+
+  ```shell
+  oc apply -k cp4i-operators/event-streams/instances/prod-small/
+  ```
 ---
 
 ## Common operations to perform on cluster
