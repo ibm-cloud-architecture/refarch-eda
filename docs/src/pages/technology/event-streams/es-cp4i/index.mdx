@@ -335,9 +335,16 @@ messages:
 ![](./images/es-starter-app-run.png)
  
  
-This application can be deployed on OpenShift within the same namespace as Event Streams so it will
-be easy to test you internal communication.
+This application can be deployed to OpenShift within the same namespace as Event Streams so it will
+be easy to test the internal communication. Here are the steps:
 
+```sh
+# From the folder where you downloaded the kakfa.properties file
+# create a secret to keep the content of this file
+oc create secret generic demo-app-secret --from-file=./kafka.properties
+# then use our deployment definition
+oc apply -k https://raw.githubusercontent.com/ibm-cloud-architecture/eda-quickstarts/main/kafka-java-vertz-starter/app-deployment/kustomization.yaml
+```
 The source code for this application is in this git repo: [ibm-messaging/kafka-java-vertx-starter](https://github.com/ibm-messaging/kafka-java-vertx-starter/)
 
 --- 
