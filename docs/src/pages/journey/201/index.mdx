@@ -3,12 +3,91 @@ title: Learning Journey - deeper dive (201 content)
 description: Learning more about Event Streams, Event Driven Solution
 ---
 
-This content is to help you, go deeper into Kafka, Event Streams, Messaging, and Event-driven solution.
+<InlineNotification kind="warning">
+<strong>Updated 10/13/2021 - Work In Progress</strong>
+</InlineNotification>
 
+In this `201` content, you should be able to learn more about Kafka, Event Streams, Messaging, and Event-driven solution.
+
+<AnchorLinks>
+  <AnchorLink>More Kafka</AnchorLink>
+  <AnchorLink>Production deployment - High Availability</AnchorLink>
+  <AnchorLink>Performance considerations</AnchorLink>
+</AnchorLinks>
+
+
+## More Kafka
+
+We have already covered the Kafka architecture in [this section](https://ibm-cloud-architecture.github.io/refarch-eda/technology/kafka-overview/#kafka-components).
+When we deploy Event Streams on Kubernetes, it uses Operator, and it is in fact a wrapper on top of [Strimzi](http://strimzi.io),
+the open source kafka operator.
+
+### Strimzi
+
+[Strimzi](https://strimzi.io/) uses the Cluster Operator to deploy and manage Kafka (including Zookeeper) and Kafka Connect clusters. 
+When the Strimzi Cluster Operator is up and runnning, it starts to watch for certain OpenShift or Kubernetes resources containing the 
+desired Kafka and/or Kafka Connect cluster configuration. 
+
+![Strimzi](./images/strimzi.png)
+
+It supports the following capabilities:
+
+* Deploy Kafka OOS on any OpenShift or k8s platform
+* Support TLS and SCRAM-SHA authentication, and automated certificate management
+* Define operators for cluster, users and topics
+* All resources are defined in yaml file so easily integrated into GitOps
+
+The Cluster Operator is a pod used to deploys and manages Apache Kafka clusters, Kafka 
+Connect, Kafka MirrorMaker (1 and 2), Kafka Bridge, Kafka Exporter, and the Entity Operator.
+When deployed the following commands goes to the Cluster operator:
+
+```shell
+# Get the current cluster list
+oc get kafka
+# get the list of topic
+oc get kafkatopics
+```
+
+#### Installation on OpenShift
+
+The Strimzi operators deployment is done in two phases:
+
+* Deploy the main operator via Subscription
+* Deploy one to many instances of the Strimzi CRDs: cluster, users, topics...
+
+For that we have define subscription and configuration in [this eda-gitops-catalog repo](https://github.com/ibm-cloud-architecture/eda-gitops-catalog). 
+So below are the operations to perform:
+
+```shell
+ # clone 
+ git clone https://github.com/ibm-cloud-architecture/eda-gitops-catalog.git
+ # Define subscription
+ oc apply -k kafka-strimzi/operator/overlays/stable/
+ # The subscription creates an operator pod under the openshift-operators project
+ oc get pods -n openshift-operators
+ # Create a project e.g. strimzi
+ oc new-project strimzi
+ # deploy a simple kafka cluster with 3 brokers
+ oc apply -k  kafka-strimzi/instance/
+ # Verify installation
+ oc get pods
+ # should get kafka, zookeeper and the entity operator running.
+```
+
+The [Strimzi documentation](https://strimzi.io/docs/operators/latest/using.html) is very good to present a lot of configuration and tuning practices.
+
+#### Application
+
+All applications written with Kafka API will work the same way with Strimzi and Event Streams. So developer
+can use Strimzi images for their local development.
 
 ## Production deployment - High Availability
 
-## Strimzi
+Kafka clustering brings availability for message replication and failover, see details in this [high availability section.](/technology/kafka-overview/advance/#high-availability)
+This chapter also presents replicas, in-synch replicas concepts and failure scenarios.
+
+## Performance considerations
+
 
 ## Kafka Connect Framework
 
@@ -16,13 +95,17 @@ This content is to help you, go deeper into Kafka, Event Streams, Messaging, and
 
 ## Debezium change data capture
 
+
 ## Schema registry
 
 ## Anatomy of an event-driven microservice
 
 ## AsyncAPI
 
+[This article on AsyncAPI management](/patterns/api-mgt/)
+
 ## Mirroring Data
+
 
 ## Deployment with GitOps practices
 
