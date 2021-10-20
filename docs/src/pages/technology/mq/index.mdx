@@ -51,8 +51,8 @@ We can have many queues and topics on one queue manager
 
 * **MQ provides assured delivery of data**: No data loss and no duplication, strong support of exactly once.
 * **MQ is horizontally scalable**: As the workload for a single queue manager increases, it is easy to add more queue managers to share tasks and distribute the messages across them. 
-* **Highly available** (See [ section below](#high-availability)) and scalable architecture with different topologies
-* Integrate well with Mainframe to propagate transaction to eventual consistenty world of cloud native distributed applications. Writing to database and MQ queue is part of the same transaction, which simplifies the injection into event backbone like Kafka, via MQ connector.
+* **Highly available** (See [ section below](#high-availability)) with scalable architecture with different topologies
+* Integrate well with Mainframe to propagate transaction to the eventual consistent world of cloud native distributed applications. Writing to database and MQ queue is part of the same transaction, which simplifies the injection into event backbone like Kafka, via MQ connector.
 * Containerized to run on modern kubernetes platform.
 
 ### Decentralized architecture
@@ -125,11 +125,9 @@ See [the 'MQ Uniform Cluster' related repository](https://github.com/ibm-messagi
 Native HA provides built in replication of messages and state across multiple sets of storage, removing the dependency of replication and locking from the file system.
 
 
-
 ### Disaster recovery
 
 For always on deployment we need three data center and active-active on the three data center. So how is it supported with MQ?
-
 
 
 ## Installation with Cloud Pak for Integration

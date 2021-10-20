@@ -4,6 +4,7 @@ description: What is the purpose of the event-driven reference architecture?
 ---
 
 <AnchorLinks>
+  <AnchorLink>From SOA to EDA and meet in the middle</AnchorLink>
   <AnchorLink>Event Driven Architecture</AnchorLink>
   <AnchorLink>Integrating with automation products</AnchorLink>
   <AnchorLink>Integration with analytics and machine learning</AnchorLink>
@@ -18,6 +19,47 @@ We defined the starting point for a cloud-native event-driven architecture to be
 * Publish messages as facts or events as immutable records to an append log so subscribers can consume them at any point of time.
 * Processing streams of events to derive real time insight/intelligence.
 * Providing communication mechanism between event-driven microservices and functions.
+
+## From SOA to EDA and meet in the middle
+
+We do not need to present Service Oriented Architecture as a way to organize modern application... Well modern was started in 2003. 
+In 2006, Enterprise Service Bus was at the center of thee SOA adoption with API exposure, mediation flows, and service gateway.
+ESB is a pattern but also a product.
+
+ ![](./images/soa-esb-centric.png)
+
+Business services exposes APIs, defined with WSDL and the protocol is XML heavy with SOAP. The rich set of specification in the [ws-*](https://en.wikipedia.org/wiki/List_of_web_service_specifications) 
+helps to address complex business applications, where application can dynamically searching for API producer, bind to the end point, and then call the service.
+
+SOA is still a core structure of IT architecture today.
+
+Two major characteristics of IT architecture are the scalability and the coupling with others.
+With the way most of SOA services are done is by pulling data from other services or call operation on API
+to make something done (delegation, command patterns). The dependencies between service via the
+service contract, and the heavy use of XML have put some limit to the scalability and coupling dimensions.
+
+EDA was already proposed, in 2004, as a way to address scalability, as illustrated by this figure below:
+
+![](./images/soa-eda-venn.png)
+
+EDA helps to decouple communication and contract between services, move to push data as immutable facts amd async communication.
+
+New applications started to be implemented, early 2010s, to address scalability need. RESTful and JSON are
+becoming ubiquituous technology, protocols to use. This is a neat evolution from SOAP and XML, but the applications
+exposing API with OpenAPI specification are still point to point, and the data pull is still the 
+pattern to get access to data. The [reactive manifesto](/advantages/reactive/#overview) is also 
+promoting sound principles to make modern applications more responsive, resilient and elastics therefore adopting messages. 
+
+EDA and SOA do not have to compete, but are complementary addressing different kind of problem. 
+Combined together they provide innovative business solutions to problems we never thought could be solved:
+
+* Event driven business process
+* near real-time analytics
+* real-time flow analysis
+* complex event processing with time window based business rules
+* services act as event source or sink
+* event trigger services
+* service to process events
 
 ## Event Driven Architecture
 
@@ -64,24 +106,25 @@ This reference architecture is illustrated in the implementation of two solution
 
 ## Integrating with automation products
 
-EDA is becoming the new Service Oriented Architecture as a foundation to expose business service, and business entity states.
+EDA is becoming the new foundation to expose business services, and business applications. Combined with 
+SOA and microservices architecture, it exposes messaging as a services to be used by automation products, like
+Robot Process Automation bots, Process Mining, Chat Bots, and more traditional workflow and decision engines.
 
-A new set of automation products like Robot Process Automation bots, Process Mining, Chat Bots, and more traditional workflow and decision engines
-are leveraging the messaging as a service as presented in previous section.
-
-So these lead to a new digital automation reference architecture, based on event-driven and messaging communication:
+Those products are leveraging data in the event backbone or in the queues to do their own processing.
+But they are also event producer. We can build a new digital automation reference architecture, 
+based on event-driven and messaging communication like in the figure below:
 
 ![](./images/automation-eda.png)
 
-On the top row the capabilities are:
+On the top row, the capabilities group:
 
 *  Existing business applications, and SOA services: most of them are J2EE applications running on application servers, 
 some are legacy based using transactions. It will be easy for those applications to integrate new microservices, or webapp
 exposing JSON / RESTful resources via an API Gateway.
-* New single page applications are also accessing business services via gateway, and use HTTP (RESTful) protocol. Those single page applications 
-can be developed using IBM 
+* New single page applications are also accessing business services via the gateway, and use HTTP (RESTful) protocol. Those single page applications 
+can be developed using [IBM Business Automation Application](https://www.ibm.com/docs/en/cloud-paks/1.0?topic=software-business-automation-application).
 * Existing business process applications may have been designed to be triggered by message arrival, and may be able to emit intermediate
-events. IBM BPM, for example, has JMS queue integration to consume and publish messages.
+events. IBM BPM, for example, has JMS queue integration to consume and publish messages to JMS queues, which should be defined in IBM MB Brokers.
 
 > A business process is the set of combined activities defined as an orchestrated workflow
  within the business to achieve a business goal which uses system services or refers work to process workers
@@ -102,6 +145,28 @@ The data used to develop the model come from data lake, existing datawarehouse b
 directly by code, or by adopting less intruisive techniques like change data capture agents. Those events
 are representing facts about the busienss entities and the processes implemented cross microservices and applications. 
 This is were Process Mining product are very important to plug into this data stream.   
+
+### Process Mining integration
+
+Process mining is a tool to analyze process execution logs or data. The consumption vehicle are cvs files. When adopting
+EDA, data in the business process may be initiated by a single page application, sent to Kafka as events,
+cosumed by a human centric, long running, process application, processed by a data streaming application in Flink...
+Each element of this 'Saga' transaction will event time based fact about the data and so about the process.
+Then it will make sense to analyze those data. 
+The integration will look like in the figure below, where data processing prepares the expected CVS format,
+and persists file in scalable, secured long storage like S3 buckets (IBM Cloud Object Storage), and then business analysts
+loads those files into Process Mining to conduct their analysis: 
+
+![](./images/es-pm-itg.png)
+
+### Integration with decision service
+
+The figure below illustrates an integration between data produces on Event Streams, consumed by Apache Flink
+data streaming jobs which detect fraud or business situation which needs to be
+processed by business rule logic in IBM Operational Decision Management to compute
+the next best action:
+
+![](./images/flink-ds-itg.png)
 
 
 ## Integration with analytics and machine learning
