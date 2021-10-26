@@ -4,7 +4,7 @@ description: Learning more about Event Streams, Event Driven Solution
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 10/13/2021 - Work In Progress</strong>
+<strong>Updated 10/25/2021 - Work In Progress</strong>
 </InlineNotification>
 
 In this `201` content, you should be able to learn more about Kafka, Event Streams, Messaging, and Event-driven solution.
@@ -13,6 +13,13 @@ In this `201` content, you should be able to learn more about Kafka, Event Strea
   <AnchorLink>More Kafka</AnchorLink>
   <AnchorLink>Production deployment - High Availability</AnchorLink>
   <AnchorLink>Performance considerations</AnchorLink>
+  <AnchorLink>EDA Design patterns</AnchorLink>
+  <AnchorLink>Kafka Connect Framework</AnchorLink>
+  <AnchorLink>Integrate with MQ</AnchorLink>
+  <AnchorLink>Introduction to schema management</AnchorLink>
+  <AnchorLink>AsyncAPI</AnchorLink>
+  <AnchorLink>Debezium change data capture</AnchorLink>
+  <AnchorLink>Mirroring Data</AnchorLink>
 </AnchorLinks>
 
 
@@ -84,28 +91,58 @@ can use Strimzi images for their local development.
 ## Production deployment - High Availability
 
 Kafka clustering brings availability for message replication and failover, see details in this [high availability section.](/technology/kafka-overview/advance/#high-availability)
-This chapter also presents replicas, in-synch replicas concepts and failure scenarios.
+This chapter presents replicas, in-synch replicas concepts and addresses some broker failure scenarios that are important to understand.
+
+When looking how Kafka is deployed on Kubernetes / Openshift it is important to isolate each broker
+to different worker node as illustrated in [this section](/technology/kafka-overview/advance/#high-availability-in-the-context-of-kubernetes-deployment).
+
+In end-to-end deployment, the high availability will become more of a challenge for the producer and consumer.
+Consumers and producers should better run on separate servers than the brokers nodes. Producer may need
+to address back preasure on their own. Consumers need to have configuration that permit to do not enforce
+partition to consumer reassignment too quickly. Consumer process can fail and restart quickly and get the same partition allocated.
 
 ## Performance considerations
 
+Read [this dedicated article on performance, resilience, throughput.](/technology/kafka-overview/advance/#performance-considerations)
+
+## EDA Design patterns 
+
+Event-driven solutions are based on a set of design pattern for application design. In 
+[this article](/patterns/intro/), you will find the different pattern which
+are used a lot in the field like
+
+* [Event sourcing](/patterns/event-sourcing/): persists, to an append log, the states of a business entity, such as an Order, as a sequence of immutable state-changing events.
+* [Command Query Responsibility Segregation](/patterns/cqrs/): helps to separate queries from commands and help to address queries with cross-microservice boundary.
+* [Saga pattern:](/patterns/saga/) Microservices publish events when something happens in the scope of their control like an update in the business entities they are responsible for. A microservice, interested in other business entities, subscribes to those events and it can update its own state and business entities on receipt of these events. Business entity keys need to be unique and immutable.
+* [Event reprocessing with dead letter](/patterns/dlq/): event driven microservices may have to call external services via a synchronous call. We need to process failure in order to get response from those services using event backbone.
+* [Transactional outbox](/patterns/intro/#transactional-outbox): A service command typically needs to update the database and send messages/events.
+The approach is to use an outbox table to keep the message to sent and a message relay process to publish events inserted into database to the event backbone. (Source Chris Richardson - Microservices Patterns)
 
 ## Kafka Connect Framework
 
+Kafka connect is an open source component for easily integrate external systems with Kafka. 
+It works with any Kafka product such as IBM Event Streams, Red Hat AMQ Streams, or Strimzi.
+You can learn more about it [in this article](/technology/kafka-connect/) and with those labs:
+
+  * [Connect to S3 source and sink](/use-cases/connect-s3/)
+  * [Connect to IBM Cloud Object Storage](/use-cases/connect-cos/)
+  * [Connect to a Database with JDBC Sink](/use-cases/connect-jdbc/)
+  * [Connect to MQ queue as source or Sink](use-cases/connect-mq/)
+  * [Connect to RabbitMQ](/use-cases/connect-rabbitmq/)
+
 ## Integrate with MQ
 
-## Debezium change data capture
+Using Kafka Connect framework, IBM has a [MQ connector]() to integrate easily between Event Streams and IBM MQ
+and the [following labs](/use-cases/connect-mq/) will help you learn more about how to use it.
 
-
-## Schema registry
-
-## Anatomy of an event-driven microservice
+## Introduction to schema management
 
 ## AsyncAPI
 
 [This article on AsyncAPI management](/patterns/api-mgt/)
 
+## Debezium change data capture
+
 ## Mirroring Data
 
-
-## Deployment with GitOps practices
 

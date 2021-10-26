@@ -17,9 +17,16 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 
 ## Overview
 
-Now that you have an Event Streams instance installed on Cloud Pak for Integration on top of OpenShift Container Platform the goal of this story is to show a possible use case that we can use with this technology. With IBM Event Streams we have access to the powerful capabilities of Kafka in addition to all the monitoring and logging capabilities that IBM provides on top of that with Event Streams.
+Now that you have an Event Streams instance installed on Cloud Pak for Integration on top of OpenShift Container Platform 
+the goal of this story is to show a possible use case that we can use with this technology. 
+With IBM Event Streams we have access to the powerful capabilities of Kafka in addition to all the monitoring 
+and logging capabilities that IBM provides on top of that with Event Streams.
 
-We will create a simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that utilizes MicroProfile Reactive Messaging in order for us to send a stream of data to our Event Streams/Kafka topic. We will then create a Kafka Connect cluster using the Strimzi Operator. Lastly we'll send messages to an Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and place into an IBM COS Bucket.
+We will create a simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that 
+utilizes MicroProfile Reactive Messaging in order for us to send a stream of data to our Event Streams/Kafka topic. 
+We will then create a Kafka Connect cluster using the Strimzi Operator. Lastly we'll send messages to an 
+Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and 
+place into an IBM COS Bucket.
 
 ![Architecture Diagram](./images/quarkus-to-event-streams-to-cos.png)
 
