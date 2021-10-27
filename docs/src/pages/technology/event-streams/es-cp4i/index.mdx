@@ -87,7 +87,8 @@ the IBM Operator catalog.
 ```sh
 # List existing catalog
 oc get catalogsource -n openshift-marketplace
-# Add IBM catalog if needed   
+# Verifi ibm-operator-catalog is present in the list
+# if not add IBM catalog 
 oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-catalog/main/ibm-catalog/catalog_source.yaml
 ```
 
@@ -96,16 +97,16 @@ oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-
 * Obtain [IBM license entitlement key](https://github.com/IBM/cloudpak-gitops/blob/main/docs/install.md#obtain-an-entitlement-key).
 * Verify you can access the IBM Image repository with
 
-```sh
-docker login cp.icr.io --username cp --password <key-copied>
-```
+    ```sh
+    docker login cp.icr.io --username cp --password <key-copied>
+    ```
 
 * Create a OpenShift secret in the `openshift-operator` project 
 
     ```sh
     # Get on good project
     oc project openshift-operators
-    # Verify it secret exists
+    # Verify if secret exists
     oc describe secret ibm-entitlement-key
     # Create if needed
     oc create secret docker-registry ibm-entitlement-key \
@@ -133,7 +134,7 @@ ibm-namespace-scope-operator.ibm-common-services
 ibm-odlm.ibm-common-services                       
 ```
 
-Those are the deployment the foundational services are creating:
+Those are the deployments the foundational services are creating:
 
 ```
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
@@ -143,7 +144,7 @@ operand-deployment-lifecycle-manager   1/1     1            1           68m
 secretshare                            1/1     1            1           68m
 ```
 
-Recalls that operands are what operators managed. 
+Recalls that operands are what operators manage. 
 
 ---
 

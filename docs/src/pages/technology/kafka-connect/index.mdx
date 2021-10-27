@@ -3,25 +3,32 @@ title: Kafka Connect
 description: Kafka Connect
 ---
 
-[Kafka connect](https://kafka.apache.org/documentation/#connect) is an open source component for easily integrate external systems with Kafka. It works with any Kafka product like IBM Event Streams. It uses the concepts of source and sink connectors to ingest or deliver data to / from  Kafka topics.
+[Kafka connect](https://kafka.apache.org/documentation/#connect) is an open source component 
+for easily integrate external systems with Kafka. It works with any Kafka product like IBM Event Streams, Srimzi, AMQ Streams. 
+It uses the concepts of source and sink connectors to ingest or deliver data to / from  Kafka topics.
 
 ![Kafka component](../images/kafka-components.png)
 
 The general concepts are detailed in the [IBM Event streams product documentation](https://ibm.github.io/event-streams/connecting/connectors/), and [Robin Moffatt's video](https://talks.rmoff.net/DQkDj3). Here is a quick summary:
 
 * **Connector** represents a logical job to move data from / to kafka  to / from external systems. A lot of [existing connectors](https://ibm.github.io/event-streams/connectors/) can be reused, or you can [implement your own](https://kafka.apache.org/documentation/#connect_development).
-* **Workers** are JVM running the connector. For production deployment workers run in cluster or "distributed mode", and leverage the group management protocol to scale task horizontally.
-* **Tasks**: each worker coordinates a set of tasks to copy data. In distributed mode, task states are saved in kafka topics. They can be started, stopped at any time to support resilience, and scalable data pipeline.
+* **Workers** are JVMs running the connector. For production deployment workers run in cluster or "distributed mode", and leverage the Kafka consumer group management protocol to scale task horizontally.
+* **Tasks**: each worker coordinates a set of tasks to copy data. In distributed mode, task states are saved in Kafka topics. They can be started, stopped at any time to support resilience, and scalable data pipeline.
 * **REST API** to configure the connectors and monitors the tasks.
 
-The following figure illustrates a classical 'distributed' deployment of a Kafka Connect cluster. Workers are the running process to execute connectors and tasks. Workers are JVMs. Tasks are threads in a JVM. For fault tolerance and offeset management, Kafka connect uses Kafka topics (`-offsets, -config, -status`)
-When a connector is first submitted to the cluster, the workers rebalance the full set of connectors in the cluster and their tasks so that each worker has approximately the same amount of work. 
+The following figure illustrates a classical 'distributed' deployment of a Kafka Connect cluster. 
+Workers are the running processes to execute connectors and tasks. Tasks are threads in a JVM. 
+For fault tolerance and offset management, Kafka connect uses Kafka topics (suffix name as `-offsets, -config, -status`)
+When a connector is first submitted to the cluster, the workers rebalance the full set of connectors
+ in the cluster with their tasks so that each worker has approximately the same amount of work. 
 
 ![Connectors and tasks](./images/connector-tasks.png)
 
-* Connector and tasks are not guaranteed to run on the same instance in the cluster, especially if you have multiple tasks and multiple instances in your cluster.
+* Connector and tasks are not guaranteed to run on the same instance in the cluster, 
+especially if you have multiple tasks and multiple instances in your cluster.
 * Connector coordinates data streaming by managing tasks
-* The connector may be configured to add `Converters` (code used to translate data between Connect and the system sending or receiving data), and `Transforms`: Simple logic to alter each message produced by or sent to a connector.
+* The connector may be configured to add `Converters` (code used to translate data between Connect and the system sending or receiving data), 
+and `Transforms`: simple logic to alter each message produced by or sent to a connector.
 
 Connector keeps state into three topics, which may be created when the connectors start are:
 
@@ -44,40 +51,48 @@ When a worker fails:
 
 ![](./images/fault-1.png)
 
-Tasks allocated in a worker that fails are reallocated to existing workers, and the task's state, offset, source record mapping to offset are reloaded from the different topics.
+Tasks allocated in the failed worker are reallocated to existing workers, and the task's state, read offsets, source record mapping to offset are reloaded from the different topics.
 
 ![](./images/fault-2.png)
 
+Both figure above are illustrating a MongoDB sink connector.
+
 ## Installation
 
-The  Kafka connect framework fits well into a kubernetes deployment. In 2021 we have different options for that deployment: the [Strimzi Kafka connect operator](https://strimzi.io/docs/0.22.0/#kafka-connect-str) or one of the [Confluent connector](https://www.confluent.io/hub/).
-
-### Strimzi
-
+The  Kafka connect framework fits well into a kubernetes deployment. 
+In 2021 we have different options for that deployment: the [Strimzi Kafka connect operator](https://strimzi.io/docs/0.22.0/#kafka-connect-str), 
+IBM [Event Streams Connector](https://ibm.github.io/event-streams/connecting/setting-up-connectors/),
+Red Hat [AMQ Streams (2021.Q3) connector](https://access.redhat.com/documentation/en-us/red_hat_amq/2021.q3/html/using_amq_streams_on_openshift/assembly-deployment-configuration-str#assembly-kafka-connect-str)
+or one of the [Confluent connector](https://www.confluent.io/hub/).
 
 ### IBM Event Streams Cloud Pak for Integration
 
-If you are using IBM Event Streams 2020.x on Cloud Pak for Integration, the connectors setup is part of the user admin console toolbox:
+If you are using IBM Event Streams 2021.x on Cloud Pak for Integration, the connectors setup is part of the user admin console toolbox:
 
 ![Event Streams connector](../images/es-connectors.png)
 
-*Deploying connectors against an IBM Event Streams cluster, you need to have an API key with Manager role, to be able to create topic, produce and consume messages for all topics.*
+*Deploying connectors against an IBM Event Streams cluster, you need to have a Kafka user with Manager role, to be able to create topic, produce and consume messages for all topics.*
 
-As an extendable framework, Kafka Connect, can have new connector plugins. To deploy new connector, you need to use the kafka docker image which needs to be updated with the connector jars and redeployed to kubernetes cluster or to other environment. With IBM Event Streams on Openshift, the toolbox includes a kafka connect environment packaging, that defines a Dockerfile and configuration files to build your own image with the connectors jar files you need. The configuration files defines the properties to connect to Event Streams kafka brokers using API keys and SASL.
+As an extendable framework, Kafka Connect, can have new connector plugins. To deploy new connector, you need to use the kafka docker 
+image which needs to be updated with the connector jars and redeployed to kubernetes cluster 
+or to other environment. With IBM Event Streams on Openshift, the toolbox includes a 
+kafka connect environment packaging, that defines a Dockerfile and configuration files 
+to build your own image with the connectors jar files you need. The configuration files 
+defines the properties to connect to Event Streams kafka brokers using API keys and SASL.
 
-The following [public IBM messaging github account](https://github.com/ibm-messaging) includes supported, open sourced, connectors (search for `connector`).
+The following [public IBM messaging github account](https://github.com/ibm-messaging) includes 
+supported, open sourced, connectors (search for `connector`).
 
 Here is the [list of supported connectors](https://ibm.github.io/event-streams/connectors/) for IBM Event Streams.
 
+### Strimzi
 
-
-### Connecting to IBM Cloud Event Streams service
-
-We have developed different scenarios in [this lab](/scenarios/realtime-inventory/) to remotely connect a Kafka Connect distributed cluster to Event Streams on cloud.
+To run a demo of a connector, we can use Strimzi and Kafka connector.
 
 ## Further Readings
 
 * [Apache Kafka connect documentation](https://kafka.apache.org/documentation/#connect)
 * [Confluent Connector Documentation](https://docs.confluent.io/current/connect/index.html)
-* [IBM Event Streams Connectors](https://ibm.github.io/event-streams/connecting/connectors/) or [the list of supported connectors](https://ibm.github.io/event-streams/connectors/)
+* [IBM Event Streams Connectors](https://ibm.github.io/event-streams/connecting/connectors/) 
+* [List of supported connectors by Event Streams](https://ibm.github.io/event-streams/connectors/)
 * [MongoDB Connector for Apache Kafka](https://github.com/mongodb/mongo-kafka)

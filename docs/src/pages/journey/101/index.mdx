@@ -21,6 +21,7 @@ event-driven solution, and getting started on IBM Event Streams and IBM MQ.
   <AnchorLink>Fit for purpose</AnchorLink>
   <AnchorLink>Event Streams environment sizing</AnchorLink>
   <AnchorLink>Getting Started With Event Streams</AnchorLink>
+  <AnchorLink>Methodology: getting started on a good path</AnchorLink>
   <AnchorLink>Frequently asked questions</AnchorLink>
 </AnchorLinks>
 
@@ -114,8 +115,11 @@ and relates to some design patterns and potential microservice code structure.
 ## Messaging as a service? 
 
 Yes EDA is not just Kafka, IBM MQ and Kafka should be part of any serious EDA deployment.
-The main reasons are explained in [this fit for purpose section](/concepts/fit-to-purpose/#mq-versus-kafka) and
+The main reasons are explained in [this fit for purpose section](/concepts/fit-to-purpose/#mq-versus-kafka) and in
 the [messaging versus eventing presentation](/concepts/events-versus-messages/).
+
+An introduction to MQ is summarized in [this note](/technology/mq/) in the 301 learning journey, developers need to get the [MQ developer badge](https://developer.ibm.com/learningpaths/ibm-mq-badge/)
+as it cover the basics for developing solution on top of MQ Broker.
 
 ## Fit for purpose
 
@@ -165,6 +169,23 @@ very good [getting started application](https://ibm.github.io/event-streams/gett
 If you want to adopt a pure GitOps approach we have demonstrated how to use
 ArgoCD (OpenShift GitOps) to deploy an Event Streams cluster and maintain it states
 in a simple real time inventory demonstration in [this repository](https://github.com/ibm-cloud-architecture/rt-inventory-gitops).   
+
+
+## Methodology: getting started on a good path
+
+We have adopted the [Event Storming workshop](/methodology/event-storming) to discover the business process from an event point of view,
+and then apply [domain-driven design](/methodology/domain-driven-design) practices to discover aggregate, business entities, commands, actors and bounded contexts.
+Bounded context helps to define microservice and business services scope. Below is a figure to illustrate the DDD elements used during 
+those workshops:
+
+![](../../methodology/event-storming/images/evt-stm-oneview.png)
+
+Bounded context map define the solution. Using a lean startup
+approach, we focus on defining a minimum viable product, and preselect a set of services to implement.
+
+We have detailed how we apply this methodology for a [Vaccine delivery solution](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) 
+in [this article](https://ibm-cloud-architecture.github.io/vaccine-solution-main/design/dtw/) which can help you understand how to use the method for your own project.
+
 
 ## Frequently asked questions
 
