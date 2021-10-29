@@ -82,7 +82,7 @@ Where:
 is kept but facts about the business transactions are propagated to the eventual consistency world.
 * **Messaging as a service** is the core backbone of the architecture to support  any type of asynchronous communication:
 
-    * [IBM MQ](https://www.ibm.com/cloud/mq): delivers the exatly one delivery, strong consistency and support queuing and pub/sub protocol. MQ brokers in cluster support high availability cross data centers to build event-mesh. IBM MQ will be the unique technology to guarantee the end to end message availability.
+    * [IBM MQ](https://www.ibm.com/cloud/mq): delivers the exatly one delivery, strong consistency and supports queuing and pub/sub protocol. MQ brokers in cluster support high availability cross data centers to build event-mesh. IBM MQ will be the unique technology to guarantee the end to end message availability.
     * [IBM Event Streams](https://www.ibm.com/cloud/event-streams): provides an event backbone supporting Pub/Sub protocol only, with immutable append log. Event Streams is based on [Apache Kafka](https://kafka.apache.org/) and can run on-premise or as [managed services](https://cloud.ibm.com/catalog/services/event-streams)
 
 * **Reactive cloud native applications**: The top row represents modern applications which adopt the [reactive manifesto](https://www.reactivemanifesto.org/) as a way to be resilient, elastic and message driven. To reduce microservice to microservice dependency and reduce coupling, modern microservices are 
@@ -104,11 +104,11 @@ Those applications are also cloud native, and run in container deployable inside
 
 This reference architecture is illustrated in the implementation of two solutions: [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) and the [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
 
-## Integrating with automation products
+## Integrating with IBM automation products
 
 EDA is becoming the new foundation to expose business services, and business applications. Combined with 
 SOA and microservices architecture, it exposes messaging as a services to be used by automation products, like
-Robot Process Automation bots, Process Mining, Chat Bots, and more traditional workflow and decision engines.
+Robot Process Automation bots, Process Mining, Chat Bots, and the more traditional workflow engines and decision engines.
 
 Those products are leveraging data in the event backbone or in the queues to do their own processing.
 But they are also event producer. We can build a new digital automation reference architecture, 
@@ -116,10 +116,10 @@ based on event-driven and messaging communication like in the figure below:
 
 ![](./images/automation-eda.png)
 
-On the top row, the capabilities group:
+On the top row, the capabilities include:
 
-*  Existing business applications, and SOA services: most of them are J2EE applications running on application servers, 
-some are legacy based using transactions. It will be easy for those applications to integrate new microservices, or webapp
+*  Existing business applications, and SOA services: most of them are J2EE applications running on application servers, such 
+as WebSphere, some are legacy applications using transactions and strong consistency. It will be easy for those applications to integrate new microservices, or webapps
 exposing JSON / RESTful resources via an API Gateway.
 * New single page applications are also accessing business services via the gateway, and use HTTP (RESTful) protocol. Those single page applications 
 can be developed using [IBM Business Automation Application](https://www.ibm.com/docs/en/cloud-paks/1.0?topic=software-business-automation-application).
@@ -131,16 +131,16 @@ events. IBM BPM, for example, has JMS queue integration to consume and publish m
 
 * New workflow can be entirely event-driven, and designed to act on event arrival to trigger process instances or task instances. 
 They are also supported by Case management products which are well suited to address unstructured execution path, where next steps are not pre-determined.
-* As stated above, new microservices are becoming message driven and are using queues for async request / response communication, 
-they ask someone to participate into their business process. And they publish states change via events to pub/sub topics.
+* As stated above, new microservices are becoming message-driven and are using queues for async request / response communication, 
+they ask someone to participate into their business process. And they publish state changes via events to pub/sub topics.
 * Consumers can use Event Gateway to access to topics and process the data, do data mapping and data transformation for long persistence into data lake.
 * The key integration between EDA and automation is by adding stateful agents that are aggregating, correlating, 
-and computing the next best actions. Those actions can be to trigger a workflow, initiate a RPA bot, call
+and computing the next best actions. Those actions can be to trigger a human workflow, initiate a RPA bot, call
 one or more decision services. Those stateful agents can use complex event processing engines, rule engines, and 
-integrate with predictive scoring.
+integrate with predictive scoring. A lot of new use-cases are covered by these capabilities like fraud detection, know your customer, product recommendations...
 * The predictive scoring models are defined in AI workbench tool, like Watson Studio or Cloud Pak for Data. 
 The data used to develop the model come from data lake, existing datawarehouse but also the messaging service, like Kafka topics.
-* The AI workbench includes tools to do data analysis and visualization, build training and test sets from any datasource and in particular topics, and develop models. Models are integrated to streaming analytics component.
+* The AI workbench includes tools to do data analysis and visualization, to build training and test sets from any datasources and in particular topics, and tp develop models. Models are integrated to streaming analytics component.
 * With this extended architecture, most of business applications are generating events, 
 directly by code, or by adopting less intruisive techniques like change data capture agents. Those events
 are representing facts about the busienss entities and the processes implemented cross microservices and applications. 
@@ -168,6 +168,10 @@ the next best action:
 
 ![](./images/flink-ds-itg.png)
 
+### Business process integration
+
+BPMN has multiple event constructs to support receiving events, generating  intermediate events, 
+and sending closing events.
 
 ## Integration with analytics and machine learning
 

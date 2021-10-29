@@ -85,9 +85,34 @@ supported, open sourced, connectors (search for `connector`).
 
 Here is the [list of supported connectors](https://ibm.github.io/event-streams/connectors/) for IBM Event Streams.
 
+Event Stream Kafka connector use custom resource definition defined by Strimzi. So configuration for Strimzi works for
+Event Streams.
+
+Normally you define one Kafka connect cluster, with a custom docker image which has all the necessary
+jars file for any connector you want to use. Then you configure each connector so they can start
+processing events or producing events.
+A Kafka connect cluster is identified with a group.id and then it saves its states in topics. The example
+below are for the configuration in cluster, also named distributed.
+
+```yaml
+  config:
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+```
+
+This [gitops repository](https://github.com/ibm-cloud-architecture/store-mq-gitops) includes a MQ Source connector deploy to push message to Kafka. It uses
+ArgoCD to maintain states of Kafka Cluster, topics, users, and Kafka connector.
+
+Once the connector pods are running we need to start the connector tasks. 
+
 ### Strimzi
 
-To run a demo of a connector, we can use Strimzi and Kafka connector.
+[KafkaConnector resources](https://strimzi.io/docs/operators/latest/using.html#proc-kafka-connect-config-str) allow you to create and manage connector instances for Kafka Connect in a Kubernetes-native way.
+To manage connectors, you can use the Kafka Connect REST API, or use KafkaConnector custom resources.
+In case of GitOps methodology we will define connector cluster and connector instance as yamls.
+Connector configuration is passed to Kafka Connect as part of an HTTP request and stored within Kafka itself.
 
 ## Further Readings
 

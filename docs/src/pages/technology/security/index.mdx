@@ -62,10 +62,13 @@ listeners:
 
 9093 is a mutual TLS authentication with TLS encrypted communication, while 9094 is using scram authentication and TLS encrypted communication
 
+## Security configuration
+
 * `ssl.truststore.location` and `ssl.truststore.password`: when doing TLS encryption we need to provide our Kafka clients
  with the location of a trusted Certificate Authority-based certificate. This file is often provided by the 
  Kafka administrator and is generally unique to the specific Kafka cluster deployment. The certificate is in 
- JKS or PKCS12 format for JVM languages and PEM/ P12 for nodejs or Python.
+ JKS or PKCS12 format for JVM languages and PEM/ P12 for nodejs or Python. With Strimzi or Event Streams the
+ deployment is including a self signed certicate with the name of the kafka cluster-cluster-ca-secret
 
 Importing a certificate into one’s truststore also means trusting all certificates that are signed by that certificate.
 
@@ -162,4 +165,27 @@ then
     # As the project is personal to the user, we can keep a generic name for the secret
     oc get secret ${SCRAM_USER} -n ${KAFKA_NS} -o json |  jq -r '.metadata.name="scram-user"' | jq -r '.metadata.namespace="'${YOUR_PROJECT_NAME}'"' | oc apply -f -
 fi
+```
+
+## Kafka Connect
+
+For Kafka connector, you need to define authentication used to connect to the Kafka Cluster:
+
+```yaml
+authentication:
+    type: tls
+    certificateAndKey:
+      secretName: tls-user
+      certificate: user.crt
+      key: user.key
+```
+
+
+* Get TLS public cluster certificate:
+
+```yaml
+  tls: 
+    trustedCertificates:
+      - secretName: dev-cluster-ca-cert
+        certificate: ca.crt
 ```

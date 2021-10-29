@@ -133,17 +133,39 @@ You can learn more about it [in this article](/technology/kafka-connect/) and wi
 
 ## Integrate with MQ
 
-Using Kafka Connect framework, IBM has a [MQ connector]() to integrate easily between Event Streams and IBM MQ
-and the [following labs](/use-cases/connect-mq/) will help you learn more about how to use it.
+Using Kafka Connect framework, IBM has a [MQ source connector](https://github.com/ibm-messaging/kafka-connect-mq-source)  
+and [MQ Sink connector](https://github.com/ibm-messaging/kafka-connect-mq-sink) to integrate easily between Event Streams and IBM MQ
+The [following labs](/use-cases/connect-mq/) will help you learn more about how to use those connectors
+and this gitops repository []() helps you to run a.
+
+For Confluent MQ connector lab see [this eda-lab-mq-to-kafka repository](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka)
 
 ## Introduction to schema management
+
+Schema management and schema registry are mandatory for doing production deployment, of any Kafka based solution.
+To understand the following components read [this note](/technology/avro-schemas/)
+
+![](../../technology/avro-schemas/images/schema-registry.png)
 
 ## AsyncAPI
 
 [This article on AsyncAPI management](/patterns/api-mgt/) presents the value of using AsyncAPI in API Connect.
+This blog from development [What is Event Endpoint Management?](https://community.ibm.com/community/user/integration/blogs/dale-lane1/2021/04/08/what-is-event-endpoint-management)
+presents the methodology for event endpoint management:
+
+* event description including the event schema, the topic, and thte communication protocol
+* event discovery, with centralized management of the API
+* self service to easily try the API, but with secure policies enforcement
+* decoupled by API helps to abtract and change implementation if needed.
 
 ## Debezium change data capture
 
 ## Mirroring Data
 
+To replicate data between Kafka clusters, Mirror Maker 2 is the component to use. It is based on Kafka connector
+and will support a active-passive type of deployment or active active, which is little bit more complex.
+
+![](../../technology/kafka-mirrormaker/images/mm2-dr.png)
+
+See the detail [Mirror Maker 2 technology summary](/technology/kafka-mirrormaker/)
 

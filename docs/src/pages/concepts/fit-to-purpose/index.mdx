@@ -49,17 +49,19 @@ Now in term of technologies we can quickly highlight the followings:
 * Keep message for long period of time, messages are not deleted once consumed
 * Suited for high volume and low latency processing
 * Support pub/sub model only
-* Messages are ordered in a topic/partition
-* Stores and replicate events published to a topic, remove on expire period or on disk space constraint
+* Messages are ordered in a topic/partition but not cross partitions
+* Stores and replicates events published to a topic, remove on expired period or on disk space constraint
 * Messages are removed from file system independent of applications 
 * Topic can have multiple partitions to make consumer processing parallel.
 * Not supporting two phase commits / XA transaction, but message can be produced with local transaction
-* Multi-region architecture requires data replication across regions
+* Multi-region architecture requires data replication across regions with Mirror Maker 2
+* Applications (producers, consumers, or streaming) are going to a central cluster.
 * Cluster can support multi availability zones
 * But also support extended cluster to go over different regions if those regions have low latency network
 * Scales horizontally, by adding more nodes
 * non-standard API but rich library to support the main programming language.
 * But support also HTTP bridge or proxy to get message sent via HTTP
+* when there is a problem on the broker it takes a lot of time to recover and it impacts all consumers
 * Kafka is easy to setup with kubernetes deployment with real operator, is more difficult to manage with bare metal deployment.
 * Cluster and topics definition can be managed with Gitops and automatically instantiated in new k8s cluster
 * Consumer and producers are build and deployed with simple CI/CD pipeline
@@ -67,18 +69,25 @@ Now in term of technologies we can quickly highlight the followings:
 ### MQ characteristics
 
 * Best suited for point-to-point communication 
-* Support horizontal scaling and high volume processing
-* Participate to XA transactionals
+* Supports horizontal scaling and high volume processing
+* Supports **event mesh**, where Brokers can be deployed in different environments and serve the async applications locally, 
+improving communication, performance, placement and scalability.
+* The local transaction supports to write or read a message from a queue is a strength for scalability as if a consumer is not able to
+process the messagem another one will do. In Kafka, one  partition is assigned to a consumer, and may be reassigned to 
+a new consumer after failure, which leads to a very costly work of partition rebalancing.
+* Participates to two-phase commit transaction
 * Exactly one delivery with strong consistency
-* Integrate with Mainframes
+* Integrate with Mainframes: transactional applications on mainframe 
 * Support JMS for JEE applications
 * Support AMQP for lighter protocol
 * Messages are removed after consumption, they stayed persisted until consumed by all subscribers
-* Strong coupling with subscribers
-* Support MQ brokers cluster with leader and followers
+* Strong coupling with subscribers, producer knows its consumers
+* Supports MQ brokers in cluster with leader and followers.
 * Support replication between brokers
 * Support message priority
-* Easily containerized and managed with Kubernetes operators. 
+* Support dynamic queue creation. Typical case it replay to queue.
+* Support much more queue per broker so it is easier to scale.
+* Easily containerized and managed with Kubernetes operators.
 
 ### Direct product feature comparison
 
@@ -102,10 +111,12 @@ Now in term of technologies we can quickly highlight the followings:
 ### Migrating from MQ to Kafka
 
 When the real conditions as listed above are met, architects may assess if it makes sense to migrate MQ application to Kafka. 
-Most of the time the investment is not justified. Modern MQ supports the same DevOps and deployment pattern as cloud native application.
+Most of the time the investment is not justified. Modern MQ supports the same DevOps and deployment pattern as other cloud native applications.
 
 JEE or mainframe applications use MQ in transaction to avoid duplicate messages or loss of messages. Supporting exactly once delivery in Kafka
 needs some configuration and participation of producer and consumers: far more complex to implement.
+
+We recommend adopting the two messaging capabilities for any business applications.
 
 ## Kafka Streams vs Apache Flink
 
