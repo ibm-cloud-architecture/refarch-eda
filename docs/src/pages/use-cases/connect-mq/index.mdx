@@ -12,65 +12,149 @@ This Lab focuses on using Strimzi 2.7. To run the same Lab with Kafka Confluent 
 
 <AnchorLinks>
 <AnchorLink>Pre-requisites to all labs</AnchorLink>
-<AnchorLink>Lab 1: MQ source to Kafka</AnchorLink>
-<AnchorLink>Lab 2: MQ Sink from Kafka</AnchorLink>
+<AnchorLink>Lab 1: MQ source to Event Streams Using Consoles</AnchorLink>
+<AnchorLink>Lab 2: MQ source to Event Streams using GitOps</AnchorLink>
+<AnchorLink>Lab 3: MQ Sink from Kafka</AnchorLink>
+<AnchorLink>Lab 4: MQ Sink from Kafka Confluent</AnchorLink>
 </AnchorLinks>
+
+## Audience
+
+We assume readers have good knowledge of OpenShift to login, to naivgate into the Administrator
+console and use OC and GIT CLIs.
 
 ## Pre-requisites to all labs
 
-* Clone the lab git repository
+* Access to an OpenShift Cluster and Console
+* Login to the OpenShift Console and get the `access token` to use `oc cli`.
+* Access to [git cli](https://git-scm.com/) from your workstation
 
- ```shell
- git clone https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka
- ```
-* Get access to a Cloud Pak for Integration installation, with MQ deployed.
-* Get access to the OpenShift Console
+## Lab 1: MQ source to Event Streams Using Consoles
 
-
-## Lab 1: MQ source to Kafka
+In this lab we assume Cloud Pak for Integration is deployed with Event Streams cluster created and at least one MQ Broker created.
+If not see [this note to install Event Streams operator with one cluster](/technology/event-streams/es-cp4i#install-event-streams-using-openshift-console) from the OpenShift Console
+and [this note to install one MQ Operator and one Broker](/technology/mq/#installation-with-cloud-pak-for-integration) 
 
 The following figure illustrates what we will deploy:
 
 ![](./images/mq-kafka-lab1.png)
+* The Sell Store simulator is a separate application available in [the refarch-eda-store-simulator public github](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and 
+the docker image is accessible from the [quay.io registry](https://quay.io/repository/ibmcase/eda-store-simulator).
+* The Event Streams cluster is named `dev`
 
-* The Sell Store simulator is a separate application available in [the refarch-eda-store-simulator public github](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and the docker image is accessible from the [quay.io registry](https://quay.io/repository/ibmcase/eda-store-simulator) or the [docker hub one](https://hub.docker.com/repository/docker/ibmcase/eda-store-simulator).
+### Get setup
 
-* Login to the OpenShift Console and get the `access token` to use `oc cli`.
+* Get Cloud Pak for Integration `admin` user password
+
+   ```sh
+   oc get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' -n ibm-common-services | base64 --decode && echo ""
+   ```
+* Access to the Event Streams console
+   
+   ```sh
+   oc get routes
+   # 
+   oc get route dev-ibm-es-ui -o jsonpath='{.spec.host}' && echo ""
+   ```
+   
+   You should get this:
+
+   ![](./images/es-console.png)
+
+* Create the `items` topic with 1 partition, use default retention time, and 3 replicas
+* Get [Internal bootstrap URL](/technology/event-streams/es-cp4i#get-kafka-bootstrap-url)
+
+   ![](./images/internal-url.png)
+
+   and generate TLS credentials with the  name `tls-mq-user` with the `Produce messages, consume messages and create topics and schemas` permissions, 
+   
+   ![](./images/tls-mq-user.png)
+   
+   on `items` topic:
+
+   ![](./images/items-topic.png)
+
+   All consumer groups, as we may reuse this user for consumers.
+  
+   You can download the certificates, but in fact it is not necessary as we will use the created secrets to configure MQ connector
+
+* Access to MQ Broker Console > Manage to see the Broker configured 
+   ![](./images/mq-manage.png)
+
+* Add the local `items` queue 
+
+   ![](./images/create-queue.png)
+
+   ![](./images/create-queue-2.png)
+
+* Verify MQ App channels defined
+
+  ![](./images/mq-app-channel.png)
+
+* Create an OpenShift project named: `mq-es-demo` with the command: `oc new-project mq-es-demo`
+* Clone the git `ibm-cloud-architecture/eda-lab-mq-to-kafka` repository:
+
+ ```shell
+ git clone https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka
+ ```
+
+* Update the configMap named `store-simulator-cm` in folder `kustomize/apps/store-simulator/overlays` for the store simulator: `Workloads > ConfigMaps > Create` and use 
+the parameters from MQ_HOST and MQ_CHANNEL.
+
+   ```yaml
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: store-simulator-cm
+    data:
+      APP_VERSION: 0.0.6
+      APP_TARGET_MESSAGING: IBMMQ
+      MQ_HOST: store-mq-ibm-mq.smq-dev.svc
+      MQ_PORT: "1414"
+      MQ_QMGR: QM1 
+      MQ_QUEUE_NAME: items
+      MQ_CHANNEL: DEV.APP.SVRCONN
+   ```
+
+### Deploy Store simulator
+
+* Deploy to the OpenShift project
+
+   ```sh
+   oc project mq-es-demo
+   oc apply -k  kustomize/apps/store-simulator/overlays
+   ```
+
+* Access to the application web interface:
+
+  ```sh
+   oc get route store-simulator -o jsonpath='{.spec.host}' && echo ""
+  ```
+
+### Deploy Kafka Connect
+
+### Demonstration scripts
+
+The solution has multiples stores as presented in the `stores` menu. 
+
+  ![](./images/stores-view.png)
+
+In the simulator menu select the IBMMQ backend, and send some messages randomly or run the 
+predefined scenario.
+
+  ![](./images/)
+
+## Lab 2: MQ source to Event Streams using GitOps
+
 * Create new project with a command like: `oc new-project mq-to-k-lab`
-* Deploy Strimzi operator and create one Strimzi cluster. This is done by using the following commands under the `eda-lab-mq-to-kafka` folder:
+* Clone the `store-mq-gitops` repo
 
-```shell
-./scripts/deployStrimziOperator.sh
-# Wait one or two minutes to get an lab-kafka-entity-operator- pod running.
-```
+  ```shell
+ git clone https://github.com/ibm-cloud-architecture/store-mq-gitops
+ ```
+  
 
-* Deploy a simple Kafka cluster with the name `lab-kafka` (see the yaml file: [kustomize/environment/strimzi/base/kafka-cluster.yaml](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka/blob/main/kustomize/environment/strimzi/base/kafka-cluster.yaml)). 
-
-```shell
-oc apply -k kustomize/environment/strimzi
-```
-
-It may take one minute to get Kafka deploy, but a `oc get pods` should return 3 zookeepers and 3 kafka broker pods:
-
-```
-lab-kafka-cruise-control-d94ffbcb5-7g7h2     2/2     Running   0          75s
-lab-kafka-entity-operator-65fc8644c6-hlpn2   3/3     Running   0          117s
-lab-kafka-kafka-0                            1/1     Running   0          2m30s
-lab-kafka-kafka-1                            1/1     Running   0          2m30s
-lab-kafka-kafka-2                            1/1     Running   0          2m30s
-lab-kafka-zookeeper-0                        1/1     Running   0          3m24s
-lab-kafka-zookeeper-1                        1/1     Running   0          3m24s
-lab-kafka-zookeeper-2                        1/1     Running   0          3m24s
-```
-
-* Deploy MQ queue manager:
-  IBM MQ queue managers that are exposed by a Route on OpenShift require TLS-enabled security, so we will first create a SSL certificate pair and truststore for both queue manager and client use, respectively.
-* Get MQ connection characteristics, like service name and port number using the MQ console
-* Define the Kafka MQ connector configuration
-
-To run this lab with Kafka Confluent see the [eda-lab-mq-to-kafka readme file](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka).
-
-## Lab 2: MQ Sink from Kafka
+## Lab 3: MQ Sink from Kafka
 
 The target deployment looks like in the following diagram:
 
@@ -589,3 +673,12 @@ To cleanup your environment, you can do
   ```shell
   docker rm mq mq-sink
   ```
+
+
+## Lab 4: MQ Connector with  Kafka Confluent
+
+* Clone the git `ibm-cloud-architecture/eda-lab-mq-to-kafka` repository and follow the readme.
+
+ ```shell
+ git clone https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka
+ ```

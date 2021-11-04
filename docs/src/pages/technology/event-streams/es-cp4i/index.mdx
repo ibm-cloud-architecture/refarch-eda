@@ -8,6 +8,11 @@ description: Hands on lab to deploy Event Streams on OpenShift
 </InlineNotification>
 
 In this tutorial you will learn how to install Event Streams on OpenShift, using a the Administration Console, or using CLI.
+We propose two installation tutorials: 
+
+* one using the OpenShift Admin console, then the Event Streams console to create Kafka topics and use the Starter Application,
+to validate the installation.
+* one using `oc CLI` from your terminal or from Cloud Shell Terminal.
 
 <AnchorLinks>
   <AnchorLink>Prerequisites</AnchorLink>
@@ -17,11 +22,7 @@ In this tutorial you will learn how to install Event Streams on OpenShift, using
   <AnchorLink>Common operations to perform on cluster</AnchorLink>
 </AnchorLinks>
 
-We propose two installation tutorials: 
 
-* one using the OpenShift Admin console, then the Event Streams console to create Kafka topics and use a Starter Application,
-to validate the installation
-* one using `oc CLI` from your terminal or from Cloud Shell Terminal.
 
 The Kafka Cluster configuration is for a development or staging environment with no persistence.
 
@@ -42,7 +43,7 @@ dev-zookeeper-2                        1/1     Running   0          3h23m
 We recommend to read the following ["structuring your deployment" chapter from product documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=installation-structuring-your-deployment)
 to give you more insight of the things to consider for deployment. 
 
-In this tutorial we select to deploy Event Streams in one namespace.
+In this tutorial we select to deploy Event Streams in one namespace, and the Operator to monitor multiple namespaces.
 
 ## Prerequisites
 
@@ -56,25 +57,25 @@ This CLI will allow us to manage Cloud Pak related components as well as softwar
 
   * Download the IBM Cloud Pak CLI (example below is for Mac but  other downloads are [available here](https://github.com/IBM/cloud-pak-cli/releases/tag/v3.12.0)): 
 
-```sh
-curl -L https://github.com/IBM/cloud-pak-cli/releases/latest/download/cloudctl-darwin-amd64.tar.gz -o cloudctl.tar.gz
-```
+  ```sh
+  curl -L https://github.com/IBM/cloud-pak-cli/releases/latest/download/cloudctl-darwin-amd64.tar.gz -o cloudctl.tar.gz
+  ```
   * Untar it
 
-```sh
-tar -xvf cloudctl.tar.gz
-```
+  ```sh
+  tar -xvf cloudctl.tar.gz
+  ```
 
   * Rename it as cloudctl and move to a folder within your PATH:
 
-```sh
-mv cloudctl-darwin-amd64 cloudctl
-```
+  ```sh
+  mv cloudctl-darwin-amd64 cloudctl
+  ```
 
   * Make sure your IBM Cloud Pak CLI is in the path: `which cloudctl`
   * Make sure your IBM Cloud Pak CLI works: `cloudctl help`
 
-![shell2](./images/shell2-v10.png)
+  ![shell2](./images/shell2-v10.png)
 
 
 See also the product documentation for [prerequisites details](https://ibm.github.io/event-streams/installing/prerequisites/)
@@ -120,8 +121,8 @@ oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-
 
 When using security with IAM and other services, Event Streams needs IBM foundations services. It will install it
 automatically if you install the operator at the cluster level. 
-In case you need to control the deployment and if Cloud Pak for integration is not installed yet, you need to install the IBM foundational services operator
-for that follow the simple [instructions here](https://www.ibm.com/docs/en/cpfs?topic=311-installing-foundational-services-by-using-console).
+In case you need to control the deployment and if *Cloud Pak for Integration* is not installed yet, you need to install the IBM foundational services operator
+for that, follow these [simple instructions](https://www.ibm.com/docs/en/cpfs?topic=311-installing-foundational-services-by-using-console).
 
 Create the same ibm-entitlement-key in the `ibm-common-services`  namespace.
 
@@ -157,15 +158,12 @@ Recalls that operands are what operators manage.
 The goal is to create a shareable Kafka cluster. 
 
 * As Administrator, use `Openshift console -> Operators > OperatorHub` to search for `Event Streams` operator, then install the operator by selecting
-the one namespace only, the version v2.4. The Opertor monitors all namespaces.
+the `All namespaces on the cluster`, the version v2.4. The Operator will monitor all namespaces.
 
   ![](./images/es-operator-cfg.png)
 
-  The installation of this operator will also include pre-requisites operators like: 
-
-  * Cloud Pak foundational services (3.11)
-  * Event Streams (2.4)
-
+  The installation of this operator will also include pre-requisites operators like `Cloud Pak foundational services (3.11)`
+  
 * Once the Operator is ready, go to the `Installed Operator` under the `eventstreams` project
 
  ![](./images/es-operator-home.png)
@@ -189,7 +187,7 @@ the one namespace only, the version v2.4. The Opertor monitors all namespaces.
 
   Before creating the instance, we recommend you read [the security summary](/technology/security/) 
   so you can relate the authentication configured by default with what application
-  need to use to connect to the kafka cluster. For example the following declaration stipulates
+  needs to use to connect to the Kafka cluster. For example the following declaration stipulates
   to use TLS authentication for internal communication, and SCRAM for external connection.
 
     ```yaml
@@ -206,39 +204,39 @@ the one namespace only, the version v2.4. The Opertor monitors all namespaces.
 The first deployment of Event Streams, there may be creation of new deployments into the `ibm-common-services` if
 those services were not present before. Here is the updated list of `ibm-common-services` deployments:
 
-```
-NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
-auth-idp                               1/1     1            1           27m
-auth-pap                               1/1     1            1           32m
-auth-pdp                               1/1     1            1           32m
-cert-manager-cainjector                1/1     1            1           31m
-cert-manager-controller                1/1     1            1           31m
-cert-manager-webhook                   1/1     1            1           30m
-common-web-ui                          1/1     1            1           20m
-configmap-watcher                      1/1     1            1           31m
-default-http-backend                   1/1     1            1           31m
-iam-policy-controller                  1/1     1            1           32m
-ibm-cert-manager-operator              1/1     1            1           32m
-ibm-common-service-webhook             1/1     1            1           3h12m
-ibm-commonui-operator                  1/1     1            1           32m
-ibm-iam-operator                       1/1     1            1           33m
-ibm-ingress-nginx-operator             1/1     1            1           32m
-ibm-management-ingress-operator        1/1     1            1           33m
-ibm-mongodb-operator                   1/1     1            1           32m
-ibm-monitoring-grafana                 1/1     1            1           32m
-ibm-monitoring-grafana-operator        1/1     1            1           33m
-ibm-namespace-scope-operator           1/1     1            1           3h12m
-ibm-platform-api-operator              1/1     1            1           31m
-management-ingress                     1/1     1            1           23m
-nginx-ingress-controller               1/1     1            1           31m
-oidcclient-watcher                     1/1     1            1           32m
-operand-deployment-lifecycle-manager   1/1     1            1           3h11m
-platform-api                           1/1     1            1           31m
-secret-watcher                         1/1     1            1           32m
-secretshare                            1/1     1            1           3h12m
-```
+  ```sh
+  NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+  auth-idp                               1/1     1            1           27m
+  auth-pap                               1/1     1            1           32m
+  auth-pdp                               1/1     1            1           32m
+  cert-manager-cainjector                1/1     1            1           31m
+  cert-manager-controller                1/1     1            1           31m
+  cert-manager-webhook                   1/1     1            1           30m
+  common-web-ui                          1/1     1            1           20m
+  configmap-watcher                      1/1     1            1           31m
+  default-http-backend                   1/1     1            1           31m
+  iam-policy-controller                  1/1     1            1           32m
+  ibm-cert-manager-operator              1/1     1            1           32m
+  ibm-common-service-webhook             1/1     1            1           3h12m
+  ibm-commonui-operator                  1/1     1            1           32m
+  ibm-iam-operator                       1/1     1            1           33m
+  ibm-ingress-nginx-operator             1/1     1            1           32m
+  ibm-management-ingress-operator        1/1     1            1           33m
+  ibm-mongodb-operator                   1/1     1            1           32m
+  ibm-monitoring-grafana                 1/1     1            1           32m
+  ibm-monitoring-grafana-operator        1/1     1            1           33m
+  ibm-namespace-scope-operator           1/1     1            1           3h12m
+  ibm-platform-api-operator              1/1     1            1           31m
+  management-ingress                     1/1     1            1           23m
+  nginx-ingress-controller               1/1     1            1           31m
+  oidcclient-watcher                     1/1     1            1           32m
+  operand-deployment-lifecycle-manager   1/1     1            1           3h11m
+  platform-api                           1/1     1            1           31m
+  secret-watcher                         1/1     1            1           32m
+  secretshare                            1/1     1            1           3h12m
+  ```
 
-So it could take few minutes to get this up and running.
+It could take few minutes to get these pods up and running.
 
 The result of this cluster creation should looks like: 
 
@@ -267,7 +265,7 @@ You can get the User Interface end point by doing the following command.
 oc get route dev-ibm-es-ui -o jsonpath='{.spec.host}'
 ```
 
-> Change `dev` prefix with the name of your kafka cluster you defined earlier.
+> Change `dev` prefix with the name of your Kafka cluster you defined earlier.
 
 Or using the Admin Console 
 
@@ -317,7 +315,7 @@ The example is to define a topic named INBOUND with 1 partition and a replica se
 From the Event Streams Home page, we can access the Starter appication that is an excellent
 way to demonstrate sending messages and consume them. It is a good source of inspiration for Vert.x based application.
 
-Use the step-by-step instruction from event-streams Starter application page:
+Use the step-by-step instructions from Event Streams Starter application page:
 
 ![](./images/es-starter-app.png)
 

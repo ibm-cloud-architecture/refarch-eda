@@ -102,7 +102,10 @@ by the complex event processing engine (Apache Flink), and the second type are t
 compute analytical processing across multiple event streams. The technologies of choice are [Apache Flink](/technology/flink) and [IBM SQL query](https://www.ibm.com/cloud/sql-query).
 Those applications are also cloud native, and run in container deployable inside Kubernetes clusters.
 
-In term of physical deployment...
+In term of physical deployment on OpenShift the following figures illustrates a multi zone deployment, 
+with Event Streams and MQ Operators deployed and managing five Event Streams brokers Cluster, and three MQ brokers
+
+![](./images/maas-ocp.png)
 
 This reference architecture is illustrated in the implementation of two solutions: [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) and the [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
 
