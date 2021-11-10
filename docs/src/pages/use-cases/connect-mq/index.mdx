@@ -12,10 +12,10 @@ This Lab focuses on using Strimzi 2.7. To run the same Lab with Kafka Confluent 
 
 <AnchorLinks>
 <AnchorLink>Pre-requisites to all labs</AnchorLink>
-<AnchorLink>Lab 1: MQ source to Event Streams Using Consoles</AnchorLink>
+<AnchorLink>Lab 1: MQ source to Event Streams Using the User Interface</AnchorLink>
 <AnchorLink>Lab 2: MQ source to Event Streams using GitOps</AnchorLink>
 <AnchorLink>Lab 3: MQ Sink from Kafka</AnchorLink>
-<AnchorLink>Lab 4: MQ Sink from Kafka Confluent</AnchorLink>
+<AnchorLink>Lab 4: MQ Connector with Kafka Confluent</AnchorLink>
 </AnchorLinks>
 
 ## Audience
@@ -29,7 +29,7 @@ console and use OC and GIT CLIs.
 * Login to the OpenShift Console and get the `access token` to use `oc cli`.
 * Access to [git cli](https://git-scm.com/) from your workstation
 
-## Lab 1: MQ source to Event Streams Using Consoles
+## Lab 1: MQ source to Event Streams Using the User Interface
 
 In this lab we assume Cloud Pak for Integration is deployed with Event Streams cluster created and at least one MQ Broker created.
 If not see [this note to install Event Streams operator with one cluster](/technology/event-streams/es-cp4i#install-event-streams-using-openshift-console) from the OpenShift Console
@@ -38,6 +38,7 @@ and [this note to install one MQ Operator and one Broker](/technology/mq/#instal
 The following figure illustrates what we will deploy:
 
 ![](./images/mq-kafka-lab1.png)
+
 * The Sell Store simulator is a separate application available in [the refarch-eda-store-simulator public github](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and 
 the docker image is accessible from the [quay.io registry](https://quay.io/repository/ibmcase/eda-store-simulator).
 * The Event Streams cluster is named `dev`
@@ -57,12 +58,12 @@ the docker image is accessible from the [quay.io registry](https://quay.io/repos
    oc get route dev-ibm-es-ui -o jsonpath='{.spec.host}' && echo ""
    ```
    
-   You should get this:
+   Use this URL to access to the Event Stream console:
 
    ![](./images/es-console.png)
 
-* Create the `items` topic with 1 partition, use default retention time, and 3 replicas
-* Get [Internal bootstrap URL](/technology/event-streams/es-cp4i#get-kafka-bootstrap-url)
+* Using the Topic menu, create the `items` topic with 1 partition, use default retention time, and 3 replicas
+* Get [Internal Kafka bootstrap URL](/technology/event-streams/es-cp4i#get-kafka-bootstrap-url)
 
    ![](./images/internal-url.png)
 
@@ -76,9 +77,16 @@ the docker image is accessible from the [quay.io registry](https://quay.io/repos
 
    All consumer groups, as we may reuse this user for consumers.
   
-   You can download the certificates, but in fact it is not necessary as we will use the created secrets to configure MQ connector
+   You can download the certificates, but in fact it is not necessary as we will use the created secrets to configure MQ Kafka connector.
+
+* Get MQ Console route from the namespace where MQ brokers run
+
+  ```sh 
+  oc get routes -n cp4i | grep mq-web
+  ```
 
 * Access to MQ Broker Console > Manage to see the Broker configured 
+
    ![](./images/mq-manage.png)
 
 * Add the local `items` queue 
@@ -109,7 +117,7 @@ the parameters from MQ_HOST and MQ_CHANNEL.
     data:
       APP_VERSION: 0.0.6
       APP_TARGET_MESSAGING: IBMMQ
-      MQ_HOST: store-mq-ibm-mq.smq-dev.svc
+      MQ_HOST: store-mq-ibm-mq.cp4i.svc
       MQ_PORT: "1414"
       MQ_QMGR: QM1 
       MQ_QUEUE_NAME: items
@@ -131,28 +139,59 @@ the parameters from MQ_HOST and MQ_CHANNEL.
    oc get route store-simulator -o jsonpath='{.spec.host}' && echo ""
   ```
 
+![](./images/)
+
 ### Deploy Kafka Connect
+
+The Event Streams MQ Source connector [product documentation](https://ibm.github.io/event-streams/connecting/mq/source/) describes
+what need to be done in details. Basically we have to do two things:
+
+* Build the connector image with the needed jars for all the connectos we want to use. For example we need
+jar files for the MQ connector and jars for the MQ client api.
+* Start a specific connector with the parameters to connect to the external system and to kafka.
+
+To make the MQ source connector immediatly useable for the demonstration, we have build a connector image at `quay.io/ibmcase/demomqconnect` and the kafkaconnect.yaml is
+in [this file](https://raw.githubusercontent.com/ibm-cloud-architecture/store-mq-gitops/main/environments/smq-dev/apps/services/kafkaconnect/kafka-connect.yaml).
+
+To deploy the kafka connect framework do:
+
+```sh
+oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-lab-mq-to-kafka/main/kustomize/environment/kconnect/es-mq/kafka-connect.yaml
+```
+
+Then start the MQ source connector:
+
+```sh
+oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-lab-mq-to-kafka/main/kustomize/environment/kconnect/es-mq/mq-src-connector.yaml
+```
+
 
 ### Demonstration scripts
 
-The solution has multiples stores as presented in the `stores` menu. 
+1. The solution has multiple stores as presented in the `stores` menu. 
 
   ![](./images/stores-view.png)
 
-In the simulator menu select the IBMMQ backend, and send some messages randomly or run the 
-predefined scenario.
+1. In the `simulator` menu, select the IBMMQ backend, and send some messages randomly using the 
+left button after selecting the number of messages to send or run the 
+predefined scenario with the right button:
 
-  ![](./images/)
+  ![](./images/demo-scenarios.png)
+
+1. In MQ Broker Console go to the `items` queue to see the messages generated from the simulator
+
+  ![](./images/mq-msgs.png)
+  
+1. In Event Streams console goes to the `items` topic to see the same messages produced by the Kafka MQ Source connector.
 
 ## Lab 2: MQ source to Event Streams using GitOps
 
-* Create new project with a command like: `oc new-project mq-to-k-lab`
 * Clone the `store-mq-gitops` repo
 
   ```shell
- git clone https://github.com/ibm-cloud-architecture/store-mq-gitops
- ```
-  
+  git clone https://github.com/ibm-cloud-architecture/store-mq-gitops
+  ```
+* Follow the instructions from the repository main Readme file.
 
 ## Lab 3: MQ Sink from Kafka
 

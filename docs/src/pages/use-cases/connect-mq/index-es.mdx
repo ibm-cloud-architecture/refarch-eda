@@ -1,44 +1,6 @@
 
 
 
-## Lab 1: MQ source to Kafka
-
-The following figure illustrates what we will do:
-
-![](./images/mq-kafka-lab1.png)
-
-* The Sell Store simulator is a separate application available in [public github](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) and in the [quay.io registry](https://quay.io/repository/ibmcase/eda-store-simulator) or the [docker hub one]().
-
-* Login to the OpenShift Console and get access token to use `oc cli`
-* Create new project with a command like: `oc new-project mq-to-k-lab`
-* Deploy Strimzi operator and create one Strimzi cluster. This is done by using the following commands under the `eda-lab-mq-to-kafka` folder:
-
-```shell
-./scripts/deployStrimziOperator.sh
-# Wait one or two minutes to get an lab-kafka-entity-operator- pod running.
-```
-
-* Deploy a sinple Kafka cluster with the name `lab-kafka`. 
-
-```shell
-oc apply -k kustomize/environment/strimzi
-```
-
-At this stage a `oc get pods` should return 3 zookeepers and 3 kafka broker pods:
-
-```
-lab-kafka-cruise-control-d94ffbcb5-7g7h2     2/2     Running   0          75s
-lab-kafka-entity-operator-65fc8644c6-hlpn2   3/3     Running   0          117s
-lab-kafka-kafka-0                            1/1     Running   0          2m30s
-lab-kafka-kafka-1                            1/1     Running   0          2m30s
-lab-kafka-kafka-2                            1/1     Running   0          2m30s
-lab-kafka-zookeeper-0                        1/1     Running   0          3m24s
-lab-kafka-zookeeper-1                        1/1     Running   0          3m24s
-lab-kafka-zookeeper-2                        1/1     Running   0          3m24s
-```
-
-* Get MQ connection characteristics
-
 ## Lab 2: MQ Sink from Kafka
 
 The target deployment looks like in the following diagram:
@@ -428,9 +390,13 @@ The MQ Connector Sink can be downloaded from this [Github](https://github.com/ib
   
   Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
 
-1. Download the IBM Event Streams TLS certificate so that your Kafka Connect framework local instance can establish secure communication with your IBM Event Streams instance. **IMPORTANT:** download the PKCS12 certificate. How to get the certificate in the [Common pre-requisites](/use-cases/overview/pre-requisites/) section. 
+1. Download the IBM Event Streams TLS certificate so that your Kafka Connect framework 
+local instance can establish secure communication with your IBM Event Streams instance. 
+**IMPORTANT:** download the PKCS12 certificate. How to get the certificate in 
+the [Common pre-requisites](/use-cases/overview/pre-requisites/) section. 
 
-1. Create a log4j configuration file named `connect-log4j.properties` based on the template below.
+1. Create a log4j configuration file named `connect-log4j.properties` based on the 
+template below.
 
   ```properties
   log4j.rootLogger=DEBUG, stdout
@@ -510,15 +476,23 @@ The MQ Connector Sink can be downloaded from this [Github](https://github.com/ib
 
 You should now have a working MQ Sink connector getting messages from your topic in IBM Event Streams and sending these to your local IBM MQ instance. In order to check that out working, we first need to send few messages to that IBM Event Streams topic and then check out our `INVENTORY` queue in our local IBM MQ instance.
 
-1. In order to send messages to IBM Event Streams, we are going to use the IBM Event Streams Starter application. You can find the instruction either in the IBM Event Streams official documentation [here] or on the IBM Event Streams dashboard:
+1. In order to send messages to IBM Event Streams, we are going to use the IBM Event 
+Streams Starter application. You can find the instruction either in the IBM Event 
+Streams official documentation [here] or on the IBM Event Streams dashboard:
 
   ![starter](./images/starter-app.png)
 
-1. Follow the instructions to run the IBM Event Streams starter application from your workstation. **IMPORTANT:** When generating the properties for your IBM Event Streams starter application, please choose to connect to an existing topic and select the topic you created previously as part of this exercise so that the messages we send into IBM Event Streams end up in the appropriate topic that is being monitored by your IBM MQ Sink connector runnning on the Kafka Connect framework.
+1. Follow the instructions to run the IBM Event Streams starter application from your
+ workstation. **IMPORTANT:** When generating the properties for your IBM Event Streams
+  starter application, please choose to connect to an existing topic and select 
+the topic you created previously as part of this exercise so that the messages 
+we send into IBM Event Streams end up in the appropriate topic that is being monitored by 
+your IBM MQ Sink connector runnning on the Kafka Connect framework.
 
   ![starter-config](./images/starter-config.png)
 
-1. Once you have your application running, open it up in your web browser, click on `Start producing`, let the application produce a couple of messages and then click on `Stop producing`
+1. Once you have your application running, open it up in your web browser, click on `Start producing`, 
+let the application produce a couple of messages and then click on `Stop producing`
 
   ![starter-messages](./images/starter-messages.png)
 
@@ -526,12 +500,14 @@ You should now have a working MQ Sink connector getting messages from your topic
 
   ![kafka-messages](./images/kafka-messages.png)
 
-1. Check out your messages in the Kafka topic have already reached your `INVENTORY` queue in your local IBM MQ instance
+1. Check out your messages in the Kafka topic have already reached your `INVENTORY` queue
+ in your local IBM MQ instance
 
   ![mq-messages](./images/mq-message.png)
 
 
-1. You could also inspect the logs of your Kafka Connect Docker container running on your workstation:
+1. You could also inspect the logs of your Kafka Connect Docker container running on 
+your workstation:
 
   ```shell
   docker logs mq-sink
@@ -551,7 +527,8 @@ You should now have a working MQ Sink connector getting messages from your topic
 
 To cleanup your environment, you can do
 
-1. Remove the connector from your Kafka Connect framework instance (this isn't really needed if you are going to stop and remove the Kafka Connect Docker container)
+1. Remove the connector from your Kafka Connect framework instance (this isn't really 
+needed if you are going to stop and remove the Kafka Connect Docker container)
 
   ```shell
   curl -X DELETE http://localhost:8083/connectors/mq-sink
