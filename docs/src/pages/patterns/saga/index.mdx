@@ -50,12 +50,14 @@ With orchestration, one service is responsible to drive each participant on what
 want to loose any message as part of this orchestration the technology of choice to support strong consistency
 and exactly once delivery, is to use IBM MQ, as illustrated by the following figure:
 
-![Saga with MQ](./images/saga-ochestration-mq.png)
+![Saga with MQ](./images/saga-orchestration-mq.png)
 
-An alternate is to use Kafka with producer using full ackowledge, idempotence, and a bstch size of 1, and different topics
-mostly configured as queue: one consumer in each consumer group
+An example of Saga implementation is described in [this repository](https://github.com/ibm-cloud-architecture/eda-kc-gitops) and the orchestration is done in the [eda-kc-order-cmd-mq repo](https://github.com/ibm-cloud-architecture/eda-kc-order-cmd-mq).
 
-![Saga with topics](./images/saga-ochestration-kafka.png)
+An alternate approach is to use Kafka with producer using full acknowledge, idempotence, and a batch size of 1, and different topics
+mostly configured as queue: one consumer in each consumer group, manual commit, poll one message at a time.
+
+![Saga with topics](./images/saga-orchestration-kafka.png)
 
 It uses the different topics to control the saga by issuing event commands to the different service. It uses the event backbone as a queue processing to support the asynchronous invocations. In this case the event should be exactly once delivered and idempotent. Each participant produces response in their context and to the order topic. The orchestration layer needs to keep a state machine and acts once all the expected responses are received.
 
