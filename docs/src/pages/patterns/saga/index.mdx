@@ -46,9 +46,16 @@ Also it is important to note, that if one of the service is taking time to answe
 
 ## Services orchestration
 
-With orchestration, one service is responsible to drive each participant on what to do and when.
+With orchestration, one service is responsible to drive each participant on what to do and when. As we do not
+want to loose any message as part of this orchestration the technology of choice to support strong consistency
+and exactly once delivery, is to use IBM MQ, as illustrated by the following figure:
 
-![5](./images/saga-ochestration.png)
+![Saga with MQ](./images/saga-ochestration-mq.png)
+
+An alternate is to use Kafka with producer using full ackowledge, idempotence, and a bstch size of 1, and different topics
+mostly configured as queue: one consumer in each consumer group
+
+![Saga with topics](./images/saga-ochestration-kafka.png)
 
 It uses the different topics to control the saga by issuing event commands to the different service. It uses the event backbone as a queue processing to support the asynchronous invocations. In this case the event should be exactly once delivered and idempotent. Each participant produces response in their context and to the order topic. The orchestration layer needs to keep a state machine and acts once all the expected responses are received.
 

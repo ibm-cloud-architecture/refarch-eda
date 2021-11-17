@@ -186,6 +186,11 @@ predefined scenario with the right button:
 
 ## Lab 2: MQ source to Event Streams using GitOps
 
+This labs uses GitOps approach with OpenShift GitOps product (ArgoCD) to deploy IBM Event Streams, MQ,
+the Store Simulator app, and Kafka Connect in the minimum of work. It can be used
+on a OpenShift Cluster witout any previously deployed Cloud Pak for Integration 
+opersators. Basically as a SRE you will jumpstart the GitOps operator and then starts ArgoCD.
+
 * Clone the `store-mq-gitops` repo
 
   ```shell
@@ -195,7 +200,8 @@ predefined scenario with the right button:
 
 ## Lab 3: MQ Sink from Kafka
 
-The target deployment looks like in the following diagram:
+A may be less used Kafka connector will be to use the MQ Sink connector to get data
+from Kafka to MQ. This lab addresses such integration. The target deployment looks like in the following diagram:
 
  ![1](./images/all-ocp.png)
 
