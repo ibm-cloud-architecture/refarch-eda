@@ -4,15 +4,14 @@ description: Apache Kafka to IBM MQ with Kafka Connector labs
 ---
 
 This extended scenario supports different labs going from simple to more complex and 
-addresses how to integrate between IBM MQ with Kafka. 
-It uses Event Streams, Kafka Confluent or Open Source Strimzi, 
-IBM MQ as part of Cloud Pak for Integration and Kafka connect with MQ connectors.
+addresses how to integrate IBM MQ with Event Streams Kafka as part of Cloud Pak for Integration
+using Kafka Connect with IBM MQ Kafka Connectors. 
 
-This Lab focuses on using Strimzi 2.7. To run the same Lab with Kafka Confluent see the [ibm-cloud-architecture/eda-lab-mq-to-kafka readme file.](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka)
+To run the same Lab with Kafka Confluent see the [ibm-cloud-architecture/eda-lab-mq-to-kafka readme file.](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka)
 
 <AnchorLinks>
 <AnchorLink>Pre-requisites to all labs</AnchorLink>
-<AnchorLink>Lab 1: MQ source to Event Streams Using the User Interface</AnchorLink>
+<AnchorLink>Lab 1: MQ source to Event Streams Using the Admin Console</AnchorLink>
 <AnchorLink>Lab 2: MQ source to Event Streams using GitOps</AnchorLink>
 <AnchorLink>Lab 3: MQ Sink from Kafka</AnchorLink>
 <AnchorLink>Lab 4: MQ Connector with Kafka Confluent</AnchorLink>
@@ -26,14 +25,19 @@ console and use OC and GIT CLIs.
 ## Pre-requisites to all labs
 
 * Access to an OpenShift Cluster and Console
-* Login to the OpenShift Console and get the `access token` to use `oc cli`.
+* Login to the OpenShift Console and get the `access token` to use `oc login`.
 * Access to [git cli](https://git-scm.com/) from your workstation
+* Clone Lab repository
 
-## Lab 1: MQ source to Event Streams Using the User Interface
+```sh
+git clone https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka.git
+```    
+
+## Lab 1: MQ source to Event Streams Using the Admin Console
 
 In this lab we assume Cloud Pak for Integration is deployed with Event Streams cluster created and at least one MQ Broker created.
-If not see [this note to install Event Streams operator with one cluster](/technology/event-streams/es-cp4i#install-event-streams-using-openshift-console) from the OpenShift Console
-and [this note to install one MQ Operator and one Broker](/technology/mq/#installation-with-cloud-pak-for-integration) 
+If not see [this note to install Event Streams operator and defining one Kafka cluster](/technology/event-streams/es-cp4i#install-event-streams-using-openshift-console) using the OpenShift Console
+and [this note to install one MQ Operator and one MQ Broker](/technology/mq/#installation-with-cloud-pak-for-integration). 
 
 The following figure illustrates what we will deploy:
 
