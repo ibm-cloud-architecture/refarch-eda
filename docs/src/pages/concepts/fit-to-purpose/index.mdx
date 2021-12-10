@@ -26,6 +26,27 @@ With the adoption of cloud native and microservice applications (the [12 factors
 
 Supporting all or part of those requirements will lead to the adoption of event-driven microservices and architecture.
 
+## Motivation for data streaming
+
+The central value propositions of data stream are to: 
+
+* lower the cost of integrating via event streams, 
+* use event streams to signal state changes in near-real time
+* replay the past to build data projection
+
+Applying the concept of data loose value over time, it is important to act on data as early
+as possible, close to creation time. After a period of time data becomes less valuable.
+
+Two time factors are important in this data processing: **latency** (time to deliver data to consumers)
+and **retention** (time to keep data). For latency try to reduce the number of network segment between
+producer and consumers. Considering edge computing as a way to bring event processing close to the source.
+The event processing add time to the end to end latency. Considering constraining the processing time frame.
+
+*Retention* is a problem linked to the business requirements, and we need to assess for each topic how long
+an event is still valuable for the consumers. Not keeping enough events will impact correctness of consumer state, 
+projection views... keeping for too long, increase the cost of storage, but also the time to rebuild data 
+projection. 
+
 ## Modern data pipeline
 
 As new business applications need to react to events in real time, the adoption of [event backbone](/concepts/terms-and-definitions/#event-backbone) is really part of the IT toolbox. 

@@ -4,7 +4,7 @@ description: Hands on lab to deploy Event Streams on OpenShift
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 10/11/2021 </strong>
+<strong>Updated 12/09/2021 </strong>
 </InlineNotification>
 
 In this tutorial you will learn how to install Event Streams on OpenShift, using a the Administration Console, or using CLI.
@@ -117,6 +117,9 @@ oc apply -f https://raw.githubusercontent.com/ibm-cloud-architecture/eda-gitops-
         --docker-password=your_entitlement_key 
     ```
 
+> Attention
+  This secret needs to be present in any namespace where an Event Streams cluster will be deployed.
+
 ### Install IBM foundational services
 
 When using security with IAM and other services, Event Streams needs IBM foundations services. It will install it
@@ -192,13 +195,17 @@ the `All namespaces on the cluster`, the version v2.4. The Operator will monitor
 
     ```yaml
         listeners:
-        external:
-          authentication:
-            type: scram-sha-512
-          type: route
-        tls:
-          authentication:
-            type: tls
+          plain:
+            port: 9092
+            type: internal
+            tls: false
+          external:
+            authentication:
+              type: scram-sha-512
+            type: route
+          tls:
+            authentication:
+              type: tls
     ```
 
 The first deployment of Event Streams, there may be creation of new deployments into the `ibm-common-services` if
