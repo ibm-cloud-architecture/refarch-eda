@@ -15,6 +15,9 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
   <AnchorLink>Apply IBM COS Sink Connector</AnchorLink>
 </AnchorLinks>
 
+!!! Updated
+    12/10/2021
+
 ## Overview
 
 Now that you have an Event Streams instance installed on Cloud Pak for Integration on top of OpenShift Container Platform 
@@ -67,62 +70,27 @@ In this section, we are going to create a producer application to send messages 
 1. Create the Quarkus project.
 
   ```bash
-  mvn io.quarkus:quarkus-maven-plugin:1.6.0.Final:create \
-      -DprojectGroupId=org.acme \
-      -DprojectArtifactId=quarkus-kafka \
-      -Dextensions="kafka,resteasy-jsonb"
+  quarkus create app cos-example 
+  cd cos-example 
+  quarkus ext add  reactive-messaging-kafka, mutiny, openshift
   ```
 
-1. Create the following Java file in the following path.
+1. Clone the `eda-quickstarts` repository.
 
   ```bash
-  src/main/java/org/acme/kafka/producer/Producer.java
+  git clone  https://github.com/ibm-cloud-architecture/eda-quickstarts.git
   ```
 
-  ![Quarkus Project Folder Structure](./images/quarkus-folder-structure.png)
+1. Review the `DemoController.java` file.
 
-1. Within your `Producer.java` file, add the following code:
+    * The `@Channel` annotation indicates that we're sending to a channel defined with reactive messaging in the application.properties.
+    * The `startDemo()` function generate n orders and send to the channel.
+1. Deploy to your OpensHift project. Modify the configmap to point to your Bootstrap URL
 
-  ```java
-  package org.acme.kafka.producer;
-
-  import io.reactivex.Flowable;
-  import io.smallrye.reactive.messaging.kafka.KafkaRecord;
-
-  import org.eclipse.microprofile.reactive.messaging.Outgoing;
-
-  import javax.enterprise.context.ApplicationScoped;
-  import java.util.Random;
-  import java.util.concurrent.TimeUnit;
-
-  /**
-   * This class produces a message every 5 seconds.
-   * The Kafka configuration is specified in the application.properties file.
-  */
-  @ApplicationScoped
-  public class Producer {
-
-    private Random random = new Random();
-
-    @Outgoing("INBOUND")
-    public Flowable<KafkaRecord<Integer, String>> generate() {
-      return Flowable.interval(5, TimeUnit.SECONDS)
-        .onBackpressureDrop()
-        .map(tick -> {
-          return KafkaRecord.of(random.nextInt(100), String.valueOf(random.nextInt(100)));
-        });
-    }
-  }
+  ```sh
+  oc apply -k kustomize/
   ```
-
-  The `@Outgoing` annotation is for specifying the name of the [channel](https://smallrye.io/smallrye-reactive-messaging/smallrye-reactive-messaging/2/concepts.html#channels), but it will default to that channel's name if a topic name is not provided in the `application.properties` file. We will address that a little bit later.
-
-  What does this `Producer.java` code do?
-    * The `@Outgoing` annotation indicates that we're sending to a channel (or topic) and we're not expecting any data.
-    * The `generate()` function returns an [RX Java 2 Flowable Object](https://www.baeldung.com/rxjava-2-flowable) emmitted every 5 seconds.
-    * The `Flowable` object returns a `KafkaRecord` of type key type Integer and value type String.
-
-1. Update our `applications.properties` file that was automatically generated when the Quarkus project was created at `src/main/resources` with the following code.
+1. Update the `applications.properties` file if you are not connect to Event Streams via PLAINTEXT security protocol.
 
   ```properties
 
@@ -157,15 +125,7 @@ In this section, we are going to create a producer application to send messages 
   
   Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
 
-1. Run the producer application.
-
-  ```bash
-  ./mvnw quarkus:dev
-  ```
-
-1. Since the code sends a message every 5 seconds, you can leave it on for a bit. Check out messages are making it into the yopic using your IBM Event Streams user interface. You can click the message under "Indexed Timestamp" to see the contents and details of the message.
-
-  ![ES Topic Messages](./images/event-streams-topic-messages.png)
+1. See the README to run the producer application locally with quarkus dev
 
 
 ## Create an IBM COS Service and COS Bucket
