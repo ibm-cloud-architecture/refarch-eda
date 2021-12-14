@@ -6,8 +6,7 @@ description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 <AnchorLinks>
   <AnchorLink>Overview</AnchorLink>
   <AnchorLink>Scenario Prerequisites</AnchorLink>
-  <AnchorLink>Create Event Streams Topic</AnchorLink>
-  <AnchorLink>Create Producer Application</AnchorLink>
+  <AnchorLink>A Reactive messaging producer app</AnchorLink>
   <AnchorLink>Create an IBM COS Service and COS Bucket</AnchorLink>
   <AnchorLink>Create IBM COS Service Credentials</AnchorLink>
   <AnchorLink>Set up the Kafka Connect Cluster</AnchorLink>
@@ -36,13 +35,17 @@ place into an IBM COS Bucket.
 ## Scenario Prerequisites
 
 **OpenShift Container Platform Cluster**
-  - This scenario will assume you have a 4.x Cluster as we will make use of Operators, though this one is 4.3 specifically.
+  - This scenario will assume you have a 4.7+ Cluster as we will make use of Operators.
 
 **Cloud Pak for Integration**
-  - This will assume you have probably at least a 2019.4.1 or 2020.x.x release of the Cloud Pak for Integration installed on OpenShift. This story will also assume you have followed the installation instructions for Event Streams outlined in [the 2020-2 product documentation](https://ibm.github.io/event-streams/installing/installing/) or from the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) and have a working Event Streams instance.
+  - Updated with 2021.0.x release of the Cloud Pak for Integration installed on OpenShift. 
+This story will also assume you have followed the installation instructions for Event Streams
+ outlined in [the 2021-3 product documentation](https://ibm.github.io/event-streams/installing/installing/) 
+ or from the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) 
+ and have a working Event Streams instance.
 
 **Java**
-  - Java Development Kit (JDK) v1.8+ (Java 8+)
+  - Java Development Kit (JDK) v1.11+ (Java 11+)
 
 **Maven**
   - The scenario uses Maven v3.6.3
@@ -59,73 +62,73 @@ place into an IBM COS Bucket.
 **An IBM Cloud Account (free)**
   - A free (Lite) IBM Cloud Object Storage trial Service account [IBM Cloud Object Storage](https://cloud.ibm.com/catalog/services/cloud-object-storage)
 
-## Create Event Streams Topic
+## A Reactive messaging producer app
 
-In this section, we will need to create a single `INBOUND` topic. The `INBOUND` topic is where our Quarkus application will produce to and where our IBM Cloud Object Storage Sink Connector will pull data from to send to the COS Bucket. Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) section to understand how to create a topic in IBM Event Streams.
+In this section, we are going to create a producer application to send messages 
+into the IBM Event Streams topic we created in the previou section. This application 
+will be a Java application based on Quarkus, a supersonic subatomic Java framework, 
+which will also make use of the MicroProfile Reactive Messaging specification.
 
-## Create Producer Application
+You have two choices for this application, reuse the existing code as-is or start by using quarkus CLI.
 
-In this section, we are going to create a producer application to send messages into the IBM Event Streams topic we created in the previou section. This application will be a Java application based on Quarkus, a supersonic subatomic Java framework, which will also make use of the MicroProfile Reactive Messaging specification.
-
-1. Create the Quarkus project.
-
-  ```bash
-  quarkus create app cos-example 
-  cd cos-example 
-  quarkus ext add  reactive-messaging-kafka, mutiny, openshift
-  ```
-
-1. Clone the `eda-quickstarts` repository.
+* Clone the `eda-quickstarts` repository.
 
   ```bash
   git clone  https://github.com/ibm-cloud-architecture/eda-quickstarts.git
+  cd cos-tutorial
+  quarkus dev
   ```
 
-1. Review the `DemoController.java` file.
+* If you want to start on your own, then create the Quarkus project.
+
+  ```bash
+  quarkus create app cos-tutorial 
+  cd cos-tutorial 
+  quarkus ext add  reactive-messaging-kafka, mutiny, openshift
+  ```
+
+  and get inspiration from the `DemoController.java`.
+
+* Review the `DemoController.java` file.
 
     * The `@Channel` annotation indicates that we're sending to a channel defined with reactive messaging in the application.properties.
     * The `startDemo()` function generate n orders and send to the channel.
-1. Deploy to your OpensHift project. Modify the configmap to point to your Bootstrap URL
+
+* The reactive messaging is defined in the `application.properties`. The setting are using
+the a kafka cluster named `dev`, we encourage to keep this name or you need to modify a lot of
+yaml files.
+* See the [COS tutorial README](https://github.com/ibm-cloud-architecture/eda-quickstarts/tree/main/cos-tutorial#readme) 
+to run the producer application locally with `quarkus dev`.
+
+### Deploy the application
+
+The kustomize folder contains yaml manifests to deploy Event Streams and the application to OpenShift.
+
+* If you want to deploy Event Streams use the following commands:
 
   ```sh
-  oc apply -k kustomize/
-  ```
-1. Update the `applications.properties` file if you are not connect to Event Streams via PLAINTEXT security protocol.
-
-  ```properties
-
-  quarkus.http.port=8080
-  quarkus.log.console.enable=true
-  quarkus.log.console.level=INFO
-
-  # Event Streams Connection details
-  mp.messaging.connector.smallrye-kafka.bootstrap.servers=REPLACE_WITH_YOUR_BOOTSTRAP_URL
-  mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
-  mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
-  mp.messaging.connector.smallrye-kafka.sasl.mechanism=SCRAM-SHA-512
-  mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
-                  username=REPLACE_WITH_YOUR_SCRAM_USERNAME \
-                  password=REPLACE_WITH_YOUR_SCRAM_PASSWORD;
-  mp.messaging.connector.smallrye-kafka.ssl.truststore.location=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_LOCATION
-  mp.messaging.connector.smallrye-kafka.ssl.truststore.password=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD
-
-  # Initial mock JSON message producer configuration
-  mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
-  mp.messaging.outgoing.INBOUND.topic=REPLACE_WITH_YOUR_TOPIC
-  mp.messaging.outgoing.INBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
-  mp.messaging.outgoing.INBOUND.key.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+  oc new-project eda-cos
+  oc apply -k kustomize/services/es
   ```
 
-    * `REPLACE_WITH_YOUR_BOOTSTRAP_URL`: Your IBM Event Streams bootstrap url.
-    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_LOCATION`: The location where you downloaded your PCKS12 TLS certificate to.
-    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD`: Your PCKS12 TLS certificate password.
-    * `REPLACE_WITH_YOUR_SCRAM_USERNAME`: Your SCRAM service credentials username.
-    * `REPLACE_WITH_YOUR_SCRAM_PASSWORD`: Your SCRAM service credentials password.
-    * `REPLACE_WITH_YOUR_TOPIC`: Name of the topic you created above.
+* Deploy the app to your OpenShift project. Modify the `configmap.yaml` in `kustomize/apps/eda-cos-demo/base` folder 
+to point to your Kafka Bootstrap URL
   
-  Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
+  ```yaml
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: eda-cos-demo-cm
+  data:
+    APP_VERSION: 0.0.2
+    MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_BOOTSTRAP_SERVERS: dev-kafka-bootstrap.eda-cos.svc:9092
+  ```
 
-1. See the README to run the producer application locally with quarkus dev
+  then deploy: 
+  
+  ```sh
+  oc apply -k kustomize/apps/eda-cos-demo/base
+  ```
 
 
 ## Create an IBM COS Service and COS Bucket
@@ -453,3 +456,42 @@ proceed.
 1. Finally, we can check whether the messages from our IBM Event Streams topic are getting propagated to our IBM Cloud Object Storage bucket. If you go to your IBM COS bucket, you should find some files in it. The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
 
   ![End to End Success](./images/ibm-cos-bucket-success.png)
+
+
+## Connect with mTLS 
+
+Update the `applications.properties` file if you are not connecting to Event Streams via PLAINTEXT security protocol.
+
+  ```properties
+
+  quarkus.http.port=8080
+  quarkus.log.console.enable=true
+  quarkus.log.console.level=INFO
+
+  # Event Streams Connection details
+  mp.messaging.connector.smallrye-kafka.bootstrap.servers=REPLACE_WITH_YOUR_BOOTSTRAP_URL
+  mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
+  mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
+  mp.messaging.connector.smallrye-kafka.sasl.mechanism=SCRAM-SHA-512
+  mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
+                  username=REPLACE_WITH_YOUR_SCRAM_USERNAME \
+                  password=REPLACE_WITH_YOUR_SCRAM_PASSWORD;
+  mp.messaging.connector.smallrye-kafka.ssl.truststore.location=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_LOCATION
+  mp.messaging.connector.smallrye-kafka.ssl.truststore.password=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD
+
+  # Initial mock JSON message producer configuration
+  mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
+  mp.messaging.outgoing.INBOUND.topic=REPLACE_WITH_YOUR_TOPIC
+  mp.messaging.outgoing.INBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+  mp.messaging.outgoing.INBOUND.key.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+  ```
+
+    * `REPLACE_WITH_YOUR_BOOTSTRAP_URL`: Your IBM Event Streams bootstrap url.
+    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_LOCATION`: The location where you downloaded your PCKS12 TLS certificate to.
+    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD`: Your PCKS12 TLS certificate password.
+    * `REPLACE_WITH_YOUR_SCRAM_USERNAME`: Your SCRAM service credentials username.
+    * `REPLACE_WITH_YOUR_SCRAM_PASSWORD`: Your SCRAM service credentials password.
+    * `REPLACE_WITH_YOUR_TOPIC`: Name of the topic you created above.
+  
+  Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
+
