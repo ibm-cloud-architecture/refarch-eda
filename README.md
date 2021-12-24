@@ -1,4 +1,4 @@
-# Event Driven Reference Architecture
+# [Event Driven Reference Architecture](https://ibm-cloud-architecture.github.io/refarch-eda)
 
 This project represents the body of knowledge around event-driven architecture and can be considered as a live book, we are writing from our consulting engagements. 
 All the content is visible [as a BOOK format here](https://ibm-cloud-architecture.github.io/refarch-eda).  
