@@ -32,6 +32,8 @@
       path: /concepts/fit-to-purpose/
     - title: Devising the data models
       path: /concepts/model/
+    - title: Flow Architecture
+      path: /concepts/flow-architectures.md
 - title: Advantages of EDA
   pages:
     - title: Microservice decoupling

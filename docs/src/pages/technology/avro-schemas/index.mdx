@@ -3,6 +3,97 @@ title: Apache Avro, Data Schemas and Schema Registry
 description: Apache Avro data serialization, data schemas for data definition and correctness and Schema Registry for data schema management
 ---
 
+<InlineNotification kind="warning">
+<strong>Updates 1/24/2022</strong>
+</InlineNotification>
+
+This chapter describes what and why Avro and Schema registry are important elements of any event-driven solutions.
+
+
+<AnchorLinks>
+    <AnchorLink>Why this is important</AnchorLink>
+    <AnchorLink>Schema Registry</AnchorLink>
+    <AnchorLink>Apache Avro</AnchorLink> 
+    <AnchorLink>Data Schemas</AnchorLink> 
+    <AnchorLink>Avro, Kafka and Schema Registry</AnchorLink>
+    <AnchorLink>More reading</AnchorLink>
+</AnchorLinks>
+
+## Why this is important
+
+Loosely coupling and asynchronous communication between applications does not mean there is no contract to enforce some constraint between producer and consumer. 
+When we talk about contract we can first think about schema as we did with XSD. In the world of JSON, JSON schema and Avro schemas can be used to define
+data structure of the message. As there is a need to get metadata around messaging, [cloudevents](https://cloudevents.io) is well accepted and adopted as a specification
+to describe event data. Also [AsyncAPI](/patterns/api-mgt/#support-for-async-api)
+establishes standards for events and messaging in the asynchronous world with an API view, so combining message schema, channels and binding definitions so 
+we have most of the needed information for a consumer to access a data stream or queue. 
+
+So the contract is defined with a schema. From an EDA design point of view, the producer owns the definition of the schema as it owns the main business entity
+life cycle, events are generated from. Producer will make sure the message complies with the schema at hand for serializing.
+
+On top of those specifications, there are technologies to support the contract management in the form of schema registry and API manager. The following
+figure gives us the foundations for integration between producer, schema registry and consumers.
+
+![schema registry management](images/schema-registry.png)
+
+
+Producers must have the schema definition at hand at serialization time. This can be done either by:
+
+1. Reading the schema from local file (or configmap/secret/variable/property).
+2. Retrieving it from the Schema Registry given a name/id.
+
+When the producer sends a message/event to a Kafka topic for the first time using the `io.apicurio.registry.serde.avro.AvroKafkaSerializer` class, it sends the schema for that message/event to the Schema Registry. 
+The Schema Registry registers this schema to the subject for the Kafka topic we want to send the message/event to, and returns the **schema id** to the producer. 
+The producer caches this mapping between the schema and schema id for subsequent message writes, so it only contacts Schema Registry on the first message/event writen 
+(unless the schema has changed, that is evolved, when the schema registry will be contacted again for validation and storage of this new version of the schema). 
+Kafka messages are written along with the **schema id** rather than with the entire data schema.
+
+When a consumer reads this data, it sees the Avro schema id and sends a schema request to the Schema Registry. 
+The Schema Registry retrieves the schema associated to that schema id, and returns the schema to the consumer. The consumer caches this mapping between 
+the schema and schema id for subsequent message reads, so it only contacts Schema Registry on the first schema id read.
+
+Non Java Consumers usee a C library that requires the schema definition at hand for the deserializer too (see https://github.com/confluentinc/confluent-kafka-python/issues/834). 
+The strategy would be to have the schema loaded from the schema registry via API.
+
+## Schema Registry
+
+With a pure open-source strategy, Event Streams within Cloud Pak for integration is using Apicu.io as schema registry. 
+The Event Streams [product documentation](https://ibm.github.io/event-streams/schemas/overview/) is doing an excellent job to 
+present the schema registry, we do not need to rewrite the story, just give you some summary from Apicur.io and links to code samples.
+
+### Apicurio
+
+[Apicur.io](https://www.apicur.io) includes a [schema registry](https://www.apicur.io/registry/docs/apicurio-registry/2.1.x/index.html) to store schema definitions. 
+It supports Avro, json, protobuf schemas, and an API registry to manage OpenApi and AsynchAPI.
+
+It is a Cloud-native Quarkus Java runtime for low memory footprint and fast deployment times. It supports [different persistences](apicurio-registry/2.1.x/getting-started/assembly-intro-to-the-registry.html#registry-storage_registry)
+like Kafka, Postgresql, Infinispan and supports different deployment models.
+
+#### Registry Characteristics
+
+* Apicurio Registry is a datastore for sharing standard event schemas and API designs across API and event-driven architectures.
+In the messaging and event streaming world, data that are published to topics and queues often must be serialized or validated using a Schema.
+* The registry supports adding, removing, and updating the following types of artifacts: OpenAPI, AsyncAPI, GraphQL, Apache Avro, Google protocol buffers, JSON Schema, Kafka Connect schema, WSDL, XML Schema (XSD).
+* Schema can be created via Web Console, core REST API or Maven plugin
+* It includes configurable rules to control the validity and compatibility.
+* Client applications can dynamically push or pull the latest schema updates to or from Apicurio Registry at runtime.
+Apicurio is compatible with existing Confluent schema registry client applications.
+* It includes client serializers/deserializers (Serdes) to validate Kafka and other message types at runtime.
+* Operator-based installation of Apicurio Registry on OpenShift
+* Use the concept of artifact group to collect schema and APIs logically related.
+* Support search for artifacts by label, name, group, and description
+
+When using Kafka as persistence, special Kafka topic `<kafkastore.topic>` (default `_schemas`), with a single partition, is used as a highly available write ahead log. 
+All schemas, subject/version and ID metadata, and compatibility settings are appended as messages to this log. 
+A Schema Registry instance therefore both produces and consumes messages under the `_schemas` topic. 
+It produces messages to the log when, for example, new schemas are registered under a subject, or when updates to 
+compatibility settings are registered. Schema Registry consumes from the `_schemas` log in a background thread, and updates its local 
+caches on consumption of each new `_schemas` message to reflect the newly added schema or compatibility setting. 
+Updating local state from the Kafka log in this manner ensures durability, ordering, and easy recoverability.
+
+
+The way Event Streams / Apicur.io has to handle schema association to topics is by schema name. Given we have a topic called orders, 
+the schemas that will apply to it are avros-key (when using composite key) and orders-value (most likely based on cloudevents and then custom payload).
 
 ## Apache Avro
 
@@ -113,31 +204,27 @@ For more information on the Apache Avro Data Schema specification see <https://a
 
 ## Avro, Kafka and Schema Registry
 
-In this section we try to put all the pieces together for the common flow of sending and receiving messages through an event backbone such as kafka having those messages serialized using the Apache Avro data serialization system and complying with their respective messages that are stored and managed by a schema registry.
+In this section we try to put all the pieces together for the common flow of sending and receiving messages through an event backbone 
+such as kafka having those messages serialized using the Apache Avro data serialization system and complying with their respective messages 
+that are stored and managed by a schema registry.
 
-Avro relies on schemas. When Avro data is produced or read, the Avro schema for such piece of data is always present. An Avro schema defines the structure of the Avro data format. Schema Registry defines a scope in which schemas can evolve, and that scope is the subject. The name of the subject depends on the configured subject name strategy, which by default is set to derive subject name from topic name.
+Avro relies on schemas. When Avro data is produced or read, the Avro schema for such piece of data is always present. An Avro schema defines 
+the structure of the Avro data format. Schema Registry defines a scope in which schemas can evolve, and that scope is the subject. 
+The name of the subject depends on the configured subject name strategy, which by default is set to derive subject name from topic name.
 
 In this case, the messages are serialized using Avro and sent to a kafka topic. Each message is a key-value pair. Either the message key or the message value, or both, can be serialized as Avro. Integration with Schema Registry means that Kafka messages do not need to be written with the entire Avro schema. Instead, Kafka messages are written with the **schema id**. The producers writing the messages and the consumers reading the messages must be using the same Schema Registry to get the same mapping between a schema and schema id.
 
-### How does it all work
+## More reading
 
-![schema registry management](images/schema-registry.png)
+### Articles and product documentation
 
-When the producer sends a message/event to a Kafka topic for the first time, it sends the schema for that message/event to the Schema Registry. The Schema Registry registers this schema to the subject for the Kafka topic we want to send the message/event to, and returns the **schema id** to the producer. The producer **caches this mapping between the schema and schema id** for subsequent message writes, so **it only contacts Schema Registry on the first message/event write** (unless the schema has changed, that is evolved, when the schema registry will be contacted again for validation and storage of this new version of the schema). Kafka messages are written along with the **schema id** rather than with the entire data schema.
+* [IBM Event Streams-  Schemas overview](https://ibm.github.io/event-streams/schemas/overview/)
+* [Apicur.io schema registry documentation](https://www.apicur.io/registry/docs/apicurio-registry/2.1.x/index.html)
+* [Confluent schema registry overview](https://docs.confluent.io/platform/current/schema-registry/index.html)
+* [Producer code with reactive messaging and apicurio schema registry](https://github.com/ibm-cloud-architecture/eda-quickstarts/tree/main/quarkus-reactive-kafka-producer)
+* [Consumer code with reactive messaging and apicurio schema registry](https://github.com/ibm-cloud-architecture/eda-quickstarts/tree/main/quarkus-reactive-kafka-consumer)
 
-When a consumer reads this data, it sees the **Avro schema id and sends a schema request to the Schema Registry**. The Schema Registry retrieves the schema associated to that schema id, and **returns the schema to the consumer**. The consumer **caches** this mapping between the schema and schema id for subsequent message reads, so it only contacts Schema Registry on the first schema id read.
-
-## Schema Registry
-
-<InlineNotification kind="info">
-
-The information below corresponds to the Schema Registry implementation in the IBM Event Streams product that is part of the IBM CloudPak for Integration. For the IBM Event Streams on IBM Cloud offering, this implementation might differ.
-
-</InlineNotification>
-
-Kafka is used as Schema Registry storage backend. The special Kafka topic `<kafkastore.topic>` (default `_schemas`), with a single partition, is used as a highly available write ahead log. All schemas, subject/version and ID metadata, and compatibility settings are appended as messages to this log. A Schema Registry instance therefore both produces and consumes messages under the `_schemas` topic. It produces messages to the log when, for example, new schemas are registered under a subject, or when updates to compatibility settings are registered. Schema Registry consumes from the `_schemas` log in a background thread, and updates its local caches on consumption of each new `_schemas` message to reflect the newly added schema or compatibility setting. Updating local state from the Kafka log in this manner ensures durability, ordering, and easy recoverability.
-
-## Labs
+### Labs
 
 We have developed two labs, one for the IBM Event Streams product that comes with the IBM CloudPak for Integration installed on a RedHat OpenShift cluster and the other for the IBM Event Streams on IBM Cloud offering, to get hands-on experience working with Apache Avro, data schemas and the IBM Event Streams Schema Registry:
 
