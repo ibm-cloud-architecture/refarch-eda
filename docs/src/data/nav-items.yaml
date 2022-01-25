@@ -92,7 +92,7 @@
       path: /technology/kafka-overview/advance/
     - title: Kafka security
       path: /technology/security/
-    - title: Flink
+    - title: Apache Flink
       path: /technology/flink/
     - title: Kafka Streams
       path: /technology/kafka-streams/
@@ -114,7 +114,9 @@
   pages:
     - title: Overview
       path: /use-cases/overview/
-    - title: Event Streams CP4I
+    - title: Event-driven solution GitOps
+      path: /use-cases/gitops/
+    - title: Deploy Event Streams CP4I
       path: /technology/event-streams/es-cp4i
     - title: Deploy Confluent on OCP
       path: /use-cases/confluent
