@@ -37,23 +37,42 @@ figure gives us the foundations for integration between producer, schema registr
 ![schema registry management](images/schema-registry.png)
 
 
-Producers must have the schema definition at hand at serialization time. This can be done either by:
+Schema Registry provides producer and consumer APIs so that these can project whether the event they are about to produce or consume is compatible with previous versions or compatible with the version they are expecting. For that, both producers and consumers require the schema definition at hand at serialization and deserialization time. This can be done either by:
 
-1. Reading the schema from local file (or configmap/secret/variable/property).
-2. Retrieving it from the Schema Registry given a name/id.
+1. Reading the schema from a local local resource to your producer such as a file, variable, property (or kubernetes construct such as configmap or secret).
+2. Retrieving the schema definition from the Schema Registry given a name/ID.
 
-When the producer sends a message/event to a Kafka topic for the first time using the `io.apicurio.registry.serde.avro.AvroKafkaSerializer` class, it sends the schema for that message/event to the Schema Registry. 
-The Schema Registry registers this schema to the subject for the Kafka topic we want to send the message/event to, and returns the **schema id** to the producer. 
-The producer caches this mapping between the schema and schema id for subsequent message writes, so it only contacts Schema Registry on the first message/event writen 
-(unless the schema has changed, that is evolved, when the schema registry will be contacted again for validation and storage of this new version of the schema). 
-Kafka messages are written along with the **schema id** rather than with the entire data schema.
+When the producer wants to send an event to a Kafka topic, two things happen:
 
-When a consumer reads this data, it sees the Avro schema id and sends a schema request to the Schema Registry. 
-The Schema Registry retrieves the schema associated to that schema id, and returns the schema to the consumer. The consumer caches this mapping between 
-the schema and schema id for subsequent message reads, so it only contacts Schema Registry on the first schema id read.
+1. The producer makes sure the event to be sent complies to the schema. Otherwise, it errors out.
+2. Project whether the event they are about to produce or consume is compatible with previous versions or compatible with the version they are expecting.
 
-Non Java Consumers usee a C library that requires the schema definition at hand for the deserializer too (see https://github.com/confluentinc/confluent-kafka-python/issues/834). 
-The strategy would be to have the schema loaded from the schema registry via API.
+For the first action, the producer already holds the two things it needs: the schema definition the event to be sent needs to comply with and the event itself. The producer is therefore able to carry out that compliance check. However, for the second action, where the producer needs to make sure the schema definition your event complies with is compatible with the existing schema definition for the topic in question (if any), the producer might need to contact the schema registry.
+
+Producers (and consumers) maintain a local cache with the schema definitions (and their versions) along with their unique global IDs (all of these retrieved from the schema registry) for the topics they want to produce/consume events to/from. If the producer has a schema definition in its local cache that matches the schema definition at hand for the serialization of the event, it simply sends the event as the schema definitions match and the event complies with such schema definition. However, if the producer does not have any schema definition in its local cache that matches the schema defintion at hand for the serialization of the event, whether because these are different versions or the producer simply does not have any schema definition in its cache, it contacts the schema registry.
+
+* If a schema defintion for the topic in question that matches the schema definition at hand at serialization time in the producer already exists in the schema registry, the producer simply retrieves the global unique ID for that schema definition to locally cache it along with the schema definition itself for future events to be sent so that it avoids contacting the schema registry again.
+
+* If a schema definition for the topic in question that matches the schema definition at hand at serialization time in the producer does not already exist in the schema registry, the producer must be able to register the schema definition it has got at hand for the topic in question at serialization time in the schema registry so that such schema definition is now available for any consumer wanting or needing to consume events that comply with such schema definition. For that, the producer must be configured to be able to auto-register schemas and also be provided with the appropriate credentials to register schema definitions from the schema registry perspective if this implements any type of RBAC mechanism (as it is the case for IBM Event Streams).
+  * If the producer is not configured to auto-register schema definitions or its credentials does not allow it to register schema definitions, then the send event action will fail until there is a schema definition for the topic in question that mateches the schema definition at hand at serialization time in the producer registered in the schema registry.
+  * If the producer is configured to auto-register schema definitions and its credentials allows it to register schema definitions, the schema registry validates the compatibility of the schema definition at hand at serialization time in the producer with existing schema definitions for the topic in questions (if any) to make sure that, if this schema definition to be registered is a newer version of any existing schema definition, it is complatible so that no consumer gets affected by this new schema definition version. Afer the schema definition or newer version of an exisint schema definition is registered in the schema registry, the producer retrieves its global unique ID to mantain its local cache up to date.
+
+<InlineNotification kind="warning">
+We stongly recommend that producers are not allowed to register schema definitions in the schema registry for better governance and management of schema definitions. It is highly recommended that schema definitions registration is done by someone responsible for such task with appropriate role (such as an admin, an API manager, an asynchronous API manager, a development manager, an operator, etc).
+</InlineNotification>
+
+Once the producer has a schema definition in its local cache, along with its global unique id, that matches the schema definition at hand for serialization of the event to be sent, it produces the event to the Kafka topic using the appropriate `AvroKafkaSerializer` class. The schema definition global unique ID gets serialized along with the event so that the event does not need to travel along with its schema definition as it was the case in older messaging or eventing techonolgies and systems.
+
+By default, when a consumer reads an event, the schema definition for such event is retrieved from the schema registry by the deserializer using the global unique ID, which is specified in the event being consumed. The schema definition for an event is retrieved from the schema registry only once, when an event comes with a global unique ID that can not be found in the schema definition cache the consumer maintains locally. The schema definition global unique ID can be located in the event headers or in the event payload, depending on the configuration of the producer application. When locating the global unique ID in the event payload, the format of the data begins with a magic byte, used as a signal to consumers, followed by the global unique ID, and the message data as normal. For example:
+
+```
+# ...
+[MAGIC_BYTE]
+[GLOBAL_UNIQUE_ID]
+[MESSAGE DATA]
+```
+
+Be aware that non Java consumers use a C library that might require the schema definition at hand for the deserializer too (see https://github.com/confluentinc/confluent-kafka-python/issues/834) as opposed to letting the deserializer retrieve the schema definition from the schema registry as explained above. The strategy would be to have the schema loaded from the schema registry via API.
 
 ## Schema Registry
 
