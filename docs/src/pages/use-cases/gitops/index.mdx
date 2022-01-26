@@ -236,6 +236,24 @@ With this base, here is a potential high-level architecture diagram:
 ![](./images/hl-view.png)
 
 (*the source code of this diagram is a ``.drawio` format and is in the [diagrams folder](https://github.com/ibm-cloud-architecture/refarch-eda/edit/master/docs/src/pages/use-cases/gitops/diagrams).*)
+Here are the assumptions we define for any event-driven solution:
+
+* Single admin team for OCP cluster and production projects within the cluster.
+* Developers manages staging and dev environment. This is a functional team developing the solution
+* For the solution one gitops will define all environments and apps/services of the solution.  
+* Developers will not have access to OpenShift cluster administration
+* Cloud Pak for integration operators are installed in all namespaces, and there is only one instance of
+each operator. 
+* Only one Platform Navigator installed per cluster (in all namespaces) and it displays instances of
+ capabilities from the whole cluster.
+* `ibm-common-services` is unique to the cluster. 
+
+For real production deployment, the production OpenShift cluster will be separate from dev and staging, running in different infrastructure, but using the same
+github source. The top-right cluster is for dev and staging, and each of those environment will be different namespaces per solution.
+In each of those `dev`` or `staging`` namespace we can get Event Streams deployed, MQ brokers, schema registry and any other components needed.
+
+The `openshift-operators` is for Operators that manage multiple namespaces.
+The `openshift-gitops` is for ArgoCD server and apps.
 
 
 ### GitOps Model
@@ -340,8 +358,12 @@ KAM's goal is to help creating a GitOps project for an existing application as
 [day 1 operations](https://github.com/redhat-developer/kam/tree/master/docs/journey/day1) 
 and then add more services as part of `day 2 operation`.
 
+
+
 The following solution GitOps repositories are illustrating the proposed approach:
 
+* [refarch-kc-gitops](https://github.com/ibm-cloud-architecture/refarch-kc-gitops): For the shipping fresh food overseas solution we have defined. It includes
+the SAGA choreography pattern implemented with Kafka
 * [eda-kc-gitops](https://github.com/ibm-cloud-architecture/eda-kc-gitops): For the shipping fresh food overseas solution we have defined. It includes
-the SAGA pattern implemented with MQ
-* [store-mq-gitops](https://github.com/ibm-cloud-architecture/store-mq-gitops): real-time inventory demo with MQ kafka connector and Event Streams
+the SAGA orchestration pattern implemented with MQ
+* [eda-rt-inventory-gitops](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops) to deploy the demo of real-time inventory
