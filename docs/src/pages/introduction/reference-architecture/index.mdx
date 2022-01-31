@@ -304,6 +304,7 @@ Developers have the complete choice over how data is represented. Eg. Can write 
 
 It also supports Kafka Header fields for efficient downstream routing without the need for immediate de-serialization.
 The KCOP allows a user to determine how many messages are written to Kafka in response to a source operation, the content of the messages, and their destination.
+
 * Allows for filtering based on column values.
 * Allows for writing the entire row with sensitive data to highly restricted topics and a subset of the columns to wider shared topics.
 * Allows for writing the same message in two different formats to two different topics.  Useful in environments where some consuming applications want JSON, others prefer Avro, both can be produced in parallel if desired.

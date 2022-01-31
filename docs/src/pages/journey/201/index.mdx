@@ -12,6 +12,7 @@ In this `201` content, you should be able to learn more about Kafka, Event Strea
 <AnchorLinks>
   <AnchorLink>More Kafka</AnchorLink>
   <AnchorLink>Production deployment - High Availability</AnchorLink>
+  <AnchorLink>Event-driven solution GitOps deployment</AnchorLink>
   <AnchorLink>Performance considerations</AnchorLink>
   <AnchorLink>EDA Design patterns</AnchorLink>
   <AnchorLink>Kafka Connect Framework</AnchorLink>
@@ -101,6 +102,21 @@ Consumers and producers should better run on separate servers than the brokers n
 to address back preasure on their own. Consumers need to have configuration that permit to do not enforce
 partition to consumer reassignment too quickly. Consumer process can fail and restart quickly and get the same partition allocated.
 
+## Event-driven solution GitOps deployment
+
+The ["event-driven solution GitOps approach" article](/use-cases/gitops) goes over how to use OpenShift GitOps to deploy Event Streams, MQ, and 
+a business solution. You will learn how to bootstrap the GitOps environment and deploy the needed IBM operators then use
+custom resource to define Event Streams cluster, topics, users...
+
+The following solution GitOps repositories are illustrating the proposed approach:
+
+* [refarch-kc-gitops](https://github.com/ibm-cloud-architecture/refarch-kc-gitops): For the shipping fresh food overseas solution we have defined. It includes
+the SAGA choreography pattern implemented with Kafka
+* [eda-kc-gitops](https://github.com/ibm-cloud-architecture/eda-kc-gitops): For the shipping fresh food overseas solution we have defined. It includes
+the SAGA orchestration pattern implemented with MQ
+* [eda-rt-inventory-gitops](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops) to deploy the demo of real-time inventory
+
+
 ## Performance considerations
 
 Read [this dedicated article on performance, resilience, throughput.](/technology/kafka-overview/advance/#performance-considerations)
@@ -160,6 +176,14 @@ presents the methodology for event endpoint management:
 * decoupled by API helps to abtract and change implementation if needed.
 
 ## Debezium change data capture
+
+Change data capture is the best way to inject data from a database to Kafka. 
+[Debezium](https://debezium.io/) is the Red Hat led open source project in this area. The [IBM InfoSphere Data Replication](https://www.ibm.com/docs/en/idr/11.4.0?topic=replication-cdc-engine-kafka) is a more advanced solution
+for different sources and to kafka or other middlewares. 
+
+One lab [DB2 debezium](/use-cases/db2-debezium) not fully operational, looking for contributor to complete it.
+
+and an implementation of [Postgresql debezium cdc with outpost pattern](https://github.com/ibm-cloud-architecture/vaccine-order-mgr-pg) and quarkus.
 
 ## Mirroring Data
 
