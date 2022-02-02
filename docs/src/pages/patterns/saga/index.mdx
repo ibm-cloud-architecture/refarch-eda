@@ -11,15 +11,18 @@ With the adoption of one data source per microservice, there is an interesting c
 
 ## Solution and Pattern
 
-Introduced in 1987 [by Hector Garcaa-Molrna Kenneth Salem paper](https://www.cs.cornell.edu/andru/cs711/2002fa/reading/sagas.pdf) the Saga pattern help to support a long running transaction that can be broken up to a collection of sub transactions that can be interleaved any way with other transactions.
+Introduced in 1987 [by Hector Garcaa-Molrna Kenneth Salem paper](https://www.cs.cornell.edu/andru/cs711/2002fa/reading/sagas.pdf) the Saga pattern helps to support a long running transaction that can be broken up to a collection of sub transactions that can be interleaved any way with other transactions.
 
 With microservice each transaction updates data within a single service, each subsequent steps may be triggered by previous completion. The following figure, based on [our solution implementation](https://ibm-cloud-architecture.github.io/refarch-kc), illustrates those concepts for an order transaction:
 
 ![1](./images/saga-ctx.png)
 
-When the order is created, the business process says, we need to allocate a "voyage", assign containers and update the list of containers to load on the ship. Those actions / commands are chained. The final state (in this schema, not in the reality, as the process has more steps) is the Order assigned state in the order microservice.
+When the order is created, the business process says, we need to allocate a "voyage" (a Vessel container carrier), assign refrigerator containers and update the list of containers to load on the ship. 
+Those actions / commands are chained. The final state (in this schema, not in the reality, as the process has more steps) 
+is the Order assigned state in the order microservice.
 
-With a unique application implementation, the integrity between order, voyage and container tables will be done via transactions. With distributed system we could not apply two phase commit transaction so the Saga pattern will help.
+With a unique application implementation, the integrity between order, voyage and container tables will be done via transactions. 
+With distributed system we could not easily apply two phase commit transaction so the Saga pattern will help.
 
 SAGA pattern supports two types of implementation: Choreography and Orchestration.
 
