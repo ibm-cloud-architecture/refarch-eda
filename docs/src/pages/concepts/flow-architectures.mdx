@@ -8,9 +8,6 @@ description: James Urquhaert's "Flow architecture" book summary
 <strong>Added 1/21/2022</strong>
 </InlineNotification>
 
-
-# Flow architecture
-
 From the [James Urquhart's book: Flow architecture](https://www.amazon.com/Flow-Architectures-Streaming-Event-Driven-Integration/dp/1492075892/ref=sr_1_1?keywords=flow+architectures&qid=1637675009&sr=8-1) and
 personal studies.
 
@@ -25,7 +22,7 @@ Value is created by interacting with the flow, and not just the data movement.
 Since the beginning of IT as an industry, we are digitizing and automating the exchanges of value, and we spend
 a lot of time and money to execute key transactions with less human intervention.
 However, most of the integrations we execute across organizational boundaries today are not
-in real time. Today, most—perhaps all—digital financial transactions in the world economy
+in real time. Today, most, perhaps all—digital financial transactions in the world economy
 still rely on batch processing at some point in the course of settlement.
 
 There is no consistent and agreed-upon mechanism for exchanging signals for immediate action across companies or industries.
@@ -40,14 +37,14 @@ are very few mutual dependencies between the parties at both ends of the exchang
 
 ## 1- Flow characteristics
 
-* Consumers requests data streams through self-service interfaces, and get the data continuously.
-* Producers maintain control of relevant information to transmit and when.
+* Consumer applications requests data streams through self-service interfaces, and get the data continuously.
+* Producers maintain control of relevant information to transmit and when to transmit.
 * **Event** packages information of data state changes, with timestamp and unique ID. 
-The context included with the transmitted data allows the consumer to better understand the nature of that data.
+The context included with the transmitted data allows the consumer to better understand the nature of that data. [CloudEvent](https://cloudevents.io/) helps defining such context.
 * The transmission of a series of events between two parties is called an **event stream**.
 
 The more streams there are from more sources, the more flow consumers will be drawn to 
-those streams and the more experimentation there will be. Over time, organizations will find 
+those streams and the more experimentation may be done. Over time, organizations will find 
 new ways to tie activities together to generate new value.
 
 **Composable architectures** allow the developer to assemble fine grained parts using 
@@ -57,13 +54,18 @@ which integration can happen. Developer must know a lot about the data that is a
  the mechanism by which the data will be passed, the rules for coding and deploying 
  the software.
 
-EDA provides a much more composable and evolutionary approach to building event and data streams.
+EDA provides a much more composable and evolutionary approach for building event and data streams.
 
 ## 2- Business motivations
 
 * Do digital transformation to improve customer experiences. Customers expect their data to 
 be used in a way that is valuable to them, not just to the vendors. Sharing data between organizations
- can lead to new business opportunities.
+ can lead to new business opportunities. This is one of the pilard of Society 5.0. 
+
+> The Japan government defined **Society 5.0** as "A human-centered society that balances economic 
+advancement with the resolution of social problems by a system that highly integrates
+cyberspace and physical space".
+
 * Improve process automation, to drive efficiencies and profitability. The most limiting constraint in the 
 process hides any improvements made to other steps. Finding constraints is where [value stream mapping](https://tkmg.com/books/value-stream-mapping/) shines:
 it uses lead time (queue time) and actual time to do the work. EDA will help to get time stamp and data 

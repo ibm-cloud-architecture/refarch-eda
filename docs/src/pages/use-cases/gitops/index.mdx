@@ -4,8 +4,15 @@ description: Event-driven solution GitOps approach
 ---
 
 <InlineNotification kind="warning">
-<strong>Updated 1/25/2022</strong>
+<strong>Updated 2/15/2022</strong>
 </InlineNotification>
+
+<AnchorLinks>
+  <AnchorLink>Overview</AnchorLink>
+  <AnchorLink>Components for GitOps</AnchorLink>
+  <AnchorLink>High-level architecture view</AnchorLink>
+  <AnchorLink>Examples of solution GitOps</AnchorLink>
+</AnchorLinks>
 
 **Audience**: Architects, Application developers, Site reliability engineers, Administrators
 
@@ -17,6 +24,15 @@ extensive use of the [IBM Cloud Pak for Integration
 (CP4I)](https://cloud.ibm.com/docs/cloud-pak-integration) and other [cloud
 native technologies]((https://landscape.cncf.io/)) such as Tekton, Kustomize,
 ArgoCD, Prometheus, Grafana and Kibana.
+
+GitOps is a declarative way to implement continuous deployment for cloud-native applications. The Red Hat® OpenShift® Container 
+Platform offers the [OpenShift GitOps operator](https://docs.openshift.com/container-platform/4.7/cicd/gitops/understanding-openshift-gitops.html), 
+which manages the entire lifecycle for [Argo CD](https://argoproj.github.io/argo-cd/) and its components.
+
+
+Argo applications are added to the Argo CD server. An application defines the source of the Kubernetes resources and the target cluster where 
+those resources should be deployed. The Argo CD server "installs" a Cloud Pak by synchronizing the applications representing the Cloud Pak into 
+the target cluster.
 
 ### System context
 
@@ -287,8 +303,9 @@ production-ready event-driven solution deployment:
 
 ### GitHub repositories
 
-We propose to use one GitOps Catalog to centralize the Operator definitions with Kustomize overlays. An example of such catalog is the [eda-gitops-catalog](https://github.com/ibm-cloud-architecture/eda-gitops-catalog).
-Each operator is defined with the subscription manifest and then update to change the product version. Here is an example for Event Streams:
+We propose to use one GitOps Catalog to centralize the Operator subscription definitions with Kustomize overlays to control operator versioning. 
+An example of such catalog is the [eda-gitops-catalog](https://github.com/ibm-cloud-architecture/eda-gitops-catalog).
+Each operator is defined with the subscription manifest and then overlays to change the product version. Here is an example for Event Streams:
 
 ```sh
 ├── event-streams
@@ -359,6 +376,7 @@ KAM's goal is to help creating a GitOps project for an existing application as
 and then add more services as part of `day 2 operation`.
 
 
+## Examples of solution GitOps
 
 The following solution GitOps repositories are illustrating the proposed approach:
 
@@ -367,3 +385,90 @@ the SAGA choreography pattern implemented with Kafka
 * [eda-kc-gitops](https://github.com/ibm-cloud-architecture/eda-kc-gitops): For the shipping fresh food overseas solution we have defined. It includes
 the SAGA orchestration pattern implemented with MQ
 * [eda-rt-inventory-gitops](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops) to deploy the demo of real-time inventory
+
+As a lab example, you may want to clone the real-time inventory demo and bootstrap the GitOps apps to deploy services and apps:
+
+```sh
+git clone https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops
+```
+
+All the images are in the public image registry: `quay.io/ibmcase`
+
+### Bootstrap GitOps
+
+* Login to the OpenShift Console, and get login token to be able to use `oc cli`
+
+```sh
+oc login --token=sha256~...a_token-that-is-secret --server=https:/to a public url.cloud.ibm.com
+```
+
+* If not done already, use the `installGitOpsOperators` script to install GitOps and Pipeline operators (running multiple times will not affect the deployent): 
+
+  ```sh
+    ./bootstrap/scripts/installGitOpsOperators.sh
+  ```
+    
+  Once the operators are running the command: `oc get pods -n openshift-gitops` should return
+a list of pods like:
+
+  ```sh
+    NAME                                                          READY   STATUS    RESTARTS   AGE
+    openshift-gitops-application-controller-0                     1/1     Running   0          4h5m
+    openshift-gitops-applicationset-controller-6948bcf87c-jdv2x   1/1     Running   0          4h5m
+    openshift-gitops-dex-server-64cbd8d7bd-76czz                  1/1     Running   0          4h5m
+    openshift-gitops-redis-7867d74fb4-dssr2                       1/1     Running   0          4h5m
+    openshift-gitops-repo-server-6dc777c845-gdjhr                 1/1     Running   0          4h5m
+    openshift-gitops-server-7957cc47d9-cmxvw                      1/1     Running   0          4h5m
+  ```
+
+* If not done already, install IBM product catalog subscriptions:
+
+  ```sh
+  ./bootstrap/scripts/installIBMCatalog.sh
+  ```
+
+* Obtain your [IBM license entitlement key](https://github.com/IBM/cloudpak-gitops/blob/main/docs/install.md#obtain-an-entitlement-key) 
+* Update the [OCP global pull secret of the `openshift-operators` project](https://github.com/IBM/cloudpak-gitops/blob/main/docs/install.md#update-the-ocp-global-pull-secret)
+with the entitlement key
+
+    ```sh
+    export KEY=<yourentitlementkey>
+    oc create secret docker-registry ibm-entitlement-key \
+    --docker-username=cp \
+    --docker-server=cp.icr.io \
+    --namespace=openshift-operators \
+    --docker-password=$KEY 
+    ```
+
+* Deploy IBM product Operators (Event Streams) to monitor All Namespaces 
+
+
+  ```sh
+  ./bootstrap/scripts/installIBMOperators.sh
+  ```
+
+   
+* Create ArgoCD project named `rt-inventory`
+
+   ```sh
+   oc apply -k bootstrap/argocd-project
+   ```
+
+* To get the `admin` user's password use the command
+
+    ```sh
+    oc extract secret/openshift-gitops-cluster -n openshift-gitops --to=-
+    ```
+
+* Get the ArgoCD User Interface URL and open a web browser
+
+   ```sh
+   chrome https://$(oc get route openshift-gitops-server -o jsonpath='{.status.ingress[].host}'  -n openshift-gitops)
+   ```
+
+
+* To start the CD management with ArgoCD, just executing the following should work.
+
+   ```sh
+   oc apply -k config/argocd
+   ```

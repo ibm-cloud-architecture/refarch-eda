@@ -176,10 +176,46 @@ The Command concept plays a key role in the [Command-Query Responsibility Segreg
 
 ## Loose coupling
 
-Loose coupling is one of the main benefits of event-driven processing. It allows event producers to emit events without any knowledge about who is going to consume those events. Likewise, event consumers don't need to be aware of the event emitters. Because of this, event consuming modules and event producer modules can be implemented in different languages or use technologies that are different and appropriate for specific jobs. Loosely coupled modules are better suited to evolve independently and, when implemented correctly, result in a significant decrease in system complexity.
+Coupling measures the independance between connected applications and systems. Dependances is not one dimension but includes protocol, technology,
+communication interaction model (synchronous or asynchronous), data model, location, ...
 
-Loose coupling, however, does not mean “no coupling”. An event consumer consumes events that are useful in achieving its goals and in doing so establishes what data it needs and the type and format of that data. The event producer emits events that it hopes are understood and useful to consumers thus establishing an implicit contract with potential consumers. For example, an event notification in XML format must conform to a certain schema that must be known by both the consumer and the producer.  One of the most important things that you can do to reduce coupling in an event-driven system is to reduce the number of distinct event types that flow between modules. To do this you must pay attention to the cohesiveness of those modules.
+Decoupling is complex, has a cost at design level but also at technology choices so at runtime level. 
+
+Synchronous request-response model is used a lot in RESTful microservice, and it brings advantages for the developers, at it is simple to
+implement, it has low latency and helps to address quickly receiver failure. The disadvantages come when the receiver failure blocks the requester
+to serve its own business logic, and may fails too or when the receiver starts to be overloaded by multiple requests.
+
+Adding queues as a way to decouple, with asynchronous point to point communication, is a natural solution for previous disadvantages. It decouples at
+the time level. With high availability queueing middleware the end to end processing is more resilient to receiver failure, and to traffic burst as
+the receiver is the one controlling the consumption of messages. Still if the queue starts to fill up, producers need to address back preassure.
+Also lost receiver can  be handled by dead letter queues. With point-to-point, only one consumer can get a message.
+
+Asynchronous implementations are more complex to do as developers need to address response correlation with some sort of transaction ID, timestamp, consistency,
+horizontal scalling, and even data model contract evolution.
+
+Recalls the CAP theorem which stipulates that distributed applications could not ensure consistency, availability and partition tolerance all at the same time.
+They can, at most, support only two out of the three. In the internet of scale and for a lot of business application, it is better tohave availability
+along with eventual consistency, rather than compromising on availability on the whole. 
+
+Loose coupling is one of the main benefits of event-driven processing. It allows event producers to emit events without any knowledge 
+about who is going to consume those events (temporal decoupling). Likewise, event consumers don't need to be aware of the event emitters. Because of this, 
+event consuming modules and event producer modules can be implemented in different languages or use technologies that are differents and 
+appropriate for specific jobs. Loosely coupled modules are better suited to evolve independently and, when implemented correctly, 
+result in a significant decrease in system complexity.
+
+Loose coupling, however, does not mean “no coupling”. An event consumer consumes events that are useful in achieving its goals and in 
+doing so establishes what data it needs and the type and format of that data. The event producer emits events that it hopes are understood and 
+useful to consumers thus establishing an implicit contract with potential consumers. For example, an event notification in XML format must 
+conform to a certain schema that must be known by both the consumer and the producer.  One of the most important things that you can do to reduce 
+coupling in an event-driven system is to reduce the number of distinct event types that flow between modules. To do this you must pay attention 
+to the cohesiveness of those modules.
 
 ## Cohesion
 
-Cohesion is the degree to which related things are encapsulated together in the same software module. For the purposes of this EDA discussion, a module is defined as an independently deployable software unit that has high cohesion. Cohesion is strongly related to coupling in the sense that a highly cohesive module communicates less with other modules, thus reducing the number of events most importantly, the number of event types in the system. The less frequently modules interact with each other, the less coupled they are. Achieving cohesion in software while optimizing module size for flexibility and adaptability is difficult, but something to strive for. Designing for cohesion starts with a holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting software environment. Monolithic implementations and implementations that are excessively fine-grained must be avoided.
+Cohesion is the degree to which related things are encapsulated together in the same software module. For the purposes of this EDA discussion,
+ a module is defined as an independently deployable software unit that has high cohesion. Cohesion is strongly related to coupling in the sense 
+ that a highly cohesive module communicates less with other modules, thus reducing the number of events most importantly, the number of event 
+ types in the system. The less frequently modules interact with each other, the less coupled they are. Achieving cohesion in software while 
+ optimizing module size for flexibility and adaptability is difficult, but something to strive for. Designing for cohesion starts with a 
+ holistic understanding of the problem domain and good analysis work. Sometimes it must also take into account the constraints of the supporting 
+ software environment. Monolithic implementations and implementations that are excessively fine-grained must be avoided.

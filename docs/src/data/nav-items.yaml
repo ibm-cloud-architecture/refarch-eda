@@ -33,7 +33,7 @@
     - title: Devising the data models
       path: /concepts/model/
     - title: Flow Architecture
-      path: /concepts/flow-architectures.md
+      path: /concepts/flow-architectures
 - title: Advantages of EDA
   pages:
     - title: Microservice decoupling
