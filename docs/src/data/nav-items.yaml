@@ -80,6 +80,10 @@
   pages:
     - title: Kafka Overview
       path: /technology/kafka-overview/
+    - title: IBM Event Streams
+      path: /technology/event-streams/
+    - title: Event Streams with CP4I
+      path: /technology/event-streams/es-cp4i
     - title: Kafka FAQ
       path: /technology/faq/
     - title: MQ in EDA context
@@ -96,8 +100,6 @@
       path: /technology/flink/
     - title: Kafka Streams
       path: /technology/kafka-streams/
-    - title: IBM Event Streams
-      path: /technology/event-streams/
     - title: Kafka Connect
       path: /technology/kafka-connect/
     - title: Kafka Mirror Maker 2

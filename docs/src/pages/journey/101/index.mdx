@@ -14,7 +14,7 @@ event-driven solution, and getting started on IBM Event Streams and IBM MQ.
 <AnchorLinks>
   <AnchorLink>Important concepts around Event-driven solution and Event-driven architecture</AnchorLink>
   <AnchorLink>Understand Kafka technology</AnchorLink>
-  <AnchorLink>So what is Event Streams?</AnchorLink>
+  <AnchorLink>So what is IBM Event Streams?</AnchorLink>
   <AnchorLink>Use Cases</AnchorLink>
   <AnchorLink>Why microservices are becoming event-driven and why we should care?</AnchorLink>
   <AnchorLink>Messaging as a service?</AnchorLink>
@@ -27,7 +27,7 @@ event-driven solution, and getting started on IBM Event Streams and IBM MQ.
 
 ## Important concepts around Event-driven solution and Event-driven architecture
 
-First to get an agreement on the [terms and definitions](http://localhost:8000/concepts/terms-and-definitions/) used in all 
+First to get an agreement on the [terms and definitions](/concepts/terms-and-definitions/) used in all 
 this body of knowledge content, with a clear definitions for `events`, `event streams`, `event backbone`, `event sources`....
 
 The main up-to-date [reference architecture presentation is in this section](/introduction/reference-architecture/#event-driven-architecture) with all the component descriptions.
@@ -58,12 +58,28 @@ To learn more about:
 * For Consumer introduction [see this section](/technology/kafka-consumers/)
 * For [Kafka Connector framework introduction](/technology/kafka-connect/)
 
-## So what is Event Streams?
+## So what is IBM Event Streams?
 
-Event Streams is IBM packaging of Kafka with some enhanced features, and available as [Managed Service](https://www.ibm.com/cloud/event-streams)
-or as part of Cloud Pak for integration. [Here is a developer.ibm.com article for Event Streams on Cloud](https://developer.ibm.com/articles/event-streams-fundamentals/?mhsrc=ibmsearch_a&mhq=ibm%20event%20streams).
+Event Streams is the IBM packaging of Kafka for the Enterprise. It uses an award winner integrated user interface, kubernetes operator based on open source Strimzi, 
+schema registry based on OpenSource and connectors. 
+The phylosophie is to bring together Open Source leading products to support event streaming solution developments on kubernetes platform. 
+Combined with event-end point management, no-code integration and IBM MQ, Event Streams brings Kafka to the enterprise.
 
-The product documentation as part of cloud pak for integration is [here](https://ibm.github.io/event-streams/about/overview/).
+It is available as [a Managed Service](https://www.ibm.com/cloud/event-streams)
+or as part of Cloud Pak for integration. [See this developer.ibm.com article about Event Streams on Cloud](https://developer.ibm.com/articles/event-streams-fundamentals/?mhsrc=ibmsearch_a&mhq=ibm%20event%20streams) 
+for a quick introduction.
+
+The Event Streams product documentation as part of **IBM Cloud Pak for Integration** is [here](https://ibm.github.io/event-streams/about/overview/).
+
+### Runnable demonstrations
+
+* You can install the product using the Operator Hub, IBM Catalog and the OpenShift console. 
+[This lab](/technology/event-streams/es-cp4i/#install-event-streams-using-openshift-console) can help you get an environment up and running quickly.
+* You can then run the **Starter Application** as explained in [this tutorial](/technology/event-streams/es-cp4i/#run-starter-application). 
+* You may need to demonstrate how to deploy Event Streams with CLI, and [this lab](/technology/event-streams/es-cp4i/#install-event-streams-using-clis) will teach you how to leverage our gitops repository
+* To go deeper in GitOps adoption and discussion, [this tutorial](/use-cases/gitops/) is using two public repositories to demonstrate how to do the automatic deployment of event streams
+and an event-driven solution.
+* Run a simple Kafka Streams and Event Stream demo for [real-time inventory](/scenarios/realtime-inventory/) using this demonstration scripts and GitOps repository.
 
 ### Event streams resource requirements
 
