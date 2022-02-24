@@ -3,46 +3,60 @@ title: Kafka Connect to IBM COS
 description: Apache Kafka to IBM Cloud Object Storage Source Connector usecase
 ---
 
+
+<InlineNotification kind="warning">
+<strong>Updated 02/22/2022</strong> - Work in progress
+</InlineNotification>
+
 <AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Scenario Prerequisites</AnchorLink>
-  <AnchorLink>A Reactive messaging producer app</AnchorLink>
-  <AnchorLink>Create an IBM COS Service and COS Bucket</AnchorLink>
-  <AnchorLink>Create IBM COS Service Credentials</AnchorLink>
-  <AnchorLink>Set up the Kafka Connect Cluster</AnchorLink>
-  <AnchorLink>Build and Inject IBM COS Sink Connector</AnchorLink>
-  <AnchorLink>Apply IBM COS Sink Connector</AnchorLink>
-</AnchorLinks>
+  <AnchorLink>Introduction</AnchorLink>
+  <AnchorLink>Use Case Guided Tour</AnchorLink>
+  <AnchorLink>Full Demo Narration</AnchorLink>
+  <AnchorLink>Developer Corner</AnchorLink>
+ </AnchorLinks>
 
-!!! Updated
-    12/10/2021
+---
 
-## Overview
+# Introduction
 
-Now that you have an Event Streams instance installed on Cloud Pak for Integration on top of OpenShift Container Platform 
-the goal of this story is to show a possible use case that we can use with this technology. 
-With IBM Event Streams we have access to the powerful capabilities of Kafka in addition to all the monitoring 
-and logging capabilities that IBM provides on top of that with Event Streams.
+One of the classical use case for event driven solution based on Kafka is to keep the message for a longer time
+period than the retention time of the Kafka topic. This demonstration illustrates how to do so using IBM Event Streams
+and IBM Cloud Object Storage as a service.
 
-We will create a simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that 
-utilizes MicroProfile Reactive Messaging in order for us to send a stream of data to our Event Streams/Kafka topic. 
-We will then create a Kafka Connect cluster using the Strimzi Operator. Lastly we'll send messages to an 
-Event Streams topic from our Quarkus application which then triggers the IBM COS Connector to grab messages and 
+We have created a very simple Quarkus (a super sonic and sub-atomic Kubernetes native framework for Java) application that 
+uses MicroProfile Reactive Messaging in order to send a stream of data to our Event Streams/Kafka topic. 
+
+The Kafka Connect cluster includes a IBM Cloud Object Storage Connector to grab messages fomr the topoc and 
 place into an IBM COS Bucket.
 
 ![Architecture Diagram](./images/quarkus-to-event-streams-to-cos.png)
 
-## Scenario Prerequisites
+### Skill level
+
+The skill level of this learning path is for a beginner.
+
+### Estimated time to complete
+
+It will take you approximately 15 minuttes to complete this entire demonstration.
+
+### Scenario Prerequisites
 
 **OpenShift Container Platform Cluster**
   - This scenario will assume you have a 4.7+ Cluster as we will make use of Operators.
 
 **Cloud Pak for Integration**
-  - Updated with 2021.0.x release of the Cloud Pak for Integration installed on OpenShift. 
+  - Updated with 2021.0.3 release of the Cloud Pak for Integration installed on OpenShift. 
 This story will also assume you have followed the installation instructions for Event Streams
- outlined in [the 2021-3 product documentation](https://ibm.github.io/event-streams/installing/installing/) 
- or from the [Cloud Pak Playbook](https://cloudpak8s.io/integration/cp4i-deploy-eventstreams/) 
- and have a working Event Streams instance.
+ outlined in [the 2021-3 product documentation](https://ibm.github.io/event-streams/installing/installing/) or used one of our [GitOps repository](https://github.com/ibm-cloud-architecture/eda-gitops-catalog) approach
+ to deploy Event Streams Operator.
+
+**Git**
+  - We will need to clone repositories.
+
+**An IBM Cloud Account (free)**
+  - A free (Lite) IBM Cloud Object Storage trial Service account [IBM Cloud Object Storage](https://cloud.ibm.com/catalog/services/cloud-object-storage)
+
+__If you want to modify the code then you need:__
 
 **Java**
   - Java Development Kit (JDK) v1.11+ (Java 11+)
@@ -56,84 +70,31 @@ This story will also assume you have followed the installation instructions for 
 **An IDE of your choice**
   - Visual Studio Code is used in this scenario.
 
-**Git**
-  - We will need to clone repositories.
+---
 
-**An IBM Cloud Account (free)**
-  - A free (Lite) IBM Cloud Object Storage trial Service account [IBM Cloud Object Storage](https://cloud.ibm.com/catalog/services/cloud-object-storage)
+# Use Case Guided Tour
 
-## A Reactive messaging producer app
+The use case is quite simple, but very common. Topic has configuration to keep messages in the kafka broker disks for a certain time perior or until the log reach a certain size.
+Which means records will be removed from the brokers over time. Some companies put retention time to a value to keep data foreever. This is possible when the amount
+of data in such topic is not reasonable. But most of the time we need to design solution to move data to longer persistence. S3 buckets is one of such
+long term persistence as it will bring elasticity, transparent replication and geolocalization. 
 
-In this section, we are going to create a producer application to send messages 
-into the IBM Event Streams topic we created in the previou section. This application 
-will be a Java application based on Quarkus, a supersonic subatomic Java framework, 
-which will also make use of the MicroProfile Reactive Messaging specification.
+An infrastructure engineer needs to prepare the Cloud Object Storage service and organize the bucket strategy to keep data. Then on the OpenShift production
+cluster, Event Streams is deployed and Kafka connector cluster defined. The connector configuration will stipulate the COS connection credentials and
+the Event Streams connection URL and credentials.
 
-You have two choices for this application, reuse the existing code as-is or start by using quarkus CLI.
+Once the connector is started all messages in the designated topics will go to the COS bucket. 
 
-* Clone the `eda-quickstarts` repository.
+IBM Event Streams team has explanation of the Cloud Object Storage Sink Kafka connector configuration in [this repository](https://github.com/ibm-messaging/kafka-connect-ibmcos-sink).
 
-  ```bash
-  git clone  https://github.com/ibm-cloud-architecture/eda-quickstarts.git
-  cd cos-tutorial
-  quarkus dev
-  ```
+---
 
-* If you want to start on your own, then create the Quarkus project.
+# Full Demo Narration
 
-  ```bash
-  quarkus create app cos-tutorial 
-  cd cos-tutorial 
-  quarkus ext add  reactive-messaging-kafka, mutiny, openshift
-  ```
+## 1- Create an IBM COS Service and COS Bucket
 
-  and get inspiration from the `DemoController.java`.
-
-* Review the `DemoController.java` file.
-
-    * The `@Channel` annotation indicates that we're sending to a channel defined with reactive messaging in the application.properties.
-    * The `startDemo()` function generate n orders and send to the channel.
-
-* The reactive messaging is defined in the `application.properties`. The setting are using
-the a kafka cluster named `dev`, we encourage to keep this name or you need to modify a lot of
-yaml files.
-* See the [COS tutorial README](https://github.com/ibm-cloud-architecture/eda-quickstarts/tree/main/cos-tutorial#readme) 
-to run the producer application locally with `quarkus dev`.
-
-### Deploy the application
-
-The kustomize folder contains yaml manifests to deploy Event Streams and the application to OpenShift.
-
-* If you want to deploy Event Streams use the following commands:
-
-  ```sh
-  oc new-project eda-cos
-  oc apply -k kustomize/services/es
-  ```
-
-* Deploy the app to your OpenShift project. Modify the `configmap.yaml` in `kustomize/apps/eda-cos-demo/base` folder 
-to point to your Kafka Bootstrap URL
-  
-  ```yaml
-  apiVersion: v1
-  kind: ConfigMap
-  metadata:
-    name: eda-cos-demo-cm
-  data:
-    APP_VERSION: 0.0.2
-    MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_BOOTSTRAP_SERVERS: dev-kafka-bootstrap.eda-cos.svc:9092
-  ```
-
-  then deploy: 
-  
-  ```sh
-  oc apply -k kustomize/apps/eda-cos-demo/base
-  ```
-
-
-## Create an IBM COS Service and COS Bucket
-
-In this section, we are going to see how to create an IBM Cloud Obeject Storage (IBM COS) Service in your IBM Cloud account and a bucket within your IBM COS Service. We assume you already have an IBM Cloud account already and, if not, you can sign up for one here at [IBM Cloud](https://cloud.ibm.com).
+In this section, we are going to see how to create an IBM Cloud Obeject Storage (IBM COS) Service in your IBM Cloud account and a bucket within your 
+IBM COS Service. We assume you already have an IBM Cloud account and, if not, you can sign up for one here at [IBM Cloud](https://cloud.ibm.com).
 
 1. Once you are inside your IBM Cloud account, traverse to the `Catalog` section. In the search type in `IBM Cloud Object Storage`
 
@@ -143,17 +104,19 @@ In this section, we are going to see how to create an IBM Cloud Obeject Storage 
 
   ![IBM COS Create COS Service](./images/ibm-cloud-create-cos-service-2.png)
 
-1.  Now that the IBM Cloud Object Storage Service is created, traverse to it and let's create a new bucket. On the `Create Bucket` screen pick `Custom Bucket`.
+1.  Now that the IBM Cloud Object Storage Service is created, create a new bucket. On the `Create Bucket` screen pick `Custom Bucket`.
 
   ![IBM COS Custom Bucket](./images/ibm-cos-create-bucket.png)
 
-1. When selecting options for the bucket, name your bucket something unique. For `Resiliency` let's select `Regional`. For location select an area from the drop-down that you want. **IMPORTANT:** for `Storage Class` select `Standard`. The IBM COS Sink connector seems to not play well with buckets that are created with the `Smart Tier` Storage Class. Leave everything else as-is and hit `Create Bucket`.
+1. When selecting options for the bucket, name your bucket something unique. For `Resiliency` let's select `Regional`. 
+For location select an area from the drop-down that you want. Use `Standard` for `Storage Class`. 
+Leave everything else as-is and hit `Create Bucket`.
 
   ![IBM COS Custom Bucket Settings](./images/ibm-cos-bucket-settings.png)
 
-## Create IBM COS Service Credentials
+## 2- Create IBM COS Service Credentials
 
-Now that we have created our IBM Cloud Object Storage Service and bucket created, we now need to create the Service Credential so that we can connect to it.
+Now that we have created our IBM Cloud Object Storage Service and bucket, we need to create the Service Credential so that Kafka connector can connect to it.
 
 1. Inside your IBM COS Service, select `Service Credentials` and then click the `New Credential` button.
 
@@ -163,237 +126,94 @@ Now that we have created our IBM Cloud Object Storage Service and bucket created
 
   ![IBM COS SC Settings](./images/ibm-cos-service-credentials.png)
 
-1. Expand your newly created Service Credential and write down the values for `"apikey"` and `"resource_instance_id"`. You will need this later in the [Build and Apply IBM COS Sink Connector](#build-and-apply-ibm-cos-sink-connector) section.
+1. Expand your newly created Service Credential and write down the values for `"apikey"` and `"resource_instance_id"`. 
+You will need this later in the [Build and Apply IBM COS Sink Connector](#build-and-apply-ibm-cos-sink-connector) section.
 
   ![Expanded Service Cred](./images/ibm-service-credential-keys.png)
 
-## Set up the Kafka Connect Cluster
+## 3- Create a demo project
 
-In this section, we are going to see how to deploy a [Kafka Connect](https://kafka.apache.org/documentation/#connect) cluster on OpenShift which will be the engine running the source and sink connector we decide to use for our use case. **IMPORTANT:** We assume you have deployed your IBM Event Streams instance with an **internal TLS secured listener** which your Kafka Connect cluster will use to connect. For more detail about listeners, check the IBM Event Streams documentation [here](https://ibm.github.io/event-streams/installing/configuring/#kafka-access).
 
-If you inspect your IBM Event Streams instance by executing the following command:
+To isolate the demonstration in the OpenShift Cluster, we will deploy the demo code, event streams cluster and Kafka Connect in one project.
 
-```shell
-oc get EventStreams YOUR_IBM_EVENT_STREAMS_INSTANCE_NAME -o yaml
-```
+1. Clone the tutorial project
 
-You should see a `Tls` listener:
+   ```sh
+   git clone https://github.com/ibm-cloud-architecture/eda-quickstarts
+   ```
 
-![connect5](./images/connect-5.png)
+1. Create an OpenShift project (k8s namespace) named: `eda-cos`
 
-Now, follow the next steps in order to get your Kafka Connect cluster deployed:
-
-1. Go to you IBM Event Streams dashboard, click on the `Find more on the toolbox` option.
-
-  ![Toolbox1](./images/connect-1.png)
-
-1. Click on the `Set up` button for the `Set up a Kafka Connect environment` option.
-
-  ![Toolbox2](./images/connect-2.png)
-
-1. Click on `Download Kafka Connect ZIP` button.
-
-  ![Toolbox3](./images/connect-3.png)
-
-1. The above downloads a zip file which contains a `kafka-connect-s2i.yaml` file. Open that yaml file and take note of the `productID` and `cloudpakId` values as you will need these in the following step.
-
-  ![connect4](./images/connect-4.png)
-
-1. Instead of using the previous yaml file, create a new `kafka-connect-s2i.yaml` file with the following contents:
-
-  ```yaml
-  apiVersion: eventstreams.ibm.com/v1beta1
-  kind: KafkaConnectS2I
-  metadata:
-    name: YOUR_KAFKA_CONNECT_CLUSTER_NAME
-    annotations:
-      eventstreams.ibm.com/use-connector-resources: "true"
-  spec:
-    logging:
-      type: external
-      name: custom-connect-log4j
-    version: 2.6.0
-    replicas: 1
-    bootstrapServers: YOUR_INTERNAL_BOOTSTRAP_ADDRESS
-    template:
-      pod:
-        imagePullSecrets: []
-        metadata:
-          annotations:
-            eventstreams.production.type: CloudPakForIntegrationNonProduction
-            productID: YOUR_PRODUCT_ID
-            productName: IBM Event Streams for Non Production
-            productVersion: 10.2.0
-            productMetric: VIRTUAL_PROCESSOR_CORE
-            productChargedContainers: YOUR_KAFKA_CONNECT_CLUSTER_NAME
-            cloudpakId: YOUR_CLOUDPAK_ID
-            cloudpakName: IBM Cloud Pak for Integration
-            cloudpakVersion: 2020.4.1
-            productCloudpakRatio: "2:1"
-    tls:
-        trustedCertificates:
-          - secretName: YOUR_CLUSTER_TLS_CERTIFICATE_SECRET
-            certificate: ca.crt
-    authentication:
-      type: tls
-      certificateAndKey:
-        certificate: user.crt
-        key: user.key
-        secretName: YOUR_TLS_CREDENTIALS_SECRET
-    config:
-      group.id: YOUR_KAFKA_CONNECT_CLUSTER_NAME
-      key.converter: org.apache.kafka.connect.json.JsonConverter
-      value.converter: org.apache.kafka.connect.json.JsonConverter
-      key.converter.schemas.enable: false
-      value.converter.schemas.enable: false
-      offset.storage.topic: YOUR_KAFKA_CONNECT_CLUSTER_NAME-offsets
-      config.storage.topic: YOUR_KAFKA_CONNECT_CLUSTER_NAME-configs
-      status.storage.topic: YOUR_KAFKA_CONNECT_CLUSTER_NAME-status
-      config.storage.replication.factor: 1
-      offset.storage.replication.factor: 1
-      status.storage.replication.factor: 1
+  ```sh
+  oc apply -k gitOps/env/base
   ```
 
-  where you will need to replace the following placeholders with the appropriate values for you IBM Event Streams cluster and service credentials:
-   * `YOUR_KAFKA_CONNECT_CLUSTER_NAME`: A name you want to provide your Kafka Connect cluster and resources with.
-   * `YOUR_INTERNAL_BOOTSTRAP_ADDRESS`: This is the internal bootstrap address of your IBM Event Streams instance. You can review how to find this url [here](/use-cases/overview/pre-requisites#get-kafka-bootstrap-url). Use the **internal** bootstrap address which should be in the form of `YOUR_IBM_EVENT_STREAMS_INSTANCE_NAME-kafka-bootstrap.eventstreams.svc:9093`:
-   ![connect6](./images/connect-6.png)
-   * `YOUR_TLS_CREDENTIALS_SECRET`: This is the name you give to your TLS credentials for your internal IBM Event Streams listener when you click on `Generate TLS credentials`:
-   ![connect7](./images/connect-7.png)
-   * `YOUR_CLUSTER_TLS_CERTIFICATE_SECRET`: This is the secret name where IBM Event Streams stores the TLS certificate for establishing secure communications. This secret name is in the form of `YOUR_IBM_EVENT_STREAMS_INSTANCE_NAME-cluster-ca-cert`. You can always use `oc get secrets` to list all the secrets.
-   * `YOUR_PRODUCT_ID`: This is the `productID` value you noted down earlier.
-   * `YOUR_CLOUDPAK_ID`: This is the `cloudpakID` value you noted earlier.  
+## 4- Deploy Event Streams Cluster
 
-1. Deploy your Kafka Connect cluster by executing
+If you do not have a Event Stream cluster already deployed on OpenShift, we propose to deploy one in a demo project, using Event Streams Operator monitoring All Namespaces
 
-  ```shell
-  oc apply -f kafkaconnect-s2i.yaml 
+1. Using [IBM entitled registry entitlement key](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2020.2?topic=installation-entitled-registry-entitlement-keys) 
+ define your a secret so deployment process can download IBM Event Streams images:
+
+  ```sh
+  KEY=<yourentitlementkey>
+  oc create secret docker-registry ibm-entitlement-key \
+      --docker-username=cp \
+      --docker-password=$KEY \
+      --docker-server=cp.icr.io \
+      --namespace=eda-cos
   ```
 
-1. If you list the pods, you should see three new pods: one for the Kafka Connect build task, another for the Kafka Connect deploy task and the actual Kafka Connect cluster pod.
-
-  ```shell
-  oc get pods
-
-  NAME                                                 READY   STATUS      RESTARTS   AGE
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-1-build      0/1     Completed   0          18m
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-1-deploy     0/1     Completed   0          17m
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-1-xxxxx      1/1     Running     0          17m
-  ```
- 
-## Build and Inject IBM COS Sink Connector
-
-The IBM COS Sink Connector source code is availabe at this repository [here](https://github.com/ibm-messaging/kafka-connect-ibmcos-sink).
-
-**IMPORTANT:** Make sure you have **Java 8** installed on your workstation and that is the default Java version of your system since the IBM COS Sink Connector can only be built with that version of Java.
-
-
-1. Clone the Kafka Connect IBM COS Source Connector repository and then change your folder.
-
-  ```shell
-  git clone https://github.com/ibm-messaging/kafka-connect-ibmcos-sink.git
-  cd kafka-connect-ibmcos-sink/
-  ```
+1. Deploy Event Streams Cluster.
   
-**IMPORTANT Part Two:** Depending on your Gradle version you have installed on your machine you will need to update the connector's gradle build file. For example Gradle v7.x the `build.gradle` file should look something like this as the `compile()` method is deprecated in newer versions. You can downgrade your Gradle version if you so choose. This is the [shadowJar repository](https://github.com/johnrengelman/shadow) for versioning information.
-
-```
-/*
- * Copyright 2019 IBM Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-plugins {
-  id 'com.github.johnrengelman.shadow' version '4.0.3'
-  id 'java'
-  id 'eclipse'
-}
-
-repositories {
-   mavenCentral()
-}
-
-dependencies {
-  implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-  implementation 'com.ibm.cos:ibm-cos-java-sdk:2.4.5'
-  implementation 'org.apache.kafka:connect-api:2.2.1'
-
-  testImplementation 'org.mockito:mockito-all:1.10.19'
-  testImplementation 'junit:junit:4.12'
-  testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.+'
-}
-
-eclipse.project {
-  natures 'org.springsource.ide.eclipse.gradle.core.nature'
-}
-
-shadowJar {
-   classifier = 'all'
-   version = '7.0.0'
-}
-
-```
-
-
-1. Build the connect using `Gradle`.
-
-  ```shell
-  gradle shadowJar
+  ```sh
+  oc apply -k gitOps/services/es 
+  # --> Results
+  eventstreams.eventstreams.ibm.com/dev created
+  kafkatopic.eventstreams.ibm.com/edademo-orders created
   ```
 
-1. The newly built connector binaries are in the `build/libs/` folder. Move it into a `connectors` folder for ease of use.
+  It will take sometime to get the cluster created. Monitor with `oc get pod -w`. You should get:
 
-  ```shell
-  mkdir connectors
-  cp build/libs/kafka-connect-ibmcos-sink-*-all.jar connectors/
+  ```
+  dev-entity-operator-6d7d94f68f-6lk86   3/3    
+  dev-ibm-es-admapi-ffd89fdf-x99lq       1/1    
+  dev-ibm-es-ui-74bf84dc67-qx9kk         2/2    
+  dev-kafka-0                            1/1    
+  dev-zookeeper-0                        1/1
   ```
 
-1. Now that we have the connector in the `connectors/` folder, we somehow need embed it into our Kakfa Connect cluster. For that, we need to trigger another build for our Kafka Connect cluster but this time specifying the files we want to get embedded. What the followin command does is it builds a new image with your provided connectors/plugins and triggers a new deployment for your Kafka Connect cluster.
+  With this deployment there is no external route, only on bootstrap URL: `dev-kafka-bootstrap.eda-cos.svc:9092`. The Kafka listener is using PLAINTEXT connection. So no SSL encryption and no authentication.
 
-  ```shell
-  oc start-build connect-cluster-101-connect --from-dir ./connectors/ --follow
+1. Deploy the existing application (the image we built is in quay.io/ibmcase) using:
+
+  ```sh
+  oc apply -k gitOps/apps/eda-cos-demo/base/
   ```
 
-1. Since the last commands triggers a new build, we should now see three new pods for the build task, the deploy task and the resulting Kafka Connect cluster. Also, we should see the previous Kafka Connect cluster pod if gone.
+1. Test the deployed app by accessing its route and GET API: 
 
-  ```shell
-  oc get pods
-
-  NAME                                                 READY   STATUS      RESTARTS   AGE
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-1-build      0/1     Completed   0          31m
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-1-deploy     0/1     Completed   0          31m
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-2-build      0/1     Completed   0          18m
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-2-deploy     0/1     Completed   0          17m
-  YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-2-xxxxx      1/1     Running     0          17m
+  ```sh
+  HOST=$(oc get routes eda-cos-demo  -o jsonpath='{.spec.host}')
+  curl -X GET http://$HOST/api/v1/version
   ```
 
-1. Once the new Kafka Connect cluster pod is up and running we can actually exec into it
+## 5- Deploy Kafka Connector
 
-  ```shell
-  oc exec -it YOUR_KAFKA_CONNECT_CLUSTER_NAME-connect-2-xxxxx bash
+We have already built a kafka connect image with the Cloud Object Storage jar and push it as image to quay.io.
+
+1. Deploy the connector cluster by using the KafkaConnect custom resource: 
+
+  ```sh
+  oc apply -f gitOps/services/kconnect/kafka-connect.yaml
+  # Verify cluster is ready
+  oc get kafkaconnect
   ```
 
-1. to see if there is any connector already set up, which should not be the case
+## 6- Deploy the COS sink connector
 
-  ```shell
-  curl localhost:8083/connectors
-  []
-  ```
 
-## Apply IBM COS Sink Connector
 
-In this section, we are going to see how to set up, apply or register the IBM COS Sink Connector we embedded into our Kafka Connect cluster so that it starts sending messages from our `INBOUND` topic into our IBM Cloud Object Storage bucket.
-proceed.
 
 1. Create a new file named `kafka-cos-sink-connector.yaml` and past the following code in it.
 
@@ -453,45 +273,57 @@ proceed.
   ["cos-sink-connector"]
   ```
 
-1. Finally, we can check whether the messages from our IBM Event Streams topic are getting propagated to our IBM Cloud Object Storage bucket. If you go to your IBM COS bucket, you should find some files in it. The name of the file inside the bucket has starting offset and ending offset. You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
+
+## 7- Test by sending some records
+
+1. Post 10 orders:
+
+  ```sh
+  curl -X POST  'http://$HOST/api/v1/start'   -H 'accept: application/json' -H 'Content-Type: application/json' -d '10'
+  ```
+
+1. Verify whether the messages from the IBM Event Streams topic are getting propagated to your IBM Cloud Object Storage bucket. 
+If you go to your IBM COS bucket, you should find some files in it. The name of the file inside the bucket has starting offset and ending offset. 
+You can download one of these object files to make sure that the value inside matches the value inside your `INBOUND` topic.
 
   ![End to End Success](./images/ibm-cos-bucket-success.png)
 
 
-## Connect with mTLS 
 
-Update the `applications.properties` file if you are not connecting to Event Streams via PLAINTEXT security protocol.
+--- 
 
-  ```properties
+# Developer Corner
 
-  quarkus.http.port=8080
-  quarkus.log.console.enable=true
-  quarkus.log.console.level=INFO
+The https://github.com/ibm-cloud-architecture/eda-quickstarts.git cos-tutorial folder includes a microprofile reactive messaging producer app
+basd on quarkus runtime.
 
-  # Event Streams Connection details
-  mp.messaging.connector.smallrye-kafka.bootstrap.servers=REPLACE_WITH_YOUR_BOOTSTRAP_URL
-  mp.messaging.connector.smallrye-kafka.security.protocol=SASL_SSL
-  mp.messaging.connector.smallrye-kafka.ssl.protocol=TLSv1.2
-  mp.messaging.connector.smallrye-kafka.sasl.mechanism=SCRAM-SHA-512
-  mp.messaging.connector.smallrye-kafka.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
-                  username=REPLACE_WITH_YOUR_SCRAM_USERNAME \
-                  password=REPLACE_WITH_YOUR_SCRAM_PASSWORD;
-  mp.messaging.connector.smallrye-kafka.ssl.truststore.location=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_LOCATION
-  mp.messaging.connector.smallrye-kafka.ssl.truststore.password=REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD
+You have two choices for this application, reuse the existing code as-is or start by using quarkus CLI.
 
-  # Initial mock JSON message producer configuration
-  mp.messaging.outgoing.INBOUND.connector=smallrye-kafka
-  mp.messaging.outgoing.INBOUND.topic=REPLACE_WITH_YOUR_TOPIC
-  mp.messaging.outgoing.INBOUND.value.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
-  mp.messaging.outgoing.INBOUND.key.serializer=io.quarkus.kafka.client.serialization.JsonbSerializer
+* Clone the `eda-quickstarts` repository.
+
+  ```bash
+  git clone  https://github.com/ibm-cloud-architecture/eda-quickstarts.git
+  cd cos-tutorial
+  quarkus dev
   ```
 
-    * `REPLACE_WITH_YOUR_BOOTSTRAP_URL`: Your IBM Event Streams bootstrap url.
-    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_LOCATION`: The location where you downloaded your PCKS12 TLS certificate to.
-    * `REPLACE_WITH_YOUR_PKCS12_CERTIFICATE_PASSWORD`: Your PCKS12 TLS certificate password.
-    * `REPLACE_WITH_YOUR_SCRAM_USERNAME`: Your SCRAM service credentials username.
-    * `REPLACE_WITH_YOUR_SCRAM_PASSWORD`: Your SCRAM service credentials password.
-    * `REPLACE_WITH_YOUR_TOPIC`: Name of the topic you created above.
-  
-  Review the [Common pre-requisites](/use-cases/overview/pre-requisites/) instructions if you don't know how to find out any of the config properties above. 
+* If you want to start on your own, then create the Quarkus project.
 
+  ```bash
+  quarkus create app cos-tutorial 
+  cd cos-tutorial 
+  quarkus ext add  reactive-messaging-kafka, mutiny, openshift
+  ```
+
+  and get inspiration from the [DemoController.java](https://github.com/ibm-cloud-architecture/eda-quickstarts/blob/main/cos-tutorial/src/main/java/ibm/eda/demo/kafka/producer/DemoController.java).
+
+* Review the `DemoController.java` file.
+
+    * The `@Channel` annotation indicates that we're sending to a channel defined with reactive messaging in the application.properties.
+    * The `startDemo()` function generate n orders and send to the channel.
+
+* The reactive messaging is defined in the `application.properties`. The setting are using
+the a kafka cluster named `dev`, we encourage to keep this name or you need to modify a lot of
+yaml files.
+* See the [COS tutorial README](https://github.com/ibm-cloud-architecture/eda-quickstarts/tree/main/cos-tutorial#readme) 
+to run the producer application locally with docker compose or quarkus dev.

@@ -51,15 +51,15 @@ from transitioning from a synchronous architecture to an event-driven asynchrono
 
 Diagram source: [rt-inventory diagram](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops/blob/main/docs/diagrams/mq-es-demo.drawio)
 
-1. The [store simulator application](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) is a Quarkus app, which generates item sales to different possible messaging middlewares ( RabbitMQ, MQ or directly to Kafka). 
-The code of this application is in this https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator. If you want to browse the code, the main readme of this project includes how to package and run this app with docker compose, 
-and explains how the code works. 
-The docker image is [quay.io/ibmcase/eda-store-simulator/](https://quay.io/ibmcase/eda-store-simulator)
+1. The [store simulator application](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) is a Quarkus app, which generates item sales 
+to different possible messaging middlewares ( RabbitMQ, IBM MQ or directly to IBM Event Streams). 
+If you want to browse the code, the main readme of this project includes how to package and run this app with docker compose, 
+and explains how the code works. The docker image is [quay.io/ibmcase/eda-store-simulator/](https://quay.io/ibmcase/eda-store-simulator)
 1. The item inventory aggregator is a Kafka Stream Quarkus application, done with Kafka Stream API. The source code is in [the refarch-eda-item-inventory project](https://github.com/ibm-cloud-architecture/refarch-eda-item-inventory). 
 Consider this more as a black box in the context of the scenario, it consumes items events, aggregate them, expose APIs on top of Kafka Streams interactive queries and publish inventory events on `item.inventory` topic. 
 1. The store inventory aggregator is a Kafka Stream Quarkus application, done with Kafka Stream API. The source code is in [the refarch-eda-store-inventory project](https://github.com/ibm-cloud-architecture/refarch-eda-store-inventory) the output is in `store.inventory` topic. 
 1. The MQ to Kafka, Kafka connector is defined in the GitOps repository
-1. The Kafka to Cloud Object Storage Kafka connector is also defined in the GitOps repository
+1. The Kafka to Cloud Object Storage Kafka connector is also defined in the [GitOps repository](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops) folder `kconnect`.
 
 Kafka Connect is used to integrate external systems into Kafka. For example external systems can inject item sale messages to queue, from which a first Kafka source connector 
 publishes the messages to a Kafka topic, which then will be processed by a series of event-driven microservices down to a final topic, which will be used by Sink connectors

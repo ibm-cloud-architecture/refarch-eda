@@ -120,8 +120,6 @@
       path: /use-cases/gitops/
     - title: Deploy Event Streams CP4I
       path: /technology/event-streams/es-cp4i
-    - title: Deploy Confluent on OCP
-      path: /use-cases/confluent
     - title: Kafka Connect - S3
       path: /use-cases/connect-s3/
     - title: Kafka Connect - COS
@@ -148,6 +146,8 @@
       path: /use-cases/db2-debezium/
     - title: Product to product migration
       path: /use-cases/overview/product-migration
+    - title: Deploy Confluent on OCP
+      path: /use-cases/confluent
 - title: Scenarios
   pages:
     - title: Overview
