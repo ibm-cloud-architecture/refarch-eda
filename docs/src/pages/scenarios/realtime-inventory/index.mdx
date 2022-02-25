@@ -21,31 +21,37 @@ An IBM Cloud Pak for Integration - Event Streams use case
 
 ## Use Case Overview
 
-Today a lot of companies that are managing item / product inventory are facing real challenge to get a close to real-time view of item availabity
-and inventory. The solution can be very complex to implement while integrate Enterprise Resource Planning products. But any new solutions
-are adopting events as a source to exchange data, to put less pression on existing ERP, and to get visibility into inventory positions.
+Today, a lot of companies which are managing item / product inventory are facing real challenges to get a close to real-time view of item availability
+and global inventory. The solution can be very complex to implement while integrating Enterprise Resource Planning products. But any new solutions
+are adopting events as a source to exchange data, to put less pression on existing ERP servers, and to get better visibility into inventory positions.
 
 This scenario implements a simple near real-time inventory management solution based on real life MVPs we developed in 2020 for different customers. 
-A production deployment will implement different level of stores and warehouse inventory aggregators that will be push to event backbone to build
-different caching services, to address use cases like item availability or inventory query at the item or store level.
+A production deployment will implement different level of store and warehouse inventory aggregators that will push results as event to an event backbone.
+Those aggregates are used to build different data caching services, adnd to address use cases such as item availability.
 
-At the high level the solution may look like in the following figure. Store applications are sending sale transactions to a central messaging platform,
-where streaming components are computing the different aggregates and publish them to other topics.
+At the high-level, the solution may look like in the following figure:
 
 ![](./images/hl-view.png)
 
-Sink connector, based on Kafka Connect framework may be used to move data to Database, Legacy ERP, Elastic Search, dashboards...
+Servers in the Store are sending sale transactions to a central messaging platform, where streaming components are computing the different aggregates 
+and are publishing them to other topics. This is a classical data streaming pipeline. Sink connectors, based on Kafka Connect framework,
+ may be used to move data to long persistence storage like a Database, integrate results back to Legacy ERP, use indexing like Elastic Search, 
+ propagate events to dashboards...
 
-In real life, an as-is solution will include back-end applications to manage the warehouses inventory, connected to a fulfillment home built application,
-combined with store applications and servers, e-commerce suite, and a set of SOA services exposing backend systems.
+In real life, an as-is solution will include back-end applications to manage the warehouses inventory, connected to a home-built fulfillment application,
+combined with store applications and servers, e-commerce suite, and a set of SOA services exposing backend systems. This is the larger view of the
+following figure:
 
  ![](./images/as-is-soa.png)
 
-We may have integration flows to do data mapping, most of those calls are synchronous.  To get one item availability, a lot of SOAP calls are done, 
-increasing latency, and risk of failure. There is [an interesting video](https://www.youtube.com/watch?v=FskIb9SariI) from Scott Havens explaining the needs 
-from transitioning from a synchronous architecture to an event-driven asynchronous one when scaling is a must. This lab reflects this approach.
+We may have integration flows to do data mapping, but most of those calls are synchronous.  To get one item availability, a lot of SOAP calls are done, 
+increasing latency, and the risk of failure. There is [an interesting video](https://www.youtube.com/watch?v=FskIb9SariI) from Scott Havens explaining the needs 
+from transitioning from a synchronous architecture to an event-driven asynchronous architecture when scaling, and low latency are must have. 
+This lab reflects this approach.
 
 ## Demonstration components
+
+In this demonstration we are deploying the following components:
 
 ![](./images/mq-es-demo.png)
 
@@ -62,9 +68,25 @@ Consider this more as a black box in the context of the scenario, it consumes it
 1. The Kafka to Cloud Object Storage Kafka connector is also defined in the [GitOps repository](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops) folder `kconnect`.
 
 Kafka Connect is used to integrate external systems into Kafka. For example external systems can inject item sale messages to queue, from which a first Kafka source connector 
-publishes the messages to a Kafka topic, which then will be processed by a series of event-driven microservices down to a final topic, which will be used by Sink connectors
+publishes the messages to a Kafka topic, which then will be processed by a series of streaming microservices down to a final topic, which will be used by Sink connectors
  to send records to other external systems.
 
+## A GitOps approach for solution deployment
+
+As any cloud-native and kubernetes based solution, we use continuous integration and deployment. From a demonstration point of view, the most interesting part is
+to execute continuous deployment, in a [GitOps approach](/use-cases/gitops/). This demonstration has a [GitOps repository](https://github.com/ibm-cloud-architecture/rt-inventory-gitops.git) 
+(represented as yellow rectangle below) which defines ArgoCD apps 
+to monitor and deploy the different microservices, streaming processing apps,
+and the different IBM products needed: Event Streams, MQ, API management, event-end-point management. The figure belows presents the adopted strategy:
+
+![](./images/gitops-catalog.png)
+
+The [gitops catalog repository](https://github.com/ibm-cloud-architecture/eda-gitops-catalog.git) defines the different operators to deploy. 
+Centralizing to one repository such operator subscriptions enforce reuse. 
+
+The solution gitops is structured as follow:
+
+* **Boostrap** folder: to install different operators and to define ArgoCD project.
 
 ## Choose an option:
 
@@ -80,7 +102,7 @@ Once you have cloned the gitops repository (see pre-requisites section below), g
   docker-compose up -d
   ```
 
-  To stop the demonstration do
+  To stop the demonstration do the following command:
 
   ```sh
   docker-compose down
@@ -105,37 +127,42 @@ In this approach, we propose to use a GitOps repository and deploy the solution 
 
 # Use Case Guided Tour
 
+## Bootstrap GitOps
+## Deploy the Solution
+## Demonstrate the real-time processing
 
-## Demo start package
-
-In the home page, the main figure illustrates the components involved in the demonstration. You can leverage [this component description]() to present
-each component main goal.
-
----
-
-# Full Demo Narration
-
-We will first go over the demonstration using the store simulator then using and end to end test script
-
-1. Go to the Simulator user interface using the route like: `https://store-simulator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud`
-
-  To get this route use the following command:
+1. To get this route use the following command and start a Web Browser
 
   ```sh
-  oc get routes store-simulator  -o jsonpath="{.spec.host}" && echo
+  chrome $(oc get routes store-simulator  -o jsonpath="{.spec.host}")
   ```
 
-  ![](./images/simulator-home.png)
+  You should reach the Home page of the simulator
 
-  The simulator will send random sell events for the stores as listed in the Stores table (the content may change in future release):
+  ![](./images/home-page.png)
+
+1. Look at existing stores
 
   ![](./images/stores-view.png)
 
-1. Send some events by selecting the toggle Kafka and then the number of records to send:
+1. Start the predefined scenario
 
-  ![](./images/run-simulation.png)
+  ![](./images/start-simulation.png)
 
   once started a table should be displayed to present the records sent to Kafka. 
+
+  ![](./images/send-msgs.png) 
+
+1. Verify messages are in queue
+
+![](./images/qm1-qm.png)
+
+![](./images/msg-in-queue.png)
+
+
+![](./images/one-msg-queue.png)
+
+
 
 1. Let assess if we can see the item stock cross stores: use the item-aggregator route, something like ` item-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` but completed with '/q/swagger-ui' as we want to access the API
   
@@ -169,6 +196,13 @@ We will first go over the demonstration using the store simulator then using and
   The response should look like:
 
   ![](./images/store-stock-response.png)
+
+---
+
+# Full Demo Narration
+
+We will first go over the demonstration using the store simulator then using and end to end test script
+
 
 ---
 

@@ -240,18 +240,19 @@ such as Postgres, Cassandra, Spark, Kafka, SSL Cert Mgmt etc. on Kubernetes.
 manage the lifecycle of all of the Operators (and their associated services) running 
 across your clusters
 
-The Operators deployment is part of bootstraping the GitOps process. We are using a special 
+The Operators deployment is part of a bootstraping step of the GitOps process. We are using a special 
 Git repository to manage a catalog of operator definitions/ subscriptions. This is the goal
 of the [eda-gitops-catalog](https://github.com/ibm-cloud-architecture/eda-gitops-catalog) repository.
 
 A solution will have a specific gitops repository that manages services (operands) and application
 specifics deployment manifests.
 
-With this base, here is a potential high-level architecture diagram:
+With this base, the following figure illustrates a potential architecture:
 
 ![](./images/hl-view.png)
 
 (*the source code of this diagram is a ``.drawio` format and is in the [diagrams folder](https://github.com/ibm-cloud-architecture/refarch-eda/edit/master/docs/src/pages/use-cases/gitops/diagrams).*)
+
 Here are the assumptions we define for any event-driven solution:
 
 * Single admin team for OCP cluster and production projects within the cluster.
@@ -264,12 +265,12 @@ each operator.
  capabilities from the whole cluster.
 * `ibm-common-services` is unique to the cluster. 
 
-For real production deployment, the production OpenShift cluster will be separate from dev and staging, running in different infrastructure, but using the same
-github source. The top-right cluster is for dev and staging, and each of those environment will be different namespaces per solution.
-In each of those `dev`` or `staging`` namespace we can get Event Streams deployed, MQ brokers, schema registry and any other components needed.
+For real production deployment, the production OpenShift cluster will be separated from dev and staging, running in different infrastructure, but using the same
+github source. The top-right cluster is for dev and staging, and each of those environmentd will be in different namespace.
+To enforce isolation and clear separation of concern, each of those `dev` or `staging` namespace, may have Event Streams, MQ brokers, schema registry deployed.
 
-The `openshift-operators` is for Operators that manage multiple namespaces.
-The `openshift-gitops` is for ArgoCD server and apps.
+The `openshift-operators` is used to deploy Operators that manage multiple namespaces.
+The `openshift-gitops` is for the ArgoCD server and the ArgoCD apps.
 
 
 ### GitOps Model
@@ -280,17 +281,17 @@ The core idea of GitOps is having a Git repository that always contains declarat
 of the infrastructure currently desired in the production environment and an automated process 
 to make the production environment matches the described state in the repository.
 
-From the diagram above, we can see two main components that are essential to a
+From the diagram above, we can see two main components that are essentials to a
 production-ready event-driven solution deployment:
 
 * A Kubernetes cluster containing:
 
-    * event-driven applications per namespace / project to isolate in a multi-tenancy approach
+    * event-driven applications per namespace / project to facilitate isolation
     * Event Streams, API mangement, MQ operators per namespace / project 
     * Kafka brokers, Kafka connect, mirror maker, schema registry, End point event gateway, API manager, MQ queue managers per namespace / project 
     * OpenShit GitOps, Pipelines,...
 
-* GitHub as a source of truth for the cluster runtime containing
+* GitHub as a source of truth for the cluster runtime containing:
 
     * application source with schema definitions
     * application configuration
@@ -343,7 +344,7 @@ spec:
   sourceNamespace: openshift-marketplace
 ```
 
-And then each overlays use this manifest as a base resource and applies patch for channel and version:
+And then each overlays use this manifest as a base resource and apply patch for channel and version:
 
 ```yaml
 # kustomization.yaml under an overlays
@@ -370,11 +371,10 @@ patchesJson6902:
   value: ibm-eventstreams.v2.5.1
 ```
 
-The second major GitOps will be for the solution. We can use [KAM CLI](https://github.com/redhat-developer/kam) to bootstrap its creation.
+The second major GitOps will be for the solution itself. We use [KAM CLI](https://github.com/redhat-developer/kam) to bootstrap its creation.
 KAM's goal is to help creating a GitOps project for an existing application as 
 [day 1 operations](https://github.com/redhat-developer/kam/tree/master/docs/journey/day1) 
 and then add more services as part of `day 2 operation`.
-
 
 ## Examples of solution GitOps
 
@@ -392,83 +392,4 @@ As a lab example, you may want to clone the real-time inventory demo and bootstr
 git clone https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops
 ```
 
-All the images are in the public image registry: `quay.io/ibmcase`
-
-### Bootstrap GitOps
-
-* Login to the OpenShift Console, and get login token to be able to use `oc cli`
-
-```sh
-oc login --token=sha256~...a_token-that-is-secret --server=https:/to a public url.cloud.ibm.com
-```
-
-* If not done already, use the `installGitOpsOperators` script to install GitOps and Pipeline operators (running multiple times will not affect the deployent): 
-
-  ```sh
-    ./bootstrap/scripts/installGitOpsOperators.sh
-  ```
-    
-  Once the operators are running the command: `oc get pods -n openshift-gitops` should return
-a list of pods like:
-
-  ```sh
-    NAME                                                          READY   STATUS    RESTARTS   AGE
-    openshift-gitops-application-controller-0                     1/1     Running   0          4h5m
-    openshift-gitops-applicationset-controller-6948bcf87c-jdv2x   1/1     Running   0          4h5m
-    openshift-gitops-dex-server-64cbd8d7bd-76czz                  1/1     Running   0          4h5m
-    openshift-gitops-redis-7867d74fb4-dssr2                       1/1     Running   0          4h5m
-    openshift-gitops-repo-server-6dc777c845-gdjhr                 1/1     Running   0          4h5m
-    openshift-gitops-server-7957cc47d9-cmxvw                      1/1     Running   0          4h5m
-  ```
-
-* If not done already, install IBM product catalog subscriptions:
-
-  ```sh
-  ./bootstrap/scripts/installIBMCatalog.sh
-  ```
-
-* Obtain your [IBM license entitlement key](https://github.com/IBM/cloudpak-gitops/blob/main/docs/install.md#obtain-an-entitlement-key) 
-* Update the [OCP global pull secret of the `openshift-operators` project](https://github.com/IBM/cloudpak-gitops/blob/main/docs/install.md#update-the-ocp-global-pull-secret)
-with the entitlement key
-
-    ```sh
-    export KEY=<yourentitlementkey>
-    oc create secret docker-registry ibm-entitlement-key \
-    --docker-username=cp \
-    --docker-server=cp.icr.io \
-    --namespace=openshift-operators \
-    --docker-password=$KEY 
-    ```
-
-* Deploy IBM product Operators (Event Streams) to monitor All Namespaces 
-
-
-  ```sh
-  ./bootstrap/scripts/installIBMOperators.sh
-  ```
-
-   
-* Create ArgoCD project named `rt-inventory`
-
-   ```sh
-   oc apply -k bootstrap/argocd-project
-   ```
-
-* To get the `admin` user's password use the command
-
-    ```sh
-    oc extract secret/openshift-gitops-cluster -n openshift-gitops --to=-
-    ```
-
-* Get the ArgoCD User Interface URL and open a web browser
-
-   ```sh
-   chrome https://$(oc get route openshift-gitops-server -o jsonpath='{.status.ingress[].host}'  -n openshift-gitops)
-   ```
-
-
-* To start the CD management with ArgoCD, just executing the following should work.
-
-   ```sh
-   oc apply -k config/argocd
-   ```
+See the main readme for up to date instructions. All the images are in the public image registry: `quay.io/ibmcase`
