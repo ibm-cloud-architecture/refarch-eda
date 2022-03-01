@@ -93,9 +93,10 @@ The solution [gitops](https://github.com/ibm-cloud-architecture/rt-inventory-git
 * **config** folder, is for defining the ArgoCD apps and the app of apps. 
 * **kconnect** folder is used to build a custom docker image of Kafka connector with MQ source, Elasticsearch sink and Cloud Object storage sink.
 * **local-demo** folder is for running the solution on your laptop using docker-compose.
-* **environments** folder, is the most important one, it use [Kustomize](https://kustomize.io/) to declare environments (dev, staging) and component deployents. 
+* **environments** folder, is the most important one, it uses [Kustomize](https://kustomize.io/) 
+to declare environments (dev, staging) and component deployments (See next section for details). 
 
-### A little bit more on environment
+### A little bit more on environments
 
 For demonstration purpose, only the `rt-inventory-dev` environment is detailed. One ArgoCD app: [rt-inventory-dev-env](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops/blob/main/config/argocd/rt-inventory-dev-env-app.yaml) is monitoring
  the folder [environments/rt-inventory-dev/env/overlays](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops/tree/main/environments/rt-inventory-dev/env/overlays) which define the namespace and roles,... 
@@ -125,8 +126,8 @@ Each application of the solution are also monitored by an ArgoCD and their decla
 │               └── kustomization.yaml
 ```
 
-The last intesting part is to declare the products used within the Cloud Pak for integration, and deployed in the context of
-the respective environment. Everything is in `service` folder:
+The last intesting part is to declare the products used within the Cloud Pak for Integration, and deployed in the context of
+the respective environments. Everything is in `services` folder. The tree looks like below:
 
 ```
 ── apicurio
@@ -175,12 +176,12 @@ the respective environment. Everything is in `service` folder:
 └── kustomization.yaml
 ```
 
-With the public docker images, and this public GitOps, the solution can be deployed in few minutes to an OpenShift cluster with or without Cloud Pak for Integration already deployed.
+With the public docker images, and the public GitOps repository, the solution can be deployed to an OpenShift cluster with or without Cloud Pak for Integration already deployed.
 
 ## Choose an option:
 
-* [Run on your laptop](/#run-on-your-laptop)
-* [Run on OpenShift](/#install-yourself-on-openshift)
+* [Run on your laptop](/scenarios/realtime-inventory/#run-on-your-laptop)
+* [Run on OpenShift](/scenarios/realtime-inventory/#install-yourself-on-openshift)
 
 ### Pre-requisites for both options
 
@@ -212,12 +213,14 @@ Once you have cloned the gitops repository (see pre-requisites section), go unde
   docker-compose down
   ```
 
-The demonstration script is the same as below, except that we use Kafdrop to visualize the content of Event Streams topics. 
-See [this section](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops#run-the-solution-locally) in the main readme.
+The demonstration script is the [same as below](/scenarios/realtime-inventory/#demonstrate-the-real-time-processing), except that we use Kafdrop to visualize the content of Event Streams topics. 
+See [this section](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops#run-the-solution-locally) in the main readme for expected screen shots.
 
 ### Install Yourself on OpenShift
 
 In this approach, we propose to use a GitOps repository and deploy the solution using few scripts and `oc` CLI commands.
+In the figure below, all the components are deploy with GitOps and ArgoCD. The blue components are IBM product components like Event Streams and MQ and some other operators, like Elastic Search.
+The green rectangles represent the microservices and kafka connectors source or sink.
 
 ![](./images/hl-view.png)
 
@@ -227,9 +230,38 @@ In this approach, we propose to use a GitOps repository and deploy the solution 
 
 ## Bootstrap GitOps
 
-Follow [these instructions](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops#bootstrap_gitops) from the gitops main readme.
+Bootstrapping GitOps is mostly to install the different operators, and pre-requisites.
+
+We prefer to keep those instructions in the source repository, therefore follow [the up to date instructions](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops#bootstrap_gitops) from the gitops main readme.
 
 ## Deploy the Solution
+
+Once operators are deployed. 
+
+* Deploying the full solution is by starting ArgoCD app of apps:
+
+  ```sh
+  oc apply -k config/argocd
+  ```
+
+* Access the OpenShift GitOps (ArgoCD) console
+
+  ```sh
+   chrome https://$(oc get route openshift-gitops-server -o jsonpath='{.status.ingress[].host}'  -n openshift-gitops)
+   ```
+
+The expected set of ArgoCD apps looks like:
+
+  ![](./images/rt-inv-argoapps.png)
+
+  * **rt-inventory-Argo-app** is an app of apps
+  * **rt-inventory-dev-env** is for the rt-inventory-dev namespace
+  * **rt-inventory-dev-services** is for event streams, kafka connect cluster and mq deployments in dev-env namespace
+  * **rt-inventory-store-simulator-app** is for the simulator app used in the demo.
+  * **rt-inventory-item-inventory** for the item aggregator application
+  * **rt-inventory-store-inventory** for the store aggregator application
+
+* Verify pods
 
 ```sh
   oc project rt-inventory-dev
@@ -244,18 +276,14 @@ Follow [these instructions](https://github.com/ibm-cloud-architecture/eda-rt-inv
   dev-kafka-zookeeper-0                        1/1     Running   0          4d
   dev-kafka-zookeeper-1                        1/1     Running   0          4d
   dev-kafka-zookeeper-2                        1/1     Running   0          4d
-  item-aggregator-669fd4fffc-4fvhk             1/1     Running   0          30h
-  item-aggregator-669fd4fffc-gtvls             1/1     Running   0          30h
-  item-aggregator-669fd4fffc-kxvfh             1/1     Running   0          30h
-  store-aggregator-7df98556ff-cxjz5            1/1     Running   0          29h
-  store-aggregator-7df98556ff-dl9wz            1/1     Running   0          29h
-  store-aggregator-7df98556ff-f2ndq            1/1     Running   0          29h
+  item-inventory-669fd4fffc-4fvhk             1/1     Running   0          30h
+  store-inventory-7df98556ff-f2ndq            1/1     Running   0          29h
   store-simulator-56f8958498-mvhp9             1/1     Running   0          4d
   ```
 
 ## Demonstrate the real-time processing
 
-1. To get this route use the following command and start a Web Browser
+1. Get the Store simulator route using the following command and start a Web Browser
 
   ```sh
   chrome $(oc get routes store-simulator  -o jsonpath="{.spec.host}")
@@ -265,35 +293,62 @@ Follow [these instructions](https://github.com/ibm-cloud-architecture/eda-rt-inv
 
   ![](./images/home-page.png)
 
-1. Look at existing stores
+1. Look at existing stores, using the top right `STORES` menu. This is just for viewing the data. 
 
   ![](./images/stores-view.png)
 
-1. Start the predefined scenario
+1. Go to the SIMULATOR menu, and start the controlled scenario which will send predefined records:
 
   ![](./images/start-simulation.png)
 
-  once started a table should be displayed to present the records sent to Kafka. 
+  Here is the ordered list of messages sent:
+
+  | Store | Item | Action |
+  | --- | --- | --- |
+  | Store 1 | Item_1 | +10 |
+  | Store 1 | Item_2 | +5 |
+  | Store 1 | Item_3 | +15 |
+  | Store 2 | Item_1 | +10 |
+  | Store 3 | Item_1 | +10 |
+  | Store 4 | Item_1 | +10 |
+  | Store 5 | Item_1 | +10 |
+  | Store 1 | Item_2 | -5 |
+  | Store 1 | Item_3 | -5 |
+
+
+  once started a table should be displayed to present the records sent to Kafka. (The UI needs some enhancement ;-)
 
   ![](./images/send-msgs.png) 
 
-1. Verify messages are in queue
+4- Verify messages are in queue: 
 
-![](./images/qm1-qm.png)
+   * Access the MQ Console admin: 
 
-![](./images/msg-in-queue.png)
+  ```
+  chrome http://$(oc get routes store-mq-ibm-mq-web  -o jsonpath="{.spec.host}")
+  ```
+
+  * Go to the QM1 Queue manager 
+
+  ![](./images/qm1-qm.png)
+
+  * Select the DEV.QUEUE.1 queue to verify the messages reach the queue. It may be possible that the Kafka Connector already consumed those messages
+  so the queue may look empty.
+
+  ![](./images/msg-in-queue.png)
+
+  Below is a view of one of those message.
+
+  ![](./images/one-msg-queue.png)
 
 
-![](./images/one-msg-queue.png)
 
-
-
-1. Let assess if we can see the item stock cross stores: use the item-aggregator route, something like ` item-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` but completed with '/q/swagger-ui' as we want to access the API
+5- Let assess if we can see the item stock cross stores: using the `item-aggregator` route, something like ` item-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` but completed with '/q/swagger-ui' as we want to access the API
   
   To get this route use the following command:
 
   ```sh
-  oc get routes item-aggregator -o jsonpath="{.spec.host}" && echo
+  chrome http://$(oc get routes item-inventory -o jsonpath="{.spec.host}")
   ```
 
    Select the get `/api/v1/items/{itemID}` operation:
@@ -305,15 +360,15 @@ Follow [these instructions](https://github.com/ibm-cloud-architecture/eda-rt-inv
 
   ![](./images/item-stock-response.png)
 
-1. Let assess a store stock, for that we access the store aggregator URL: `store-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` with the `/q/swagger-ui` suffix.
+6- Let assess a store stock, for that we access the store aggregator URL: `store-aggregator-rt-inventory.dte-ocp46-73awfj-915b3b336cabec458a7c7ec2aa7c625f-0000.us-east.containers.appdomain.cloud ` with the `/q/swagger-ui` suffix.
 
   To get this route use the following command:
 
   ```sh
-  oc get routes store-aggregator -o jsonpath="{.spec.host}" && echo
+  chrome http://$(oc get routes store-aggregator -o jsonpath="{.spec.host}")
   ```
 
-  Then use the GET on the `api/v1/stores/inventory/{storeID}`, and enter one of the available store: `[Store_1, Store_2, Store_3, Store_4, Store_5]`
+  Then using the GET on the `api/v1/stores/inventory/{storeID}`, and enter one of the available store: `[Store_1, Store_2, Store_3, Store_4, Store_5]`
 
   ![](./images/store-stock-req.png)
 
