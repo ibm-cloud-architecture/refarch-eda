@@ -251,7 +251,7 @@ See next guided tour for GitOps approach.
 
 Bootstrapping GitOps is mostly to install the MQ, Event Streams, APIC Connect, OpenShift Gitops, and ElasticSearch operators, and do any pre-requisites like entitlement keys.
 
-We prefer to keep those instructions in the source repository, therefore follow [the up to date instructions](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops#bootstrap_gitops) from the gitops main readme.
+We prefer to keep the bootstrap instructions in the source repository, therefore follow [the up to date instructions](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops#bootstrap-gitops) from the gitops main readme.
 
 ## Deploy the Solution
 
@@ -301,7 +301,6 @@ The expected set of ArgoCD apps looks like (and all should be green):
   item-inventory-669fd4fffc-4fvhk             1/1     Running   0          30h
   store-inventory-7df98556ff-f2ndq            1/1     Running   0          29h
   store-simulator-56f8958498-mvhp9             1/1     Running   0          4d
-
   dev-entity-operator-74d7dc5cfb-ksv68                              3/3     Running     0          5d21h
   dev-ibm-es-ac-reg-77bfbf84b9-qn8ln                                2/2     Running     0          5d21h
   dev-ibm-es-admapi-6f6bcd465c-h8scj                                1/1     Running     0          5d21h
@@ -358,7 +357,7 @@ The expected set of ArgoCD apps looks like (and all should be green):
 
   ![](./images/send-msgs.png) 
 
-4- Verify messages are in queue: 
+4- Verify messages are in queue:
 
    * Access the MQ Console admin: 
 
@@ -370,7 +369,7 @@ The expected set of ArgoCD apps looks like (and all should be green):
 
   ![](./images/qm1-qm.png)
 
-  * Select the DEV.QUEUE.1 queue to verify the messages reach the queue. It may be possible that the Kafka Connector already consumed those messages
+  * Select the ITEMS queue to verify the messages reach the queue. It may be possible that the Kafka Connector already consumed those messages
   so the queue may look empty.
 
   ![](./images/msg-in-queue.png)
