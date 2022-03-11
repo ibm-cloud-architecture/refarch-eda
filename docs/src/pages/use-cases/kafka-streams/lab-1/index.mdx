@@ -3,6 +3,8 @@ title: Kafka Streams Test Lab 1
 description: Using Kafka Streams Test Suite to test Streams
 ---
 
+Updated 03/10/2022
+
 <AnchorLinks>
     <AnchorLink>Overview</AnchorLink>
     <AnchorLink>Scenario Prerequisites</AnchorLink>
@@ -13,17 +15,22 @@ description: Using Kafka Streams Test Suite to test Streams
 </AnchorLinks>
 
 ## Overview
-- In this lab scenario we're going to use [Quarkus](https://quarkus.io) - a subatomic and supersonic framework for Java for
-the purposes of this lab.
-- We will be testing using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TestDriver to mimic a Topology, a Stream and Table.
+
+- In this lab scenario we are still using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TestDriver to test a Topology, a Stream and Table.
 - While using the TestDriver we will perform operations such as groupBy, join with another Stream or Kafka Table.
-- Lastly and optionally (in Lab 2) we will use Kafka Streams to send events to a Kafka Topic on IBM Event Streams on Cloud Pak for Integration.
+
+*The code for this lab is in this repository [eda-kstreams-labs](https://github.com/ibm-cloud-architecture/eda-kstreams-labs/) folder [LoadKtableFromTopic](https://github.com/ibm-cloud-architecture/eda-kstreams-labs/tree/main/LoadKtableFromTopic)
+
 
 ## Scenario Prerequisites
+
 **Java**
-- For the purposes of this lab we suggest Java 8+
+- For the purposes of this lab we suggest Java 11+
+
+**[Quarkus CLI](https://quarkus.io/guides/cli-tooling)**
 
 **Maven**
+
 - Maven will be needed for bootstrapping our application from the command-line and running
 our application.
 
@@ -32,13 +39,11 @@ our application.
 
 
 ## Setting up the Quarkus Application
+
 - We will bootstrap the Quarkus application with the following Maven command
 
 ```shell
-mvn io.quarkus:quarkus-maven-plugin:1.10.5.Final:create \
-    -DprojectGroupId=com.ibm \
-    -DprojectArtifactId=quarkus-kstreams-lab-1 \
-    -Dextensions="resteasy-jsonb,quarkus-kafka-streams"
+quarkus create LoadKtableFromTopic
 ```
 
 You can replace the fields within {} as you like.
@@ -48,9 +53,14 @@ the dependency to our project. Open `pom.xml` and add the following.
 
 ```xml
 <dependency>
+	<groupId>org.apache.kafka</groupId>
+	<artifactId>kafka-streams</artifactId>
+	<version>3.1.0</version>
+</dependency>
+<dependency>
     <groupId>org.apache.kafka</groupId>
     <artifactId>kafka-streams-test-utils</artifactId>
-    <version>2.5.0</version>
+    <version>3.1.0</version>
     <scope>test</scope>
 </dependency>
 <dependency>
@@ -62,16 +72,10 @@ the dependency to our project. Open `pom.xml` and add the following.
 
 ## Creating your Test Class
 
-- Create the directory structure you will need for your Java file. _(**NOTE:** If you are working in an IDE, this may be done for you when you create your package and classes.)_
-
-   ```mkdir -p src/test/java/com/ibm/garage/cpat```
-
-- Create a new file named `src/test/java/com/ibm/garage/cpat/TestLoadKtableFromTopic.java`.
-
 - Open the `TestLoadKtableFromTopic.java` file and paste the following content.
 
 ```java
-package com.ibm.garage.cpat.lab;
+package ibm.eda.kstreams.lab1;
 
 import java.util.Properties;
 
@@ -175,19 +179,13 @@ public class TestLoadKtableFromTopic {
 }
 ```
 
-- What the above code does is it uses TopologyTestDriver to mimic a Topology. A Topology is basically a graph of stream processors (nodes) and the edges between these nodes are the streams. In the first section we instantiate our `TopologyTestDriver` named `testDriver`, as well as the topic name and store name.
+- The above code uses TopologyTestDriver to mimic a Topology. A Topology is basically a graph of stream processors (nodes) and the edges between these nodes are the streams. 
+In the first section we instantiate our `TopologyTestDriver` named `testDriver`, as well as the topic name and store name.
 
 - Test the application by running the following:
 
 ```shell
 ./mvnw clean verify
-```
-
-**Note:** Depending upon versions of the packages brought in, you may see an initial test failure due to needing to update the `src/main/resources/application.properties` file with the following properties: _(The values are insignifcant for the execution of our tests, but he existence of the property is required by the underlying Quarkus & Kafka Streams integration)_
-  
-```properties
-quarkus.kafka-streams.application-id=my-kafka-streams
-quarkus.kafka-streams.topics=topic1
 ```
 
 - You should see the tests pass with the following output:
@@ -220,6 +218,7 @@ sector-types-store
 ```
 
 - How this test topology creation flow works:
+
     - A StreamsBuilder object (builder) from the Kafka Streams DSL API is created.
     - A KeyValueBytesStoreSupplier (storeSupplier) is configured with String variable (storeName).
     - A KTable is created reading from the topic (companySectorsTopic), deserialized and materialized as
@@ -235,17 +234,24 @@ we make sure that the our state store (which was piped by ways of the Kafka Topi
 
 ## More Robust Kafka Streams Testing
 
+- add jsonb Serdes using Quarkus kafka client library:
+  
+  ```shell
+  quarkus  ext add kafka-client jsonb
+  ```
+
 - Now that we have tested some simple functionality by using the Kafka Streams API let's check out some other
 operators that we can use.
 
-- Let's create a new class for our Plain Old Java Object (POJO) named FinancialMessage: `src/main/java/com/ibm/garage/cpat/domain/FinancialMessage.java`
-
-Now copy and paste the following content into the newly created file.
+- Let's create a new class for our Plain Old Java Object (POJO) named FinancialMessage and copy and paste the following content into the newly created file.
 
 ```java
-package com.ibm.garage.cpat.domain;
+package ibm.eda.kstreams.lab.domain;
 
-public class FinancialMessage {
+
+import io.quarkus.runtime.annotations.RegisterForReflection;
+@RegisterForReflection
+public class FinancialMessage implements JSONSerdeCompatible {
 
     public String userId;
     public String stockSymbol;
@@ -281,12 +287,31 @@ public class FinancialMessage {
 **Note:** We have not provided any accessors (getters) or mutators (setters) for simplicity. You can
 set those at your own discretion.
 
-- Now that we have our new Java class, let's create a new and separate Java Test class: `src/test/java/com/ibm/garage/cpat/lab/TestFinancialMessage.java`.
+Add the following interface for JSon Serde
+
+```java
+/**
+     * An interface for registering types that can be de/serialized with {@link JSONSerde}.
+     */
+    @SuppressWarnings("DefaultAnnotationParam") // being explicit for the example
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_t")
+    @JsonSubTypes({
+                      @JsonSubTypes.Type(value = FinancialMessage.class, name = "fm")
+                  })
+public interface JSONSerdeCompatible {
+    
+}
+
+```
+
+- And the Generic [JSONSerde from this class](https://github.com/ibm-cloud-architecture/eda-kstreams-labs/blob/main/LoadKtableFromTopic/src/main/java/ibm/eda/kstreams/lab/infra/JSONSerde.java)
+
+- Now that we have our new Java class, let's create a new and separate Java Test class: `src/test/java/ibm/eda/kstreams/lab1/TestFinancialMessage.java`.
 
 Copy the contents below:
 
 ```java
-package com.ibm.garage.cpat.lab;
+package ibm.eda.kstreams.lab1;
 
 import java.util.Properties;
 
@@ -335,14 +360,12 @@ public class TestFinancialMessage {
     private static TestOutputTopic<String, Long> outTopic;
     private static TestOutputTopic<String, String> errorTopic;
 
-    private static final JsonbSerde<FinancialMessage> financialMessageSerde = new JsonbSerde<>(FinancialMessage.class);
-
     public static Properties getStreamsConfig() {
         final Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "kstream-lab2");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummmy:2345");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        //props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, financialMessageSerde);
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JSONSerde.class);
         return props;
     }
 
@@ -358,23 +381,21 @@ public class TestFinancialMessage {
             );
 
         // First verify user id is present, if not route to error
-        KStream<String, FinancialMessage>[] branches =
-                transactionStream.branch(
-                    (key, value) -> value.userId == null,
-                    (key, value) -> true
-                );
+        Map<String, KStream<String,FinancialMessage>> branches = transactionStream
+            .split(Named.as("tx-"))
+            .branch((key, value) -> value.userId == null, Branched.as("no-userid"))
+            .defaultBranch(Branched.as("non-null"));
 
         // Handle error by sending to the errors topic.
-        branches[0].map(
-                 (key, value) -> { return KeyValue.pair(key, "No customer id provided");}
-                 )
+        branches.get("tx-no-userid").map(
+                (key, value) -> {
+                    return KeyValue.pair(key, "No customer id provided");
+                })
                 .to(
-                    errorTopicName, Produced.with(Serdes.String(), Serdes.String())
-                );
-
+                        errorTopicName, Produced.with(Serdes.String(), Serdes.String()));
 
         // use groupBy to swap the key, then count by customer id,
-        branches[1].groupBy(
+        branches.get("tx-non-null").groupBy(
                     (key, value) -> value.userId
                 )
                 .count(
@@ -387,8 +408,7 @@ public class TestFinancialMessage {
             );
 
         testDriver = new TopologyTestDriver(builder.build(), getStreamsConfig());
-        inTopic = testDriver.createInputTopic(inTopicName, new StringSerializer(), new JsonbSerializer<FinancialMessage>());
-        //outTopic = testDriver.createOutputTopic(outTopicName,windowedSerde.deserializer(), new LongDeserializer());
+        inTopic = testDriver.createInputTopic(inTopicName, new StringSerializer(), new JSONSerde<FinancialMessage>());
         outTopic = testDriver.createOutputTopic(outTopicName, new StringDeserializer(), new LongDeserializer());
         errorTopic = testDriver.createOutputTopic(errorTopicName, new StringDeserializer(), new StringDeserializer());
     }

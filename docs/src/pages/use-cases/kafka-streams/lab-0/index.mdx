@@ -3,6 +3,8 @@ title: Kafka Streams Test Lab 0
 description: An introduction to using test Kafka Streams Test Suite to test Kafka Streams Topologies.
 ---
 
+Updated 03/10/2022
+
 <AnchorLinks>
     <AnchorLink>Overview</AnchorLink>
     <AnchorLink>Scenario Prerequisites</AnchorLink>
@@ -13,14 +15,19 @@ description: An introduction to using test Kafka Streams Test Suite to test Kafk
 </AnchorLinks>
 
 ## Overview
-- In this lab scenario we're going to use [Quarkus](https://quarkus.io) - a subatomic and supersonic framework for Java for
-the purposes of this lab.
-- We will be testing using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TestDriver to mimic a Topology, a Stream and Table.
+
+- We are testing a Kafka Streams topology using [Apache Kafka Streams](https://kafka.apache.org/documentation/streams/) TestDriver. 
+- The topology 
 - While using the TestDriver we will perform basic stateless operations and understand the testing infrastructure.
 
+*The code for this lab is in this repository [eda-kstreams-labs](https://github.com/ibm-cloud-architecture/eda-kstreams-labs/) folder [kstream-lab0](https://github.com/ibm-cloud-architecture/eda-kstreams-labs/tree/main/kstream-lab0)
+
 ## Scenario Prerequisites
+
 **Java**
 - For the purposes of this lab we suggest Java 8+
+
+**[Quarkus CLI](https://quarkus.io/guides/cli-tooling)**
 
 **Maven**
 - Maven will be needed for bootstrapping our application from the command-line and running
@@ -30,22 +37,25 @@ our application.
 - Ideally an IDE that supports Quarkus (such as Visual Studio Code)
 
 ## Setting up the Quarkus Application
-- We will bootstrap the Quarkus application with the following Maven command
+
+- We will bootstrap the Quarkus application with the following command
 
 ```shell
-mvn io.quarkus:quarkus-maven-plugin:1.10.5.Final:create \
-    -DprojectGroupId=com.ibm \
-    -DprojectArtifactId=quarkus-kstreams-lab-zero \
-    -Dextensions="resteasy-jsonb,quarkus-kafka-streams"
+quarkus create kstream-lab0
 ```
 
 - Since we will be using the Kafka Streams testing functionality, we will need to edit the `pom.xml` to add the dependency to our project. Open `pom.xml` and add the following:
 
 ```xml
 <dependency>
+	<groupId>org.apache.kafka</groupId>
+	<artifactId>kafka-streams</artifactId>
+	<version>3.1.0</version>
+</dependency>
+<dependency>
     <groupId>org.apache.kafka</groupId>
     <artifactId>kafka-streams-test-utils</artifactId>
-    <version>2.5.0</version>
+    <version>3.1.0</version>
     <scope>test</scope>
 </dependency>
 <dependency>
@@ -55,7 +65,7 @@ mvn io.quarkus:quarkus-maven-plugin:1.10.5.Final:create \
 </dependency>
 ```
 
-The second dependency is for the hamcrest Domain Specific Language for test assertion.
+The last dependency is for the hamcrest Domain Specific Language for test assertion.
 
 ## Creating your first Test Class
 
@@ -63,11 +73,14 @@ The second dependency is for the hamcrest Domain Specific Language for test asse
 
 - Create the directory structure you will need for your Java file. _(**NOTE:** If you are working in an IDE, this may be done for you when you create your package and classes.)_
 
-   ```mkdir -p src/test/java/eda/kafka/streams```
+   ```
+   mkdir -p src/test/java/ibm/eda/kstreams/lab0
+   ```
 
-- Create a new file named `src/test/java/eda/kafka/streams/FirstKafkaStreamsTest.java`.
+- Create a new file named `src/test/java/eda/kstreams/lab0/FirstKafkaStreamsTest.java`.
 
 - Paste the following content into the `FirstKafkaStreamsTest` class:
+
 ```java
 package eda.kafka.streams;
 
@@ -149,6 +162,7 @@ public class FirstKafkaStreamsTest {
 
 
 - Build the application by running the following:
+
 ```shell
 ./mvnw clean verify
 ```
@@ -174,16 +188,9 @@ public class FirstKafkaStreamsTest {
 [INFO] ------------------------------------------------------------------------
 ```
 
-**Note:** Depending upon versions of the packages brought in, you may see an initial test failure due to needing to update the `src/main/resources/application.properties` file with the following properties: _(The values are insignifcant for the execution of our tests, but he existence of the property is required by the underlying Quarkus & Kafka Streams integration)_
-
-```properties
-quarkus.kafka-streams.application-id=my-kafka-streams
-quarkus.kafka-streams.topics=topic1
-```
-
 - The build compiled and the test topology was successfully created. But no tests were run, because no tests were written!
 
-## Creating your first Tests
+## Add your first Tests
 
 - Open `src/test/java/eda/kafka/streams/FirstKafkaStreamsTest.java` and add the following tests to the bottom of the `FirstKafkaStreamsTest` class:
 
@@ -229,6 +236,7 @@ quarkus.kafka-streams.topics=topic1
   - The `selectBlues` test method checks to make sure that our topology is filtering correctly when we send multiple items through the topology and the output topic empties correctly when the testing infrastructure reads from it.
 
 - You should see the tests pass with the following output:
+
 ```shell
 [INFO]
 [INFO] -------------------------------------------------------
