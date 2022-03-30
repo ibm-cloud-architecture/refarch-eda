@@ -3,6 +3,8 @@ title: Kafka Frequently Asked Questions
 description:  Kafka Frequently Asked Questions from different sources and meetings we have done
 ---
 
+Updated 03/29/2022
+
 ## Basic questions
 
 <AnchorLinks> 
@@ -23,6 +25,7 @@ description:  Kafka Frequently Asked Questions from different sources and meetin
   <AnchorLink>Security configuration</AnchorLink>
   <AnchorLink>Verify consumer connection</AnchorLink>
   <AnchorLink>How to protect data at rest?</AnchorLink>
+  <AnchorLink>Is is possible to stream video to kafka?</AnchorLink>
    
 </AnchorLinks>
 
@@ -549,6 +552,14 @@ See the [detailed tables](https://ibm.github.io/event-streams/installing/prerequ
 Kafka is part of the architecture, while Akka is an implementation choice for one of the component of the business application deployed inside the architecture.
 
 [vert.x](https://vertx.io/) is another open source implementation of such internal messaging mechanism but supporting more language:  Java, Groovy, Ruby, JavaScript, Ceylon, Scala, and Kotlin.
+
+### Is is possible to stream video to kafka?
+
+Yes it is possible, but need to do that with care and real justification. If the goal is to classify streamed images, then it is possible
+to do so, and need to assess if it will be important to be streams versus video at rest.
+
+The [following article, from Neeraj Krishna](https://towardsdatascience.com/kafka-in-action-building-a-distributed-multi-video-processing-pipeline-with-python-and-confluent-9f133858f5a0) illustrates a python implementation to send video frame every 3 images, do image classification using 
+ResNet50 model trained on ImageNet, embbeded in python consumer. The results are saved in mongodb with the metadata needed to query after processing.
 
 ## Other FAQs
 
