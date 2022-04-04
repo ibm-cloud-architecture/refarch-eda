@@ -1,15 +1,15 @@
 ---
-title: Data Pipeline for Data Intensive Application
+title: Data Intensive Application
 description: Data Intensive Application
 ---
 
-<InlineNotification kind="warning"><strong>Update 02/09/21</strong> - UNDER CONSTRUCTION</InlineNotification>
+<InlineNotification kind="warning"><strong>Update 04/01/22</strong> - UNDER CONSTRUCTION</InlineNotification>
 
-In this article we are highlighting some practices to design and develop data intensive application in the context of microservice solution. This is strongly linked to the adoption of event-driven microservices, but addresses the data consistency and eventual data consistency discussions, as well as the establishment of a data services.
+In this article we are highlighting some practices to design and develop data intensive application in the context of microservice solution. This is strongly linked to the adoption of event-driven microservices, but addresses the data consistency and eventual data consistency discussions, as well as the establishment of a data fabric services.
 
 ## Context
 
-A typical modern business solution will include a set of microservices working together in choreography to exchange data. The adoption of event-driven microservices, with all the related design patterns, is described in separate articles that you can read [here](/patterns/). 
+A typical modern business solution will include a set of microservices working together in choreography to exchange data. The adoption of event-driven microservices, with all the related design patterns, is described in separate articles that you can read [here](/patterns/intro). 
 
 When zooming to a particular data intensive microservice we will find a set of important data centric features that may look like in the diagram below, which presents one component of a bigger distributed system.
 
@@ -25,6 +25,8 @@ The services involved include:
 * Interactive queries on top of data streams, and aggregates.
 * Message contract and schemas
 * Unified data service which includes big data storage, but also data catalog and queries on data at rest.
+
+## Subjects of concern
 
 When designing such application we need to address a set of important subjects:
 
@@ -46,9 +48,12 @@ When designing such application we need to address a set of important subjects:
 * How does adding horizontal compute power impact the data access?
 * How to support disaster recovery?
 
-In modern big data applications, hardware redundancy is not suffisant, the design needs to support unexpected faults, to avoid cascading failures and to support new version deployment with rolling-upgrade capability. 
+In modern big data applications, hardware redundancy is not suffisant, the design needs to support unexpected faults, to avoid cascading failures or to support new version deployment with rolling-upgrade capability. 
 
-When addressing scalability and load growth, we need to define the load parameters: number of transactions per second, the number of read and write operations, the number of active sessions, ... on average and at peak. Each microservice in a solution will have its own load characteristics. 
+When addressing scalability and load growth, we need to define the load parameters: 
+number of transactions per second, the number of read and write operations, 
+the number of active sessions, ... on average and at peak. Each microservice in a 
+solution will have its own load characteristics. 
 
 From there, we need to address the following issues:
 
@@ -57,9 +62,11 @@ From there, we need to address the following issues:
 
 The solution problem is a combination of different characteristics to address: read volume, write volume, data store volume, data complexity and size, response time, access logic...
 
-For batch processing the measurement is the throughput: number of records per second or time to process n records. For real time processing the response time measures the time to get a response from a client's point of view after sending a request.
+For batch processing the measurement is the throughput: number of records per second or time to process n records. 
+For real-time processing the response time measures the time to get a response from a client's point of view after sending a request.
 
-When defining service level agreement, it is important to use the median response time and a percentile of outliers. An example the median could be at 300ms at P99 (99/100) under 1s.
+When defining service level agreement, it is important to use the median response time and a percentile of outliers. 
+An example the median could be at 300ms at P99 (99/100) under 1s.
 
 Tail latencies, or high percentiles of response time, impact directly user experience and cost money.
 

@@ -58,7 +58,7 @@
       path: /patterns/dlq/
     - title: Topic Replication
       path: /patterns/topic-replication/
-    - title: Data Pipeline
+    - title: Data Intensive App
       path: /patterns/data-pipeline/
     - title: Near real-time analytics
       path: /patterns/realtime-analytics/

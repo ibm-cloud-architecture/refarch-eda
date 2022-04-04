@@ -3,10 +3,13 @@ title: Reference Architectures
 description: What is the purpose of the event-driven reference architecture?
 ---
 
+Updated 04/04/2022
+
 <AnchorLinks>
   <AnchorLink>From SOA to EDA and meet in the middle</AnchorLink>
   <AnchorLink>Event Driven Architecture</AnchorLink>
   <AnchorLink>Agile integration and EDA</AnchorLink>
+  <AnchorLink>Kappa architecture</AnchorLink>
   <AnchorLink>Integrating with IBM automation products</AnchorLink>
   <AnchorLink>Integration with analytics and machine learning</AnchorLink>
   <AnchorLink>Modern Data Lake</AnchorLink>
@@ -102,14 +105,37 @@ are for getting business insight of the event sequencing by looking at event pat
 by the complex event processing engine (Apache Flink), and the second type are to process near-real time analytics to 
 compute analytical processing across multiple event streams. The technologies of choice are [Apache Flink](/technology/flink) and [IBM SQL query](https://www.ibm.com/cloud/sql-query).
 Those applications are also cloud native, and run in container deployable inside Kubernetes clusters.
+* [Apache Pinot](https://pinot.apache.org/) bring Realtime distributed OLAP datastore to support fast indexing, scale horizontally, OLAP queries for user-facing analytics, and
+application queries. Support low latency <  1s with millions events per s. Pinot can also be used for anomaly detection.
 
 In term of physical deployment on OpenShift the following figures illustrates a multi zone deployment, 
 with Event Streams and MQ Operators deployed and managing five Event Streams brokers Cluster, and three MQ brokers
 
 ![](./images/maas-ocp.png)
 
-This reference architecture is illustrated in the implementation of two solutions: [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) and the [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
+This reference architecture is illustrated in the implementation of differents solutions: 
 
+* [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) 
+* [the real-time inventory](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops/)
+* The [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
+
+## Kappa architecture
+
+The Kappa Architecture is a software architecture used for processing streaming data. 
+The main premise behind the Kappa Architecture is that we can perform both real-time and batch 
+processing, especially for analytics, with a single technology stack.
+
+![](./images/kappa-ra.png)
+
+* Data in motion includes append-log based topic, and Apache Kafka acts as the store for the streaming data.
+* Streaming processing is the practice of taking action on a series of data at the time the data is created. It
+can be done with different technologies like [Kafka Streams](/technology/kafka-streams/), Apache Sparks streaming,
+[Apache Flink](/technology/flink/), Redis streaming, or [Hazelcast](https://hazelcast.com/).
+* The serving layer is where OLAP queries and searches are done, most of the time with indexing and other advanced
+capabilities are needed to offer excellent response time, high throughput and low latency. 
+
+It is a simpler alternative to the Lambda Architecture – as all data is treated as if it were a 
+stream. Both architectures entail the storage of historical data to enable large-scale analytics.
 
 ## Agile integration and EDA
 
@@ -132,6 +158,7 @@ The main agile integration concepts as presented in detail in the [IBM cloud on 
 * Integration teams are becoming the bottleneck instead of being enabler.
 * SOA is about real-time integration between applications, whereas a microservices architecture is about how the applications are built internally.
 * Microservice enables greater agility by being:
+
    * small enough to be understood completely by their owning team and changed independently
    * elastic to scale horizontally
    * resilient with changes to one microservice will not affect others at runtime
