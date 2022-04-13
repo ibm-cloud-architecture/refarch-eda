@@ -3,6 +3,8 @@ title: Kafka Security Overview
 description: Kafka Security Overview
 ---
 
+Updated 04/13/2022
+
 Review [this video for a refresh on SSL and TLS certificates](https://www.youtube.com/watch?v=T4Df5_cojAs) and keep in mind what the speaker quotes:
 
 > * Any message encrypted with Bob's public key can only be decrypted with Bob's private key
@@ -20,9 +22,14 @@ You can secure your IBM Event Streams resources by managing the access each user
 
 An Event Streams cluster can be configured to expose up to 2 internal and 1 external Kafka listeners. These listeners provide the mechanism for Kafka client applications to communicate with the Kafka brokers and these can be configured as secured listeners (which is the default for the `tls` and `external` Kafka listener you will see below).
 
-Each Kafka listener providing a connection to Event Streams can also be configured to authenticate connections with either Mutual TLS or SCRAM SHA 512 authentication mechanisms. Additionally, the Event Streams cluster can be configured to authorize operations sent via an authenticated listener.
+Each Kafka listener providing a connection to Event Streams can also be configured to authenticate connections with either Mutual TLS or SCRAM SHA 512 authentication mechanisms. 
+Additionally, the Event Streams cluster can be configured to authorize operations sent via an authenticated listener using access control list defined at the user level.
 
-In Event Streams, the following yaml snippet from an IBM Event Streams instance definition defines the following Kafka listeners
+The following figure presents a decision tree and the actions to consider for configuring cluster and applications.
+
+![](./images/decision-security.png)
+
+In Event Streams, the following yaml snippet from an IBM Event Streams instance definition defines the following Kafka listeners"
 
 * One internal non secured kafka listener on port `9092` called `plain`
 * One internal secured (TLS encrypted) Kafka listener on port `9093` called `tls`, which also enforces authentication throughout TLS, and 
@@ -49,12 +56,12 @@ In Event Streams, the following yaml snippet from an IBM Event Streams instance 
     ```
     (\*) `tls: true` enforces traffic encryption. Default is true for Kafka listeners on ports `9093` and `9094`
 
-    (\**) `type: internal` specifies that a Kafka listener is internal. Kafka listernes on ports `9092` and `9093` default to internal.
+    (\**) `type: internal` specifies that a Kafka listener is internal. Kafka listenes on ports `9092` and `9093` default to internal.
 
 
 ## To connect to kafka using Kafka API
 
-The most important and essential property to connect to a Kafka broker is the `bootstrap.servers` property. This property tells Kafka clients where to look to talk to your applications. `bootstrap.server` will then define what Kafka listener your application will use to connect to Kafka. And based on that Kafka listener, you may need to provide your application with extra configuration.
+The most important and essential property to connect to a Kafka broker is the `bootstrap.servers` property. This property tells Kafka clients what URL to use to talk to kafka cluster. `bootstrap.server` defines what Kafka listener your application will use to connect to Kafka. And based on that Kafka listener, you may need to provide your application with extra configuration.
 
 At the very minimum, you will need to set the [security.protocol](http://kafka.apache.org/documentation/#adminclientconfigs_security.protocol) property that will tell whether you are connecting to a secured Kafka listener or not. As a result, the values for `security.protocol` are:
 
@@ -122,7 +129,7 @@ Dl9DpLZo0fVoJF73k2z2mBk8gCjGqZk289octuOCr+MwXcGN6JTR2Iux05TBI6uf
 -----END CERTIFICATE-----
 ```
 
-On the other hand, `PEM` certificates come in the form of a `.pem` file and are not secured.
+On the other hand, `PEM` certificates come in the form of a `.pem` file and are not password protected.
 
 You can inspect them using `cat`. 
 
@@ -161,7 +168,7 @@ Once you have the Certificate Authority of your Kafka cluster, you will provide 
 security.protocol=SSL or SASL_SSL
 ssl.protocol=TLSv1.2
 
-ssl.truststore.password=<trustore.p12-password>
+ssl.truststore.password=<truststore.p12-password>
 ssl.truststore.location=truststore.p12
 ssl.truststore.type=PKCS12
 ```
@@ -197,9 +204,11 @@ where
 
   You can see above your SCRAM username and password.
 
-#### Tls
+#### TLS
 
-If you have created a `KafkaUser` to be used with a Kafka listener that requires TLS authentication, you will be able to retrieve its TLS certificates either from the IBM Event Streams UI at creation time in a zip folder or later on from the secret these are stored to.
+If you have created a `KafkaUser` to be used with a Kafka listener that requires TLS authentication, 
+you will be able to retrieve its TLS certificates either from the IBM Event Streams UI at creation time in a zip folder or 
+later on from the secret these are stored to.
 
 First, describe the secret to see what certificates are stored in it:
 
@@ -268,9 +277,13 @@ Now that you know how to get the authentication credentials or certificates for 
   ssl.keystore.type=PKCS12
   ```
 
-## Recap
+## Recapitulation
 
-Let's have a full look at how the Kafka communication properties, for a Java application or client, would look like for IBM Event Streams on RedHat OpenShift with the defaults. If you look at the IBM Event Streams instance deployment sample definitions in [this](https://github.com/ibm-messaging/event-streams-operator-resources/tree/master/cr-examples/eventstreams) GitHub repository, that is mentioned in the IBM Event Streams official documentation [here](https://ibm.github.io/event-streams/installing/configuring/), you will see that the defaults defined for the Kafka listeners for all of them (except from the `light-insecure.yaml` sample) are:
+Let's have a full look at how the Kafka communication properties, for a Java application or client, would look like for IBM Event Streams 
+on RedHat OpenShift with the defaults. If you look at the IBM Event Streams instance deployment sample definitions 
+in [this](https://github.com/ibm-messaging/event-streams-operator-resources/tree/master/cr-examples/eventstreams) GitHub repository, 
+that is mentioned in the IBM Event Streams official documentation [here](https://ibm.github.io/event-streams/installing/configuring/), 
+you will see that the defaults defined for the Kafka listeners for all of them (except from the `light-insecure.yaml` sample) are:
 
 ```yaml
 listeners:
@@ -339,7 +352,8 @@ where
 
 ### Internal tls
 
-The Kafka properties configuration to get your application or Kafka client to properly connect and communicate through the internal secured (TLS encrypted) Kafka listener on port `9093` called `tls`, which also enforces authentication throughout TLS will be as follows:
+The Kafka properties configuration to get your application or Kafka client to properly connect and communicate through the internal s
+ecured (TLS encrypted) Kafka listener on port `9093` called `tls`, which also enforces authentication throughout mTLS will be as follows:
 
 ```properties
 # Internal tls listener
@@ -368,6 +382,54 @@ where
 - `<user.p12-password>` is the password of the `<user.p12>` truststore.
 - `<truststore.p12-location>` is the location of the Certificate Authority of your Kafka cluster to establish mTLS encryted communication between your IBM Event Streams instance and your application or Kafka client.
 - `<trustore.p12-password>` is the password for the `truststore.p12` truststore.
+
+When the application is deployed on OpenShift, certificates will be mounted to the application pod. Below is an example of a Quarku app deployment 
+descriptor, with environment variables:
+
+```yaml
+env:
+  - name: KAFKA_SSL_TRUSTSTORE_FILE_LOCATION
+  value: /deployments/certs/server/ca.p12
+- name: KAFKA_SSL_TRUSTSTORE_TYPE
+  value: PKCS12
+- name: KAFKA_SSL_KEYSTORE_FILE_LOCATION
+  value: /deployments/certs/user/user.p12
+- name: KAFKA_SSL_KEYSTORE_TYPE
+  value: PKCS12
+- name: KAFKA_SECURITY_PROTOCOL
+  value: SSL
+- name: KAFKA_USER
+  value: tls-user
+- name: KAFKA_CERT_PWD
+  valueFrom:
+    secretKeyRef:
+      key: ca.password
+      name: kafka-cluster-ca-cert
+- name: USER_CERT_PWD
+  valueFrom:
+    secretKeyRef:
+      key: user.password
+      name: tls-user
+# ...
+        volumeMounts:
+        - mountPath: /deployments/certs/server
+          name: kafka-cert
+          readOnly: false
+          subPath: ""
+        - mountPath: /deployments/certs/user
+          name: user-cert
+          readOnly: false
+          subPath: ""
+      volumes:
+      - name: kafka-cert
+        secret:
+          optional: true
+          secretName: kafka-cluster-ca-cert
+      - name: user-cert
+        secret:
+          optional: true
+          secretName: tls-user
+```
 
 ### External tls
 
@@ -402,7 +464,8 @@ where
 
 ## Tips
 
-Remember that if the application does not run in the same namespace as the kafka cluster then you could copy the secrets so that the application developers can access the required credentials and certificates from their own namespaces with something like
+Remember that if the application does not run in the same namespace as the kafka cluster then you need to copy the secrets so that 
+the application developers can access the required credentials and certificates from their own namespaces with something like
 
 ```sh
 if [[ -z $(oc get secret ${TLS_USER} 2> /dev/null) ]]
