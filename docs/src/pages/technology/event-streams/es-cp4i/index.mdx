@@ -319,66 +319,7 @@ The example is to define a topic named INBOUND with 1 partition and a replica se
 
 ## Run starter application
 
-From the Event Streams Home page, we can access the Starter appication that is an excellent
-way to demonstrate sending messages and consume them. It is a good source of inspiration for Vert.x based application.
-
-Use the step-by-step instructions from Event Streams Starter application page:
-
-![](./images/es-starter-app.png)
-
-The figure above illustrates that you can download a zip file containing the properties of the application according to
-the Event-Streams cluster configuration, and a `p12` TLS certificate to be added to a local folder.
-
-This Starter application will run locally to the user's laptop with the command:
-
-```sh
-java -jar target/demo-all.jar -Dproperties_path=./kafka.properties 
-```
-
-Point to [http://localhost:8080/](http://localhost:8080/) and you can start sending 
-messages:
-
-![](./images/es-starter-app-run.png)
- 
- 
-This application can also be deployed to OpenShift. Here are the steps:
-
-1. Use the same `kafka.properties` and `truststore.p12` files you have downloaded with the starter application to create two kubernetes secrets holding these files in your OpenShift cluster
-
-    ```sh
-    oc create secret generic demo-app-secret --from-file=./kafka.properties
-    oc create secret generic truststore-cert --from-file=./truststore.p12
-    ```
-
-1. Clone the following GitHub repo that contains the Kubernetes artifacts that will run the starter application.
-
-    ```sh
-    git clone https://github.com/ibm-cloud-architecture/eda-quickstarts.git
-    ```
-
-1. Change directory to where those Kubernetes artefacts are.
-
-    ```sh
-    cd eda-quickstarts/kafka-java-vertz-starter
-    ```
-
-1. Deploy the Kubernetes artefacts.
-
-    ```sh
-    oc apply -k app-deployment
-    ```
-
-1. Get the route to the starter application running on your OpenShift cluster.
-
-    ```sh
-    oc get route es-demo -o=jsonpath='{.status.ingress[].host}'
-    ```
-
-1. Point your browser to that url to work with the IBM Event Streams Starter Application.
-
-The source code for this application is in this git repo: [ibm-messaging/kafka-java-vertx-starter](https://github.com/ibm-messaging/kafka-java-vertx-starter/).
-
-Even though the application is running internally in OpenShift, it uses the external kafka listener as that is how the `kafka.properties` are provided by IBM Event Streams by default. In an attempt to not overcomplicate this task, it is used what IBM Event Streams provides out of the box.
+[See separate note](/technology/event-streams/starter-app)
 
 --- 
 

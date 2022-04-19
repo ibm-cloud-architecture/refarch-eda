@@ -64,61 +64,7 @@ This tutorial will focus on a more guided approach to understanding the foundati
 
 ## Generate Event Load
 
-This section details walking through the generation of a starter application for usage with IBM Event Streams, as documented in the [official product documentation](https://ibm.github.io/event-streams/getting-started/generating-starter-app/).
-
-1. Log into the IBM Event Streams Dashboard.
-
-  ![Monitoring1](./images/monitoring1.png)
-
-1. Click the **Try the starter application** button from the _Getting Started_ page
-
-  ![Monitoring2](./images/monitoring2.png)
-
-1. Click **Download JAR from GitHub**. This will open a new window to <https://github.com/ibm-messaging/kafka-java-vertx-starter/releases>
-  
-  ![Monitoring3](./images/monitoring3.png)
-
-   - Click the link for `demo-all.jar` from the latest release available. At the time of this writing, the latest version was `1.0.0`.
-  
-   ![Monitoring4](./images/monitoring4.png)
-
-1. Return to the `Configure & run starter application` window and click **Generate properties**.
-
-  ![Monitoring5](./images/monitoring5.png)
-
-1. In dialog that pops up from the right-hand side of the screen, enter the following information:
-   - **Starter application name:** `monitoring-lab-[your-initials]`
-   - Leave **New topic** selected and enter a **Topic name** of `monitoring-lab-topic-[your-initials]`.
-   - Click **Generate and download .zip**
-  
-   ![Monitoring6](./images/monitoring6.png)
-
-1. In a Terminal window, unzip the generated ZIP file from the previous window and move `demo-all.jar` file into the same folder.
-
-1. Review the extracted `kafka.properties` to understand how Event Streams has generated credentials and configuration information for this sample application to connect.
-
-1. Run the command `java -Dproperties_path=./kafka.properties -jar demo-all.jar`.
-
-1.  Wait until you see the string `Application started in X ms` in the output and then visit the application's user interface via `http://localhost:8080`.
-
-  ![Monitoring7](./images/monitoring7.png)
-
-1. Once in the User Interface, enter a message to be contained for the Kafka record value then click **Start producing**.
-
-1. Wait a few moments until the UI updates to show some of the confirmed produced messages and offsets, then click on **Start consuming** on the right side of the application.
-
-  ![Monitoring8](./images/monitoring8.png)
-
-1. In the IBM Event Streams user interface, go to the topic where you send the messages to and make sure messages have actually made it.
-
-  ![Monitoring9](./images/monitoring9.png)
-
-1. You can leave the application running for the rest of the lab or you can do the following actions on the application
-   - If you would like to stop the application from producing, you can click **Stop producing**.
-   - If you would like to stop the application from consuming, you can click **Stop consuming**.
-   - If you would like to stop the application entirely, you can input `Control+C` in the Terminal session where the application is running.
-
-An [alternative sample application](https://ibm.github.io/event-streams/getting-started/testing-loads/) can be leveraged from the official documentation to generate higher amounts of load.
+[See now separate note on Starter application](/technology/event-streams/starter-app)
 
 ## Explore the preconfigured Event Streams Dashboard
 
