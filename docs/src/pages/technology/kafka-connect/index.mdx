@@ -4,29 +4,29 @@ description: Kafka Connect
 ---
 
 [Kafka connect](https://kafka.apache.org/documentation/#connect) is an open source component 
-for easily integrate external systems with Kafka. It works with any Kafka product like IBM Event Streams, Srimzi, AMQ Streams. 
+for easily integrate external systems with Kafka. It works with any Kafka product like IBM Event Streams, Strimzi, AMQ Streams, Confluent. 
 It uses the concepts of source and sink connectors to ingest or deliver data to / from  Kafka topics.
 
 ![Kafka component](../images/kafka-components.png)
 
 The general concepts are detailed in the [IBM Event streams product documentation](https://ibm.github.io/event-streams/connecting/connectors/), and [Robin Moffatt's video](https://talks.rmoff.net/DQkDj3). Here is a quick summary:
 
-* **Connector** represents a logical job to move data from / to kafka  to / from external systems. A lot of [existing connectors](https://ibm.github.io/event-streams/connectors/) can be reused, or you can [implement your own](https://kafka.apache.org/documentation/#connect_development).
-* **Workers** are JVMs running the connector. For production deployment workers run in cluster or "distributed mode", and leverage the Kafka consumer group management protocol to scale task horizontally.
+* **Connector** represents a logical job to move data from / to kafka  to / from external systems. A lot of [existing connectors](https://ibm.github.io/event-streams/connectors/), [Apache Camel Kafka connectors](https://camel.apache.org/camel-kafka-connector/1.0.x/index.html) can be reused, or you can [implement your own](https://kafka.apache.org/documentation/#connect_development).
+* **Workers** are JVMs running the connectors. For production deployment workers run in cluster or "distributed mode", and leverage the Kafka consumer group management protocol to scale tasks horizontally.
 * **Tasks**: each worker coordinates a set of tasks to copy data. In distributed mode, task states are saved in Kafka topics. They can be started, stopped at any time to support resilience, and scalable data pipeline.
 * **REST API** to configure the connectors and monitors the tasks.
 
 The following figure illustrates a classical 'distributed' deployment of a Kafka Connect cluster. 
-Workers are the running processes to execute connectors and tasks. Tasks are threads in a JVM. 
-For fault tolerance and offset management, Kafka connect uses Kafka topics (suffix name as `-offsets, -config, -status`)
+Workers are the running processes to execute connectors and tasks.  
+Each Connector is responsible for defining and updating a set of Tasks that actually copy the data. Tasks are threads in a JVM. 
+For fault tolerance and offset management, Kafka Connect uses Kafka topics (suffix name as `-offsets, -config, -status`) to persist its states.
 When a connector is first submitted to the cluster, the workers rebalance the full set of connectors
  in the cluster with their tasks so that each worker has approximately the same amount of work. 
 
 ![Connectors and tasks](./images/connector-tasks.png)
 
 * Connector and tasks are not guaranteed to run on the same instance in the cluster, 
-especially if you have multiple tasks and multiple instances in your cluster.
-* Connector coordinates data streaming by managing tasks
+especially if you have multiple tasks and multiple instances in your kafka connect cluster.
 * The connector may be configured to add `Converters` (code used to translate data between Connect and the system sending or receiving data), 
 and `Transforms`: simple logic to alter each message produced by or sent to a connector.
 
@@ -43,7 +43,15 @@ Connector keeps state into three topics, which may be created when the connector
 * Support streaming and batch.
 * Scale from standalone, mono connector approach to start small, to run in parallel on distributed cluster.
 * Copy data, externalizing transformation in other framework.
-* Kafka Connect defines three models: data model, worker model and connector model.
+* Kafka Connect defines three models: data model, worker model and connector model. Worker model allows Kafka Connect to scale the application.
+Kafka Connect cluster can serve multiple applications and so may be organized as a service.
+
+## Connector cluster configuration
+
+The following configurations are important to review:
+
+* `group.id`: one per connect cluster. It is ised by source connectors only.
+* `heartbeat.interval.ms`: The expected time between heartbeats to the group coordinator when using Kafka’s group management facilities.
 
 ## Fault tolerance
 
@@ -56,6 +64,37 @@ Tasks allocated in the failed worker are reallocated to existing workers, and th
 ![](./images/fault-2.png)
 
 Both figure above are illustrating a MongoDB sink connector.
+
+## MQ Source connector
+
+The [source code is in this repo](https://github.com/ibm-messaging/kafka-connect-mq-source) and uses JMS as protocol to integrate with MQ.
+When the connector encounters a message that it cannot process, it stops rather than throwing the message away. 
+The MQ source connector does not currently make much use of message keys. It is possible to use CorrelationID as a key
+by defining MQ source `mq.record.builder.key.header` property:
+
+```
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.converters.ByteArrayConverter
+    mq.record.builder: com.ibm.eventstreams.connect.mqsource.builders.DefaultRecordBuilder
+    mq.connection.mode: client
+    mq.message.body.jms: true
+    mq.record.builder.key.header: JMSCorrelationID
+```
+
+The record builder helps to transform the input message to a kafka record, using or not a schema.
+
+Always keep the coherence between body.jms, record builder and data converter. 
+
+The MQ source task starts a unique JMS Reader that will read n messages from the queue. The `poll() function 
+returns the list of MQ source records, and will commit to JMS if the number of message read match the batch size or
+if there is no more records. Once the Kafka Producer gets acknowledge that records are received by Brokers then use callback on the source
+task to commit MQ transaction for example. 
+
+Any producer configuration can be modified in the source connector configuration:
+
+```yaml
+producer.override.acks: 1
+```
 
 ## Installation
 
@@ -102,7 +141,7 @@ below are for the configuration in cluster, also named distributed.
     status.storage.topic: connect-cluster-status
 ```
 
-This [gitops repository](https://github.com/ibm-cloud-architecture/store-mq-gitops) includes a MQ Source connector deploy to push message to Kafka. It uses
+The [real-time inventory gitops repository](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops) includes a MQ Source connector to push message to Kafka. It uses
 ArgoCD to maintain states of Kafka Cluster, topics, users, and Kafka connector.
 
 Once the connector pods are running we need to start the connector tasks. 
