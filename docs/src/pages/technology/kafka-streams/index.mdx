@@ -211,13 +211,16 @@ streams.allMetadataForStore(ItemStream.ITEMS_STORE_NAME)
 
 ## Design considerations
 
-* Partitions are assigned to a StreamTask, and each StreamTask has its own state store. So important to be sure to have key and kafka will assign records with same key to same partition so lookup inside state store will work.
-* Avoid external database lookup as part of the stream: As kafka can handle million of records per second, so a lookup to an external database to do a join between a primary key that is in the event and a table in the database to do a data enrichment, for example is a bad practice. The approach will be to use Ktable, with state store and perform a join in memory.
+* Partitions are assigned to a StreamTask, and each StreamTask has its own state store. So it is important to use key and kafka will assign records with same key to same partition so lookup inside state store will work.
+* Avoid external database lookup as part of the stream: As kafka can handle million of records per second, so a lookup to an external 
+database to do a join between a primary key that is in the event and a table in the database to do a data enrichment, for example,
+ is a bad practice. The approach will be to use Ktable, with state store and perform a join in memory.
 * Reference data can be loaded inside a Ktable for event stream enrichment.
+* Table and streams joins: we recommend reading [this deep dive article](https://www.confluent.io/blog/crossing-streams-joins-apache-kafka/) on joining between streams and joining stream with table. The important points from this article:
 
-* Table and streams joins: we recommend reading [this deep dive article](https://www.confluent.io/blog/crossing-streams-joins-apache-kafka/) on joining streams and stream with table. The important points from this article:
     * kstream - kstream joins are windowed to control the size of data to keep in memory to search for the matching records.
 
+* 
 ## Faust: a python library to do kafka streaming
 
 [Faust](https://faust.readthedocs.io/en/latest/index.html) is a python library to support stream processing. It does not have its own DSL as Kafka streams in Java has, but just python functions.

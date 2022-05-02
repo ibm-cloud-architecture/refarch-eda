@@ -1,0 +1,53 @@
+site_name: IBM Automation - Event-driven Solution - Sharing knowledge
+site_description: IBM Automation - Event-Driven Solution - Sharing knowledge
+repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
+docs_dir: docs-mk
+site_dir: public
+edit_uri: edit/master/docs-mk
+theme: 
+  name: material
+  logo: images/es-icon.png
+  feature:
+    tabs: true
+  palette:
+    scheme: default
+    primary: 'black'
+  language: en
+  custom_dir: overrides
+  features:
+      - navigation.tabs
+      - navigation.instant
+      - navigation.tracking
+      - navigation.tabs.sticky
+      - navigation.top
+  social:
+    - type: 'github'
+      link: 'https://github.com/ibm-cloud-architecture'
+# Copyright
+copyright: Copyright © 2022  IBM
+extra_css: ["extra.css"]
+use_directory_urls: true
+plugins:
+  - search:
+      lang: en
+  - minify:
+      minify_html: true
+      
+markdown_extensions:
+  - attr_list
+  - admonition
+  - codehilite
+  - footnotes
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.tabbed
+  - pymdownx.highlight
+  - pymdownx.details
+
+nav:
+  - Last news: news/index.md
+  - Introduction:
+    - Overview: introduction/overview/index.md

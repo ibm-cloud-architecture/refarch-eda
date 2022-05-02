@@ -1,0 +1,42 @@
+{% extends "main.html" %}
+
+<!-- Content -->
+{% block content %}
+
+<link rel="stylesheet" href="{{ 'assets/stylesheets/home.css' | url }}" />
+ <!-- Hero for landing page -->
+ <section class="mdx-container">
+  <div class="md-grid md-typeset">
+    <div class="mdx-hero">
+
+      <section>
+        <div class=home-hero>
+          <div class=home-hero-text>
+            <h1>IBM Automation - Event Driven Enterprise</h1>
+          </div>
+          <div class=home-hero-image>
+            </div>
+        </div>
+      </section>
+      <section>
+        <div class=home-description>
+          <div class='row'>
+            <div class='column'>
+              Event-driven architecture
+            </div>
+            <div class='column'>
+              Event-driven architectures provide a collection of loosely-coupled software components, cooperatively reacting to unending streams of events occurring throughout the world.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+
+<!-- Application footer -->
+{% block footer %}
+{{ super() }}
+{% endblock %}

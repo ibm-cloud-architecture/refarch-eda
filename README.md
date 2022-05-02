@@ -40,13 +40,13 @@ The [contributing guidelines are in this note.](./CONTRIBUTING.md)
 * [03/2019] Work on event-driven pattern and skill journey
 * [06/2019] Minikube deployment
 * [07/2019] Labs skill journey
-* [q1/2021] MQ content and labs, EDA governance started, updated to Kafka technology content. 
+* [q1/2021] MQ content and labs, EDA governance started, updated to Kafka technology content.
+* [2022] Still a lot of commits to keep up to date and add labs. 
 
 ## Contributors
 
 * Lead developer [Jerome Boyer](https://www.linkedin.com/in/jeromeboyer/)
-* Lead developer [Rick Osowski](https://www.linkedin.com/in/rosowski/)
 * Content developer [Jesus Almaraz](https://www.linkedin.com/in/jesus-almaraz-hernandez/)
-* Lead offerings [Andy Gibbs](https://www.linkedin.com/in/andy-g-3b7a06113/)
+
 
 Please [contact me](mailto:boyerje@us.ibm.com) for any questions.
