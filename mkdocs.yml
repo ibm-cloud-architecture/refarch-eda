@@ -43,11 +43,28 @@ markdown_extensions:
   - toc:
       permalink: true
       toc_depth: 3
-  - pymdownx.tabbed
-  - pymdownx.highlight
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.details
+  - pymdownx.snippets:
+      base_path: docs-mk/snippets
+  - pymdownx.highlight
+  - pymdownx.keys
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.escapeall
+  
 
 nav:
-  - Last news: news/index.md
   - Introduction:
     - Overview: introduction/overview/index.md
+    - Advantages of EDA:
+      - Microservice decoupling: /advantages/microservice
+      - Reactive systems: /advantages/reactive/
+      - Resiliency: /advantages/resiliency/
+      - Scalability: /advantages/scalability/
+  - Technology:
+    - Kafka Consumers: /technology/kafka-consumers
+    - Kafka Streams: /technology/kafka-streams
+    - Mirror Maker 2:  /technology/kafka-mirrormaker
