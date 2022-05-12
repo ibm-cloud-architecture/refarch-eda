@@ -3,9 +3,8 @@ title: Kafka Consumers
 description: Kafka Consumers
 ---
 
-<InlineNotification kind="warning">
-<strong>Updated 05/05/2022</strong>
-</InlineNotification>
+!!! Warning
+    Updated 05/05/2022
 
 
 ## Understanding Kafka Consumers

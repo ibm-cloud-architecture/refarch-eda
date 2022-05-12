@@ -1,32 +1,52 @@
 site_name: IBM Automation - Event-driven Solution - Sharing knowledge
 site_description: IBM Automation - Event-Driven Solution - Sharing knowledge
+site_author: Jerome Boyer
+site_url: https://ibm-cloud-architecture.github.com/refarch-eda
+repo_name: ibm-cloud-architecture/refarch-eda
 repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
+copyright: Copyright © 2022  IBM
+
 docs_dir: docs-mk
 site_dir: public
 edit_uri: edit/master/docs-mk
+
 theme: 
   name: material
   logo: images/es-icon.png
-  feature:
-    tabs: true
+  include_search_page: false
+  search_index_only: true
+  language: en
   palette:
     scheme: default
     primary: 'black'
-  language: en
-  custom_dir: overrides
+    accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.png
+  icon:
+    logo: logo
   features:
+      - content.code.annotate
+      - content.tooltips
       - navigation.tabs
       - navigation.instant
+      - navigation.indexes
       - navigation.tracking
       - navigation.tabs.sticky
-      - navigation.top
-  social:
-    - type: 'github'
-      link: 'https://github.com/ibm-cloud-architecture'
-# Copyright
-copyright: Copyright © 2022  IBM
+      - search.highlight
+      - search.share
+      - search.suggest
+      - toc.follow
+      - toc.integrate
 extra_css: ["extra.css"]
 use_directory_urls: true
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ibm-cloud-architecture
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/agileitarchitecture
 plugins:
   - search:
       lang: en
@@ -34,37 +54,49 @@ plugins:
       minify_html: true
       
 markdown_extensions:
+  - abbr
   - attr_list
   - admonition
-  - codehilite
+  - def_list
   - footnotes
+  - meta
+  - md_in_html
   - pymdownx.smartsymbols
   - pymdownx.superfences
   - toc:
       permalink: true
       toc_depth: 3
+  - pymdownx.betterem:
+      smart_enable: all
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.details
   - pymdownx.snippets:
       base_path: docs-mk/snippets
-  - pymdownx.highlight
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
   - pymdownx.keys
   - pymdownx.caret
   - pymdownx.mark
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.tilde
-  - pymdownx.escapeall
   
-
 nav:
+  - Home: index.md
   - Introduction:
     - Overview: introduction/overview/index.md
     - Advantages of EDA:
-      - Microservice decoupling: /advantages/microservice
-      - Reactive systems: /advantages/reactive/
-      - Resiliency: /advantages/resiliency/
-      - Scalability: /advantages/scalability/
+      - Microservice decoupling: advantages/microservice
+      - Reactive systems: advantages/reactive/
+      - Resiliency: advantages/resiliency/
+      - Scalability: advantages/scalability/
   - Technology:
-    - Kafka Consumers: /technology/kafka-consumers
-    - Kafka Streams: /technology/kafka-streams
-    - Mirror Maker 2:  /technology/kafka-mirrormaker
+    - Event Streams: technology/event-streams
+    - Kafka Consumers: technology/kafka-consumers
+    - Kafka Streams: technology/kafka-streams
+    - Mirror Maker 2:  technology/kafka-mirrormaker

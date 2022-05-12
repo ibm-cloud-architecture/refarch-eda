@@ -4,16 +4,7 @@ description: Kafka Mirror Maker 2
 ---
 
 This section introduces **Mirror Maker 2.0**, the new replication feature of Kafka 2.4, and how it can be used, along with best practices, for data replication between two Kafka clusters. Mirror Maker 2.0 was defined as part of the Kafka Improvement Process - [KIP 382](https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0).
-<AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Mirror Maker 2 components</AnchorLink>
-  <AnchorLink>Deployment examples</AnchorLink>
-  <AnchorLink>Replication considerations</AnchorLink>
-  <AnchorLink> MM2 topology</AnchorLink>
-  <AnchorLink>Capacity planning</AnchorLink>
-  <AnchorLink>Version migration</AnchorLink>
-  <AnchorLink>Resources</AnchorLink>
-</AnchorLinks>
+
 
 ## Overview
 
