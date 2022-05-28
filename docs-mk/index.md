@@ -7,7 +7,7 @@ hide_next: true
  <div class="containerHome">
     <img src="./images/event-driven-main.jpg"/>
     <div class="centered">
-        <h1 style="color:white;font-size: 64px;">IBM Automation Event-Driven Reference Architecture</h1>
+        <h1 style="color:white;font-size: 48px;">IBM Automation Event-Driven Architecture</h1>
     </div>
 </div>
 

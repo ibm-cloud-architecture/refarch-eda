@@ -29,7 +29,7 @@ theme:
   features:
       - content.code.annotate
       - content.tooltips
-      - navigation.tabs
+      # - navigation.tabs
       - navigation.instant
       - navigation.indexes
       - navigation.tracking
@@ -38,7 +38,7 @@ theme:
       - search.share
       - search.suggest
       - toc.follow
-      - toc.integrate
+      #- toc.integrate
 extra_css: ["extra.css"]
 use_directory_urls: true
 extra:
@@ -85,16 +85,28 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.highlight
   
 nav:
   - Home: index.md
   - Introduction:
     - Overview: introduction/overview/index.md
+    - Reference Architecture: introduction/reference-architecture
     - Advantages of EDA:
       - Microservice decoupling: advantages/microservice
       - Reactive systems: advantages/reactive/
       - Resiliency: advantages/resiliency/
       - Scalability: advantages/scalability/
+    - Business Use Cases: introduction/usecases/
+    - Target Audiences: introduction/target-audiences
+  - Learning Journey:
+    - Get started (101 content): journey/101
+    - Deeper dive (201 content): journey/201
+  - Methodology:
+    - Event Storming: methodology/event-storming/
+    - Domain-Driven Design: methodology/domain-driven-design/
+    - Data Intensive App Development: methodology/data-intensive
+    # - Governance: methodology/governance
   - Technology:
     - Event Streams: technology/event-streams
     - Kafka Consumers: technology/kafka-consumers

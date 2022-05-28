@@ -3,10 +3,8 @@ From one page fix all links, and consider migration done when links point to pag
 
 ## to move 
 
-* introduction
-* ref arch
-* target
-* use cases
+
+
 
 ## Done
 
@@ -14,8 +12,12 @@ From one page fix all links, and consider migration done when links point to pag
     What to do with the 'push' note
 
 * Introduction
-   overview -> done
+    overview -> done
+    ref arch -> done
+    target audiance -> done
+    use-case -> done
 
+* methodology: event storming -> done
 ## moved content to complete . 
 
 * Technology
