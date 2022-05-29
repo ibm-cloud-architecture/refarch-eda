@@ -78,6 +78,8 @@ code>* {
 }
 :root > * {
     --md-accent-fg-color: #030303;
+    --md-text-link-color: #fb3f00;
+    --md-typeset-a-color: red;
 }
 .md-nav {
     font-size: .75rem;

@@ -2,17 +2,6 @@
 title: Kafka Connect with Event Streams on Cloud
 description: A set of labs and reference for working with Kafka Connect with Event streams on cloud
 ---
-  
-<AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Solution anatomy</AnchorLink>
-  <AnchorLink>General pre-requisites</AnchorLink>
-  <AnchorLink>Scenario setup</AnchorLink>
-  <AnchorLink>Scenario 1: Event Streams on Cloud to MQ on premise via MQ connector sink</AnchorLink>
-  <AnchorLink>Scenario 2: Deploying Kafka Connector MQ Sink to OpenShift</AnchorLink>
-  <AnchorLink>Scenario 3: Rabbitmq on premise to Event Streams on Cloud via RabbitMQ connector source</AnchorLink>
-  <AnchorLink>Scenario 4: Event Streams on Cloud to DB2 on premise via JDBC Sink connector</AnchorLink>
- </AnchorLinks>
 
 ## Overview
 
@@ -906,9 +895,10 @@ The `integration-tests` folder includes a set of python code to load some record
 1. Start a python environment with `./startPython.sh`
 1. Within the bash, start python to execute the  `ProduceInventoryEvent.py` script, and specify the number of records to send via the --size argument.
 
-```
-python ProduceInventoryEvent.py --size 2
-```
+  ```
+   python ProduceInventoryEvent.py --size 2
+  ```
+
 1. The trace should have something like
 
 ```

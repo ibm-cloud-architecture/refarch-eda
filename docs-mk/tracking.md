@@ -3,23 +3,24 @@ From one page fix all links, and consider migration done when links point to pag
 
 ## to move 
 
-
-
-
 ## Done
 
-* Advantages -> done
-    What to do with the 'push' note
+    - Overview: introduction/overview/index.md
+    - Reference Architecture: introduction/reference-architecture/index.md
+    - Advantages of EDA:
+      - Microservice decoupling: advantages/microservice/index.md
+      - Reactive systems: advantages/reactive/index.md
+      - Resiliency: advantages/resiliency/index.md
+      - Scalability: advantages/scalability/index.md
+    - Business Use Cases: introduction/usecases/index.md
+    - Target Audiences: introduction/target-audiences/index.md
+    - Learning Journey:
+        - Get started (101 content): journey/101/index.md
+## moved content to verify links . 
 
-* Introduction
-    overview -> done
-    ref arch -> done
-    target audiance -> done
-    use-case -> done
-
-* methodology: event storming -> done
-## moved content to complete . 
-
+* methodology: data lineage, governance
+* concepts:
+     service mesh
 * Technology
     * consumer
     * mirror maker

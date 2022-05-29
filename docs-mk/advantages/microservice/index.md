@@ -12,7 +12,7 @@ as the event happen, so it can deliver better user experiences and apply busines
 The key is to be able to act quickly on those facts. Acting may involve computing analytics or machine 
 trained models. 
 
-On top of that a modern cloud native application needs to be reactive, responsive by adopting the [reactive manifesto](/advantages/reactive). 
+On top of that a modern cloud native application needs to be reactive, responsive by adopting the [reactive manifesto](../../advantages/reactive). 
 We can also claim they are becoming intelligence by integrating rule engine and predictive scoring / AI capabilities. 
 
 When adopting microservice implementation approach, the bounded context is defined with events and aggregates or main business entity. 

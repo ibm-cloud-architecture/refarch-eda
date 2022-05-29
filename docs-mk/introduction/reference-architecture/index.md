@@ -40,7 +40,7 @@ EDA helps to decouple communication and contract between services, move to push 
 New applications started to be implemented, early 2010s, to address scalability need. RESTful and JSON are
 becoming ubiquituous technology, protocols to use. This is a neat evolution from SOAP and XML, but the applications
 exposing API with OpenAPI specification are still point to point, and the data pull is still the 
-pattern to get access to data. The [reactive manifesto](/advantages/reactive/#overview) is also 
+pattern to get access to data. The [reactive manifesto](../../advantages/reactive/#overview) is also 
 promoting sound principles to make modern applications more responsive, resilient and elastics therefore adopting messages. 
 
 EDA and SOA do not have to compete, but are complementary addressing different kind of problem. 
@@ -92,7 +92,7 @@ possible to do the same enforcement and monitoring with the [event endpoint gate
 * The bottom row supports new types of application for **data streaming**: the first set of applications 
 are for getting business insight of the event sequencing by looking at event patterns as supported
 by the complex event processing engine (Apache Flink), and the second type are to process near-real time analytics to 
-compute analytical processing across multiple event streams. The technologies of choice are [Apache Flink](/technology/flink) and [IBM SQL query](https://www.ibm.com/cloud/sql-query).
+compute analytical processing across multiple event streams. The technologies of choice are [Apache Flink](../../technology/flink) and [IBM SQL query](https://www.ibm.com/cloud/sql-query).
 Those applications are also cloud native, and run in container deployable inside Kubernetes clusters.
 * [Apache Pinot](https://pinot.apache.org/) bring Realtime distributed OLAP datastore to support fast indexing, scale horizontally, OLAP queries for user-facing analytics, and
 application queries. Support low latency <  1s with millions events per s. Pinot can also be used for anomaly detection.
@@ -102,10 +102,10 @@ with Event Streams and MQ Operators deployed and managing five Event Streams bro
 
 ![](./images/maas-ocp.png)
 
-This reference architecture is illustrated in the implementation of differents solutions: 
+This reference architecture is illustrated in the implementation of different solutions: 
 
-* [the shipping goods over sea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) 
-* [the real-time inventory](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops/)
+* [The shipping goods oversea solution](https://ibm-cloud-architecture.github.io/refarch-kc/) 
+* [The real-time inventory](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops/)
 * The [vaccine at scale](https://ibm-cloud-architecture.github.io/vaccine-solution-main/) solution.
 
 ## Kappa architecture
@@ -118,8 +118,8 @@ processing, especially for analytics, with a single technology stack.
 
 * Data in motion includes append-log based topic, and Apache Kafka acts as the store for the streaming data.
 * Streaming processing is the practice of taking action on a series of data at the time the data is created. It
-can be done with different technologies like [Kafka Streams](/technology/kafka-streams/), Apache Sparks streaming,
-[Apache Flink](/technology/flink/), Redis streaming, or [Hazelcast](https://hazelcast.com/).
+can be done with different technologies like [Kafka Streams](../../technology/kafka-streams/), Apache Sparks streaming,
+[Apache Flink](../../technology/flink/), Redis streaming, or [Hazelcast](https://hazelcast.com/).
 * The serving layer is where OLAP queries and searches are done, most of the time with indexing and other advanced
 capabilities are needed to offer excellent response time, high throughput and low latency. 
 
@@ -295,11 +295,11 @@ While you create new digital business applications as self-contained systems, yo
 
 1. Where legacy applications are connected with MQ. You can connect directly from MQ to the Kafka in the event backbone.  See [IBM Event Streams getting started with MQ article](https://ibm.github.io/event-streams/connecting/mq/). The major idea here is to leverage the transactionality support of MQ, so writing to the databased and to the queue happen in the same transaction:
 
- ![3](./images/hl-arch-data-pipe-mq.png)
+    ![3](./images/hl-arch-data-pipe-mq.png)
 
-2. Where databases support the capture of changes to data, you can publish changes as events to Kafka and hence into the event infrastructure. This could leverage the [outbox pattern](/patterns/intro/#transactional-outbox) where events are prepared by the application and written, in the same transaction as the other tables, and read by the CDC capture agent.
+2. Where databases support the capture of changes to data, you can publish changes as events to Kafka and hence into the event infrastructure. This could leverage the [outbox pattern](../../patterns/intro/#transactional-outbox) where events are prepared by the application and written, in the same transaction as the other tables, and read by the CDC capture agent.
 
- ![4](./images/hl-arch-data-pipe-cdc.png)
+    ![4](./images/hl-arch-data-pipe-cdc.png)
 
 Or use an efficient CDC product to get the change data capture at the transaction level. IBM offers the best CDC product on the market, ([InfoSphere Data Replication 11.4.0](https://www.ibm.com/support/knowledgecenter/SSTRGZ_11.4.0/com.ibm.idr.frontend.doc/pv_welcome.html)), with subsecond average latency and support full transactional semantics with exactly once consumption. It includes an [efficient Kafka integration](https://www.ibm.com/support/knowledgecenter/SSTRGZ_11.4.0/com.ibm.cdcdoc.cdckafka.doc/concepts/systemrequirements.html). 
 

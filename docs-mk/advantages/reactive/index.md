@@ -3,12 +3,6 @@ title: Reactive Systems and Reactive Programming
 description: EDA supports Reactive Systems implementation
 ---
 
-
-<InlineNotification kind="warning">
-<strong>Updated 1/21/2022 - still working progress</strong>
-</InlineNotification>
-
-
 This chapter describes how event-driven architecture addresses the implementation of reactive systems and 
 presents the most recent technologies to implement such event-driven responsive solutions.
 
@@ -327,7 +321,7 @@ Knative consists of the following components:
 * Eventing - Management and delivery of events
 * Serving - Request-driven compute that can scale to zero
 
-See the [RedHat Knative cookbook](https://redhat-developer-demos.github.io/knative-tutorial/knative-tutorial/index.html)for a simple tutorial.
+See the [RedHat Knative cookbook](https://redhat-developer-demos.github.io/knative-tutorial/knative-tutorial/index.html) for a simple tutorial.
 
 ## Code samples
 
