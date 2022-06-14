@@ -134,6 +134,7 @@ nav:
     # - Governance: methodology/governance
   - Technology:
     - Event Streams: technology/event-streams/index.md
+    - Event Streams Demo Script: technology/event-streams/demo-a-z/index.md
     - Kafka Consumers: technology/kafka-consumers/index.md
     - Kafka Producers: technology/kafka-producers/index.md
     - Kafka Streams: technology/kafka-streams/index.md

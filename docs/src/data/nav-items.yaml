@@ -157,7 +157,7 @@
     - title: Vaccine at Scale
       path: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
     - title: Near real-time Inventory
-      path: /scenarios/realtime-inventory/
+      path: https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops
     - title: SAGA with MQ Orchestration
       path: /scenarios/saga-orchestration/
 - title: Additional reading

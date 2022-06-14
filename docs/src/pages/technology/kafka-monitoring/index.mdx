@@ -18,13 +18,27 @@ A comprehensive Kafka monitoring plan should collect metrics from the following 
 * ZooKeeper metrics as Kafka relies on it to maintain its state
 * Producer(s) / Consumer(s), in general sense, which includes Kafka Connector cluster
 
-Kafka Broker, Zookeeper and Java clients (producer/consumer) expose metrics via JMX (Java Management Extensions) and can be configured to report stats back to Prometheus using the [JMX exporter](https://github.com/prometheus/jmx_exporter) maintained by Prometheus.  There is also a number of exporters maintained by the community to explore. Some of them can be used in addition to the JMX export. To monitor Kafka, for example, the JMX exporter is often used to provide broker level metrics, while community exporters claim to provide more accurate cluster level metrics (e.g. [Kafka exporter](https://github.com/danielqsj/kafka_exporter), [Kafka Zookeeper Exporter by CloudFlare](https://github.com/cloudflare/kafka_zookeeper_exporter), and others). Alternatively, you can consider [writing your own custom exporter](https://prometheus.io/docs/instrumenting/writing_exporters/).
+Kafka Broker, Zookeeper and Java clients (producer/consumer) expose metrics via JMX (Java Management Extensions) 
+and can be configured to report stats back to Prometheus using the [JMX exporter](https://github.com/prometheus/jmx_exporter) 
+maintained by Prometheus.  There is also a number of exporters maintained by the community to explore. 
+Some of them can be used in addition to the JMX export. To monitor Kafka, for example, the JMX exporter 
+is often used to provide broker level metrics, while community exporters claim to provide more accurate cluster level 
+metrics (e.g. [Kafka exporter](https://github.com/danielqsj/kafka_exporter), [Kafka Zookeeper Exporter by CloudFlare](https://github.com/cloudflare/kafka_zookeeper_exporter), and others). 
+Alternatively, you can consider [writing your own custom exporter](https://prometheus.io/docs/instrumenting/writing_exporters/).
 
 ## What to monitor
 
-A long list of metrics is made available by Kafka ([here](https://kafka.apache.org/documentation/#monitoring)) and Zookeeper ([here](https://zookeeper.apache.org/doc/current/zookeeperJMX.html)). The easiest way to see the available metrics is to fire up *jconsole* and point it at a running kafka client or Kafka/Prometheus server; this will allow browsing all metrics with JMX. But you are still left to figure out which ones you want to actively monitor and the ones that you want to be actively alerted.
+A long list of metrics is made available by Kafka ([here](https://kafka.apache.org/documentation/#monitoring)) and Zookeeper ([here](https://zookeeper.apache.org/doc/current/zookeeperJMX.html)). 
+The easiest way to see the available metrics is to fire up *jconsole* and point it at a running kafka client or Kafka/Prometheus server; 
+this will allow browsing all metrics with JMX. But you are still left to figure out which ones you want to actively monitor and the ones 
+that you want to be actively alerted.
 
-An simple way to get started would be to start with the [Grafana’s sample dashboards](https://grafana.com/dashboards) for the Prometheus exporters you chose to use and then modify them as you learn more about the available metrics and/or your environment. The [Monitoring Kafka metrics](https://www.datadoghq.com/blog/monitoring-kafka-performance-metrics/) article by *DataDog* and [How to monitor Kafka](https://blog.serverdensity.com/how-to-monitor-kafka/) by *Server Density* provides  guidance on key Kafka and Prometheus metrics, reasoning to why you should care about them and suggestions on thresholds to trigger alerts. In the next section, we will demonstrate exactly that; we will start with sample dashboards and make few modifications to exemplify how to configure key Kafka metrics to display in the dashboard.
+An simple way to get started would be to start with the [Grafana’s sample dashboards](https://grafana.com/dashboards) for the Prometheus exporters you chose to use and then modify 
+them as you learn more about the available metrics and/or your environment. The [Monitoring Kafka metrics](https://www.datadoghq.com/blog/monitoring-kafka-performance-metrics/) article by *DataDog* 
+and [How to monitor Kafka](https://support.serverdensity.com/hc/en-us/articles/360001083446-Monitoring-Kafka) by *Server Density* provides  guidance on key Kafka and Prometheus metrics, 
+reasoning to why you should care about them and suggestions on thresholds to trigger alerts. 
+In the next section, we will demonstrate exactly that; we will start with sample dashboards and make few modifications to exemplify 
+how to configure key Kafka metrics to display in the dashboard.
 
 Here are a set of helpful links for Event Streams monitoring:
 
