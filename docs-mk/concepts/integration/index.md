@@ -3,11 +3,13 @@ title: Integration reference architecture
 description: Working notes for agile integration reference architecture
 ---
 
+Updated 06/18/2022
+
 Event driven architecture is a complement of the overall integration reference architecture as [presented in IBM Cloud architecture center](https://www.ibm.com/cloud/architecture/architectures/modern-integration/overview).
 
-In this note we want to summarize some of the important aspects of agile integration and how some of the technologies delivered as part of IBM Cloud Pak for Integration are used when doing application modernization with event-driven microservice. Some of our labs and reference implementation code, use API management, MQ and APP Connect.
+In this note, we want to summarize some of the important aspects of agile integration and how some of the technologies delivered as part of IBM Cloud Pak for Integration are used when doing application modernization with event-driven microservice. Some of our labs and reference implementation code, use API management, MQ and APP Connect.
 
-First let do a quick review of the major concept for agile integration.
+First let do a quick review of the major concepts for agile integration.
 
 ## Agile integration concepts
 
@@ -24,9 +26,10 @@ The main agile integration concepts as presented in detail in the [IBM cloud on 
 * Integration teams are becoming the bottleneck instead of being enabler.
 * SOA is about real-time integration between applications, whereas a microservices architecture is about how the applications are built internally.
 * Microservice enables greater agility by being:
-   * small enough to be understood completely by their owning team and changed independently
-   * elastic to scale horizontally
-   * resilient with changes to one microservice will not affect others at runtime
+
+    * small enough to be understood completely by their owning team and changed independently
+    * elastic to scale horizontally
+    * resilient with changes to one microservice will not affect others at runtime
 
 The following diagram illustrates the agile integration modernization transition from a centralized ESB type of architecture, and breaking integration into smaller  pieces to make them more agile and more scalable.
 
@@ -52,14 +55,14 @@ In this modernization process, development team can introduce API Management to 
 
 Connect applications and data sources on premises or in the cloud to coordinate the exchange of business information so that data is available when and where it’s needed.
 
-[App Connect](https://www.ibm.com/docs/en/app-connect/11.0.0?topic=app-connect-enterprise-software) capabilities:
+[App Connect](https://www.ibm.com/docs/en/app-connect/12.0?topic=app-connect-enterprise-software) capabilities:
 
 * Low-code/no-code integration tooling leverages natural language processing (NLP) and AI to offer custom mapping suggestions when building integration flows.
 * Pre-built smart connectors and a common, shareable asset repository increases speed of delivery and eliminates concerns about mismatched sources, formats, or standards
 
 #### Labs
 
-* [Secure API, App connect and MQ](https://www.ibm.com/cloud/garage/dte/tutorial/unlock-your-enterprise-data-using-secure-apis-app-integration-flows-and-reliable-messaging): older version of the UI in screen shots but still relevant use case.
+* [Secure API, App connect and MQ](https://ibm-garage-tsa.github.io/cp4i-demohub/tutorials/BuildDeployAPIs/): older version of the UI in screen shots but still relevant use case.
 
 
 ### Messaging
@@ -68,11 +71,11 @@ Messaging is to support asynchronous communication between applications. Two tec
 
 #### IBM MQ
 
-See a technology summary in [this note](/technology/mq/) and this [MQ to Kafka lab](/use-cases/connect-mq/). 
+See a technology summary in [this note](../../technology/mq/) and this [MQ to Kafka lab](../../use-cases/connect-mq/). 
 
 #### Kafka based product 
 
-This site includes a lot of content around Kafka [(see this technology summary)](/technology/kafka-overview/), but the major capabilities of interest in term of agile integration is the pub/sub model, long term persistence via append log and replication to support high availability and resiliency, with data streaming logic, and a lot of connectors to source data or sink data to external systems. 
+This site includes a lot of content around Kafka [(see this technology summary)](../../technology/kafka-overview/), but the major capabilities of interest in term of agile integration is the pub/sub model, long term persistence via append log and replication to support high availability and resiliency, with data streaming logic, and a lot of connectors to source data or sink data to external systems. 
 
 Kafka scale and is a reliable messaging system for modern event-driven microservice solution.
 
@@ -86,7 +89,7 @@ In your digital transformation journey, your digital ecosystem and your core ent
 
 You modern cloud native applications use microservice design, function as a service, and may use agile, no code, integration logic to integrate with existing systems, SOA services, or cloud based services. Modern applications are reusing public cloud services, like CRM application, Database as a service, Chat bot as a services... Those services can be offered by different cloud providers, and architects will select the best services according to their requirements and cost / benefits analysis. A unique cloud provider will not have all the best useful services, and hybrid cloud is a standard approach in the 2020s. What is important is to get a set of tool that makes the integration easy to do with simple configuration to integrate with the needed data and inject those data in the operational messaging system for other to consumer. This agile integration follows the same DevOps pattern as other microservices. 
 
-The messaging layer can support point to point, request/reply type of communication, or a pub/sub model with long retention time, and data streams processing. This data injection layer can be a [buffer to modern data lake](/introduction/reference-architecture/#modern-data-lake).
+The messaging layer can support point to point, request/reply type of communication, or a pub/sub model with long retention time, and data streams processing. This data injection layer can be a [buffer to modern data lake](../../introduction/reference-architecture/#modern-data-lake).
 
 Finally existing applications, system of records, transactional systems have to be integrated, consumed and accessed from modern applications, with new digital channel like mobile and single page web application.  
 

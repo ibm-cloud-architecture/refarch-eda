@@ -3,7 +3,7 @@ title: Event Streaming versus Queuing
 description: Comparing and contrasting events and messages as communication artifacts in distributed systems.
 ---
 
-## Queueing Versus Streaming
+Updated 6/18/2022
 
 Consider queue system. like IBM MQ, for:
 
@@ -17,7 +17,6 @@ Consider streaming system, like Kafka, as pub/sub and persistence system for:
 * Get continuous visibility of the data Streams
 * Keep data once consumed, for future consumers, for replay-ability
 * Scale horizontally the message consumption
-
 
 ## Events and Messages
 
@@ -46,6 +45,6 @@ For events:
 * **Immutable Data**
 * **Loosely coupled / decoupled** producers and consumers
 
-See also the [MQ in an event-driven solution context article](/technology/mq/)
+See also the [MQ in an event-driven solution context article](../../technology/mq/)
 
-See [this code (Store sale simulator)](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) to produce to different middleware: RabbitMQ, IBM MQ or Kafka.
+See [this code (Store sale simulator)](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator) to produce messages to different middleware: RabbitMQ, IBM MQ or Kafka.

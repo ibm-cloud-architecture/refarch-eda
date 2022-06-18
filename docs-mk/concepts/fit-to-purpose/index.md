@@ -3,30 +3,21 @@ title: Fit for purpose
 description: Different fit for purpose evaluation and criteria for technologies involved in EDA
 ---
 
-Updated 04/19/2022
+Updated 06/18/2022
 
 
 In this note we want to list some of the main criteria to consider and assess during an event-driven architecture establishment work 
 or during the continuous application governance. This is not fully exhaustive, but give good foundations for analysis and study.
 Fit for purpose practices should be done under a bigger program about application development governance and data governance.
-We can look at least to the following major subjects:
-
-<AnchorLinks>
-  <AnchorLink>Cloud native applications</AnchorLink>
-  <AnchorLink>Modern data pipeline</AnchorLink>
-  <AnchorLink>MQ Versus Kafka</AnchorLink>
-  <AnchorLink>Kafka Streams vs Apache Flink</AnchorLink>
-</AnchorLinks>
-
 
 ## Cloud native applications
 
 With the adoption of cloud native and microservice applications (the [12 factors](https://12factor.net/) app), the followings need to be addressed:
 
-* Responsiveness with elastic scaling and resilience to failure. Which leads to adopt the '[reactive](/advantages/reactive/) manifesto' and consider messaging as a way to communicate between apps. Elastic also may lead to multi-cloud deployments.
+* Responsiveness with elastic scaling and resilience to failure. Which leads to adopt the '[reactive](../../advantages/reactive/) manifesto' and consider messaging as a way to communicate between apps. Elastic also may lead to multi-cloud deployments.
 * Address data sharing using a push model to improve decoupling, and performance. Instead of having each service using REST endpoints to pull the data from other services, each service pushes the change to their main business entity state to a event backbone. 
 Each future service in need for those data, pulls from the messaging system.
-* Adopting common patterns like [command query responsibility seggregation](/patterns/cqrs/) to help implementing complex queries, joining different business entities owned by different microservices, [event sourcing](/patterns/event-sourcing/), [transactional outbox](/patterns/intro/#transactional-outbox) and [SAGA](/patterns/saga/) for long running transaction.
+* Adopting common patterns like [command query responsibility seggregation](../../patterns/cqrs/) to help implementing complex queries, joining different business entities owned by different microservices, [event sourcing](../../patterns/event-sourcing/) to build logs of what happend, [transactional outbox](../../patterns/intro/#transactional-outbox) and [SAGA](../../patterns/saga/) for long running transaction.
 * Addressing data eventual consistency to propagate change to other components versus ACID transaction.
 * Support "always-on" approach with the deployment to multiple data centers (at least three) being active/active and being able to propagate data in all data centers.
 
@@ -43,31 +34,35 @@ The central value propositions of data stream are to:
 Applying the concept of data loose value over time, it is important to act on data as early
 as possible, close to creation time. After a period of time data becomes less valuable.
 
-Two time factors are important in this data processing: **latency** (time to deliver data to consumers)
-and **retention** (time to keep data). For latency try to reduce the number of network segment between
-producer and consumers. Considering edge computing as a way to bring event processing close to the source.
-The event processing add time to the end to end latency. Considering constraining the processing time frame.
+Two time factors are important in this data processing: 
 
-*Retention* is a problem linked to the business requirements, and we need to assess for each topic how long
+* **latency** (time to deliver data to consumers)
+* **retention** (time to keep data). 
+
+For latency try to reduce the number of network segment between
+producer and consumers. Considering edge computing as a way to bring event processing close to the source.
+The event processing adds time to the end to end latency. Considering constraining the processing time frame.
+
+**Retention** is a problem linked to the business requirements, and we need to assess for each topic how long
 an event is still valuable for the consumers. Not keeping enough events will impact correctness of consumer state, 
 projection views... keeping for too long, increase the cost of storage, but also the time to rebuild data 
 projection. 
 
 ## Modern data pipeline
 
-As new business applications need to react to events in real time, the adoption of [event backbone](/concepts/terms-and-definitions/#event-backbone) is really part of the IT toolbox. 
+As new business applications need to react to events in real time, the adoption of [event backbone](../terms-and-definitions/#event-backbone) is really part of the IT toolbox. 
 Modern IT architecture encompasses the adoption of new data hub, where all the data about a 'customer', for example, is accessible in one event backbone. 
 Therefore, it is natural to assess the data movement strategy and assess how to offload some of those ETL jobs running at night, 
 by adopting real time data ingestion. 
 
-We detailed the new architecture in [this modern data lake](introduction/reference-architecture/#modern-data-lake) article, so from a *fit for purpose* point of view, 
+We detailed the new architecture in [this modern data lake](../../introduction/reference-architecture/#modern-data-lake) article, so from a *fit for purpose* point of view, 
 we need to assess the scope of existing ETL jobs, and refector to streaming logic that can be incorporated into different logs/ topics.
 With Event Backbone like Kafka, any consumer can join the data log consumption at any point of time, within the retention period. 
 By moving the ETL logic to a streaming application, we do not need to wait for the next morning to get important metrics.
 
 ## MQ Versus Kafka
 
-We already addressed the differences between Queueing and Streaming in [this chapter](/concepts/events-versus-messages/).
+We already addressed the differences between Queueing and Streaming in [this chapter](../events-versus-messages/).
 
 Now in term of technologies we can quickly highlight the followings:
 
@@ -168,6 +163,6 @@ Here is simple diagram of Flink architecture from the Flink web site:
  ![Flink components](https://ci.apache.org/projects/flink/flink-docs-release-1.12/fig/distributed-runtime.svg)
 
 
-See this [technology summary](/technology/flink/).
+See this [technology summary](../../technology/flink/).
 
 See also [this article from Confluent](https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users) about comparing Flink with Kafka Streams.

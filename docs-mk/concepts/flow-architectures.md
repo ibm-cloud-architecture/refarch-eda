@@ -3,10 +3,7 @@ title: Flow architecture
 description: James Urquhaert's "Flow architecture" book summary
 ---
 
-
-<InlineNotification kind="warning">
-<strong>Added 1/21/2022</strong>
-</InlineNotification>
+** Added 1/21/2022
 
 From the [James Urquhart's book: Flow architecture](https://www.amazon.com/Flow-Architectures-Streaming-Event-Driven-Integration/dp/1492075892/ref=sr_1_1?keywords=flow+architectures&qid=1637675009&sr=8-1) and
 personal studies.
