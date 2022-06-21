@@ -124,11 +124,11 @@ The MQTT broker manages a list of topics, which enable it to identify groups of 
 
 For event processing three type of engines:
 
-* **Functions** (including low-code or no-code processors): WAS lambda, Knative eventing, Flink, Storm. Mendix and Vantiq have event-driven low code platform.
-* **log-based event streaming platforms**: Apache Kafka, Apache Pulsar, AWS Kinesis, and Microsoft Azure Event Hubs. Topic becomes a system of record, as event sourcing pattern implementation.
+* **Functions** (including low-code or no-code processors): AWS lambda, Knative eventing, Flink, Storm. Mendix and Vantiq have event-driven low code platform.
+* **log-based event streaming platforms**: Apache Kafka, Apache Pulsar, AWS Kinesis, and Microsoft Azure Event Hubs. Topic becomes a system of record, as an event-sourcing pattern implementation.
 * **real-time stateful systems**: *Digital twins* are software agents supporting the problem domain
 in a stateful manner. Behavior is supported by code or rules, and relationship between agents. 
-Agents can monitor the overall system state. [Swim.ai](https://www.swim.ai/) builds its model dynamically from the event stream and provides built-in machine learning capabilities that enable both continuous learning and high performance model execution
+Agents can monitor the overall system state. [Swim.ai](https://www.swim.ai/) builds its model dynamically from the event stream and provides built-in machine learning capabilities that enable both continuous learning and high performance model execution.
 
 Mainstream adoption of flow itself will be five to ten years from now (2020). Flow will have to prove that 
 it meets security criteria for everything from electronic payments, to health-care data, to classified
@@ -144,11 +144,10 @@ known as **data provenance**.
 systems, and processes that influence data of interest, providing a historical record of the 
 data and its origins"
 
-Provenance has to maintained by the producer as a checksum number created by parsing the event data, and encrypted
+Provenance has to be maintained by the producer as a checksum number created by parsing the event data, and encrypted
 by the producer's key. CloudEvent has metadata about the message. When sent to Kafka they are 
 immutable record. Now the traceability of the consumers in kafka world is a major challenge.
 Blockchain may also be used to track immutable record with network parties attest its accuracy.
-
 
 Applying the concept of data loose value over time, it is important to act on data as early
 as possible, close to creation time. After a period of time data becomes less valuable.
@@ -178,7 +177,7 @@ The Collector pattern is a pattern in which a single consumer subscribes to topi
 Each event in a stream is distributed to multiple consumers. It could be a hard problem to solve
 when doing it across geographically distributed systems. Edge computing can be used to distribute
  streaming endpoints closer to the consumers that need those streams. Alternate
- is to moving the event processing close to the source. For many Distributor use cases, 
+ is to move the event processing close to the source. For many Distributor use cases, 
  partitioning the data by region is probably smart, and flow interfaces will need to take 
  this into account.
 

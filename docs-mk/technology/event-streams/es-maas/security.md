@@ -29,6 +29,7 @@ To summarize:
 * Resource groups are not scoped by location.
 * API keys can be use to authenticate user or a service / application.
 * To control access three components are used: access groups, resources and access policies.
+
 	* Access group are used to organize a set of users and service IDs into a single entity and easily assign permissions via _access policies_
 	* _Policies_ give permission to access account resources. Policies include a subject (user, service, access group), target (resource), and role.
 	* Policy can be set to all resources in a resource group
@@ -73,9 +74,7 @@ The goal of this step is to create an access group to access Event Streams servi
 
 	![2](./images/iam-access-1.png)
 
-	This should lead you to the main IAM page as illustrated in figure below:
-
-	![21](./images/iam-main-page.png)
+	This should lead you to the main IAM page as illustrated in first figure above.
 
 1. Under the Access Group, you can create a new group of users. This will be an administrator group:
 
@@ -201,6 +200,7 @@ You could create the service credentials using the CLI, so you will add _Reader_
 				password:                 *****
 				user:                     token
 	```
+
 1. Add a `Reader` role API key:
 
 	```shell
@@ -327,9 +327,8 @@ You should get something like:
 Now Event Streams could use your wrapped key to encrypte data at rest.
 
 
-<InlineNotification kind="warning">
-Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance.
-Loosing any keys, will mean loosing the data.
-Restoring access by recreating the authorization between ES and Key Protect, will reopen traffic.
-When rotating the root key a new rewrapping of DEK is performed and the new key needs to be communicated to Event Streams.
-</InlineNotification>
+!!! Warning
+	Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance.
+	Loosing any keys, will mean loosing the data.
+	Restoring access by recreating the authorization between ES and Key Protect, will reopen traffic.
+	When rotating the root key a new rewrapping of DEK is performed and the new key needs to be communicated to Event Streams.

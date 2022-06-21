@@ -52,46 +52,42 @@ For the event-driven architecture, we defined the following characteristics to b
 * Provide programmatic access to continuous stream of events, with minimum time lag.
 * Must be highly scalable and resilient to cloud deployment levels.
 
-<Accordion>
-<AccordionItem title="Event backbone considerations">
+???- "Event backbone considerations"
+    While choosing an event backbone for your event-driven application development, the following functional and non-functional requirements should be taken into consideration:
+    
+    #### Persistence
 
-While choosing an event backbone for your event-driven application development, the following functional and non-functional requirements should be taken into consideration:
+    When source systems generate events, the consumers of those are interested in those events may not be online or available at the same time. So you need a way to store these messages for a configurable period of time until they are consumed and acted upon. Event backbone should be able to provide such event persistence.
 
-#### Persistence
+    #### Observability
 
-When source systems generate events, the consumers of those are interested in those events may not be online or available at the same time. So you need a way to store these messages for a configurable period of time until they are consumed and acted upon. Event backbone should be able to provide such event persistence.
+    At times, you need an overall view of how events are ingested by source systems and getting processed by consumers. It could be a management console where events can be observed. Event backbone should provide such observability.
 
-#### Observability
+    #### Fault tolerance
 
-At times, you need an overall view of how events are ingested by source systems and getting processed by consumers. It could be a management console where events can be observed. Event backbone should provide such observability.
+    Event backbone could be made of several components. If one of them becomes unavailable, there should not be any impact on the event processors dependent on the backbone. Event backbone needs to provide this resiliency.
 
-#### Fault tolerance
+    #### High availability
+    Event backbone provides persistence of messages/events. If one of the components of the backbone becomes unavailable, there should not be any impact on the availability of these messages/events. Event backbone should be highly available.
 
-Event backbone could be made of several components. If one of them becomes unavailable, there should not be any impact on the event processors dependent on the backbone. Event backbone needs to provide this resiliency.
+    #### Performance
+    Event backbone should provide means of accelerating the event processing operations (e.g. parallelising event processing) thereby providing enhanced performance.
 
-#### High availability
-Event backbone provides persistence of messages/events. If one of the components of the backbone becomes unavailable, there should not be any impact on the availability of these messages/events. Event backbone should be highly available.
+    #### Delivery guarantees
+    Event backbone should support guaranteed delivery both for producer and consumer. It should support the delivery guarantee options of `at least once`, `at most once`, and `exactly once`.
 
-#### Performance
-Event backbone should provide means of accelerating the event processing operations (e.g. parallelising event processing) thereby providing enhanced performance.
+    #### Security
+    The data residing in the event backbone should be secured, at rest as well as in transit. Only authenticated and authorized users should be able to publish and consume messages from the backbone. Topic specific authorizations will also help blocking access by unauthorized consumers. Event backbone should provide these security measures.
 
-#### Delivery guarantees
-Event backbone should support guaranteed delivery both for producer and consumer. It should support the delivery guarantee options of `at least once`, `at most once`, and `exactly once`.
+    #### Stateful operations for events streams
+    Sometimes, source systems generate a continuous flow of 'inter-related' events (e.g. IoT sensors sending data every second). In order to process such messages correctly, the event backbone needs to support for stateful operations like windowing, joins, aggregations. and any type of real time analytics.
 
-#### Security
-The data residing in the event backbone should be secured, at rest as well as in transit. Only authenticated and authorized users should be able to publish and consume messages from the backbone. Topic specific authorizations will also help blocking access by unauthorized consumers. Event backbone should provide these security measures.
+    #### Event routing options
+    In EDA, event consumers may not be online at all times. So, it should be easier for consumers to subscribe to a topic when it comes online.
 
-#### Stateful operations for events streams
-Sometimes, source systems generate a continuous flow of 'inter-related' events (e.g. IoT sensors sending data every second). In order to process such messages correctly, the event backbone needs to support for stateful operations like windowing, joins, aggregations. and any type of real time analytics.
+    #### On-failure hooks
+    Event backbone can support pre-configured actions/behaviors for certain messages. E.g. if a consumer fails to process a message more than a certain number of times, that message can be sent to another topic for re-trying the processing action.
 
-#### Event routing options
-In EDA, event consumers may not be online at all times. So, it should be easier for consumers to subscribe to a topic when it comes online.
-
-#### On-failure hooks
-Event backbone can support pre-configured actions/behaviors for certain messages. E.g. if a consumer fails to process a message more than a certain number of times, that message can be sent to another topic for re-trying the processing action.
-
-</AccordionItem>
-</Accordion>
 
 Looking across these capabilities, the potential technologies, the amount of adoption and community activity around the technologies, and the considerations listed above, we selected [Apache Kafka](https://kafka.apache.org) as our event backbone for the event-driven reference architecture.
 

@@ -31,8 +31,8 @@ theme:
       - content.tooltips
       # - navigation.tabs
       - navigation.instant
-      - navigation.indexes
-      - navigation.tracking
+      # - navigation.indexes
+      # - navigation.tracking
       - navigation.tabs.sticky
       - search.highlight
       - search.share
@@ -65,7 +65,7 @@ markdown_extensions:
   - pymdownx.superfences
   - toc:
       permalink: true
-      toc_depth: 3
+      toc_depth: 4
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.tabbed:
@@ -131,11 +131,14 @@ nav:
     - Event Storming: methodology/event-storming/index.md
     - Domain-Driven Design: methodology/domain-driven-design/index.md
     - Data Intensive App Development: methodology/data-intensive/index.md
-    # - Governance: methodology/governance
+    - Data lineage: methodology/data-lineage/index.md
+    - Governance: methodology/governance
   - Technology:
+    - Avro Schema: technology/avro-schemas/index.md
     - Event Streams: technology/event-streams/index.md
     - Event Streams Demo Script: technology/event-streams/demo-a-z/index.md
     - Kafka Consumers: technology/kafka-consumers/index.md
     - Kafka Producers: technology/kafka-producers/index.md
     - Kafka Streams: technology/kafka-streams/index.md
+    - Kafka security: technology/event-streams/es-maas/security/
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md

@@ -96,15 +96,6 @@ The classical integration with schema registry is presented in the figure below:
 
 Schema registry can be deployed in different data centers and serves multi Kafka clusters. For DR, you need to use a 'primary' server and one secondary in different data center. Both will receive schema update via DevOps pipeline. One of the main open source Schema Registry is [Apicurio](https://www.apicur.io/), which is integrated with Event Streams and in most of our implementation. Apicurio can persist schema definition inside Kafka Topic and so schema replication can also being synchronize via Mirror Maker 2 replication. If Postgresql is used for persistence then postgresql can be used for replicating schemas.
 
-We recommend reading our [schema registry summary](/technology/avro-schemas/) and [our OpenShift lab](/use-cases/schema-registry-on-ocp/) or [Event Streams on Cloud schema registry lab](/use-cases/schema-registry-on-cloud/).
+We recommend reading our [schema registry summary](../../technology/avro-schemas/) and [our OpenShift lab](../../use-cases/schema-registry-on-ocp/) or [Event Streams on Cloud schema registry lab](../../use-cases/schema-registry-on-cloud/).
 
 Integrating schema management with code generation and devOps pipeline is addressed in this repository.
-
-## Data discovery
-
-
-
-
-## sources
-
-* []()

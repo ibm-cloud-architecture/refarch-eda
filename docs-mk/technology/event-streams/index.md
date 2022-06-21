@@ -5,12 +5,12 @@ description: IBM Event Streams, an Enterprise-grade Apache Kafka offering
 
 To start playing with Event Streams we propose two set of labs:
 
-1. [Use IBM Event Streams managed service on IBM Cloud](/#ibm-event-streams-on-ibm-cloud)
+1. [Use IBM Event Streams managed service on IBM Cloud](./#ibm-event-streams-on-ibm-cloud)
 1. [Event Streams as part of the Cloud Pak for Integration](#ibm-event-streams-on-the-ibm-cloud-pak-for-integration)
 
 ## Demonstrate Event Streams on OpenShift from A to Z
 
-[Script in separate note](/technology/event-streams/demo-a-z/)
+[Script in separate note](https://ibm-cloud-architecture.github.io/eda-tech-academy/demo/)
 
 ## IBM Event Streams within the IBM Cloud Pak for Integration
 
@@ -18,7 +18,7 @@ The [product documentation on how to install Event Streams on Openshift](https:/
 to get the last updates.
 
 
-1. **Lab exercise:** [A detail step-by-step Event Streams installation on OpenShift](/technology/event-streams/es-cp4i/)
+1. **Lab exercise:** [A detail step-by-step Event Streams installation on OpenShift](../event-streams/es-cp4i/)
 1. **Lab exercise:** [Demonstrate Starter Application](/technology/event-streams/starter-app)
 1. **Lab exercise:** [Schema Registry on OpenShift Container Platform](/use-cases/schema-registry-on-ocp/)
 1. **Lab exercise:** [Monitoring IBM Event Streams on OpenShift Container Platform](/use-cases/monitoring-on-ocp/)

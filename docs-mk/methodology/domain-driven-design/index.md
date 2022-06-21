@@ -7,7 +7,7 @@ This section describes how to apply domain driven design with event based applic
 
 ## Overview 
 
-[Event storming](/methodology/event-storming/) is part of the domain-driven design methodology. And domain-driven design was deeply described in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215) from 2004.
+[Event storming](../event-storming/index.md) is part of the domain-driven design methodology. And domain-driven design was deeply described in [Eric Evans's "Domain Driven Design: Tackling Complexity in the Heart of Software" book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=asc_df_0321125215) from 2004.
 
 From this body of knowledge we can derive the following important elements:
 
@@ -42,7 +42,7 @@ Also events coming from no-where could still be discovered and have their value.
 * Business Policies.
 * Event prediction and probability flows.
 
-The derivation of those materials was described in [the event storming introduction](/methodology/event-storming/).
+The derivation of those materials was described in [the event storming introduction](../event-storming/#event-storming-workshop-introduction).
 
 Here is an example of starting material illustrating the beginning of the process for the Reefer shipping business process, with order placement and shipping contract elaboration:
 
@@ -271,9 +271,11 @@ We assume that we are developing a particular build for a sprint within some agi
 
 * Working from the initial list of aggregates, select which aggregates will be included in this build
 * For each aggregate the possible choices are:
+
     1. to completely skip and workaround the aggregate in this build.
     1. to include a full lifecycle implementation of the aggregate
     1. to provide a simplified lifecycle implementation - typically a table of entities is initialized at start up, and state changes to existing entities are tracked
+
 * Determine whether there are simulation services or predictive analytics service to be included in the build
 * Identify the external query APIs and command APIs which this build should support
 * Create entity lifecycle diagrams for entites having a full lifecycle implementation in this build / sprint.
@@ -285,6 +287,7 @@ We assume that we are developing a particular build for a sprint within some agi
 * The diagram labels each specific event interaction between microservices trigerring a state change.
 * Typically queries are synchronous API calls since the caller cannot usefully proceeed until a result is returned.
 * From these, we can extract:
+
     1. a complete list of event types on each event backbone topic, with information passed on each event type.
     1. the complete list of “logic segments” for each microservice processing action in response to an API call or initiating event.
 
