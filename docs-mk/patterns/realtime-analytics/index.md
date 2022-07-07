@@ -44,29 +44,43 @@ Beyond the basic capabilities, consider supporting other frequently-seen event s
 These capabilities include the following:
 
 * Geospatial
-  * Location-based analytics
-  * Geofencing & map matching
-  * Spatio-temporal hangout detection
+
+    * Location-based analytics
+    * Geofencing & map matching
+    * Spatio-temporal hangout detection
+
 * Time series analysis
-  * Timestamped data analysis
-  * Anomaly detection & forecasting
+
+    * Timestamped data analysis
+    * Anomaly detection & forecasting
+
 * Text analytics
-  * Natural Language Processing & Natural Language Understanding
-  * Sentiment analysis & entity extraction
+
+    * Natural Language Processing & Natural Language Understanding
+    * Sentiment analysis & entity extraction
+
 * Video and audio
-  * Speech-to-text conversion
-  * Image recognition
+
+    * Speech-to-text conversion
+    * Image recognition
+
 * Rules
-  * Decisions described as business logic
+
+    * Decisions described as business logic
+
 * Complex Event Processing (CEP)
-  * Temporal pattern detection
+
+    * Temporal pattern detection
+
 * Entity Analytics
-  * Relationships between entities
-  * Probabilistic matching
+
+    * Relationships between entities
+    * Probabilistic matching
 
 ### Application programming languages and standards
 
 Few standards exist for event stream applications and languages. Typically, streaming engines have provided language-specific programming models tied to a specific platform.  The commonly used languages include the following:
+
 * Python supports working with data and is popular with data scientists and data engineers.
 * Java is the pervasive application development language. Kafka Streams offers a DSL to support most of the event streaming processing implementation.
 * Scala adds functional programming and immutable objects to Java.
@@ -86,13 +100,15 @@ See https://beam.apache.org/documentation/runners/capability-matrix/ for details
 In operational terms streaming analytics engines must receive and analyze arriving data continuously:
 
 * The "Feed Never Ends"
-  * The collection is unbounded.
-  * Not a request response set based model.
+
+    * The collection is unbounded.
+    * Not a request response set based model.
 
 * The "Firehose Doesn’t Stop"
-  * Keep drinking and keep up.
-  * The processing rate is greater than or equal to the feed rate.
-  * The analytics engine must be resilient and self-healing.
+
+    * Keep drinking and keep up.
+    * The processing rate is greater than or equal to the feed rate.
+    * The analytics engine must be resilient and self-healing.
 
 These specialized demands and concerns, which are not found in many other information processing environments, have led to highly-optimized runtimes and engines for stateful, parallel processing of analytical workloads across multiple event streams.
 
@@ -103,21 +119,25 @@ These specialized demands and concerns, which are not found in many other inform
 The market for streaming analytics products is quite confused with lots of different offering and very few standards to bring them together.  The potential product selection list for the streaming analytics component in the event driven architecture would need to consider:
 
 Top Open Source projects:
+
 * Flink - real time streaming engine, both real time and batch analytics in one tool.
 * Spark Streaming - micro batch processing through spark engine.
 * Storm - Has not shown enough adoption.
 * Kafka Streams - new/emerging API access for processing event streams in Kafka using a graph of operators
 
 Major Cloud Platform Providers support:
+
 * Google Cloud DataFlow – proprietary engine open source streams application language ( Beam )
 * Azure Stream Analytics – proprietary engine , SQL interface
 * Amazon Kinesis - proprietary AWS
 
 IBM offerings
+
 * IBM Streams/streaming Analytics (High performing parallel processing engine for real time analytics work loads)
 * IBM Event streams (Kafka based event log/streaming platform)
 
 Evaluation of the various options, highlights
+
 * The proprietary engines from the major providers, Google, MicroSoft, Amazon and IBM Streams continue to provide significant benefits in terms of performance and functionality for real time analysis of high volume realtime event streams.
 * Kafka streams provides a convenient programming model for microservices to interact with the event stream data, but doesnt provide the optimized stream processing engine required for high volume real time analytics.
 

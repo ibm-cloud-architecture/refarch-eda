@@ -90,5 +90,5 @@ The leader manages all the read and write requests for the partition. The follow
 
 This is the way to group consumers so the processing of event is parallelized. 
 The number of consumers in a group is the same as the number of partition defined in a topic. 
-We are detailing consumer group implementation in [this note](/technology/kafka-consumers/#consumer-group)
+We are detailing consumer group implementation in [this note](../kafka-consumers/#consumer-group).
 

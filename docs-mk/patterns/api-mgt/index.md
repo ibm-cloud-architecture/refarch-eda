@@ -114,7 +114,7 @@ for event-driven APIs.
 
 An AsyncAPI document is a file in either YAML or JSON format that defines and annotates the different components of an event-driven API. 
 For example, AsyncAPI can formally describe how to connect to a Kafka cluster, the details of the Kafka topics (channels in AsyncAPI), 
-and the type of data in messages. AsyncAPI includes both formal schema definitions and space for free-text descriptions (https://dalelane.co.uk/blog/?p=4219).
+and the type of data in messages. AsyncAPI includes both formal schema definitions and space for free-text descriptions [See this blog](https://dalelane.co.uk/blog/?p=4219).
 
 Here is what it looks like: 
 
@@ -125,13 +125,13 @@ You may have noticed the similarities with OpenAPI. AsyncAPI was initially an ad
 The creator of the AsyncAPI specification, Fran Méndez, describes what he did at first with just OpenAPI to make up for the lack of MQTT and AMQP support: "paths were AMQP topics, GET was SUBSCRIBE, and POST was PUBLISH--and ugly hack at best...".
 This forced him to write additonal code to support the necessary EDA-based documentation and code generation.
 
-Many companies use OpenAPI, but in real-world situations, systems need formalized documentation and code generation support for both REST APIs <em>and</em> events. 
+Many companies use OpenAPI, but in real-world situations, systems need formalized documentation and code generation support for both REST APIs and events. 
 
 Here are the structural differences (and similarities) between OpenAPI and AsyncAPI:
 
 ![](./images/structurediffs.jpg)
 
-Source: https://www.asyncapi.com/docs/getting-started/coming-from-openapi
+Source: [https://www.asyncapi.com/docs/getting-started/coming-from-openapi](https://www.asyncapi.com/docs/getting-started/coming-from-openapi)
 
 **Note a few things:**
 

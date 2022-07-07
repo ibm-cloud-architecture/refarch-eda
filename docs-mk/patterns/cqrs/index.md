@@ -5,16 +5,6 @@ description: Command Query Responsibility Segregation (CQRS) pattern
 
 # Command-Query Responsibility Segregation (CQRS)
 
-<AnchorLinks>
-  <AnchorLink>Problems and Constraints</AnchorLink>
-  <AnchorLink>Solution and Pattern</AnchorLink>
-  <AnchorLink>Considerations</AnchorLink>
-  <AnchorLink>Combining event sourcing and CQRS</AnchorLink>
- <AnchorLink>Keeping the write model on Mainframe</AnchorLink>
- <AnchorLink>The consistency challenges</AnchorLink>
-
-</AnchorLinks>
-
 ## Problems and Constraints
 
 A domain model encapsulates domain data with the behavior for maintaining the correctness of that data as it is modified, structuring the data based on how it is stored in the database and to facilitate managing the data. Multiple clients can independently update the data concurrently. Different clients may not use the data the way the domain model structures it, and may not agree with each other on how it should be structured.
@@ -122,7 +112,7 @@ CQRS employs a couple of design features that support keeping the databases sync
 * **Command Bus for queuing commands** (optional): A more subtle and optional design decision is to queue the commands produced by the modify API, shown in the diagram as the command bus. This can significantly increase the throughput of multiple apps updating the database, as well as serialize updates to help avoid--or at least detect--merge conflicts. With the bus, a client making an update does not block synchronously while the change is written to the database. Rather, the request to change the database is captured as a [command](https://en.wikipedia.org/wiki/Command_pattern) ([*Design Patterns*](https://www.pearson.com/us/higher-education/program/Gamma-Design-Patterns-Elements-of-Reusable-Object-Oriented-Software/PGM14333.html)) and put on a message queue, after which the client can proceed with other work. Asynchronously in the background, the write model processes the commands at the maximum sustainable rate that the database can handle, without the database ever becoming overloaded. If the database becomes temporarily unavailable, the commands queue and will be processed when the database becomes available once more.
 * **Event Bus for publishing update events** (required): Whenever the write database is updated, a change notification is published as an event on the event bus. Interested parties can subscribe to the event bus to be notified when the database is updated. One such party is an event processor for the query database, which receives update events and processes them by updating the query database accordingly. In this way, every time the write database is updated, a corresponding update is made to the read database to keep it in sync.
 
-The connection between the command bus and the event bus is facilitated by an application of the [Event Sourcing pattern](/patterns/event-sourcing/), which keeps a change log that is suitable for publishing. Event sourcing maintains not only the current state of the data but also the history of how that current state was reached. For each command on the command bus, the write model performs these tasks to process the command:
+The connection between the command bus and the event bus is facilitated by an application of the [Event Sourcing pattern](../event-sourcing/index.md), which keeps a change log that is suitable for publishing. Event sourcing maintains not only the current state of the data but also the history of how that current state was reached. For each command on the command bus, the write model performs these tasks to process the command:
 
 * Logs the change
 * Updates the database with the change
@@ -212,7 +202,7 @@ The steps for syncronizing changes to the data are:
 
 This implementation causes a problem for the `createOrder(order): string` operation: The Order Service is supposed to return the new order complete with the order id that is a unique key, a key most likely created by the database. If updating the database fails, there is no new order yet and so no database key to use as the order ID. To avoid this problem, if the underlying technology supports assigning the new order's key, the service can generate the order ID and use that as the order's key in the database.
 
-It is important to clearly study the Kafka consumer API and the different parameters on how to support the read offset. We are addressing those implementation best practices in [our consumer note.](../../technology/kafka-producers-consumers/#kafka-consumers)
+It is important to clearly study the Kafka consumer API and the different parameters on how to support the read offset. We are addressing those implementation best practices in [our consumer note.](../../technology/kafka-consumers)
 
 ### CQRS and Change Data Capture
 
@@ -220,7 +210,7 @@ There are other ways to support this dual operations level:
 
 * When using Kafka, [Kafka Connect](https://kafka.apache.org/documentation/#connect) has the capability to subscribe to databases via JDBC, allowing to poll tables for updates and then produce events to Kafka.
 * There is an open-source change data capture solution based on extracting change events from database transaction logs, [Debezium](https://debezium.io/) that helps to respond to insert, update and delete operations on databases and generate events accordingly. It supports databases like MySQL, Postgres, MongoDB and others.
-* Write the order to the database and in the same transaction write to an event table (["outbox pattern"](/patterns/intro#transactional-outbox)). Then use a polling to get the events to send to Kafka from this event table and delete the row in the table once the event is sent.
+* Write the order to the database and in the same transaction write to an event table (["outbox pattern"](../intro#transactional-outbox)). Then use a polling to get the events to send to Kafka from this event table and delete the row in the table once the event is sent.
 * Use the Change Data Capture from the database transaction log and generate events from this log. The IBM [Infosphere CDC](https://www.ibm.com/support/knowledgecenter/cs/SSTRGZ_10.2.0/com.ibm.cdcdoc.mcadminguide.doc/concepts/overview_of_cdc.html) product helps to implement this pattern. For more detail about this solution see [this product tour](https://www.ibm.com/cloud/garage/dte/producttour/ibm-infosphere-data-replication-product-tour).
 
 The CQRS implementation using CDC will look like in the following diagram:
@@ -255,19 +245,18 @@ What to do when we need to add attribute to event?. So we need to create a versi
 
  * The following project includes two sub modules, each deployable as a microservice to illustrate the command and query part: [https://github.com/ibm-cloud-architecture/refarch-kc-order-ms](https://github.com/ibm-cloud-architecture/refarch-kc-order-ms)
 
-### Further readings
-
-* [https://www.codeproject.com/Articles/555855/Introduction-to-CQRS](https://www.codeproject.com/Articles/555855/Introduction-to-CQRS)
-* [http://udidahan.com/2009/12/09/clarified-cqrs](http://udidahan.com/2009/12/09/clarified-cqrs/)
-* [https://martinfowler.com/bliki/CQRS.html](https://martinfowler.com/bliki/CQRS.html)
-* [https://microservices.io/patterns/data/cqrs.html](https://microservices.io/patterns/data/cqrs.html)
-* [https://community.risingstack.com/when-to-use-cqrs](https://community.risingstack.com/when-to-use-cqrs)
-* [https://dzone.com/articles/concepts-of-cqrs](https://dzone.com/articles/concepts-of-cqrs)
-* [https://martinfowler.com/bliki/CommandQuerySeparation.html](https://martinfowler.com/bliki/CommandQuerySeparation.html)
-* [https://www.martinfowler.com/eaaCatalog/domainModel.html](https://www.martinfowler.com/eaaCatalog/domainModel.html)
-* [https://dddcommunity.org/learning-ddd/what_is_ddd/](https://dddcommunity.org/learning-ddd/what_is_ddd/)
-* [https://martinfowler.com/bliki/EvansClassification.html](https://martinfowler.com/bliki/EvansClassification.html)
-* [https://martinfowler.com/bliki/DDD_Aggregate.html](https://martinfowler.com/bliki/DDD_Aggregate.html)
-* [https://martinfowler.com/eaaCatalog/dataTransferObject.html](https://martinfowler.com/eaaCatalog/dataTransferObject.html)
-* [https://en.wikipedia.org/wiki/Command_pattern](https://en.wikipedia.org/wiki/Command_pattern)
-* [https://www.pearson.com/us/higher-education/program/Gamma-Design-Patterns-Elements-of-Reusable-Object-Oriented-Software/PGM14333.html](https://www.pearson.com/us/higher-education/program/Gamma-Design-Patterns-Elements-of-Reusable-Object-Oriented-Software/PGM14333.html)
+???- "Further readings"
+    * [https://www.codeproject.com/Articles/555855/Introduction-to-CQRS](https://www.codeproject.com/Articles/555855/Introduction-to-CQRS)
+    * [http://udidahan.com/2009/12/09/clarified-cqrs](http://udidahan.com/2009/12/09/clarified-cqrs/)
+    * [https://martinfowler.com/bliki/CQRS.html](https://martinfowler.com/bliki/CQRS.html)
+    * [https://microservices.io/patterns/data/cqrs.html](https://microservices.io/patterns/data/cqrs.html)
+    * [https://community.risingstack.com/when-to-use-cqrs](https://community.risingstack.com/when-to-use-cqrs)
+    * [https://dzone.com/articles/concepts-of-cqrs](https://dzone.com/articles/concepts-of-cqrs)
+    * [https://martinfowler.com/bliki/CommandQuerySeparation.html](https://martinfowler.com/bliki/CommandQuerySeparation.html)
+    * [https://www.martinfowler.com/eaaCatalog/domainModel.html](https://www.martinfowler.com/eaaCatalog/domainModel.html)
+    * [https://dddcommunity.org/learning-ddd/what_is_ddd/](https://dddcommunity.org/learning-ddd/what_is_ddd/)
+    * [https://martinfowler.com/bliki/EvansClassification.html](https://martinfowler.com/bliki/EvansClassification.html)
+    * [https://martinfowler.com/bliki/DDD_Aggregate.html](https://martinfowler.com/bliki/DDD_Aggregate.html)
+    * [https://martinfowler.com/eaaCatalog/dataTransferObject.html](https://martinfowler.com/eaaCatalog/dataTransferObject.html)
+    * [https://en.wikipedia.org/wiki/Command_pattern](https://en.wikipedia.org/wiki/Command_pattern)
+    * [https://www.pearson.com/us/higher-education/program/Gamma-Design-Patterns-Elements-of-Reusable-Object-Oriented-Software/PGM14333.html](https://www.pearson.com/us/higher-education/program/Gamma-Design-Patterns-Elements-of-Reusable-Object-Oriented-Software/PGM14333.html)

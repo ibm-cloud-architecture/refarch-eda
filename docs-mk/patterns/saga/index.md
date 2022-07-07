@@ -49,7 +49,7 @@ Rolling back a distributed transaction does not come for free. Normally you have
 
 Also it is important to note, that if one of the service is taking time to answer this may not be a problem as the order is in pending state. If the business requirement stipulates to address an order within a small time period then the compensation process may start. Uncompleted orders can be reviewed by a business user for manual handling. Email can be automatically sent to the customer about issue related to his order. There are a lot of different ways to handle order issue at the business level.
 
-[See the eda-saga-choreography repository](https://ibm-cloud-architecture.github.io/eda-saga-choreography/) for the last code and example on how to run a simple demonstration with three services.
+[See the eda-saga-choreography repository](https://ibm-cloud-architecture.github.io/eda-saga-choreography/) for our last implementation based on Quarkus, and IBM Event Streams.
 
 ## Services orchestration
 

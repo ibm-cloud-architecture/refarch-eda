@@ -3,13 +3,11 @@ title: Data Intensive Application
 description: Data Intensive Application
 ---
 
-<InlineNotification kind="warning"><strong>Update 04/01/22</strong> - UNDER CONSTRUCTION</InlineNotification>
-
 In this article we are highlighting some practices to design and develop data intensive application in the context of microservice solution. This is strongly linked to the adoption of event-driven microservices, but addresses the data consistency and eventual data consistency discussions, as well as the establishment of a data fabric services.
 
 ## Context
 
-A typical modern business solution will include a set of microservices working together in choreography to exchange data. The adoption of event-driven microservices, with all the related design patterns, is described in separate articles that you can read [here](/patterns/intro). 
+A typical modern business solution will include a set of microservices working together in choreography to exchange data. The adoption of event-driven microservices, with all the related design patterns, is described in separate articles that you can read [here](../intro/index.md). 
 
 When zooming to a particular data intensive microservice we will find a set of important data centric features that may look like in the diagram below, which presents one component of a bigger distributed system.
 
@@ -81,28 +79,27 @@ Vertical scaling is still bounded by hardware resources, so at higher load we ne
 * shared nothing: cpu, memory and disk are per node. Cluster manages node orchestration over network. This architecture brings new challenges. 
 
 
-## Compendium
+???- "Compendium"
+    * [Designing data intensive application - Martin Kleppmann](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321/ref=sr_1_3?crid=F3G6F7KYQZMH&keywords=designing+data+intensive+applications&qid=1572566804&sprefix=designing+data+%2Caps%2C204&sr=8-3)
+    * [Assemble the team to support a data-driven project - author: Stacey Ronaghan](https://www.ibm.com/cloud/garage/practices/culture/assemble-team-for-data-driven-project)
+    * [The valuation of data - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/culture/valuation-of-data/)
+    * [Define business objectives - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/discover/build-a-business-objective)
+    * [Recognize the value of data - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/discover/recognize-value-of-data)
+    * [Translate a business problem into an AI and Data Science solution - authors: Tommy Eunice, Edd Biddle, Paul Christensen](https://cloudcontent.mybluemix.net/cloud/garage/practices/discover/business-problem-to-ai-data-science-solution)
+    * [Prepare your data for AI and data science - authors: Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/code/data-preparation-ai-data-science/)
 
-* [Designing data intensive application - Martin Kleppmann](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321/ref=sr_1_3?crid=F3G6F7KYQZMH&keywords=designing+data+intensive+applications&qid=1572566804&sprefix=designing+data+%2Caps%2C204&sr=8-3)
-* [Assemble the team to support a data-driven project - author: Stacey Ronaghan](https://www.ibm.com/cloud/garage/practices/culture/assemble-team-for-data-driven-project)
-* [The valuation of data - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/culture/valuation-of-data/)
-* [Define business objectives - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/discover/build-a-business-objective)
-* [Recognize the value of data - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/discover/recognize-value-of-data)
-* [Translate a business problem into an AI and Data Science solution - authors: Tommy Eunice, Edd Biddle, Paul Christensen](https://cloudcontent.mybluemix.net/cloud/garage/practices/discover/business-problem-to-ai-data-science-solution)
-* [Prepare your data for AI and data science - authors: Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/code/data-preparation-ai-data-science/)
-
-* [Define your data strategy -authors: Beth Ackerman, Paul Christensen](https://www.ibm.com/cloud/garage/practices/think/define-data-strategy/)
-* [Normalize data to its atomic level - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/think/normalize-data/)
-* [Understand data needs to support AI and Data Science solutions - authors: Tommy Eunice, Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/think/data-needs-for-ai-data-science/)
-* [Run thought experiments by using hypothesis-driven analysis - author: Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/think/thought-experiments-and-hypothesis-driven-analysis/)
-* [Deliver a singular data function - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/code/deliver-singular-data-function/)
-* [Construct your data topology - authors: Neal Fishman, Paul Christensen](https://www.ibm.com/cloud/garage/practices/code/construct-data-topology/)
-* [Build your data lake design - author: Paul Christensen](https://www.ibm.com/cloud/garage/practices/code/build-data-lake-design/)
-* [Put AI and data science to work in your organization - authors: Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/reason/put-ai-data-science-to-work)
-* [Look behind the curtain of AI - author: Edd Biddle](https://www.ibm.com/cloud/garage/practices/reason/dispel-magic-of-ai)
-* [Select and develop an AI and data science model - author: Edd Biddle](
-https://www.ibm.com/cloud/garage/practices/reason/model-selection-development-ai-data-science)
-* [Enhance and optimize your AI and data science models - author: Edd Biddle](https://www.ibm.com/cloud/garage/practices/reason/optimize-train-ai-model)
-* [Establish data governance - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/manage/establish-data-governance)
-* [Deploy an AI model - author: Sujatha Perepa](https://www.ibm.com/cloud/garage/practices/run/deploy-ai-model/) 
+    * [Define your data strategy -authors: Beth Ackerman, Paul Christensen](https://www.ibm.com/cloud/garage/practices/think/define-data-strategy/)
+    * [Normalize data to its atomic level - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/think/normalize-data/)
+    * [Understand data needs to support AI and Data Science solutions - authors: Tommy Eunice, Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/think/data-needs-for-ai-data-science/)
+    * [Run thought experiments by using hypothesis-driven analysis - author: Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/think/thought-experiments-and-hypothesis-driven-analysis/)
+    * [Deliver a singular data function - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/code/deliver-singular-data-function/)
+    * [Construct your data topology - authors: Neal Fishman, Paul Christensen](https://www.ibm.com/cloud/garage/practices/code/construct-data-topology/)
+    * [Build your data lake design - author: Paul Christensen](https://www.ibm.com/cloud/garage/practices/code/build-data-lake-design/)
+    * [Put AI and data science to work in your organization - authors: Edd Biddle, Paul Christensen](https://www.ibm.com/cloud/garage/practices/reason/put-ai-data-science-to-work)
+    * [Look behind the curtain of AI - author: Edd Biddle](https://www.ibm.com/cloud/garage/practices/reason/dispel-magic-of-ai)
+    * [Select and develop an AI and data science model - author: Edd Biddle](
+    https://www.ibm.com/cloud/garage/practices/reason/model-selection-development-ai-data-science)
+    * [Enhance and optimize your AI and data science models - author: Edd Biddle](https://www.ibm.com/cloud/garage/practices/reason/optimize-train-ai-model)
+    * [Establish data governance - author: Neal Fishman](https://www.ibm.com/cloud/garage/practices/manage/establish-data-governance)
+    * [Deploy an AI model - author: Sujatha Perepa](https://www.ibm.com/cloud/garage/practices/run/deploy-ai-model/) 
 
