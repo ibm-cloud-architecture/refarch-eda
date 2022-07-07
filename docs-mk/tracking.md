@@ -59,8 +59,6 @@ From one page fix all links, and consider migration done when links point to pag
     * streams
     * event streams
     * flink
-
-    - Event Streams Demo Script: technology/event-streams/demo-a-z/index.md
     - Kafka Consumers: technology/kafka-consumers/index.md
     - Kafka Producers: technology/kafka-producers/index.md
     - Kafka Streams: technology/kafka-streams/index.md
