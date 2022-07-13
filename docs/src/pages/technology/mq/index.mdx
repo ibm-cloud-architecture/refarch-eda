@@ -13,12 +13,11 @@ title: IBM MQ in the context of EDA
 <AnchorLink>Installation with Cloud Pak for Integration</AnchorLink>
 </AnchorLinks>
 
+[IBM MQ](https://www.ibm.com/docs/en/ibm-mq/9.3) is the enterprise solution to exchange message over queues. 
+As it supports loosely coupling communication between applications, via asynchronous protocol, and message exchange, it has to be part of any modern digital, responsive solutions, and
+so it makes sense to write about it in the context of EDA. 
 
-[IBM MQ](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.2.0/com.ibm.mq.pro.doc/q001020_.htm) is the enterprise solution to exchange message over queues. 
-As it supports loosely coupling communication between applications, via asynchronous protocol, and message exchange it has to be part of any modern digital solutions, and
-so it makes senses to write about it in the context of EDA. 
-
-This note is to summarize, for architect, the technology as it fits into EDA and gives pointers to important documentations, articles, and code repositories for using MQ.
+This note is to summarize, for architects, the technology as it fits into EDA and gives pointers to important documentations, articles, and code repositories for using MQ.
 
 We already addressed the [difference between event and messaging](../../concepts/events-versus-messages) systems, and we can affirm that real production plaform needs to include both. 
 
@@ -51,8 +50,8 @@ We can have many queues and topics on one queue manager
 
 * **MQ provides assured delivery of data**: No data loss and no duplication, strong support of exactly once.
 * **MQ is horizontally scalable**: As the workload for a single queue manager increases, it is easy to add more queue managers to share tasks and distribute the messages across them. 
-* **Highly available** (See [ section below](#high-availability)) with scalable architecture with different topologies
-* Integrate well with Mainframe to propagate transaction to the eventual consistent world of cloud native distributed applications. Writing to database and MQ queue is part of the same transaction, which simplifies the injection into event backbone like Kafka, via MQ connector.
+* **Highly available** (See [section below](#high-availability)) with scalable architecture with different topologies
+* Integrate well with Mainframe to propagate transaction to the eventual consistent world of cloud native distributed applications. Writing to database and MQ queue is part of the same transaction, which simplifies the injection into event backbone like Kafka, via Kafka MQ connector.
 * Containerized to run on modern kubernetes platform.
 
 ### Decentralized architecture
@@ -61,14 +60,14 @@ The figure below illustrates the different ways to organize the MQ brokers accor
 
 ![](./images/decentralized.png)
 
-* On the top row applications have decoupled queue managers, with independent availability / scalability. The ownership is decentralized, as each application owner also own the broker configuration and deployment. Such cloud native application may adopt the [Command Query Responsability Seggregation](/patterns/cqrs/) pattern and use queues to propagage information between the microservices. The deploy of both broker and microservices follow the same CI/CD pipeline, with a kustomize to describe the broker configuration. See the [CQRS with MQ implementation](https://github.com/ibm-cloud-architecture/vaccine-reefer-mgr-cmd) we did for the Reefer manager service in the vaccine solution.  
+* On the top row applications have decoupled queue managers, with independent availability / scalability. The ownership is decentralized, as each application owner also own the broker configuration and deployment. Such cloud native application may adopt the [Command Query Responsability Seggregation](../../patterns/cqrs/) pattern and use queues to propagage information between the microservices. The deploy of both broker and microservices follow the same CI/CD pipeline, with a kustomize to describe the broker configuration. See the [CQRS with MQ implementation](https://github.com/ibm-cloud-architecture/vaccine-reefer-mgr-cmd) we did for the Reefer manager service in the vaccine solution.  
 * A central MQ broker can still be part of the architecture to support legacy application and federated queues. 
 
 This type of deployment supports heterogenous operational procedures across technologies. 
 
 ### High availability
 
-As introduced in multiple sites, blogs and product documentation we use the high availability definition of a capability of a system to be operational for a greater proportion of time than other available apps. In term of measurement, we are talking about 99.999% which is less than 5 minutes a year (99.99% is 1 hour/yr). 
+As introduced in multiple blogs and product documentation, we use the high availability definition of a capability of a system to be operational for a greater proportion of time than other available apps. In term of measurement, we are talking about 99.999% which is less than 5 minutes a year (99.99% is 1 hour/yr). 
 
 Important to always revisit the requirements, in term of availability measurement for any application modernization projects. 
 
@@ -78,33 +77,33 @@ For a messaging system it is important to consider three characteristics:
 * **Message routing**: always deliver message even with failures. 
 * **Message availability**: not loosing messages and always readable.
 
-With IBM MQ on multiplatforms, a message is stored on exactly one queue manager. To achieve high message availability, you need to be able to recover a queue manager as quickly as possible. You can achieve service availability by having multiple instances of queues for client applications to use, for example by using an IBM MQ uniform cluster.
+With IBM MQ on multiplatforms, a message is stored on exactly one queue manager. To achieve high message availability, you need to be able to recover a queue manager as quickly as possible. You can achieve service availability by having multiple instances of queue manager for client applications to use, for example by using an IBM MQ uniform cluster.
 
 A set of MQ topology can be defined to support HA:
 
 ![topology](./images/mq-topologies.png)
 
-1. **Single resilient** queue manager: MQ broker runs in a VM or a single container, and if it stops the VM or pod scheduler will restart it. This is using the platform resynch capability combined with **HA storage**. IP Address is kept between the instance. The queue content is saved to a storage supporting HA. In the case of container, new restarted pod will connect to existing storage, and the IP gateway routes traffic to the active instance via service and app selector.
+1. **Single resilient** queue manager: MQ broker runs in a VM or a single container, and if it stops the VM or pod scheduler will restart it. This is using the platform resynch capability combined with **HA storage**. IP Address is kept between the instances. The queue content is saved to a storage supporting HA. In the case of container, new restarted pod will connect to existing storage, and the IP gateway routes traffic to the active instance via service and app selector.
 1. **Multi-instance** queue manager: active - standby topology - Failover is triggered on failure of the active instance. IP Address is also kept. When using k8s, the stand-by broker is on a separate node, ready to be activated. The pods use persistence volumes with ReadWriteMany settings. 
 1. **Replicated data** queue manager: this is an extension of the previous pattern where data saved locally is replicated to other sites.
 
 The deployed MQ broker is defined in k8s as a `StatefulSet` which may not restart automatically in case of node failure. So there is a time to fail over, which is not the case with the full replication mechanism of Kafka.
 A service will provide consistent network identity to the MQ broker.
 
-On kubernetes, MQ relies on the availability of the data on the persistent volumes. The availability of the storage providing the persistent volumes defines IBM MQ availability.
+On kubernetes, MQ relies on the availability of the data on the persistent volumes. The availability of the storage providing the persistent volumes, defines IBM MQ availability.
 
-For multi-instance deployment, the shared file system must support write through to disk on flush operation, to keep transaction integrity (ensure writes have been safely committed before acknowledging the transaction), support exclusive access to files so the queue managers write access is synchronized. And last support releasing locks in case of failure.
+For multi-instance deployment, the shared file system must support write through to disk on flush operation, to keep transaction integrity (ensure writes have been safely committed before acknowledging the transaction), must support exclusive access to files so the queue managers write access is synchronized. Also it needs to support releasing locks in case of failure.
 
-See [product documentation for testing message integrity](https://www.ibm.com/docs/en/ibm-mq/9.2?topic=multiplatforms-running-amqsfhac-test-message-integrity) on file systems.
+See [product documentation for testing message integrity](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=multiplatforms-running-amqsfhac-test-message-integrity) on file systems.
 
 
 ### Active-active with uniform cluster
 
-With [Uniform Cluster](https://www.ibm.com/docs/en/ibm-mq/9.1?topic=clusters-uniform) and CCDT it will be possible to achieve high availability with at least three brokers and mutliple application instances accessing brokers group via the Client Channel Definition Tables. The queue managers are configured almost identically, and application interacts with the group.
+With [Uniform Cluster](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=clusters-uniform) and  Client Channel Definition Tables it will be possible to achieve high availability with at least three brokers and multiple application instances accessing brokers group via the CCDT. The queue managers are configured almost identically, and application interacts with the group.
 
 ![](./images/uniform-cluster.png)
 
-You can have as many application instances as there are of queue manager in the cluster. 
+You can have as many application instances as there are queue managers in the cluster. 
 
 Here are the main benefits of Uniform Cluster:
 
@@ -115,7 +114,7 @@ Here are the main benefits of Uniform Cluster:
 
 The brokers are communicating their states between each others, and connection rebalancing can be done behind the scene without application knowledge. In case of a Queue manager failure, the connections are rebalanced to the active ones. Those applications do not need strong ordering. 
 
-With the same approach we can add new Queue manager
+With the same approach, we can add new Queue manager
 See [this video from David Ware abour active - active with Uniform cluster](https://www.youtube.com/watch?v=LWELgaEDGs0) to see how this rebalancing works between queue managers as part of a Uniform queue manager.
 
 See [the 'MQ Uniform Cluster' related repository](https://github.com/ibm-messaging/mq-uniform-clusters).
@@ -132,7 +131,7 @@ For always on deployment we need three data center and active-active on the thre
 
 ## Installation with Cloud Pak for Integration
 
-Starting with release 2020.2, MQ can be installed via Kubernetes Operator on Openshift platform. From the operator catalog search for MQ. See the [product documentation installation guide](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.2.0/com.ibm.mq.ctr.doc/ctr_installing_ui.htm) for up to date details.
+Starting with release 2020.2, MQ can be installed via Kubernetes Operator on Openshift platform. From the operator catalog search for MQ. See the [product documentation installation guide](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=iumorho-installing-mq-operator-using-red-hat-openshift-web-console) for up to date details.
 
 You can verify your installation with the following CLI, and get the IBM catalogs accessible:
 
@@ -148,12 +147,12 @@ redhat-marketplace     Red Hat Marketplace    grpc      Red Hat       42d
 redhat-operators       Red Hat Operators      grpc      Red Hat       42d
 ```
 
-Once everything is set up, create an operator. The IBM MQ operator can be installed scoped to a single namespace or all namespaces.  
+Once everything is set up, create an operator. The IBM MQ operator can be installed scoped to a single namespace or to monitor `All namespaces`.  
  
  <img src="./images/mq-operator.png" width="200px"></img>
 
-Verify your environment fits the deployment. [Prepare your Red Hat OpenShift Container Platform for MQ](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.2.0/com.ibm.mq.ctr.doc/ctr_prepare_project_ui.htm)
-Then once the operator is installed (it could take up to a minute), go to the operator page and create a MQ Manager instance. For example be sure to have defined an ibm-entitlement-key in the project you are planning to use to deploy MQ manager
+Verify your environment fits the deployment. [Prepare your Red Hat OpenShift Container Platform for MQ](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=miccpi-using-mq-in-cloud-pak-integration-red-hat-openshift)
+Then once the operator is installed (it could take up to a minute), go to the operator page and create a MQ Manager instance. For example be sure to have defined an ibm-entitlement-key in the project you are planning to use to deploy MQ manager.
 
  <img src="./images/mq-mgr-via-operator.png" width="200px"></img>
 
@@ -169,7 +168,7 @@ kind: QueueManager
 metadata:
   name: eda-mq-lab
 spec:
-  version: 9.2.0.0-r1
+  version: 9.2.5.0-r3
   license:
     accept: true
     license: <your license number>
@@ -207,6 +206,57 @@ To access to the `mqsc` CLI and run configuration remote connect via `oc exec -i
 
 We need route to access MQ from outside of OpenShift. The connection uses TLS1.2. 
 
+you can customize the environment using config map:
+
+```yaml
+  queueManager:
+    name: QM1
+    mqsc:
+      - configMap:
+          name: mq-mqsc-config
+          items:
+            -  example.mqsc
+# ...
+  template:
+    pod:
+      containers:
+        - name: qmgr
+          env:
+            - name: MQSNOAUT
+              value: 'yes' 
+          envFrom:
+          - configMapRef:
+              name: mq-config
+```
+
+And
+
+```yaml 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mq-config
+data:
+  LICENSE: accept
+  MQ_APP_PASSWORD: passw0rd
+  MQ_ENABLE_METRICS: "true"
+  MQ_QMGR_NAME: QM1
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mq-mqsc-config
+data:
+  example.mqsc: |
+    DEFINE QLOCAL('ITEMS') REPLACE
+    DEFINE CHANNEL('DEV.ADMIN.SVRCONN') CHLTYPE(SVRCONN) REPLACE
+    DEFINE QLOCAL('DEV.DEAD.LETTER.QUEUE') REPLACE
+    ALTER QMGR DEADQ('DEV.DEAD.LETTER.QUEUE')
+    DEFINE CHANNEL(DEV.APP.SVRCONN) CHLTYPE(SVRCONN) 
+    ALTER QMGR CHLAUTH (DISABLED)
+    REFRESH SECURITY TYPE(CONNAUTH)
+```
 ## Running MQ in docker
 
 The [following recent article](https://developer.ibm.com/tutorials/mq-connect-app-queue-manager-containers/) from Richard J. Coppen presents such deployment, and can be summarized as:
@@ -225,7 +275,7 @@ Then `docker exec` on the docker container and use the `mqsc` CLI.
 
 The [ibm-messaging/mq-container](https://github.com/ibm-messaging/mq-container) github repository describes properties and different configurations.
 
-You can also run it via docker compose. We have different flavor in [this app repository](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator.git) under `environments/mq` folder. Here is an example of such compose file:
+You can also run it via docker compose. We have different flavor in [the real time inventory gitops repository](https://github.com/ibm-cloud-architecture/eda-rt-inventory-gitops.git) under `local-demo` folder. Here is an example of such compose file:
 
 ```yaml
 version: '3.7'
@@ -253,14 +303,14 @@ services:
 The MQ Console is a web browser based interface for interacting with MQ objects. It comes pre-configured inside the 
 developer version of MQ in a container. On localhost deployment the URL is [ https://localhost:9443/ibmmq/console/]( https://localhost:9443/ibmmq/console/) (user admin) while on OpenShift it depends of the Route created.
 
-See [this article](https://developer.ibm.com/tutorials/mq-setting-up-using-ibm-mq-console/) for a very good overview and getting started tutorial.
+See [this article](https://developer.ibm.com/tutorials/mq-setting-up-using-ibm-mq-console/) for a very good overview for using the console.
 
-From the console we can define access and configuration
+From the console we can define access and configuration:
 
-    A new channel called MQ.QUICKSTART.SVRCONN. This new channel will be configured with NO MCA user. An MCA user is the identity that is used for all communication on that channel. As we are setting no MCA user this means that the identity used to connect to the queue manager will be used for MQ authorization.
-    A channel authority record set to block no-one. We will do this so that any authority records you add in the following security step will be automatically configured to allow access the queue manager and resources below.
+* A new channel called MQ.QUICKSTART.SVRCONN. This new channel will be configured with NO MCA user. An MCA user is the identity that is used for all communication on that channel. As we are setting no MCA user this means that the identity used to connect to the queue manager will be used for MQ authorization.
+* A channel authority record set to block no-one. We will do this so that any authority records you add in the following security step will be automatically configured to allow access the queue manager and resources below.
 
-    When an application connects to a queue manager it will present an identity. That identity needs two permissions; one to connect to the queue manager and one to put/get messages from the queue.
+When an application connects to a queue manager it will present an identity. That identity needs two permissions; one to connect to the queue manager and one to put/get messages from the queue.
 
 ### Some useful CLI
 
@@ -285,7 +335,7 @@ cat AMQERR01.LOG
 
 JMS should be your first choice to integrate a Java application to MQ. The [mq-dev-patterns](https://github.com/ibm-messaging/mq-dev-patterns/tree/master/JMS) includes JMS code samples for inspiration. 
 See also [this IBM developer tutorial](https://developer.ibm.com/tutorials/mq-develop-mq-jms/) 
-and [our code example from the store simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator/blob/master/src/main/java/ibm/gse/eda/stores/infrastructure/mq/MQItemGenerator.java) used in different MQ to Kafka labs.
+and [our code example from the store simulator](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator/blob/master/backend/src/main/java/ibm/gse/eda/stores/infra/mq/MQItemGenerator.java) used in different MQ to Kafka labs.
 
 *The article seems to have issue in links and syntax, below is the updated steps:*
 
@@ -344,19 +394,16 @@ CCDT provides encapsulation and abstraction of connection information for applic
 }
 ```
 
-## Managed service
-
-
 ## Important readings
 
-* [MQ family page](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ/com.ibm.mq.helphome.doc/product_welcome_wmq.htm)
-* [Cloud Pack for Integration product documentation](https://www.ibm.com/support/knowledgecenter/en/SSGT7J_20.2/overview.html)
-* [MQ 9.2 product documentation](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.2.0/com.ibm.mq.helphome.v92.doc/WelcomePagev9r1.htm)
-* [Article for developer from Richard Coppen's: 'IBM MQ fundamentals'](https://developer.ibm.com/articles/mq-fundamentals)
-* [MQ on Container](https://developer.ibm.com/tutorials/mq-connect-app-queue-manager-containers/)
-* [Learning path: IBM MQ Developer](https://developer.ibm.com/components/ibm-mq/series/badge-ibm-mq-developer-essentials)
-* [Developer cheat sheet](https://developer.ibm.com/articles/mq-dev-cheat-sheet/)
+    * [MQ family page](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ/com.ibm.mq.helphome.doc/product_welcome_wmq.htm)
+    * [MQ 9.3 product documentation](https://www.ibm.com/docs/en/ibm-mq/9.3)
+    * [Article for developer from Richard Coppen's: 'IBM MQ fundamentals'](https://developer.ibm.com/articles/mq-fundamentals)
+    * [MQ on Container](https://developer.ibm.com/tutorials/mq-connect-app-queue-manager-containers/)
+    * [Learning path: IBM MQ Developer](https://developer.ibm.com/components/ibm-mq/series/badge-ibm-mq-developer-essentials)
+    * [Developer cheat sheet](https://developer.ibm.com/articles/mq-dev-cheat-sheet/)
 
 ## Code repositories
 
-* [Store simulator - JMS producer to MQ]()
+* [Store simulator - JMS producer to MQ](https://github.com/ibm-cloud-architecture/refarch-eda-store-simulator)
+* [AMQP and reactive messaging](https://github.com/jbcodeforce/life-insurance-demo/tree/main/lf-tx-simulator)
