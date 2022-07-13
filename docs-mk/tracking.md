@@ -64,6 +64,11 @@ From one page fix all links, and consider migration done when links point to pag
     - Kafka Streams: technology/kafka-streams/index.md
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
 
+* scenario
+  * saga
+  * rt inventory
+  * reefer
 ## To revisit the structure and content
 
 * Pattern > Topic replication with DR and MM2
+* Scenario: kafka-mm2, reefer, rt-inventory

@@ -139,3 +139,9 @@ nav:
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
   - Use Cases:
     - DB2 - CDC Debezium - Outbox: use-cases/db2-debezium/index.md
+  - Scenarios:
+    - Overview: scenarios/overview/
+    - Reefer Shipment Solution: https://ibm-cloud-architecture.github.io/refarch-kc/
+    - Vaccine at Scale: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
+    - Near real-time Inventory: https://ibm-cloud-architecture.github.io/eda-rt-inventory-gitops
+    - SAGA with MQ Orchestration: scenarios/saga-orchestration/
