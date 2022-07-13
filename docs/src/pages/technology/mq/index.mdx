@@ -4,7 +4,7 @@ title: IBM MQ in the context of EDA
 
 
 <InlineNotification kind="warning">
-<strong>Updated 8/18/2021- Work in progress</strong>
+<strong>Updated 7/13/2022- Work in progress</strong>
 </InlineNotification>
 
 <AnchorLinks>
@@ -45,6 +45,7 @@ We can have many queues and topics on one queue manager
 * **MQ networks** are loose collections of interconnected queue managers, all working together to deliver messages between applications and locations.
 * **MQ clusters** are tight couplings of queue managers, enabling higher levels of scaling and availability
 * **Publish/subscribe** is supported via topic and subscription, and MQ sends copies of the message to those subscribing applications
+* **Point to point** for a single consumer. Senders produce messages to a queue, and receivers asynchronously consume messages from that queue. With multiple receivers, each message is only consumed by one receiver, distributing the workload across them all.
 
 ## Major MQ benefits in EDA
 

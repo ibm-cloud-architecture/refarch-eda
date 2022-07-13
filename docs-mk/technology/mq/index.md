@@ -39,6 +39,7 @@ We can have many queues and topics on one queue manager
 * **Channels** are the way queue managers communicate with each other and with the applications.
 * **MQ networks** are loose collections of interconnected queue managers, all working together to deliver messages between applications and locations.
 * **MQ clusters** are tight couplings of queue managers, enabling higher levels of scaling and availability
+* **Point to point** for a single consumer. Senders produce messages to a queue, and receivers asynchronously consume messages from that queue. With multiple receivers, each message is only consumed by one receiver, distributing the workload across them all.
 * **Publish/subscribe** is supported via topic and subscription, and MQ sends copies of the message to those subscribing applications
 
 ## Major MQ benefits in EDA
