@@ -37,14 +37,16 @@ To summarize messaging (like MQ) are to support:
 * **Transient Data:** data is only stored until a consumer has processed the message, or it expires.
 * **Request / reply** most of the time.
 * **Targeted reliable delivery:** targeted to the entity that will process the request or receive the response. Reliable with transaction support.
-* **Highly Coupled** producers and consumers
+* **Time Coupled** producers and consumers: consumers can subscribe to queue, but message can be remove after a certain time or when all subscribers got message.
+The coupling is still loose at the data model level and interface definition level.
 
 For events:
 
 * **Stream History:** consumers are interested in historic events, not just the most recent.
 * **Scalable Consumption:** A single event is consumed by many consumers with limited impact as the number of consumers grow.
 * **Immutable Data**
-* **Loosely coupled / decoupled** producers and consumers
+* **Loosely coupled / decoupled** producers and consumers: strong time decoupling as consumer may come at anytime. 
+Some coupling at the message definition level, but schema management best practices and schema registry reduce frictions.
 
 See also the [MQ in an event-driven solution context article](/technology/mq/)
 
