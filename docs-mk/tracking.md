@@ -38,12 +38,21 @@ From one page fix all links, and consider migration done when links point to pag
       - Kafka Overview: technology/kafka-overview/index.md
       - Avro Schema: technology/avro-schemas/index.md
       - Event Streams: technology/event-streams/index.md
-    - Methodology:
+      - MQ in EDA context: technology/mq/index.md
+      - Kafka Consumers: technology/kafka-consumers/index.md
+      - Kafka Producers: technology/kafka-producers/index.md
+  - Methodology:
       - Event Storming: methodology/event-storming/index.md
       - Domain-Driven Design: methodology/domain-driven-design/index.md
       - Data lineage: methodology/data-lineage/index.md
       - Data Intensive App Development: methodology/data-intensive/index.md
       - governance
+  - Scenarios:
+    - Overview: scenarios/overview/
+    - Reefer Shipment Solution: https://ibm-cloud-architecture.github.io/refarch-kc/
+    - Vaccine at Scale: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
+    - Near real-time Inventory: https://ibm-cloud-architecture.github.io/eda-rt-inventory-gitops
+
 ## moved content to verify links . 
 
 - Patterns in EDA:  
@@ -54,21 +63,18 @@ From one page fix all links, and consider migration done when links point to pag
       
      
 * Technology
-    * consumer
+
     * mirror maker
     * streams
     * event streams
     * flink
-    - Kafka Consumers: technology/kafka-consumers/index.md
-    - Kafka Producers: technology/kafka-producers/index.md
+
     - Kafka Streams: technology/kafka-streams/index.md
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
 
-* scenario
-  * saga
-  * rt inventory
-  * reefer
+
 ## To revisit the structure and content
 
 * Pattern > Topic replication with DR and MM2
-* Scenario: kafka-mm2, reefer, rt-inventory
+* Scenario: kafka-mm2, reefer,
+- SAGA with MQ Orchestration: scenarios/saga-orchestration/

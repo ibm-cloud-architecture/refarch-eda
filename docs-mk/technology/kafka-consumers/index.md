@@ -3,7 +3,7 @@ title: Kafka Consumers
 description: Kafka Consumers
 ---
 
-!!! Warning
+!!! note
     Updated 05/05/2022
 
 
@@ -42,7 +42,7 @@ of the group. During a rebalance, depending of the strategy, consumers may not c
 
 ![](./images/consumer-groups.png)
 
-Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/24/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) 
+Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/32/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) 
 which the API documentation is a must read. It is interesting to note that:
 
 * To support the same semantic of a queue processing like other integration messaging systems, you need to have all the consumers assigned to a single consumer group, 
@@ -70,7 +70,7 @@ But the complexity comes from the offset management and multithreading needs. So
 
 ## Assess number of consumers needed
 
-The KafkaConsumer is not thread safe so it is recommended to run in a unique thread. If really, needed you can implement a multi-threads solution, 
+The KafkaConsumer is not thread safe so it is recommended to run it in a unique thread. If really, needed you can implement a multi-threads solution, 
 but as each thread will open a TCP connection to the Kafka brokers, be sure to close the connection to avoid memory leak. 
 The alternate is to start n processes (JVM process) with a mono thread.
 
@@ -102,7 +102,7 @@ As shown in the figure below, in case of consumer failure, it is possible to get
 *Source: Kafka definitive guide book from Todd Palino, Gwen Shapira*
 
 In the opposite, if the last committed offset is after the last processed messages and there were multiple messages returned in the poll, 
-then those messages may be lost (in term of consumer processing not list in kafka). This will happen with autocommit set up at the time 
+then those messages may be lost (in term of consumer processing not lost in kafka). This will happen with autocommit set up at the time 
 of the read operation, and the last offset of the poll is the committed offset. See the [enable.auto.commit](https://kafka.apache.org/documentation/#consumerconfigs_enable.auto.commit) property.
 
 ![](./images/kafka-commit-offset-2.png)
@@ -121,9 +121,9 @@ If a consumer fails after processing a message but before committing its offset,
 
 ![of-2](../event-streams/images/offsets-2.png)
 
-This means that the message will be processed again by the next consumer in that group to be assigned the partition.
+This means that the message will be processed again by the next consumer, in that group, to be assigned the partition.
 
-Assess if it is acceptable to loose messages from topic.  If so, when a consumer restarts it will start consuming the topic from the latest 
+Assess if it is acceptable to loose messages from topic.  If so, when a consumer restarts, it will start consuming the topic from the latest 
 committed offset within the partition allocated to itself.
 
 As storing a message to an external system and storing the offsets are two separate operations, and in case of failure between them, 
@@ -166,7 +166,7 @@ You can use the kafka-consumer-groups tool to see and manage the consumer lag.
 
 ## Kafka useful Consumer APIs
 
-* [KafkaConsumer](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html) a topic consumer which support:
+* [KafkaConsumer](https://kafka.apache.org/32/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html) a topic consumer which support:
   * transparently handles brokers failure
   * transparently adapt to partition migration within the cluster
   * support grouping for load balancing among consumers
@@ -174,8 +174,8 @@ You can use the kafka-consumer-groups tool to see and manage the consumer lag.
   * subscribe to multiple topics and being part of consumer groups
   * each partition is assigned to exactly one consumer in the group
   * if a process fails, the partitions assigned to it will be reassigned to other consumers in the same group
-* [ConsumerRecords](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecords.html) holds the list ConsumerRecord per partition for a particular topic.
-* [ConsumerRecord](https://kafka.apache.org/11/javadoc/org/apache/kafka/clients/consumer/ConsumerRecord.html) A key/value pair to be received from Kafka. This also consists of a topic name and a partition number from which the record is being received, an offset that points to the record in a Kafka partition, and a timestamp
+* [ConsumerRecords](https://kafka.apache.org/32/javadoc/org/apache/kafka/clients/consumer/ConsumerRecords.html) holds the list ConsumerRecord per partition for a particular topic.
+* [ConsumerRecord](https://kafka.apache.org/32/javadoc/org/apache/kafka/clients/consumer/ConsumerRecord.html) A key/value pair to be received from Kafka. This also consists of a topic name and a partition number from which the record is being received, an offset that points to the record in a Kafka partition, and a timestamp
 
 ### Repositories with consumer code
 
@@ -187,4 +187,4 @@ You can use the kafka-consumer-groups tool to see and manage the consumer lag.
 ## References
 
 * [IBM Event Streams - Consuming messages](https://ibm.github.io/event-streams/about/consuming-messages/)
-* [KafkaConsumer class](https://kafka.apache.org/10/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html)
+* [KafkaConsumer class](https://kafka.apache.org/32/javadoc/org/apache/kafka/clients/consumer/package-summary.html)

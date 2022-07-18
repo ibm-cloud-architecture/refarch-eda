@@ -146,3 +146,5 @@ nav:
     - Vaccine at Scale: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
     - Near real-time Inventory: https://ibm-cloud-architecture.github.io/eda-rt-inventory-gitops
     - SAGA with MQ Orchestration: scenarios/saga-orchestration/
+  - Additional reading: additional-reading/
+  - Contribute to this Site: contribute/
