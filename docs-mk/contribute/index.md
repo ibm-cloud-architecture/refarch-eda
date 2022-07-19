@@ -110,9 +110,12 @@ Once the pull request has been reviewed, accepted and merged into the main githu
     ```
 
 ### What happens next?
+
 - All pull requests will be automatically built and unit tested by travis-ci, when implemented by that specific project.
+
   - You can determine if a given project is enabled for travis-ci unit tests by the existence of a `.travis.yml` file in the root of the repository or branch.
   - When in use, all travis-ci unit tests must pass completely before any further review or discussion takes place.
+  
 - The repository maintainer will then inspect the commit and, if accepted, will pull the code into the upstream branch.
 - Should a maintainer or reviewer ask for changes to be made to the pull request, these can be made locally and pushed to your forked repository and branch.
 - Commits passing this stage will make it into the next release cycle for the given project.

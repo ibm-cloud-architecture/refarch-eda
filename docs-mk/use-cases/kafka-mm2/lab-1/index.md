@@ -3,15 +3,6 @@ title: Mirror Maker 2 - Event Streams Service to Local Kafka - Lab 1
 description: Using MM2 from Event Streams on Cloud to local Kafka 2.6 cluster.
 ---
 
-<AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Start the local Kafka cluster</AnchorLink>
-  <AnchorLink>Start Mirror Maker 2</AnchorLink>
-  <AnchorLink>Start Consumer from target cluster</AnchorLink>
-  <AnchorLink>Start Producer to source cluster</AnchorLink>
-  <AnchorLink>Clean up</AnchorLink>
-</AnchorLinks>
-
 Updated 01/08/2021
 
 ## Overview

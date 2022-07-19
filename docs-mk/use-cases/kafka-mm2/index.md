@@ -16,12 +16,12 @@ The following steps need to be done to get the configurations for the different 
 
 ## Kafka Mirror Maker 2 Labs
 
-These hands-on labs walk users through building and testing Kafka Mirror Maker 2 based replication.
+These hands-on labs walk you through building and testing Kafka Mirror Maker 2 replication.
 
 | Scenario                           | Description         | Link        |
 | --------------------------------| ------------------  |:----------- |
-| Lab 1 | Replicate from Event Streams on Cloud to local Kafka. | [Kafka Mirror Maker 2 - Lab 1](/use-cases/kafka-mm2/lab-1/) |
-| Lab 2 | Replicate from Event Streams CP4I to local Kafka. | [Kafka Mirror Maker 2 - Lab 2](/use-cases/kafka-mm2/lab-2/) |
-| Lab 3 | Using Mirror Maker 2 Active Passive mirroring | [Kafka Mirror Maker 2 - Lab 3](/use-cases/kafka-mm2/lab-3/) |
+| Lab 1 | Replicate from Event Streams on Cloud to local Kafka. | [Kafka Mirror Maker 2 - Lab 1](./lab-1/) |
+| Lab 2 | Replicate from Event Streams CP4I to local Kafka. | [Kafka Mirror Maker 2 - Lab 2](./lab-2/) |
+| Lab 3 | Using Mirror Maker 2 Active Passive mirroring | [Kafka Mirror Maker 2 - Lab 3](./lab-3/) |
 
 
