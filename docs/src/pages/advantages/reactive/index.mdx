@@ -10,7 +10,7 @@ description: EDA supports Reactive Systems implementation
 
 
 This chapter describes how event driven architecture addresses the implementation of reactive systems and 
-presentsthe most recent technologies to implement such event-driven responsive solutions.
+presents how to design event-driven responsive solutions by using the most recent technologies.
 
 <AnchorLinks>
     <AnchorLink>Overview</AnchorLink> Cloud native, distributed systems, reactive systems...
@@ -23,7 +23,7 @@ presentsthe most recent technologies to implement such event-driven responsive s
 
 ### Cloud native
 
-A buzzy set of words which has some concrete requirements. The [12 factors app](https://12factor.net/) defines 
+The [12 factors app](https://12factor.net/) defines 
 the needs for modern business service apps or webapps to be a good citizen in cloud deployment:
 
 * **Codebase**: One codebase tracked in version control, many deploys.
@@ -43,7 +43,7 @@ case of event streaming and real-time analytics) processes
 Achieving cloud native is not an easy task. Avoid vendor locking by using specific vendor
 services to keep data, messaging... Hybrid cloud applications run on multiple clouds, 
 mixing private and public clouds, to reduce response time and prevent global unavailability 
-as recently demonstrated by AWS outtages.  Kubernetes helps delivering an abstraction on top
+as recently demonstrated by AWS outtages. Kubernetes helps deliver an abstraction on top
 of cloud providers, and uses them as infrastructure as a services, and bring your own platform.
 Kubernetes facilitates reactive systems through responsiveness and resilience. 
 
@@ -53,11 +53,11 @@ From [Leslie Lamport's definition](https://www.microsoft.com/en-us/research/publ
 
 > A distributed system is one in which the failure of a computer you didn’t even know existed can render your own computer unusable.
 
-we need to design application for transient, intermittent, or complete failure and resilience.
+We need to design application for transient, intermittent, or complete failure and resilience.
 Complex exchanges involving multiple services cannot expect all the participants and the network
- to be operational for the complete duration of that exchange. 
+to be operational for the complete duration of that exchange. 
 
-Always ask ourselves: **How would you detect failures? How would you handle them gracefully?**
+We need to ask ourselves: **How would you detect failures? How would you handle them gracefully?**
 
 When designing a distributed solution, we need to keep in mind that the CAP theorem prevents 
 a distributed data store from simultaneously providing more than two 
