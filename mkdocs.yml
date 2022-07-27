@@ -132,8 +132,8 @@ nav:
     - Event Streams: technology/event-streams/index.md
     - Event Streams Demo Script: https://ibm-cloud-architecture.github.io/eda-tech-academy/demo/
     - MQ in EDA context: technology/mq/index.md
-    - Kafka Consumers: technology/kafka-consumers/index.md
     - Kafka Producers: technology/kafka-producers/index.md
+    - Kafka Consumers: technology/kafka-consumers/index.md
     - Kafka Streams: technology/kafka-streams/index.md
     - Kafka security: technology/event-streams/es-maas/security/
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md

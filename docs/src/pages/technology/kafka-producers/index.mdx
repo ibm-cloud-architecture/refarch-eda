@@ -80,9 +80,44 @@ Knowing that exactly once delivery is one of the hardest problems to solve in di
 
 Producer can set acknowledge level to control the delivery semantic to ensure not loosing data. The following semantic is supported:
 
-* **At least once**: means the producer set ACKS_CONFIG=1 and get an acknowledgement message when the message sent, has been written to at least one time in the cluster (assume replicas = 3).  If the ack is not received, the producer may retry, which may generate duplicate records in case the broker stops after saving to the topic and before sending back the acknowledgement message.
+* **At least once**: means the producer set `ACKS=1` and get an acknowledgement message when the message sent, has been written to at least one time in the cluster (assume replicas = 3).  If the ack is not received, the producer may retry, which may generate duplicate records in case the broker stops after saving to the topic and before sending back the acknowledgement message.
 * **At most semantic**: means the producer will not do retry in case of no acknowledge received. It may create log and compensation, but the message may be lost.
 * **Exactly once** means even if the producer sends the message twice the system will send only one message to the consumer. Once the consumer commits the read offset, it will not receive the message again, even if it restarts. Consumer offset needs to be in sync with produced event.
+
+With `acks = 1` it is possible to lose messages, as illustrated in the following diagram, where new messages were not replicated yet, and ack was already sent back to the producer. Losing messages will depend if a replica is taking the leader position or not, or if the broker goes back online before replicas election but has no fsynch to the disk before the crash. 
+
+![](./images/ack-1-msg-lost.gif)
+
+To avoid that we need to have `ack=-1`, three replicas and in-sync-replica=2. Replicated messages are acknowledged, when broker fails, a new leader is selected with the replicated messagesm it becomes the partition leader and others start to replicate from him. Producer reconnect to the partition leader
+
+![](./images/ack-all.gif)
+
+Here is an example of cluster configuration with default set for all topic
+
+```yaml
+spec:
+    strimziOverrides:
+        kafka:
+            config:
+                default.replication.factor: 3
+                min.insync.replicas: 2
+```
+
+Or at the topic level:
+
+```yaml
+kind: KafkaTopic
+metadata:
+  name: rt-store.inventory
+  namespace: rt-inventory-dev
+  labels:
+    eventstreams.ibm.com/cluster: dev
+spec:
+  partitions: 1
+  replicas: 3
+  config:
+    min.insync.replicas: 1
+```
 
 At the best case scenario, with a replica factor set to 3, a broker responding on time to the producer, and with a consumer committing its offset and reading from the last committed offset it is possible to get only one message end to end.
 
