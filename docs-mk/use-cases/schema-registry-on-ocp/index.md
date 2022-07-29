@@ -5,23 +5,10 @@ description: Hands on lab to understand IBM Event Streams from the IBM CloudPak 
 
 <!-- Originally available via "/technology/event-streams/schema-registry-cp4i-v10/" -->
 
-This documentation aims to be a introductory hands-on lab on the IBM Event Streams Schema Registry installed throught the **IBM Cloud Pak for Integration V2020.2.X+** on an Openshift cluster.
 
-## Index
-
-<AnchorLinks>
-  <AnchorLink>Requirements</AnchorLink>
-  <AnchorLink>IBM Cloud Shell</AnchorLink>
-  <AnchorLink>Schema Registry</AnchorLink>
-  <AnchorLink>Schemas</AnchorLink>
-  <AnchorLink>IBM Event Streams Credentials</AnchorLink>
-  <AnchorLink>Python Application</AnchorLink>
-  <AnchorLink>Python Avro Producer</AnchorLink>
-  <AnchorLink>Python Avro Consumer</AnchorLink>
-  <AnchorLink>Schemas and Messages</AnchorLink>
-  <AnchorLink>Data Evolution</AnchorLink>
-  <AnchorLink>Security</AnchorLink>
-</AnchorLinks>
+This documentation aims to be a introductory hands-on lab on the IBM Event Streams (v11.0.2) Schema Registry installed throught the **IBM Cloud Pak for Integration V2022.2** on an Openshift cluster.
+It uses Python applications for producer and consumer with schema registry API. For a Quarkus based producer and consumer see the [EDA-quickstarts project](https://github.com/ibm-cloud-architecture/eda-quickstarts) sub-folders: `quarkus-reactive-kafka-producer` and `quarkus-reactive-kafka-consumer`
+which includes docker compose with Apicur.io and reactive messaging implementation, plus all needed instructions to test schema management.
 
 ## Requirements
 

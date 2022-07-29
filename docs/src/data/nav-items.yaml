@@ -146,8 +146,6 @@
       path: /use-cases/db2-debezium/
     - title: Product to product migration
       path: /use-cases/overview/product-migration
-    - title: Deploy Confluent on OCP
-      path: /use-cases/confluent
 - title: Scenarios
   pages:
     - title: Overview
