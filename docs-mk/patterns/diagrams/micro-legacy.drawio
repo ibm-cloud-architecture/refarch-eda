@@ -29,7 +29,7 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="38" value="Business Function" style="whiteSpace=wrap;html=1;sketch=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="36">
-                    <mxGeometry x="12" y="30" width="128" height="30" as="geometry"/>
+                    <mxGeometry x="30" y="40" width="128" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="41" value="Transformation, &lt;br&gt;Anti Corruption Layer" style="whiteSpace=wrap;html=1;sketch=0;" vertex="1" parent="1">
                     <mxGeometry x="283" y="205" width="120" height="60" as="geometry"/>
@@ -89,7 +89,7 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <object label="push to legacy" id="62">
-                    <mxCell parent="0" visible="0"/>
+                    <mxCell parent="0"/>
                 </object>
                 <mxCell id="63" style="edgeStyle=orthogonalEdgeStyle;sketch=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;strokeColor=#FF3333;" edge="1" parent="62" source="2" target="41">
                     <mxGeometry relative="1" as="geometry"/>
@@ -103,8 +103,14 @@
                 <mxCell id="66" value="2" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;sketch=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="62">
                     <mxGeometry x="500" y="220" width="20" height="20" as="geometry"/>
                 </mxCell>
+                <mxCell id="72" style="edgeStyle=orthogonalEdgeStyle;sketch=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;strokeColor=#FF3333;exitX=1;exitY=0;exitDx=0;exitDy=7.0025787353515625;exitPerimeter=0;" edge="1" parent="62" source="49" target="41">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="190" y="150" as="sourcePoint"/>
+                        <mxPoint x="293" y="245" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
                 <object label="read-from-legacy" id="67">
-                    <mxCell parent="0"/>
+                    <mxCell parent="0" visible="0"/>
                 </object>
                 <mxCell id="68" style="edgeStyle=orthogonalEdgeStyle;sketch=0;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;strokeColor=#7F00FF;" edge="1" parent="67" source="41" target="2">
                     <mxGeometry relative="1" as="geometry"/>

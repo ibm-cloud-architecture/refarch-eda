@@ -56,8 +56,14 @@ The figure below illustrates the different ways to organize the MQ brokers accor
 
 ![](./images/decentralized.png)
 
-* On the top row applications have decoupled queue managers, with independent availability / scalability. The ownership is decentralized, as each application owner also own the broker configuration and deployment. Such cloud native application may adopt the [Command Query Responsability Seggregation](../../patterns/cqrs/) pattern and use queues to propagage information between the microservices. The deploy of both broker and microservices follow the same CI/CD pipeline, with a kustomize to describe the broker configuration. See the [CQRS with MQ implementation](https://github.com/ibm-cloud-architecture/vaccine-reefer-mgr-cmd) we did for the Reefer manager service in the vaccine solution.  
-* A central MQ broker can still be part of the architecture to support legacy application and federated queues. 
+* On the top row, applications have decoupled queue managers, with independent availability / scalability. The ownership 
+is decentralized, as each application owner also owns the broker configuration and deployment. 
+Such cloud native application may adopt the [Command Query Responsability Seggregation](../../patterns/cqrs/) pattern and use queues to propagage 
+information between the microservices. The deployment of both broker and microservices follows the same CI/CD pipeline, 
+with a `kustomize`, for example, to describe the broker configuration. 
+See the [CQRS with MQ implementation](https://github.com/ibm-cloud-architecture/vaccine-reefer-mgr-cmd), we did for the Reefer manager service in the vaccine solution.  
+* A central MQ broker can still be part of the architecture to support legacy applications integrations and federated queues. 
+
 
 This type of deployment supports heterogenous operational procedures across technologies. 
 
@@ -117,8 +123,25 @@ See [the 'MQ Uniform Cluster' related repository](https://github.com/ibm-messagi
 
 ### Native HA
 
-Native HA provides built in replication of messages and state across multiple sets of storage, removing the dependency of replication and locking from the file system.
+[Native HA](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=operator-native-ha) queue managers involve an active and two replica Kubernetes `Pods`, which run as part of a 
+Kubernetes `StatefulSet` with exactly three replicas each with their own set of Kubernetes Persistent Volumes.
 
+Native HA provides built in replication of messages and state across multiple sets of storage, removing the 
+dependency of replication and locking from the file system.
+
+Each replica writes to its own recovery log, acknowledges the data, and then updates its own queue data from the replicated recovery log.
+
+![](./diagrams/native-ha.drawio.svg)
+
+A Kubernetes Service is used to route TCP/IP client connections to the current active instance. 
+
+Set the availability in the queueManager configuration.
+
+```yaml
+  queueManager:
+    availability:
+      type: NativeHA
+```
 
 ### Disaster recovery
 
