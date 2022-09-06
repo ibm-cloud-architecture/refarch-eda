@@ -3,16 +3,8 @@ title: Event-driven solution GitOps approach
 description: Event-driven solution GitOps approach
 ---
 
-<InlineNotification kind="warning">
-<strong>Updated 2/15/2022</strong>
-</InlineNotification>
-
-<AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Components for GitOps</AnchorLink>
-  <AnchorLink>High-level architecture view</AnchorLink>
-  <AnchorLink>Examples of solution GitOps</AnchorLink>
-</AnchorLinks>
+!!! info
+    Updated 2/15/2022
 
 **Audience**: Architects, Application developers, Site reliability engineers, Administrators
 
@@ -83,8 +75,8 @@ Schema definitions are managed by a **Schema Registry**.
 
 ### Event-streaming applications
 
-Those applications are also supporting business logic, but more with stateful processing using [Kafka Stream](/technology/kafka-streams/) APIs or 
-different product such as [Apache Flink](/technology/flink/).
+Those applications are also supporting business logic, but more with stateful processing using [Kafka Stream](../../technology/kafka-streams/) APIs or 
+different product such as [Apache Flink](../../technology/flink/).
 
 ---
 

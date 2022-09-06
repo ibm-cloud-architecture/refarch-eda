@@ -131,13 +131,17 @@ nav:
     - Kafka Overview: technology/kafka-overview/index.md
     - Event Streams: technology/event-streams/index.md
     - Event Streams Demo Script: https://ibm-cloud-architecture.github.io/eda-tech-academy/demo/
+    - Kafka FAQ: technology/faq/index.md
     - MQ in EDA context: technology/mq/index.md
     - Kafka Producers: technology/kafka-producers/index.md
     - Kafka Consumers: technology/kafka-consumers/index.md
+    - Avro Schema: technology/avro-schemas/index.md
     - Kafka Streams: technology/kafka-streams/index.md
     - Kafka security: technology/event-streams/es-maas/security/
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
-    - Avro Schema: technology/avro-schemas/index.md
+   
+    - Security: technology/security/index.md
+    - Spring cloud: technology/spring/index.md
   - Use Cases:
     - DB2 - CDC Debezium - Outbox: use-cases/db2-debezium/index.md
     - Mirror maker 2 labs: use-cases/kafka-mm2/index.md

@@ -118,7 +118,7 @@ To do so you need to:
 1. Define an access policy with the following criterias:
 	* Event streams as resource type
 	* All regions
-	* Specifying one of the Event Streams resource instance (the one you provisioned [in this lab](/technology/event-streams/es-cloud/))
+	* Specifying one of the Event Streams resource instance (the one you provisioned [in this lab](./es-cloud/))
 	* Select the service instance that hosts the target cluster
 	* Specify the resource type to be **topic**
 	* And the resource ID to matches `bn-lob1-*`
@@ -327,7 +327,7 @@ You should get something like:
 Now Event Streams could use your wrapped key to encrypte data at rest.
 
 
-!!! Warning
+!!! warning
 	Temporarily des-authorizing Event Streams to access Key Protect, will block communication to Event Streams instance.
 	Loosing any keys, will mean loosing the data.
 	Restoring access by recreating the authorization between ES and Key Protect, will reopen traffic.

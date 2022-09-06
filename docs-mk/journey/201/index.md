@@ -2,11 +2,6 @@
 title: Learning Journey - deeper dive (201 content)
 description: Learning more about Event Streams, Event Driven Solution
 ---
-
-<InlineNotification kind="warning">
-<strong>Updated 10/25/2021 - Work In Progress</strong>
-</InlineNotification>
-
 In this `201` content, you should be able to learn more about Kafka, Event Streams, Messaging, and Event-driven solution.
 
 
@@ -144,8 +139,6 @@ The [following labs](../../use-cases/connect-mq/) will help you learn more about
 and this [gitops repository](https://github.com/ibm-cloud-architecture/store-mq-gitops) helps you to run a store simulation producing messages to MQ
 queue, with Kafka Connector injecting those message to Event Streams.
 
-For Confluent MQ connector lab see [this eda-lab-mq-to-kafka repository](https://github.com/ibm-cloud-architecture/eda-lab-mq-to-kafka)
-
 ## Introduction to schema management
 
 Schema management and schema registry are mandatory for doing production deployment, of any Kafka based solution.
@@ -155,7 +148,7 @@ To understand the following components read [this note](../../technology/avro-sc
 
 ## AsyncAPI
 
-[This article on AsyncAPI management](/patterns/api-mgt/) presents the value of using AsyncAPI in API Connect.
+[This article on AsyncAPI management](../../patterns/api-mgt/) presents the value of using AsyncAPI in API Connect.
 This blog from development [What is Event Endpoint Management?](https://community.ibm.com/community/user/integration/blogs/dale-lane1/2021/04/08/what-is-event-endpoint-management)
 presents the methodology for event endpoint management:
 

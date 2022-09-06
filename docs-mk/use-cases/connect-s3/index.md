@@ -3,18 +3,6 @@ title: Kafka Connect to S3 Source & Sink
 description: Apache Kafka to AWS S3 object storage Source & Sink Connector usecase
 ---
 
-<AnchorLinks>
-  <AnchorLink>Overview</AnchorLink>
-  <AnchorLink>Scenario prereqs</AnchorLink>
-  <AnchorLink>Kafka Connect Cluster</AnchorLink>
-  <AnchorLink>Kafka to S3 Sink Connector</AnchorLink>
-  <AnchorLink>S3 to Kafka Source Connector</AnchorLink>
-  <AnchorLink>Event Streams v10 Addendum</AnchorLink>
-  <AnchorLink>Troubleshooting</AnchorLink>
-  <AnchorLink>Next steps</AnchorLink>
-  <AnchorLink>References</AnchorLink>
-</AnchorLinks>
-
 ## Overview
 
 This scenario walkthrough will cover the usage of [IBM Event Streams](https://ibm.github.io/event-streams/about/overview/) as a Kafka provider and [Amazon S3](https://aws.amazon.com/s3/) as an object storage service as systems to integrate with the [Kafka Connect framework](https://ibm-cloud-architecture.github.io/refarch-eda/kafka/connect/). Through the use of the [Apache Camel opensource project](https://camel.apache.org/), we are able to use the [Apache Camel Kafka Connector](https://camel.apache.org/camel-kafka-connector/latest/index.html) in both a source and a sink capacity to provide bidirectional communication between [IBM Event Streams](https://ibm.github.io/event-streams/about/overview/) and [AWS S3](https://aws.amazon.com/s3/).

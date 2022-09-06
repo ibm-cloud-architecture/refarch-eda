@@ -11,6 +11,7 @@ From one page fix all links, and consider migration done when links point to pag
       - Target Audiences: introduction/target-audiences/index.md
     - Learning Journey:
         - Get started (101 content): journey/101/index.md
+        - Get started (201 content): journey/201/index.md
     - Concepts:
       - Terms & Definitions: concepts/terms-and-definitions/index.md
       - Event streaming versus Queuing: concepts/events-versus-messages/index.md
@@ -36,21 +37,26 @@ From one page fix all links, and consider migration done when links point to pag
       - Situational decision: patterns/cep/index.md
     - Technology:
       - Kafka Overview: technology/kafka-overview/index.md
+      -  Event Streams: technology/event-streams/index.md
+      - Kafka FAQ: technology/faq/index.md
       - Avro Schema: technology/avro-schemas/index.md
-      - Event Streams: technology/event-streams/index.md
       - MQ in EDA context: technology/mq/index.md
       - Kafka Consumers: technology/kafka-consumers/index.md
       - Kafka Producers: technology/kafka-producers/index.md
       - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
+      - Security: technology/security/index.md
+      - Spring cloud: technology/spring/index.md
 
-  - Methodology:
+    - Methodology:
       - Event Storming: methodology/event-storming/index.md
       - Domain-Driven Design: methodology/domain-driven-design/index.md
       - Data lineage: methodology/data-lineage/index.md
       - Data Intensive App Development: methodology/data-intensive/index.md
-      - governance
-  - use cases:
+      - governance: methodolgy/governance/index.md
+
+    - use cases:
       - Mirror maker 2 labs: use-cases/kafka-mm2/index.md
+
   - Scenarios:
     - Overview: scenarios/overview/
     - Reefer Shipment Solution: https://ibm-cloud-architecture.github.io/refarch-kc/
@@ -63,14 +69,17 @@ From one page fix all links, and consider migration done when links point to pag
     - Topic Replication: patterns/topic-replication/index.md
 
       
+use cases
+- gitops
+- s3 connect
+- cos 
+- jdbc
+- mq 
+- api management
 
-      
-     
 * Technology
-
-    * mirror maker
-    * streams
-    * event streams
+  * streams
+    
     * flink
 
     - Kafka Streams: technology/kafka-streams/index.md

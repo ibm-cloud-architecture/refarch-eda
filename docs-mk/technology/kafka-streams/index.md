@@ -3,9 +3,9 @@ title: Kafka Streams
 description: Kafka Streams
 ---
 
-<InlineNotification kind="warning">
-<strong>Continuous update as we progress</strong> Updated 09/23/2020 
-</InlineNotification>
+!!! info
+    Updated 09/06/2022 
+
 
 Kafka Streams is client API to build microservices with input and output data are in Kafka. It is based on programming a graph of processing nodes to support the business logic developer wants to apply on the event streams. 
 
@@ -24,7 +24,7 @@ To summarize, **Kafka Streams** has the following capabilities:
 * A stream (represented by the KStream API) is a durable, partitioned sequence of immutable events. When a new event is added a stream, it's appended to the partition that its key belongs to.
 * It can scale vertically, by increasing the number of threads for each Kafka Streams application on a single machine, and horizontally by adding additional machines or pods in kubernetes.  Each deployed instance use the same value for the `application.id` kafka stream property.
 
- ![1](./images/kstreams-parallel.png)
+ ![1](./images/kstreams-parallel.png){ width="400px" }
 
     The assignment of stream partitions to stream tasks never changes, so task is the unit of parallelism. Task executes the topology, and is buffering records coming from the attached partitions. 
 
@@ -77,7 +77,7 @@ Programming with KStream and Ktable is not easy at first, as there are a lot of 
 
 A stateful operator uses the streaming Domain Specific Language, with constructs for aggregation, join and time window operations. Stateful transformations require a state store associated with the stream processor.
 
-We recommend at this stage to do our [lab 0 tutorial](../../use-cases/kafka-streams/lab-0) to develop a first simple topology and test it without any Kafka cluster using the `Topology test driver`.
+We recommend at this stage to do our [exercise 1 from the Tech Academy tutorial](https://ibm-cloud-architecture.github.io/eda-tech-academy/lab2/) to develop a first simple topology and test it without any Kafka cluster using the `Topology test driver`.
 
 The following code extract, is part of the Apache Kafka Word count example and is used to illustrate the programming model used: 
 
@@ -101,8 +101,8 @@ KafkaStreams streams = new KafkaStreams(builder.build(), props);
 streams.start();
 ```
 
-* [KStream](https://kafka.apache.org/25/javadoc/org/apache/kafka/streams/kstream/KStream.html) represents KeyValue records coming as event stream from the input topic.
-* `flatMapValues()` transforms the value of each record in "this" stream into zero or more values with the same key in a new KStream (in memory). So here the text line is split into words. The parameter is a [ValueMapper](https://kafka.apache.org/25/javadoc/org/apache/kafka/streams/kstream/ValueMapper.html) which applies transformation on values but keeps the key. Another important transformation is the [KeyValueMapper](https://kafka.apache.org/25/javadoc/org/apache/kafka/streams/kstream/KeyValueMapper.html).
+* [KStream](https://kafka.apache.org/32/javadoc/org/apache/kafka/streams/kstream/KStream.html) represents KeyValue records coming as event stream from the input topic.
+* `flatMapValues()` transforms the value of each record in "this" stream into zero or more values with the same key in a new KStream (in memory). So here the text line is split into words. The parameter is a [ValueMapper](https://kafka.apache.org/32/javadoc/org/apache/kafka/streams/kstream/ValueMapper.html) which applies transformation on values but keeps the key. Another important transformation is the [KeyValueMapper](https://kafka.apache.org/32/javadoc/org/apache/kafka/streams/kstream/KeyValueMapper.html).
 * `groupBy()` Group the records of this KStream on a new key that is selected using the provided KeyValueMapper. So here it creates new KStream with the extracted word as key.
 * `count()` counts the number of records in this stream by the grouped key. `Materialized` is an class to define a "store" to persist state and data. So here the state store is "counts-store". As store is a in-memory table, but it could also be persisted in external database. Could be the Facebook's [RocksDB key value persistence](https://rocksdb.org/) or a log-compacted topic in Kafka.
 * Produced defines how to provide the optional parameter types when producing to new topics.
@@ -114,8 +114,8 @@ Important: map, flatMapValues and mapValues ... functions don’t modify the obj
 
 We found the following tutorial helpful to grow your competency on Kafka Streams:
 
-* [Word count Kafka Stream example from product documentation](https://kafka.apache.org/26/documentation/streams/tutorial)
-* [Use Quarkus and Kafka Streams to use groupBy, join with another Stream](../../use-cases/kafka-streams/lab-1)
+* [Word count Kafka Stream example from product documentation](https://kafka.apache.org/32/documentation/streams/tutorial)
+* [Use Quarkus and Kafka Streams to use groupBy, join with another Stream](../use-cases/kafka-streams/lab-1)
 * [Quarkus and Kafka Streams guides](https://quarkus.io/guides/kafka-streams)
 * [Build an inventory aggregator with Quarkus, with kstreams, ktable and interactive queries, Mutiny](../../use-cases/kafka-streams/lab-3), all deployable on OpenShift with quarkus kubernetes plugin.
 
@@ -227,7 +227,7 @@ Multiple instances of a Faust worker can be started independently to distribute 
 
 ## Further readings
 
-* The API and [product documentation](https://kafka.apache.org/21/documentation/streams/developer-guide/).
+* The API and [product documentation](https://kafka.apache.org/32/documentation/streams/developer-guide/).
 * [Kafka Streams  concepts from Confluent](https://docs.confluent.io/current/streams/concepts.html)
 * [Deep dive explanation for the differences between KStream and KTable from Michael Noll](https://www.michael-noll.com/blog/2018/04/05/of-stream-and-tables-in-kafka-and-stream-processing-part1/)
 * [Our set of samples to getting started in coding kafka streams](https://github.com/jbcodeforce/kafka-streams-samples) 
