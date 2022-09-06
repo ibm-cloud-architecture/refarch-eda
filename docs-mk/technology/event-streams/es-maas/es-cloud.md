@@ -73,7 +73,7 @@ the same data center. The following diagram illustrates a simple view of this to
 
 ![T](./images/es-topology.png)
 
-We will address fine-grained access control in [the security lab](/technology/event-streams/security/).
+We will address fine-grained access control in [the security lab](./security.md).
 
 As described in the [Kafka concept introduction](https://cloud.ibm.com/docs/EventStreams?topic=eventstreams-apache_kafka), topic may have partitions.
 Partitions are used to improve throughput as consumer can run in parallel, and producer can publish to multiple partitions.
@@ -286,7 +286,7 @@ In this section we are going to see how to create, list and delete topics both u
 
 1. Open the IBM Event Streams user interface (go into your IBM Event Streams service within your IBM Cloud portal and click on the launch dashboard button). Once there, click on the _Topics_ tab from the top menu:
 
-	![12-0](images/7.png)
+	![12-0](./images/7.png)
 
 Let create a `demo-topic-ui` topic. If you need to revisit the topic concepts, you can read [this note](http://localhost:8000/technology/kafka-overview/#topics). When you go to the topics view you get the list of existing topics.
 

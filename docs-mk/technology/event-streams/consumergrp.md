@@ -1,14 +1,4 @@
----
-title: Consumer Groups in Event Streams
-description: Consumer Groups in Event Streams
----
 
-## Consumer groups
-
-You can review the major concepts for Kafka Consumer in [this note](../../kafka-producers-consumers/#kafka-consumers) and the [product documentation](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-consuming_messages#consumer-groups).
-The following figure summarizes the concepts involved in this lab: Consumers belong to **consumer groups** and partitions are dynamically allocated to consumer(s) within the group.
-
-![](../images/consumer-groups.png)
 
 ## Considerations
 

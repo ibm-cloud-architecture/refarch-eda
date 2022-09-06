@@ -3,9 +3,8 @@ title: Apache Flink Technology Summary
 description: Apache Flink Technology Summary
 ---
 
-<InlineNotification kind="warning">
-<strong>Updated 10/20/2021- Work in progress</strong>
-</InlineNotification>
+!!! warning
+    Updated 08/20/2022- Work in progress
 
 
 ## Why Flink?
@@ -52,7 +51,7 @@ For more real industry use cases content see the [Flink Forward web site.](https
 The figure below illustrates those different models combined with [Zepellin](https://zeppelin.apache.org/) as a multi purpose notebook to develop data analytic projects on top of Spark, Python or Flink.
 
 
- ![Flink components](./images/arch.png)
+ ![Flink components](./images/arch.png){ width = "900" }
 
 ## Flink architecture
 
@@ -63,7 +62,7 @@ The **Resource Manager** manages Task Slots and leverages underlying orchestrato
 A **Task slot** is the unit of work executed on CPU.
 The **Task Managers** execute the actual stream processing logic. There are multiple task managers running in a cluster. The number of slots limits the number of tasks a TaskManager can execute. After it has been started, a TaskManager registers its slots to the ResourceManager
 
-![](./images/flink-components.png)
+![](./images/flink-components.png){ width = "900" }
 
 The **Disparcher** exposes API to submit applications for execution. It hosts the user interface too.
 
@@ -106,13 +105,13 @@ To properly define window operator semantics, we need to determine both how even
 
 The following figure is showing integration of stream processing runtime with an append log system, like Kafka, with internal local state persistence and continuous checkpoint to remote storage as HA support:
 
-![](./images/flink-rt-processing.png)
+![](./images/flink-rt-processing.png){ width = "900" }
 
 As part of the checkpointing process, Flink saves the 'offset read commit' information of the append log, so in case of a failure, Flink recovers a stateful streaming application by restoring its state from a previous checkpoint and resetting the read position on the append log.
 
 The evolution of microservice is to become more event-driven, which are stateful streaming applications that ingest event streams and process the events with application-specific business logic. This logic can be done in flow defined in Flink and executed in the clustered runtime.
 
-![](./images/evt-app.png)
+![](./images/evt-app.png){ width = "900" }
 
 A lot of predefined connectors exist to connect to specific source and sink. Transform operators can be chained. Dataflow can consume from Kafka, Kinesis, Queue, and any data sources. A typical high level view of Flink app is presented in figure below:
 
@@ -138,7 +137,7 @@ This is the Job Manager component which parallelizes the job and distributes sli
 
 Once Flink is started (for example with the docker image), Flink Dashboard [http://localhost:8081/#/overview](http://localhost:8081/#/overview) presents the execution reporting of those components:
 
- ![6](./images/flink-dashboard.png)
+ ![6](./images/flink-dashboard.png){ width = "900" }
 
 The execution is from one of the training examples, the number of task slot was set to 4, and one job is running.
 
@@ -164,7 +163,7 @@ States are saved on distributed file systems. When coupled with Kafka as data so
 
 Flink uses the concept of `Checkpoint Barriers`, which represents a separation of records, so records received since the last snapshot are part of the future snapshot. Barrier can be seen as a mark, a tag in the data stream that close a snapshot. 
 
- ![Checkpoints](./images/checkpoints.png)
+ ![Checkpoints](./images/checkpoints.png){ width = "900" }
 
 In Kafka, it will be the last committed read offset. The barrier flows with the stream so can be distributed. Once a sink operator (the end of a streaming DAG) has received the `barrier n` from all of its input streams, it acknowledges that `snapshot n` to the checkpoint coordinator. 
 After all sinks have acknowledged a snapshot, it is considered completed. Once `snapshot n` has been completed, the job will never ask the source for records before such snapshot.
@@ -183,12 +182,12 @@ When addressing exactly once processing it is very important to consider the fol
 1 and 2 can be done exactly once, using Flink source connector and checkpointing but generating one unique result to a sink is more complex and 
 is dependant of the target technology. 
 
-![](./images/e2e-1.png)
+![](./images/e2e-1.png){ width = "900" }
 
 After reading records from Kafka, do the processing and generate results, in case of failure
 Flink will reload the record from the read offset and may generate duplicate in the Sink. 
 
-![](./images/e2e-2.png)
+![](./images/e2e-2.png){ width = "900" }
 
 As duplicates will occur, we always need to assess idempotent support from downstream applications.
 A lot of distributed key-value storages support consistent result event after retries.
@@ -332,4 +331,4 @@ It is possible to configure to accept late events, with the `allowed lateness` t
 * [FAQ](https://wints.github.io/flink-web/faq.html)
 * [Cloudera flink stateful tutorial](https://github.com/cloudera/flink-tutorials/tree/master/flink-stateful-tutorial): very good example for inventory transaction and queries on item considered as stream
 * [Building real-time dashboard applications with Apache Flink, Elasticsearch, and Kibana](https://www.elastic.co/blog/building-real-time-dashboard-applications-with-apache-flink-elasticsearch-and-kibana)
-* Udemy Apache Flink a real time hands-on. (But a 2 stars enablement for me)
+* Udemy Apache Flink a real time hands-on: do not recommend this one !.

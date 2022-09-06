@@ -89,9 +89,10 @@ markdown_extensions:
   
 nav:
   - Home: index.md
+  - What's new: news/index.md
   - Introduction:
     - Overview: introduction/overview/index.md
-    - Reference Architecture: introduction/reference-architecture/index.mdd
+    - Reference Architecture: introduction/reference-architecture/index.md
     - Business Use Cases: introduction/usecases/index.md
     - Target Audiences: introduction/target-audiences/index.md
   - Learning Journey:
@@ -126,7 +127,7 @@ nav:
     - Domain-Driven Design: methodology/domain-driven-design/index.md
     - Data Intensive App Development: methodology/data-intensive/index.md
     - Data lineage: methodology/data-lineage/index.md
-    - Governance: methodology/governance
+    - Governance: methodology/governance/index.md
   - Technology:
     - Kafka Overview: technology/kafka-overview/index.md
     - Event Streams: technology/event-streams/index.md
@@ -136,20 +137,22 @@ nav:
     - Kafka Producers: technology/kafka-producers/index.md
     - Kafka Consumers: technology/kafka-consumers/index.md
     - Avro Schema: technology/avro-schemas/index.md
+    - Advanced Concepts: technology/advanced-kafka/index.md
     - Kafka Streams: technology/kafka-streams/index.md
-    - Kafka security: technology/event-streams/es-maas/security/
+    - Kafka Connect: technology/kafka-connect/index.md
+    - Kafka security: technology/event-streams/es-maas/security.md
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
-   
     - Security: technology/security/index.md
+    - Apache Flink: technology/flink/index.md
     - Spring cloud: technology/spring/index.md
   - Use Cases:
     - DB2 - CDC Debezium - Outbox: use-cases/db2-debezium/index.md
     - Mirror maker 2 labs: use-cases/kafka-mm2/index.md
   - Scenarios:
-    - Overview: scenarios/overview/
+    - Overview: scenarios/overview/index.md
     - Reefer Shipment Solution: https://ibm-cloud-architecture.github.io/refarch-kc/
     - Vaccine at Scale: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
     - Near real-time Inventory: https://ibm-cloud-architecture.github.io/eda-rt-inventory-gitops
-    - SAGA with MQ Orchestration: scenarios/saga-orchestration/
-  - Additional reading: additional-reading/
-  - Contribute to this Site: contribute/
+    - SAGA with MQ Orchestration: scenarios/saga-orchestration/index.md
+  - Additional reading: additional-reading/index.md
+  - Contribute to this Site: contribute/index.md

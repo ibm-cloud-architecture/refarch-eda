@@ -23,7 +23,7 @@ For fault tolerance and offset management, Kafka Connect uses Kafka topics (suff
 When a connector is first submitted to the cluster, the workers rebalance the full set of connectors
  in the cluster with their tasks so that each worker has approximately the same amount of work. 
 
-![Connectors and tasks](./images/connector-tasks.png)
+![Connectors and tasks](./images/connector-tasks.png){ width="1100" }
 
 * Connector and tasks are not guaranteed to run on the same instance in the cluster, 
 especially if you have multiple tasks and multiple instances in your kafka connect cluster.
@@ -57,11 +57,11 @@ The following configurations are important to review:
 
 When a worker fails: 
 
-![](./images/fault-1.png)
+![](./images/fault-1.png){ width="1100" }
 
 Tasks allocated in the failed worker are reallocated to existing workers, and the task's state, read offsets, source record mapping to offset are reloaded from the different topics.
 
-![](./images/fault-2.png)
+![](./images/fault-2.png){ width="1100" }
 
 Both figure above are illustrating a MongoDB sink connector.
 

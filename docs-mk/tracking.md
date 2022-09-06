@@ -45,6 +45,7 @@ From one page fix all links, and consider migration done when links point to pag
       - Kafka Producers: technology/kafka-producers/index.md
       - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
       - Security: technology/security/index.md
+      - Apache Flink: technology/flink/index.md
       - Spring cloud: technology/spring/index.md
 
     - Methodology:
@@ -79,8 +80,6 @@ use cases
 
 * Technology
   * streams
-    
-    * flink
 
     - Kafka Streams: technology/kafka-streams/index.md
     
