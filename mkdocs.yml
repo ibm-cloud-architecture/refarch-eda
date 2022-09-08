@@ -6,9 +6,9 @@ repo_name: ibm-cloud-architecture/refarch-eda
 repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
 copyright: Copyright © 2022  IBM
 
-docs_dir: docs-mk
+docs_dir: docs
 site_dir: public
-edit_uri: edit/master/docs-mk
+edit_uri: edit/master/docs
 
 theme: 
   name: material
@@ -141,6 +141,7 @@ nav:
     - Kafka Streams: technology/kafka-streams/index.md
     - Kafka Connect: technology/kafka-connect/index.md
     - Kafka security: technology/event-streams/es-maas/security.md
+    - Kafka Monitoring: technology/kafka-monitoring/index.md
     - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
     - Security: technology/security/index.md
     - Apache Flink: technology/flink/index.md
@@ -153,6 +154,7 @@ nav:
     - Kafka Connect - jdbc: use-cases/connect-jdbc/index.md
     - Kafka Connect - MQ: use-cases/connect-mq/index.md
     - Kafka Connect - Rabbitmq: use-cases/connect-rabbitmq/index.md 
+    - Kafka Streams labs: use-cases/kafka-streams/index.md
     - DB2 - CDC Debezium - Outbox: use-cases/db2-debezium/index.md
     - Mirror maker 2 labs: use-cases/kafka-mm2/index.md
     - Schema registry ES on Cloud: use-cases/schema-registry-on-cloud/index.md
