@@ -6,9 +6,9 @@ repo_name: ibm-cloud-architecture/refarch-eda
 repo_url: https://github.com/ibm-cloud-architecture/refarch-eda
 copyright: Copyright © 2022  IBM
 
-docs_dir: docs-mk
+docs_dir: docs
 site_dir: public
-edit_uri: edit/master/docs-mk
+edit_uri: edit/master/docs
 
 theme: 
   name: material
@@ -89,9 +89,10 @@ markdown_extensions:
   
 nav:
   - Home: index.md
+  - What's new: news/index.md
   - Introduction:
     - Overview: introduction/overview/index.md
-    - Reference Architecture: introduction/reference-architecture/index.mdd
+    - Reference Architecture: introduction/reference-architecture/index.md
     - Business Use Cases: introduction/usecases/index.md
     - Target Audiences: introduction/target-audiences/index.md
   - Learning Journey:
@@ -126,26 +127,45 @@ nav:
     - Domain-Driven Design: methodology/domain-driven-design/index.md
     - Data Intensive App Development: methodology/data-intensive/index.md
     - Data lineage: methodology/data-lineage/index.md
-    - Governance: methodology/governance
+    - Governance: methodology/governance/index.md
   - Technology:
     - Kafka Overview: technology/kafka-overview/index.md
     - Event Streams: technology/event-streams/index.md
     - Event Streams Demo Script: https://ibm-cloud-architecture.github.io/eda-tech-academy/demo/
+    - Kafka FAQ: technology/faq/index.md
     - MQ in EDA context: technology/mq/index.md
     - Kafka Producers: technology/kafka-producers/index.md
     - Kafka Consumers: technology/kafka-consumers/index.md
-    - Kafka Streams: technology/kafka-streams/index.md
-    - Kafka security: technology/event-streams/es-maas/security/
-    - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
     - Avro Schema: technology/avro-schemas/index.md
+    - Advanced Concepts: technology/advanced-kafka/index.md
+    - Kafka Streams: technology/kafka-streams/index.md
+    - Kafka Connect: technology/kafka-connect/index.md
+    - Kafka security: technology/event-streams/es-maas/security.md
+    - Kafka Monitoring: technology/kafka-monitoring/index.md
+    - Mirror Maker 2:  technology/kafka-mirrormaker/index.md
+    - Security: technology/security/index.md
+    - Apache Flink: technology/flink/index.md
+    - Spring cloud: technology/spring/index.md
   - Use Cases:
+    - Event-driven solution GitOps: use-cases/gitops/index.md
+    - Deploy Event-Streams: technology/event-streams/es-cp4i/index.md
+    - Kafka Connect - S3: use-cases/connect-s3/index.md
+    - Kafka Connect - COS: use-cases/connect-cos/index.md  
+    - Kafka Connect - jdbc: use-cases/connect-jdbc/index.md
+    - Kafka Connect - MQ: use-cases/connect-mq/index.md
+    - Kafka Connect - Rabbitmq: use-cases/connect-rabbitmq/index.md 
+    - Kafka Streams labs: use-cases/kafka-streams/index.md
     - DB2 - CDC Debezium - Outbox: use-cases/db2-debezium/index.md
     - Mirror maker 2 labs: use-cases/kafka-mm2/index.md
+    - Schema registry ES on Cloud: use-cases/schema-registry-on-cloud/index.md
+    - Schema registry: use-cases/schema-registry-on-ocp/index.md
+    - Monitoring ES on Cloud:  use-cases/monitoring-on-cloud/index.md
+    - Monitoring ES: use-cases/monitoring-on-ocp/index.md
   - Scenarios:
-    - Overview: scenarios/overview/
+    - Overview: scenarios/overview/index.md
     - Reefer Shipment Solution: https://ibm-cloud-architecture.github.io/refarch-kc/
     - Vaccine at Scale: https://ibm-cloud-architecture.github.io/vaccine-solution-main/
     - Near real-time Inventory: https://ibm-cloud-architecture.github.io/eda-rt-inventory-gitops
-    - SAGA with MQ Orchestration: scenarios/saga-orchestration/
-  - Additional reading: additional-reading/
-  - Contribute to this Site: contribute/
+    - SAGA with MQ Orchestration: scenarios/saga-orchestration/index.md
+  - Additional reading: additional-reading/index.md
+  - Contribute to this Site: contribute/index.md
