@@ -3,7 +3,8 @@ title: Event Streaming versus Queuing
 description: Comparing and contrasting events and messages as communication artifacts in distributed systems.
 ---
 
-Updated 6/18/2022
+!!! info
+    Updated 6/18/2022
 
 Consider queue system. like IBM MQ, for:
 

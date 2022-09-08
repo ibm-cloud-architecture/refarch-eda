@@ -29,6 +29,5 @@ to get the last updates.
 1. **Lab exercise:** Provision [IBM Event Streams as Managed Services](./es-maas/es-cloud/) using IBM Cloud console
 2. **Lab exercise:** Addressing [Security and access control](./es-maas/security/)
 3. **Lab exercise:** How to use [Schema Registry](../../use-cases/schema-registry-on-cloud/) with an entreprise plan
-4. **Lab exercise:** [Consumer Groups](./consumergrp.md)
 5. **Lab exercise:** [Monitoring IBM Event Streams on Cloud](../../use-cases/monitoring-on-cloud/)
 

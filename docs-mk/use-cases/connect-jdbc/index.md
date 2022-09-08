@@ -3,23 +3,16 @@ title: Kafka Connect to JDBC Sink
 description: Apache Kafka to JDBC-based database Sink Connector usecase
 ---
 
-<InlineNotification kind="warning">
-<strong>Updated 11/03/2020</strong> - Lab works with one small issue needs to be fixed in test or jdbc connector.
-</InlineNotification>
 
-<AnchorLinks>
-<AnchorLink>Pre-requisites</AnchorLink>
-<AnchorLink>Run the Kafka Connector in distributed mode</AnchorLink>
-<AnchorLink>Upload the DB2 sink definition</AnchorLink>
-<AnchorLink>Generate some records</AnchorLink>
-<AnchorLink>Verify records are uploaded into the Inventory database</AnchorLink>
-</AnchorLinks>
+!!! info
+    Updated 11/03/2020. Lab works with one small issue needs to be fixed in test or jdbc connector.
+
 
 This scenario is using the [IBM Kafka Connect sink connector for JDBC](https://github.com/ibm-messaging/kafka-connect-jdbc-sink) to get data from a kafka topic and write records to the `inventory` table in DB2. This lab explain the definition of the connector and how to run an integration test that sends data to the inventory topic.
 
 ## Pre-requisites
 
-_Pull in necessary pre-req context from [Realtime Inventory Pre-reqs](/scenarios/realtime-inventory/#general-pre-requisites)._
+_Pull in necessary pre-req context from [Realtime Inventory Pre-reqs](https://ibm-cloud-architecture.github.io/eda-rt-inventory-gitops/)._
 
 As a pre-requisite you need to have a [DB2 instance on cloud](https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-getting-started) up and running with defined credentials. From the credentials you need the username, password and the `ssljdbcurl` parameter. Something like "jdbc:db2://dashdb-tx....net:50001/BLUDB:sslConnection=true;".
 
@@ -100,17 +93,18 @@ The `integration-tests` folder includes a set of python code to load some record
 1. Start a python environment with `./startPython.sh`
 1. Within the bash, start python to execute the  `ProduceInventoryEvent.py` script, and specify the number of records to send via the --size argument.
 
-```
-python ProduceInventoryEvent.py --size 2
-```
+    ```sh
+    python ProduceInventoryEvent.py --size 2  
+    ```
+
 1. The trace should have something like
 
-```shell
-Produce to the topic inventory
+    ```shell
+    Produce to the topic inventory
 
-ending -> {'schema': {'type': 'struct', 'fields': [{'type': 'string', 'optional': False, 'field': 'storeName'}, {'type': 'string', 'optional': False, 'field': 'sku'}, {'type': 'decimal', 'optional': False, 'field': 'id'}, {'type': 'decimal', 'optional': True, 'field': 'quantity'}, {'type': 'decimal', 'optional': True, 'field': 'price'}, {'type': 'string', 'optional': True, 'field': 'timestamp'}], 'optional': False, 'name': 'Inventory'}, 'payload': {'storeName': 'Store_1', 'sku': 'Item_1', 'quantity': 16, 'price': 128, 'id': 0, 'timestamp': '05-Nov-2020 22:31:11'}}
-sending -> {'schema': {'type': 'struct', 'fields': [{'type': 'string', 'optional': False, 'field': 'storeName'}, {'type': 'string', 'optional': False, 'field': 'sku'}, {'type': 'decimal', 'optional': False, 'field': 'id'}, {'type': 'decimal', 'optional': True, 'field': 'quantity'}, {'type': 'decimal', 'optional': True, 'field': 'price'}, {'type': 'string', 'optional': True, 'field': 'timestamp'}], 'optional': False, 'name': 'Inventory'}, 'payload': {'storeName': 'Store_1', 'sku': 'Item_8', 'quantity': 13, 'price': 38, 'id': 1, 'timestamp': '05-Nov-2020 22:31:11'}}
-```
+    ending -> {'schema': {'type': 'struct', 'fields': [{'type': 'string', 'optional': False, 'field': 'storeName'}, {'type': 'string', 'optional': False, 'field': 'sku'}, {'type': 'decimal', 'optional': False, 'field': 'id'}, {'type': 'decimal', 'optional': True, 'field': 'quantity'}, {'type': 'decimal', 'optional': True, 'field': 'price'}, {'type': 'string', 'optional': True, 'field': 'timestamp'}], 'optional': False, 'name': 'Inventory'}, 'payload': {'storeName': 'Store_1', 'sku': 'Item_1', 'quantity': 16, 'price': 128, 'id': 0, 'timestamp': '05-Nov-2020 22:31:11'}}
+    sending -> {'schema': {'type': 'struct', 'fields': [{'type': 'string', 'optional': False, 'field': 'storeName'}, {'type': 'string', 'optional': False, 'field': 'sku'}, {'type': 'decimal', 'optional': False, 'field': 'id'}, {'type': 'decimal', 'optional': True, 'field': 'quantity'}, {'type': 'decimal', 'optional': True, 'field': 'price'}, {'type': 'string', 'optional': True, 'field': 'timestamp'}], 'optional': False, 'name': 'Inventory'}, 'payload': {'storeName': 'Store_1', 'sku': 'Item_8', 'quantity': 13, 'price': 38, 'id': 1, 'timestamp': '05-Nov-2020 22:31:11'}}
+    ```
 
 ## Verify records are uploaded into the Inventory database
 

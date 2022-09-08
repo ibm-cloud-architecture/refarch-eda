@@ -32,7 +32,7 @@ A [system context](https://en.wikipedia.org/wiki/System_context_diagram) diagram
 helps us understand how our system interacts with its different users and
 other systems. For a generic event-driven solution the diagram looks like
 
-![system-context](./images/eda-gitops.png)
+![system-context](./images/eda-gitops.png){ width="600" }
 
 We can see the different entities that interact with a typical event-driven solution deployment.
 These include users as well as applications and messaging as a service infrastructure which includes
@@ -47,7 +47,8 @@ developers, SREs, Kubernetes administrators, architects...
 The following diagram shows the technical components used in a typical event-driven solution production
 deployment.
 
-![components](./images/components.png)
+![components](./images/components.png){ width="1000" }
+
 (*the source code of this diagram is a ``.drawio` format and is in the [diagrams folder](https://github.com/ibm-cloud-architecture/refarch-eda/edit/master/docs/src/pages/use-cases/gitops/diagrams).*)
 
 The diagram organizes the components according to when they are introduced in system development (earlier or later) 
@@ -241,7 +242,7 @@ specifics deployment manifests.
 
 With this base, the following figure illustrates a potential architecture:
 
-![](./images/hl-view.png)
+![](./images/hl-view.png){ width="1000" }
 
 (*the source code of this diagram is a ``.drawio` format and is in the [diagrams folder](https://github.com/ibm-cloud-architecture/refarch-eda/edit/master/docs/src/pages/use-cases/gitops/diagrams).*)
 

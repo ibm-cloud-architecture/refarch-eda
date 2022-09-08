@@ -3,7 +3,7 @@ title: Kafka Consumers
 description: Kafka Consumers
 ---
 
-!!! note
+!!! info
     Updated 05/05/2022
 
 
@@ -14,20 +14,29 @@ want a refresh after some time far away from Kafka...
 
 ## Consumer group
 
-Consumers belong to **consumer groups**. You specify the group name as part of the consumer connection parameters using the `group.id` configuration:
+Consumers belong to **consumer groups**. 
+
+![consumer group](./images/consumer-group.png)
+
+
+You specify the group name as part of the consumer connection parameters using the `group.id` configuration:
 
 ```java
   properties.put(ConsumerConfig.GROUP_ID_CONFIG,  groupid);
 ```
 
 Consumer groups are grouping consumers to cooperate to consume messages from one or more topics. Consumers can run in separate hosts and separate processes. 
-The figure below represents 2 consumer apps belonging to the same consumer group. Consumer 1 is getting data from 2 partitions, while consumer 2 is getting from one partition.
 
-![consumer group](./images/consumer-group.png)
+
+
+
+The figure below represents 2 consumer apps belonging to the same consumer group. Consumer 1 is getting data from 2 partitions, while consumer 2 is getting from one partition.
+![](./images/consumer-groups.png)
 
 When a consumer is unique in a group, it will get data from all partitions. There is always at least one consumer per partition.
 
 One broker is responsible to be the consumer group coordinator which is responsible for assigning partitions to the consumers in the group. 
+
 The first consumer to join the group will be the group leader. It will get the list of consumers and it is responsible for assigning a subset 
 of partitions to each consumer.
 
@@ -40,7 +49,12 @@ the group, partitions will be moved from existing consumers to the new one. Grou
 of the subscribed topics. The group will automatically detect the new partitions through periodic metadata refreshes and assign them to members 
 of the group. During a rebalance, depending of the strategy, consumers may not consume messages (Need Kafka 2.4+ to get cooperative balancing feature). 
 
-![](./images/consumer-groups.png)
+
+
+Kafka automatically detects failed consumers so that it can reassign partitions to working consumers. 
+
+The consumer can take time to process records, so to avoid the consumer group controler removing consumer taking too long, it is possible to set the [max.poll.interval.ms](https://kafka.apache.org/documentation/#max.poll.interval.ms) consumer property. If `poll()` is not called before expiration of this timeout, then the consumer is considered failed and the group will rebalance in order to reassign the partitions to another member. 
+The second mechanism is the heartbeat consumers send to the group cordinator to show they are alive. The [session.timeout.ms](https://kafka.apache.org/documentation/#session.timeout.ms) specifies the max value to consider before removing a non responding consumer. 
 
 Implementing a Topic consumer is using the kafka [KafkaConsumer class](https://kafka.apache.org/32/javadoc/?org/apache/kafka/clients/consumer/KafkaConsumer.html) 
 which the API documentation is a must read. It is interesting to note that:
@@ -86,14 +100,27 @@ that belong to a group.
 
 Recall that offset is just a numeric identifier of a consumer position of the last record read within a partition. Consumers periodically need to 
 commit the offsets they have received, to present a recovery point in case of failure. To commit offset (via API or automatically) the consumer 
-sends a message to kafka broker to the special topic named `__consumer_offsets` to keep the committed offset for each partition. 
+sends a message to kafka broker to the special topic named `__consumer_offsets` to keep the committed offset for each partition. (When there is a committed offset, the auto.offset.reset property is not used)
 
 Consumers do a read commit for the last processed record: 
 
-![of-1](../event-streams/images/offsets.png)
+![of-1](./images/offsets.png)
 
 When a consumer starts, it receives a partition to consume, and it starts at its group's committed offset or the latest or earliest offset
  as specified in the [auto.offset.reset](https://kafka.apache.org/documentation/#auto.offset.reset) property.
+
+If a consumer fails after processing a message but before committing its offset, the committed offset information will not reflect the processing of the message. 
+
+![of-2](./images/offsets-2.png)
+
+This means that the message will be processed again by the next consumer, in that group, to be assigned the partition.
+
+In the case where consumers are set to auto commit, it means the offset if committed at the `poll()` function and if the service 
+crashed while processing of this record as: 
+
+![of-3](./images/offsets-3.png){ width="900" }
+
+then the record (partition 0 - offset 4) will never be processed. But it is not lost.
 
 As shown in the figure below, in case of consumer failure, it is possible to get duplicates. When the last message processed by the consumer,
  before crashing, is younger than the last committed offset, the consumer will get this record again. This case may happen when using a time based commit strategy.
@@ -117,11 +144,6 @@ It is possible to commit by calling API so developer can control when to commit 
 As soon as you are coding manual commit, it is strongly recommended to implement the ConsumerRebalanceListener interface to be able to do state 
 modifications when the topic is rebalanced.
 
-If a consumer fails after processing a message but before committing its offset, the committed offset information will not reflect the processing of the message. 
-
-![of-2](../event-streams/images/offsets-2.png)
-
-This means that the message will be processed again by the next consumer, in that group, to be assigned the partition.
 
 Assess if it is acceptable to loose messages from topic.  If so, when a consumer restarts, it will start consuming the topic from the latest 
 committed offset within the partition allocated to itself.
@@ -134,13 +156,6 @@ the database record or use other clever solution.
 As presented in the producer coding practice, using transaction to support "exactly-once", also means the consumers should read committed data only. 
 This can be achieved by setting the `isolation.level=read_committed` in the consumer's configuration. The last offset will be the first message 
 in the partition belonging to an open not yet committed transaction. This offset is known as the 'Last Stable Offset'(LSO).
-
-Finally in the case where consumers are set to auto commit, it means the offset if committed at the poll() level and if the service 
-crashed while processing of this record as: 
-
-![of-3](../event-streams/images/offsets-3.png)
-
-then the record (partition 0 - offset 4) will never be processed.
 
 ## Producer transaction
 
@@ -156,13 +171,34 @@ The consumer lag for a partition is the difference between the offset of the mos
 
 If the lag starts to grow, it means the consumer is not able to keep up with the producer's pace.
 
-The risk, is that slow consumer may fall behind, and when partition management may remove old log segments, leading the consumer to jump 
-forward to continnue on the next log segment. Consumer may have lost messages.
+The risk, is that slow consumer may fall behind, and when partition management may remove old log segments, leading the consumer to jump forward to continnue on the next log segment. Consumer may have lost messages.
 
-![](../event-streams/images/offsets-4.png)
+![](./images/offsets-4.png){ width="1000" }
 
 You can use the kafka-consumer-groups tool to see and manage the consumer lag.
 
+
+You can use the kafka-consumer-groups tool to see the consumer lag, or use the Event Streams User Interface:
+
+![](./images/es-cg-1.png)
+
+The group can be extended to see how each consumer, within the group, performs on a multi partitions topic:
+
+![](./images/es-cg-2.png)
+
+## Reset a group
+
+Sometime it is needed to reprocess the messages. The easiest way is to change the groupid of the consumers to get an implicit offsets reset, but it is also possible to reset for some topic to the earliest offset:
+
+```shell
+kafka-consumer-groups \
+                    --bootstrap-server kafkahost:9092 \
+                    --group ordercmd-command-consumer-grp \
+                    --reset-offsets \
+                    --all-topics \
+                    --to-earliest \
+                    --execute
+```
 
 ## Kafka useful Consumer APIs
 

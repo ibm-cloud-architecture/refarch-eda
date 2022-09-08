@@ -7,7 +7,6 @@ description: Apache Kafka to AWS S3 object storage Source & Sink Connector useca
 
 This scenario walkthrough will cover the usage of [IBM Event Streams](https://ibm.github.io/event-streams/about/overview/) as a Kafka provider and [Amazon S3](https://aws.amazon.com/s3/) as an object storage service as systems to integrate with the [Kafka Connect framework](https://ibm-cloud-architecture.github.io/refarch-eda/kafka/connect/). Through the use of the [Apache Camel opensource project](https://camel.apache.org/), we are able to use the [Apache Camel Kafka Connector](https://camel.apache.org/camel-kafka-connector/latest/index.html) in both a source and a sink capacity to provide bidirectional communication between [IBM Event Streams](https://ibm.github.io/event-streams/about/overview/) and [AWS S3](https://aws.amazon.com/s3/).
 
-![IBM Event Streams to S3 integration via Kafka Connect](https://github.com/ibm-cloud-architecture/refarch-eda/raw/master/docs-archive/kafka/images/eventstreams-to-s3-connector-flow.png)
 
 As different use cases will require different configuration details to accommodate different situational requirements, the Kafka to S3 Source and Sink capabilities described here can be used to move data between S3 buckets with a Kafka topic being the middle-man or move data between Kafka topics with an S3 Bucket being the middle-man. However, take care to ensure that you do not create an infinite processing loop by writing to the same Kafka topics and the same S3 buckets with both a Source and Sink connector deployed at the same time.
 
@@ -18,9 +17,9 @@ As different use cases will require different configuration details to accommoda
 - This deployment scenario was developed for use on the OpenShift Container Platform, with a minimum version of `4.2`.
 
 **Strimzi**
-- This deployment scenario will make use of the [Strimzi Operator](https://strimzi.io/docs/0.17.0/) for Kafka deployments and the custom resources it manages.
+- This deployment scenario will make use of the [Strimzi Operator](https://strimzi.io/docs/operators/latest/deploying.html) for Kafka deployments and the custom resources it manages.
 - A minimum version of `0.17.0` is required for this scenario. This scenario has been explicitly validated with version `0.17.0`.
-- The simplest scenario is to deploy the Strimzi Operator to [watch all namespaces](https://strimzi.io/docs/0.17.0/#deploying-cluster-operator-to-watch-whole-cluster-deploying-co) for relevant custom resource creation and management.
+- The simplest scenario is to deploy the Strimzi Operator to watch all namespaces for relevant custom resource creation and management.
 - This can be done in the OpenShift console via the **Operators > Operator Hub** page.
 
 **Amazon Web Services account**
@@ -186,17 +185,26 @@ Save the YAML above into a file named `kafka-connect.yaml`. If you created the C
 The next step is to build the Camel Kafka Connector binaries so that they can be loaded into the just-deployed Kafka Connect cluster's container images.
 
 1. Clone the repository https://github.com/osowski/camel-kafka-connector to your local machine:
-   - `git clone https://github.com/osowski/camel-kafka-connector.git`
+
+    - `git clone https://github.com/osowski/camel-kafka-connector.git`
+
 2. Check out the `camel-kafka-connector-0.1.0-branch`:
+   
    - `git checkout camel-kafka-connector-0.1.0-branch`
+
 3. From the root directory of the repository, build the project components:
-   - `mvn clean package`
+   
+    - `mvn clean package`
 4. Go get a coffee and take a walk... as this build will take around 30 minutes on a normal developer workstation.
-   - To reduce the overall build scope of the project, you can comment out the undesired modules from the `<modules>` element of the `connectors/pom.xml` using `<!-- -->` notation.
+   
+    - To reduce the overall build scope of the project, you can comment out the undesired modules from the `<modules>` element of the `connectors/pom.xml` using `<!-- -->` notation.
+
 5. Copy the generated S3 artifacts to the core package build artifacts:
-   - `cp connectors/camel-aws-s3-kafka-connector/target/camel-aws-s3-kafka-connector-0.1.0.jar core/target/camel-kafka-connector-0.1.0-package/share/java/camel-kafka-connector/`
+   
+    - `cp connectors/camel-aws-s3-kafka-connector/target/camel-aws-s3-kafka-connector-0.1.0.jar core/target/camel-kafka-connector-0.1.0-package/share/java/camel-kafka-connector/`
 
 Some items to note:
+
 - The repository used here (https://github.com/osowski/camel-kafka-connector) is a fork of the official repository (https://github.com/apache/camel-kafka-connector) with a minor update applied to allow for dynamic endpoints to be specified via configuration, which is critical for our [Kafka to S3 Sink Connector](#kafka-to-s3-sink-connector) scenario.
 - This step (and the next step) will eventually be eliminated by providing an existing container image with the necessary Camel Kafka Connector binaries as part of a build system.
 
@@ -205,13 +213,17 @@ Some items to note:
 Now that the Camel Kafka Connector binaries have been built, we need to include them on the classpath inside of the container image which our Kafka Connect clusters are using.
 
 1. From the root directory of the repository, start a new OpenShift Build, using the generated build artifacts:
-   ```shell
-   oc start-build connect-cluster-101-connect --from-dir=./core/target/camel-kafka-connector-0.1.0-package/share/java --follow
-   ```
+
+    ```shell
+    oc start-build connect-cluster-101-connect --from-dir=./core/target/camel-kafka-connector-0.1.0-package/share/java --follow
+    ```
+
 2. Watch the Kubernetes pods as they are updated with the new build and rollout of the Kafka Connect Cluster using the updated container image _(which now includes the Camel Kafka Connector binaries)_:
-   ```shell
-   kubectl get pods -w
-   ```
+
+    ```shell
+    kubectl get pods -w
+    ```
+
 3. Once the `connect-cluster-101-connect-2-[random-suffix]` pod is in a `Running` state, you can proceed.
 
 ## Kafka to S3 Sink Connector

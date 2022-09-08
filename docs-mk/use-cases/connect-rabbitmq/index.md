@@ -1,23 +1,15 @@
----
-title: Kafka Connect to RabbitMQ Source Connector
-description: Apache Kafka to RabbitMQ Source Connector usecase
----
+# Kafka Connect to RabbitMQ Source Connector
 
-<InlineNotification kind="warning">
-<strong>Updated 11/10/2020</strong> Lab completed on local computer. Instruction not completed for OpenShift deployment.
-</InlineNotification>
+!!! info
+    Updated 11/10/2020 -  Lab completed on local computer. Instruction not completed for OpenShift deployment.
 
-<AnchorLinks>
-<AnchorLink>Just run it!</AnchorLink>
-<AnchorLink>Deploy on OpenShift</AnchorLink>
-</AnchorLinks>
 
 This hands-on lab demonstrates how to use IBM RabbitMQ Kafka source connector to inject message to Event Streams On Premise or any Kafka cluster. 
 We are using the [IBM messaging github: source Kafka connector for RabbitMQ](https://github.com/ibm-messaging/kafka-connect-rabbitmq-source) open sourced component. The configuration for this connector is also done using Json config file, with a POST to the Kafka connectors URL.
 
 The following diagram illustrates the component of this demo / lab:
 
-![0](./images/comp-view.png)
+![0](./images/comp-view.png){ width="1000" }
 
 The configurations used in this use case are in the `refarch-eda-tools` repository that you should clone:
 

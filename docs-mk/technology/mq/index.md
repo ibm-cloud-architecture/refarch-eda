@@ -2,11 +2,8 @@
 title: IBM MQ in the context of EDA
 ---
 
-
-<InlineNotification kind="warning">
-<strong>Updated 7/13/2022- Work in progress</strong>
-</InlineNotification>
-
+!!! warning
+    Updated 7/13/2022- Work in progress
 
 [IBM MQ](https://www.ibm.com/docs/en/ibm-mq/9.3) is the enterprise solution to exchange message over queues. 
 As it supports loosely coupling communication between applications, via asynchronous protocol, and message exchange, it has to be part of any modern digital, responsive solutions, and
@@ -54,7 +51,7 @@ We can have many queues and topics on one queue manager
 
 The figure below illustrates the different ways to organize the MQ brokers according to the applications' needs.
 
-![](./images/decentralized.png)
+![](./images/decentralized.png){ width = "1000" }
 
 * On the top row, applications have decoupled queue managers, with independent availability / scalability. The ownership 
 is decentralized, as each application owner also owns the broker configuration and deployment. 
@@ -83,7 +80,7 @@ With IBM MQ on multiplatforms, a message is stored on exactly one queue manager.
 
 A set of MQ topology can be defined to support HA:
 
-![topology](./images/mq-topologies.png)
+![topology](./images/mq-topologies.png){ width = "1000" }
 
 1. **Single resilient** queue manager: MQ broker runs in a VM or a single container, and if it stops the VM or pod scheduler will restart it. This is using the platform resynch capability combined with **HA storage**. IP Address is kept between the instances. The queue content is saved to a storage supporting HA. In the case of container, new restarted pod will connect to existing storage, and the IP gateway routes traffic to the active instance via service and app selector.
 1. **Multi-instance** queue manager: active - standby topology - Failover is triggered on failure of the active instance. IP Address is also kept. When using k8s, the stand-by broker is on a separate node, ready to be activated. The pods use persistence volumes with ReadWriteMany settings. 
@@ -103,7 +100,7 @@ See [product documentation for testing message integrity](https://www.ibm.com/do
 
 With [Uniform Cluster](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=clusters-uniform) and  Client Channel Definition Tables it will be possible to achieve high availability with at least three brokers and multiple application instances accessing brokers group via the CCDT. The queue managers are configured almost identically, and application interacts with the group.
 
-![](./images/uniform-cluster.png)
+![](./images/uniform-cluster.png){ width = "1000" }
 
 You can have as many application instances as there are queue managers in the cluster. 
 
@@ -168,16 +165,17 @@ redhat-operators       Red Hat Operators      grpc      Red Hat       42d
 
 Once everything is set up, create an operator. The IBM MQ operator can be installed scoped to a single namespace or to monitor `All namespaces`.  
  
- <img src="./images/mq-operator.png" width="200px"></img>
+ ![](./images/mq-operator.png){ width= "800" }
+
 
 Verify your environment fits the deployment. [Prepare your Red Hat OpenShift Container Platform for MQ](https://www.ibm.com/docs/en/ibm-mq/9.3?topic=miccpi-using-mq-in-cloud-pak-integration-red-hat-openshift)
 Then once the operator is installed (it could take up to a minute), go to the operator page and create a MQ Manager instance. For example be sure to have defined an ibm-entitlement-key in the project you are planning to use to deploy MQ manager.
 
- <img src="./images/mq-mgr-via-operator.png" width="200px"></img>
+![](./images/mq-mgr-via-operator.png){ width= "800" }
 
 Then update the Yaml file for name, license and persistence.
 
- <img src="./images/mq-yaml.png" width="200px"></img>
+![](./images/mq-yaml.png){ width= "800" }
 
 As an alternate, define a QueueManager manifest yaml file as:
 

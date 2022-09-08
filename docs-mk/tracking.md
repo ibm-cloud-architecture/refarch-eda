@@ -56,6 +56,14 @@ From one page fix all links, and consider migration done when links point to pag
       - governance: methodolgy/governance/index.md
 
     - use cases:
+      - Event-driven solution GitOps: use-cases/gitops/index.md
+      - Deploy Event-Streams: technology/event-streams/es-cp4i/index.md
+      - Kafka Connect - S3: use-cases/connect-s3/index.md
+      - Kafka Connect - COS: use-cases/connect-cos/index.md 
+      - Kafka Connect - jdbc: use-cases/connect-jdbc/index.md
+      - Kafka Connect - MQ: use-cases/connect-mq/index.md
+      - Kafka Connect - Rabbitmq: use-cases/connect-rabbitmq /index.md  
+      - DB2 - CDC Debezium - Outbox: use-cases/db2-debezium/index.md
       - Mirror maker 2 labs: use-cases/kafka-mm2/index.md
 
   - Scenarios:
@@ -71,7 +79,6 @@ From one page fix all links, and consider migration done when links point to pag
 
       
 use cases
-- gitops
 - s3 connect
 - cos 
 - jdbc

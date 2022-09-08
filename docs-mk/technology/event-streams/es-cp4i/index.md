@@ -3,9 +3,8 @@ title: Event Streams within Cloud Pak for Integration
 description: Hands on lab to deploy Event Streams on OpenShift
 ---
 
-<InlineNotification kind="warning">
-<strong>Updated 10/03/2022 </strong>
-</InlineNotification>
+!!! info
+    Updated 10/03/2022 
 
 In this tutorial you will learn how to install Event Streams on OpenShift, using a the Administration Console, or using CLI.
 We propose two installation tutorials: 
@@ -30,7 +29,7 @@ dev-zookeeper-2                        1/1     Running   0          3h23m
 
 **Updated October 07/2021 - Operator Release 2.4 - Product Release 10.4 - Kafka 2.8**
 
-We recommend to read the following ["structuring your deployment" chapter from product documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=installation-structuring-your-deployment)
+We recommend to read the following ["structuring your deployment" chapter from product documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2022.2?topic=installation-structuring-your-deployment)
 to give you more insight of the things to consider for deployment. 
 
 In this tutorial we select to deploy Event Streams in one namespace, and the Operator to monitor multiple namespaces.
@@ -241,7 +240,7 @@ The result of this cluster creation should looks like:
 
 with the list of pod as illustrated at the top of this article.
 
-See also [Cloud Pak for integration documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2021.3?topic=installing-overview-installation) for other
+See also [Cloud Pak for integration documentation](https://www.ibm.com/docs/en/cloud-paks/cp-integration/2022.2?topic=installing-overview-installation) for other
 deployment considerations.
 
 ### Adding users and teams 
@@ -632,7 +631,3 @@ In this section we are going to see how to download the TLS certificats to secur
   Certificate successfully written to /Users/testUser/Downloads/es-cert.pem.
   OK
   ```
-
-## Demonstrate Event Streams from A to Z
-
-[See separate note](/technology/event-streams/demo-a-z/)

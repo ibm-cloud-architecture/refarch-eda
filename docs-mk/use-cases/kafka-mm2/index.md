@@ -3,6 +3,8 @@ title: Kafka Mirror Maker 2 Hand-on Labs
 description: Hands-on labs walking users through testing Mirror Maker based replication
 ---
 
+!!! info
+    The last up to date mirror maker 2 enablement is in the [tech academy content](https://ibm-cloud-architecture.github.io/eda-tech-academy/getting-started/mm2/).
 ## Pre-requisites
 
 The following steps need to be done to get the configurations for the different scenario and the docker-compose file to start a local cluster.
