@@ -162,7 +162,7 @@ Keep the model strictly consistent within these bounds.
 
 #### Step 8: Looking forward with insight storming
 
-In event atorming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
+In event storming for Event Driven Architecture (EDA) solutions it is helpful to include an additional method step at this point identifying useful predictive analytics insights.
 
 Insights storming extends the basic methodology by looking forward and considering what if you could know in advance that an event is going to occur. How would this change your actions, and what would you do in advance of that event actually happening?
 You can think of insight storming as extending the analysis to **Derived Events**.  Rather than being the factual recording of a past event, a derived event is a forward-looking or predictive event, that is, "this event is probably going to happen at some time in the next n hours”.
